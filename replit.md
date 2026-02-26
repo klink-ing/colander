@@ -37,7 +37,7 @@ Preferred communication style: Simple, everyday language.
 - **Data Fetching**: TanStack Query (React Query) v5 with a custom `apiRequest` helper and `getQueryFn` factory
 - **Forms**: React Hook Form with `@hookform/resolvers` and Zod validation
 - **Styling**: Tailwind CSS with CSS variables for theming (light/dark mode support)
-- **UI Components**: Full shadcn/ui component library (New York style) built on Radix UI primitives
+- **UI Components**: Subset of shadcn/ui (New York style) — only `button`, `card`, `date-picker`, `dialog`, `input`, `label`, `separator`, `sheet`, `skeleton`, `toast`, `toaster`, `toggle`, `tooltip`
 - **Build Tool**: Vite with Replit-specific plugins (runtime error overlay, cartographer, dev banner)
 
 The `queryClient.ts` sets up a global QueryClient with `staleTime: Infinity` and no automatic refetching, meaning data is only fetched on demand. The `apiRequest` helper sends JSON requests with credentials included (for session cookies).
