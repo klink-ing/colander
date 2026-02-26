@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import { StyledDatePicker } from "@/components/styled-date-picker";
+import type { DatePickerValueForFormat } from "@/components/ui/date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
+type ZonedValue = DatePickerValueForFormat<"ZonedDateTime">;
+
 export default function Home() {
-  const [selectedDate, setSelectedDate] = useState<Temporal.ZonedDateTime | undefined>();
+  const [selectedDate, setSelectedDate] = useState<ZonedValue | undefined>();
 
   const displayText = selectedDate
-    ? `Selected: ${new Date(selectedDate.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${selectedDate.timeZoneId})`
+    ? `Selected: ${new Date(selectedDate.value.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${selectedDate.value.timeZoneId})`
     : "Pick a date below";
 
   return (
@@ -21,9 +24,9 @@ export default function Home() {
         </CardHeader>
         <CardContent className="flex justify-center">
           <StyledDatePicker
+            format="ZonedDateTime"
             value={selectedDate}
-            onValueChange={(v) => setSelectedDate(v as Temporal.ZonedDateTime)}
-            valueFormat="ZonedDateTime"
+            onValueChange={setSelectedDate}
           />
         </CardContent>
       </Card>

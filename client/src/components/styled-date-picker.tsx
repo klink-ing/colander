@@ -1,36 +1,39 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { DatePicker } from "@/components/ui/date-picker";
-import type { DatePickerDateValue, DatePickerValueFormat } from "@/components/ui/date-picker";
+import type { DatePickerDateValueObject, DatePickerValueFormat, DatePickerValueForFormat } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
-interface StyledDatePickerProps {
-  value?: DatePickerDateValue;
-  defaultValue?: DatePickerDateValue;
-  onValueChange?: (value: DatePickerDateValue) => void;
-  valueFormat?: DatePickerValueFormat;
+interface StyledDatePickerProps<F extends DatePickerValueFormat = DatePickerValueFormat> {
+  format?: F;
+  value?: DatePickerValueForFormat<F>;
+  defaultValue?: DatePickerValueForFormat<F>;
+  onValueChange?: (value: DatePickerValueForFormat<F>) => void;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
+  locale?: string;
   className?: string;
 }
 
-export function StyledDatePicker({
+export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerValueFormat>({
+  format,
   value,
   defaultValue,
   onValueChange,
-  valueFormat = "PlainDate",
   disabled,
   timeZone,
+  locale,
   className,
-}: StyledDatePickerProps) {
+}: StyledDatePickerProps<F>) {
   return (
     <DatePicker.Root
+      format={format}
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
-      valueFormat={valueFormat}
       disabled={disabled}
       timeZone={timeZone}
+      locale={locale}
     >
       <div className={cn("p-3", className)}>
         <div className="flex items-center justify-between gap-1 px-1 pb-3">

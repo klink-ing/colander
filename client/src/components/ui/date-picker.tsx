@@ -18,16 +18,6 @@ import { Temporal } from "@js-temporal/polyfill";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 
-type ValueFormat =
-  | "PlainDate"
-  | "PlainDateTime"
-  | "PlainMonthDay"
-  | "PlainTime"
-  | "PlainYearMonth"
-  | "ZonedDateTime"
-  | "object"
-  | "Date";
-
 interface PlainDateObject {
   year?: number;
   month?: number;
@@ -38,61 +28,46 @@ interface PlainDateObject {
   timeZone?: string;
 }
 
-type DateValue =
-  | Temporal.PlainDate
-  | Temporal.PlainDateTime
-  | Temporal.PlainMonthDay
-  | Temporal.PlainTime
-  | Temporal.PlainYearMonth
-  | Temporal.ZonedDateTime
-  | PlainDateObject
-  | Date;
+type DateValueObject =
+  | { format: "PlainDate"; value: Temporal.PlainDate }
+  | { format: "PlainDateTime"; value: Temporal.PlainDateTime }
+  | { format: "PlainMonthDay"; value: Temporal.PlainMonthDay }
+  | { format: "PlainTime"; value: Temporal.PlainTime }
+  | { format: "PlainYearMonth"; value: Temporal.PlainYearMonth }
+  | { format: "ZonedDateTime"; value: Temporal.ZonedDateTime }
+  | { format: "object"; value: PlainDateObject }
+  | { format: "Date"; value: Date };
+
+type ValueFormat = DateValueObject["format"];
+
+type ValueForFormat<F extends ValueFormat> = Extract<DateValueObject, { format: F }>;
 
 function getSystemTimeZone(): string {
   return Temporal.Now.timeZoneId();
 }
 
-function narrowDateValue(value: DateValue, format: "object"): PlainDateObject;
-function narrowDateValue(
-  value: DateValue,
-  format: "PlainDate",
-): Temporal.PlainDate;
-function narrowDateValue(value: DateValue, format: ) {
-  return value as ParseResult<T>;
-}
-
 function toZonedDateTime(
-  value: DateValue,
-  format: ValueFormat,
+  tagged: DateValueObject,
   timeZone: string,
 ): Temporal.ZonedDateTime {
   const now = Temporal.Now.zonedDateTimeISO(timeZone);
-  const v = narrowDateValue(value, format);
-  switch (format) {
-    case "PlainDate": {
-      return v.toZonedDateTime(timeZone);
-    }
-    case "PlainDateTime": {
-      const dt = value as Temporal.PlainDateTime;
-      return dt.toZonedDateTime(timeZone);
-    }
+  switch (tagged.format) {
+    case "PlainDate":
+      return tagged.value.toZonedDateTime(timeZone);
+    case "PlainDateTime":
+      return tagged.value.toZonedDateTime(timeZone);
     case "PlainMonthDay": {
-      const md = value as Temporal.PlainMonthDay;
-      const pd = md.toPlainDate({ year: now.year });
+      const pd = tagged.value.toPlainDate({ year: now.year });
       return pd.toZonedDateTime(timeZone);
     }
-    case "PlainTime": {
-      const pt = value as Temporal.PlainTime;
-      return now.toPlainDate().toPlainDateTime(pt).toZonedDateTime(timeZone);
-    }
-    case "PlainYearMonth": {
-      const ym = value as Temporal.PlainYearMonth;
-      return ym.toPlainDate({ day: 1 }).toZonedDateTime(timeZone);
-    }
+    case "PlainTime":
+      return now.toPlainDate().toPlainDateTime(tagged.value).toZonedDateTime(timeZone);
+    case "PlainYearMonth":
+      return tagged.value.toPlainDate({ day: 1 }).toZonedDateTime(timeZone);
     case "ZonedDateTime":
-      return value as Temporal.ZonedDateTime;
+      return tagged.value;
     case "object": {
-      const obj = value as PlainDateObject;
+      const obj = tagged.value;
       return Temporal.PlainDateTime.from({
         year: obj.year ?? now.year,
         month: obj.month ?? now.month,
@@ -103,7 +78,7 @@ function toZonedDateTime(
       }).toZonedDateTime(obj.timeZone ?? timeZone);
     }
     case "Date": {
-      const d = value as Date;
+      const d = tagged.value;
       return Temporal.PlainDateTime.from({
         year: d.getFullYear(),
         month: d.getMonth() + 1,
@@ -119,33 +94,44 @@ function toZonedDateTime(
 function fromZonedDateTime(
   zdt: Temporal.ZonedDateTime,
   format: ValueFormat,
-): DateValue {
+): DateValueObject {
   switch (format) {
     case "PlainDate":
-      return zdt.toPlainDate();
+      return { format, value: zdt.toPlainDate() };
     case "PlainDateTime":
-      return zdt.toPlainDateTime();
+      return { format, value: zdt.toPlainDateTime() };
     case "PlainMonthDay":
-      return Temporal.PlainMonthDay.from({ month: zdt.month, day: zdt.day });
+      return { format, value: Temporal.PlainMonthDay.from({ month: zdt.month, day: zdt.day }) };
     case "PlainTime":
-      return zdt.toPlainTime();
+      return { format, value: zdt.toPlainTime() };
     case "PlainYearMonth":
-      return Temporal.PlainYearMonth.from({ year: zdt.year, month: zdt.month });
+      return { format, value: Temporal.PlainYearMonth.from({ year: zdt.year, month: zdt.month }) };
     case "ZonedDateTime":
-      return zdt;
+      return { format, value: zdt };
     case "object":
       return {
-        year: zdt.year,
-        month: zdt.month,
-        day: zdt.day,
-        hour: zdt.hour,
-        minute: zdt.minute,
-        second: zdt.second,
-        timeZone: zdt.timeZoneId,
+        format,
+        value: {
+          year: zdt.year,
+          month: zdt.month,
+          day: zdt.day,
+          hour: zdt.hour,
+          minute: zdt.minute,
+          second: zdt.second,
+          timeZone: zdt.timeZoneId,
+        },
       };
     case "Date":
-      return new Date(zdt.epochMilliseconds);
+      return { format, value: new Date(zdt.epochMilliseconds) };
   }
+}
+
+function selectedToZdt(
+  selected: DateValueObject | undefined,
+  timeZone: string,
+): Temporal.ZonedDateTime | undefined {
+  if (!selected) return undefined;
+  return toZonedDateTime(selected, timeZone);
 }
 
 const WEEKDAY_NAMES = [
@@ -216,7 +202,7 @@ function sameCalendarDay(
 }
 
 interface DatePickerContextValue {
-  selected: Temporal.ZonedDateTime | undefined;
+  selected: DateValueObject | undefined;
   onSelect: (date: Temporal.PlainDate) => void;
   currentMonth: { year: number; month: number };
   goToNextMonth: () => void;
@@ -257,26 +243,29 @@ interface RootState {
   locale: string;
 }
 
-interface RootOwnProps {
-  value?: DateValue;
-  defaultValue?: DateValue;
-  onValueChange?: (value: DateValue) => void;
-  valueFormat?: ValueFormat;
+interface RootOwnProps<F extends ValueFormat = ValueFormat> {
+  format?: F;
+  value?: ValueForFormat<F>;
+  defaultValue?: ValueForFormat<F>;
+  onValueChange?: (value: ValueForFormat<F>) => void;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
 }
 
-type RootProps = useRender.ComponentProps<"div", RootState> & RootOwnProps;
+type RootProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<"div", RootState> & RootOwnProps<F>;
 
-const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
+function RootInner<F extends ValueFormat = ValueFormat>(
+  props: RootProps<F> & { innerRef?: React.Ref<HTMLDivElement> },
+) {
   const {
+    innerRef,
     render,
     children,
+    format: formatProp,
     value,
     defaultValue,
     onValueChange,
-    valueFormat = "PlainDate",
     disabled,
     timeZone: timeZoneProp,
     locale: localeProp,
@@ -286,49 +275,47 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
   const timeZone = timeZoneProp ?? getSystemTimeZone();
   const locale = localeProp ?? "en-US";
 
+  const resolvedFormat: ValueFormat = value?.format ?? defaultValue?.format ?? formatProp ?? "PlainDate";
+
   const [internalSelected, setInternalSelected] = useState<
-    Temporal.ZonedDateTime | undefined
-  >(() =>
-    defaultValue
-      ? toZonedDateTime(defaultValue, valueFormat, timeZone)
-      : undefined,
-  );
+    DateValueObject | undefined
+  >(() => (defaultValue ? defaultValue : undefined));
 
   const [currentMonth, setCurrentMonth] = useState<{
     year: number;
     month: number;
   }>(() => {
-    const init = value
-      ? toZonedDateTime(value, valueFormat, timeZone)
-      : defaultValue
-        ? toZonedDateTime(defaultValue, valueFormat, timeZone)
-        : Temporal.Now.zonedDateTimeISO(timeZone);
+    const src = value ?? defaultValue;
+    const init = src
+      ? toZonedDateTime(src, timeZone)
+      : Temporal.Now.zonedDateTimeISO(timeZone);
     return { year: init.year, month: init.month };
   });
 
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
-    if (value) {
-      const zdt = toZonedDateTime(value, valueFormat, timeZone);
-      return zdt.toPlainDate();
-    }
-    if (defaultValue) {
-      const zdt = toZonedDateTime(defaultValue, valueFormat, timeZone);
-      return zdt.toPlainDate();
+    const src = value ?? defaultValue;
+    if (src) {
+      return toZonedDateTime(src, timeZone).toPlainDate();
     }
     return Temporal.Now.plainDateISO();
   });
 
-  const selected = useMemo(() => {
-    if (value) return toZonedDateTime(value, valueFormat, timeZone);
+  const selected: DateValueObject | undefined = useMemo(() => {
+    if (value) return value;
     return internalSelected;
-  }, [value, valueFormat, timeZone, internalSelected]);
+  }, [value, internalSelected]);
+
+  const selectedZdt = useMemo(
+    () => selectedToZdt(selected, timeZone),
+    [selected, timeZone],
+  );
 
   useEffect(() => {
     if (value) {
-      const zdt = toZonedDateTime(value, valueFormat, timeZone);
+      const zdt = toZonedDateTime(value, timeZone);
       setCurrentMonth({ year: zdt.year, month: zdt.month });
     }
-  }, [value, valueFormat, timeZone]);
+  }, [value, timeZone]);
 
   useEffect(() => {
     if (
@@ -342,19 +329,20 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
   const onSelect = useCallback(
     (date: Temporal.PlainDate) => {
       if (disabled?.(date)) return;
-      const prevTime = selected
+      const prevTime = selectedZdt
         ? {
-            hour: selected.hour,
-            minute: selected.minute,
-            second: selected.second,
+            hour: selectedZdt.hour,
+            minute: selectedZdt.minute,
+            second: selectedZdt.second,
           }
         : { hour: 0, minute: 0, second: 0 };
       const newZdt = date.toPlainDateTime(prevTime).toZonedDateTime(timeZone);
-      if (!value) setInternalSelected(newZdt);
+      const newTagged = fromZonedDateTime(newZdt, resolvedFormat);
+      if (!value) setInternalSelected(newTagged);
       setCurrentMonth({ year: date.year, month: date.month });
-      onValueChange?.(fromZonedDateTime(newZdt, valueFormat));
+      onValueChange?.(newTagged as ValueForFormat<F>);
     },
-    [value, selected, onValueChange, valueFormat, disabled, timeZone],
+    [value, selectedZdt, onValueChange, resolvedFormat, disabled, timeZone],
   );
 
   const goToNextMonth = useCallback(() => {
@@ -416,20 +404,20 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
     () => ({
       month: currentMonth.month,
       year: currentMonth.year,
-      hasSelection: !!selected,
-      selectedDay: selected?.day ?? 0,
-      selectedMonth: selected?.month ?? 0,
-      selectedYear: selected?.year ?? 0,
-      selectedHour: selected?.hour ?? 0,
-      selectedMinute: selected?.minute ?? 0,
-      selectedSecond: selected?.second ?? 0,
+      hasSelection: !!selectedZdt,
+      selectedDay: selectedZdt?.day ?? 0,
+      selectedMonth: selectedZdt?.month ?? 0,
+      selectedYear: selectedZdt?.year ?? 0,
+      selectedHour: selectedZdt?.hour ?? 0,
+      selectedMinute: selectedZdt?.minute ?? 0,
+      selectedSecond: selectedZdt?.second ?? 0,
       focusedDay: focusedDate.day,
       focusedMonth: focusedDate.month,
       focusedYear: focusedDate.year,
       timeZone,
       locale,
     }),
-    [currentMonth, selected, focusedDate, timeZone, locale],
+    [currentMonth, selectedZdt, focusedDate, timeZone, locale],
   );
 
   const stateAttributesMapping = useMemo(
@@ -457,7 +445,7 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
   const element = useRender({
     defaultTagName: "div",
     render,
-    ref: [ref],
+    ref: innerRef ? [innerRef] : [],
     state,
     stateAttributesMapping,
     props: mergeProps<"div">(defaultProps, otherProps),
@@ -468,7 +456,13 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
       {element}
     </DatePickerContext.Provider>
   );
-});
+}
+
+const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
+  return <RootInner {...props} innerRef={ref} />;
+}) as <F extends ValueFormat = ValueFormat>(
+  props: RootProps<F> & { ref?: React.Ref<HTMLDivElement> },
+) => React.ReactElement | null;
 
 interface DateStringState {
   month: number;
@@ -487,10 +481,11 @@ type DateStringProps = useRender.ComponentProps<"span", DateStringState> &
 const DateString = forwardRef<HTMLSpanElement, DateStringProps>(
   function DateString(props, ref) {
     const { render, locales, options, ...otherProps } = props;
-    const { currentMonth, selected } = useDatePicker();
+    const { currentMonth, selected, timeZone } = useDatePicker();
 
-    const displayDate = selected
-      ? zdtToNativeDate(selected)
+    const selectedZdt = selectedToZdt(selected, timeZone);
+    const displayDate = selectedZdt
+      ? zdtToNativeDate(selectedZdt)
       : new Date(currentMonth.year, currentMonth.month - 1, 1);
 
     const formatted = displayDate.toLocaleDateString(locales, options);
@@ -538,8 +533,9 @@ const TimeString = forwardRef<HTMLSpanElement, TimeStringProps>(
     const { render, locales, options, ...otherProps } = props;
     const { selected, timeZone } = useDatePicker();
 
-    const displayDate = selected
-      ? zdtToNativeDate(selected)
+    const selZdt = selectedToZdt(selected, timeZone);
+    const displayDate = selZdt
+      ? zdtToNativeDate(selZdt)
       : zdtToNativeDate(Temporal.Now.zonedDateTimeISO(timeZone));
 
     const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
@@ -547,13 +543,13 @@ const TimeString = forwardRef<HTMLSpanElement, TimeStringProps>(
 
     const state = useMemo<TimeStringState>(
       () => ({
-        hour: selected?.hour ?? Temporal.Now.zonedDateTimeISO(timeZone).hour,
+        hour: selZdt?.hour ?? Temporal.Now.zonedDateTimeISO(timeZone).hour,
         minute:
-          selected?.minute ?? Temporal.Now.zonedDateTimeISO(timeZone).minute,
+          selZdt?.minute ?? Temporal.Now.zonedDateTimeISO(timeZone).minute,
         second:
-          selected?.second ?? Temporal.Now.zonedDateTimeISO(timeZone).second,
+          selZdt?.second ?? Temporal.Now.zonedDateTimeISO(timeZone).second,
       }),
-      [selected, timeZone],
+      [selZdt, timeZone],
     );
 
     const defaultProps: Record<string, unknown> = {
@@ -977,13 +973,15 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
     disabled: disabledFn,
     focusedDate,
     setFocusedDate,
+    timeZone,
   } = useDatePicker();
   const internalRef = useRef<HTMLButtonElement>(null);
 
   const date = dateProp ?? Temporal.Now.plainDateISO();
 
   const today = useMemo(() => Temporal.Now.plainDateISO(), []);
-  const isSelected = selected ? sameCalendarDay(selected, date) : false;
+  const selZdt = selectedToZdt(selected, timeZone);
+  const isSelected = selZdt ? sameCalendarDay(selZdt, date) : false;
   const isCurrentMonth =
     date.year === currentMonth.year && date.month === currentMonth.month;
   const isToday = Temporal.PlainDate.compare(date, today) === 0;
@@ -1083,6 +1081,7 @@ export type {
   NextMonthButtonProps as DatePickerNextMonthButtonProps,
   NavButtonState as DatePickerNavButtonState,
   ValueFormat as DatePickerValueFormat,
-  DateValue as DatePickerDateValue,
+  DateValueObject as DatePickerDateValueObject,
+  ValueForFormat as DatePickerValueForFormat,
   PlainDateObject as DatePickerPlainDateObject,
 };
