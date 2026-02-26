@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import { createDatePicker } from "@/components/ui/date-picker";
 import type { DatePickerValueForFormat } from "@/components/ui/date-picker";
@@ -60,6 +60,18 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<ZonedValue | undefined>();
   const [selectedDate2, setSelectedDate2] = useState<ZonedValue | undefined>();
 
+  const rezoneDateValue = useCallback((val: ZonedValue | undefined, newTz: string): ZonedValue | undefined => {
+    if (!val) return undefined;
+    const rezoned = val.value.withTimeZone(newTz);
+    return { format: "ZonedDateTime", value: rezoned };
+  }, []);
+
+  const handleTimeZoneChange = useCallback((newTz: string) => {
+    setTimeZone(newTz);
+    setSelectedDate((prev) => rezoneDateValue(prev, newTz));
+    setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
+  }, [rezoneDateValue]);
+
   const tzOptions = useMemo(() => {
     const all = TIMEZONES.includes(systemTz) ? TIMEZONES : [systemTz, ...TIMEZONES];
     return all.map((tz) => ({ value: tz, label: formatTzLabel(tz) }));
@@ -67,7 +79,7 @@ export default function Home() {
 
   const formatDisplay = (val: ZonedValue | undefined) =>
     val
-      ? `Selected: ${new Date(val.value.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${val.value.timeZoneId})`
+      ? `Selected: ${new Date(val.value.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
       : "Pick a date below";
 
   return (
@@ -83,7 +95,7 @@ export default function Home() {
           id="timezone-select"
           data-testid="select-timezone"
           value={timeZone}
-          onChange={(e) => setTimeZone(e.target.value)}
+          onChange={(e) => handleTimeZoneChange(e.target.value)}
           className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
         >
           {tzOptions.map((opt) => (
