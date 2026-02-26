@@ -68,7 +68,7 @@ No authentication is implemented yet. The schema and storage interface include `
 
 ### Custom Components
 
-- **DatePicker** (`client/src/components/ui/date-picker.tsx`) — A compound component following the base-ui pattern with `DatePicker.Root`, `DatePicker.Header`, `DatePicker.MonthGrid`, `DatePicker.Week`, and `DatePicker.Day` sub-components. Uses React context for state management, supports controlled/uncontrolled usage, keyboard navigation (arrow keys + Enter/Space), and full ARIA accessibility (grid roles, aria-selected, aria-disabled, aria-labels). Built with div-based grid layout and date-fns for date calculations.
+- **DatePicker** (`client/src/components/ui/date-picker.tsx`) — A compound component built with actual base-ui internals (`useRender` from `@base-ui/react/use-render`, `mergeProps` from `@base-ui/react/merge-props`). Sub-components: `DatePicker.Root`, `DatePicker.Header`, `DatePicker.MonthGrid`, `DatePicker.Week`, `DatePicker.Day`. Each sub-component supports the base-ui `render` prop (element or function form) and exposes internal state via `data-` attributes (e.g., `data-selected`, `data-today`, `data-disabled`, `data-outside-month` on Day; `data-month`, `data-year` on Header/MonthGrid). Uses `@js-temporal/polyfill` for all date calculations (not date-fns). Supports configurable `valueFormat` prop on Root: `"PlainDate"` (default), `"PlainDateTime"`, `"PlainMonthDay"`, `"PlainTime"`, `"PlainYearMonth"`, `"ZonedDateTime"`, `"object"` (plain JS object), or `"Date"` (native JS Date). Includes controlled/uncontrolled usage, keyboard navigation, and full ARIA accessibility.
 
 ### Theming
 
@@ -88,6 +88,10 @@ CSS custom properties define the color palette in `client/src/index.css`. Light 
 - **cmdk** — Command palette component
 - **react-day-picker** — Used by the Calendar component
 - **Recharts** — Chart components
+
+### Headless UI / Primitives
+- **@base-ui/react** — Base UI headless component library (useRender hook, mergeProps utility)
+- **@js-temporal/polyfill** — Temporal API polyfill for date/time handling (replaces date-fns in DatePicker)
 
 ### Data & Forms
 - **TanStack Query v5** — Server state management and caching

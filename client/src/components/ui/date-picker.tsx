@@ -7,41 +7,155 @@ import {
   useCallback,
   useRef,
   type ReactNode,
-  type HTMLAttributes,
   type KeyboardEvent,
   forwardRef,
 } from "react";
-import {
-  startOfMonth,
-  endOfMonth,
-  startOfWeek,
-  endOfWeek,
-  eachDayOfInterval,
-  eachWeekOfInterval,
-  format,
-  isSameMonth,
-  isSameDay,
-  isToday,
-  addMonths,
-  subMonths,
-  addDays,
-  subDays,
-  addWeeks,
-  subWeeks,
-} from "date-fns";
+import { Temporal } from "@js-temporal/polyfill";
+import { useRender } from "@base-ui/react/use-render";
+import { mergeProps } from "@base-ui/react/merge-props";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+type ValueFormat =
+  | "PlainDate"
+  | "PlainDateTime"
+  | "PlainMonthDay"
+  | "PlainTime"
+  | "PlainYearMonth"
+  | "ZonedDateTime"
+  | "object"
+  | "Date";
+
+interface PlainDateObject {
+  year?: number;
+  month?: number;
+  day?: number;
+  hour?: number;
+  minute?: number;
+  second?: number;
+}
+
+type DateValue =
+  | Temporal.PlainDate
+  | Temporal.PlainDateTime
+  | Temporal.PlainMonthDay
+  | Temporal.PlainTime
+  | Temporal.PlainYearMonth
+  | Temporal.ZonedDateTime
+  | PlainDateObject
+  | Date;
+
+function toPlainDate(value: DateValue, format: ValueFormat): Temporal.PlainDate {
+  const now = Temporal.Now.plainDateISO();
+  switch (format) {
+    case "PlainDate":
+      return value as Temporal.PlainDate;
+    case "PlainDateTime": {
+      const dt = value as Temporal.PlainDateTime;
+      return dt.toPlainDate();
+    }
+    case "PlainMonthDay": {
+      const md = value as Temporal.PlainMonthDay;
+      return md.toPlainDate({ year: now.year });
+    }
+    case "PlainTime":
+      return now;
+    case "PlainYearMonth": {
+      const ym = value as Temporal.PlainYearMonth;
+      return ym.toPlainDate({ day: 1 });
+    }
+    case "ZonedDateTime": {
+      const zdt = value as Temporal.ZonedDateTime;
+      return zdt.toPlainDate();
+    }
+    case "object": {
+      const obj = value as PlainDateObject;
+      return Temporal.PlainDate.from({
+        year: obj.year ?? now.year,
+        month: obj.month ?? now.month,
+        day: obj.day ?? now.day,
+      });
+    }
+    case "Date": {
+      const d = value as Date;
+      return Temporal.PlainDate.from({
+        year: d.getFullYear(),
+        month: d.getMonth() + 1,
+        day: d.getDate(),
+      });
+    }
+  }
+}
+
+function fromPlainDate(plainDate: Temporal.PlainDate, format: ValueFormat): DateValue {
+  switch (format) {
+    case "PlainDate":
+      return plainDate;
+    case "PlainDateTime":
+      return plainDate.toPlainDateTime({ hour: 0, minute: 0, second: 0 });
+    case "PlainMonthDay":
+      return Temporal.PlainMonthDay.from({ month: plainDate.month, day: plainDate.day });
+    case "PlainTime":
+      return Temporal.PlainTime.from({ hour: 0, minute: 0, second: 0 });
+    case "PlainYearMonth":
+      return Temporal.PlainYearMonth.from({ year: plainDate.year, month: plainDate.month });
+    case "ZonedDateTime":
+      return plainDate.toZonedDateTime("UTC");
+    case "object":
+      return { year: plainDate.year, month: plainDate.month, day: plainDate.day, hour: 0, minute: 0, second: 0 };
+    case "Date":
+      return new Date(plainDate.year, plainDate.month - 1, plainDate.day);
+  }
+}
+
+const MONTH_NAMES = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December",
+];
+
+const WEEKDAY_NAMES = [
+  "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+];
+
+const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+function getMonthWeeks(year: number, month: number): Temporal.PlainDate[][] {
+  const firstOfMonth = Temporal.PlainDate.from({ year, month, day: 1 });
+  const daysInMonth = firstOfMonth.daysInMonth;
+  const lastOfMonth = Temporal.PlainDate.from({ year, month, day: daysInMonth });
+
+  const isoDow = firstOfMonth.dayOfWeek;
+  const sundayDow = isoDow % 7;
+  const gridStart = firstOfMonth.subtract({ days: sundayDow });
+
+  const isoLast = lastOfMonth.dayOfWeek;
+  const sundayLast = isoLast % 7;
+  const daysAfter = 6 - sundayLast;
+  const gridEnd = lastOfMonth.add({ days: daysAfter });
+
+  const weeks: Temporal.PlainDate[][] = [];
+  let current = gridStart;
+  while (Temporal.PlainDate.compare(current, gridEnd) <= 0) {
+    const week: Temporal.PlainDate[] = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(current);
+      current = current.add({ days: 1 });
+    }
+    weeks.push(week);
+  }
+  return weeks;
+}
+
 interface DatePickerContextValue {
-  selected: Date | undefined;
-  onSelect: (date: Date) => void;
-  currentMonth: Date;
+  selected: Temporal.PlainDate | undefined;
+  onSelect: (date: Temporal.PlainDate) => void;
+  currentMonth: { year: number; month: number };
   goToNextMonth: () => void;
   goToPrevMonth: () => void;
-  weeks: Date[][];
-  disabled?: (date: Date) => boolean;
-  focusedDate: Date;
-  setFocusedDate: (date: Date) => void;
+  weeks: Temporal.PlainDate[][];
+  disabled?: (date: Temporal.PlainDate) => boolean;
+  focusedDate: Temporal.PlainDate;
+  setFocusedDate: (date: Temporal.PlainDate) => void;
 }
 
 const DatePickerContext = createContext<DatePickerContextValue | null>(null);
@@ -54,57 +168,88 @@ function useDatePicker() {
 
 interface RootProps {
   children: ReactNode;
-  value?: Date;
-  defaultValue?: Date;
-  onValueChange?: (date: Date) => void;
-  disabled?: (date: Date) => boolean;
+  value?: DateValue;
+  defaultValue?: DateValue;
+  onValueChange?: (value: DateValue) => void;
+  valueFormat?: ValueFormat;
+  disabled?: (date: Temporal.PlainDate) => boolean;
 }
 
-function Root({ children, value, defaultValue, onValueChange, disabled }: RootProps) {
-  const [internalSelected, setInternalSelected] = useState<Date | undefined>(defaultValue);
-  const [currentMonth, setCurrentMonth] = useState<Date>(value ?? defaultValue ?? new Date());
-  const [focusedDate, setFocusedDate] = useState<Date>(value ?? defaultValue ?? new Date());
+function Root({
+  children,
+  value,
+  defaultValue,
+  onValueChange,
+  valueFormat = "PlainDate",
+  disabled,
+}: RootProps) {
+  const [internalSelected, setInternalSelected] = useState<Temporal.PlainDate | undefined>(() =>
+    defaultValue ? toPlainDate(defaultValue, valueFormat) : undefined,
+  );
 
-  const selected = value ?? internalSelected;
+  const [currentMonth, setCurrentMonth] = useState<{ year: number; month: number }>(() => {
+    const init = value
+      ? toPlainDate(value, valueFormat)
+      : defaultValue
+        ? toPlainDate(defaultValue, valueFormat)
+        : Temporal.Now.plainDateISO();
+    return { year: init.year, month: init.month };
+  });
+
+  const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
+    if (value) return toPlainDate(value, valueFormat);
+    if (defaultValue) return toPlainDate(defaultValue, valueFormat);
+    return Temporal.Now.plainDateISO();
+  });
+
+  const selected = useMemo(() => {
+    if (value) return toPlainDate(value, valueFormat);
+    return internalSelected;
+  }, [value, valueFormat, internalSelected]);
 
   useEffect(() => {
     if (value) {
-      setCurrentMonth(startOfMonth(value));
+      const pd = toPlainDate(value, valueFormat);
+      setCurrentMonth({ year: pd.year, month: pd.month });
     }
-  }, [value]);
+  }, [value, valueFormat]);
 
   useEffect(() => {
-    if (!isSameMonth(focusedDate, currentMonth)) {
-      setCurrentMonth(startOfMonth(focusedDate));
+    if (focusedDate.year !== currentMonth.year || focusedDate.month !== currentMonth.month) {
+      setCurrentMonth({ year: focusedDate.year, month: focusedDate.month });
     }
   }, [focusedDate]);
 
   const onSelect = useCallback(
-    (date: Date) => {
+    (date: Temporal.PlainDate) => {
       if (disabled?.(date)) return;
       if (!value) setInternalSelected(date);
-      setCurrentMonth(startOfMonth(date));
-      onValueChange?.(date);
+      setCurrentMonth({ year: date.year, month: date.month });
+      onValueChange?.(fromPlainDate(date, valueFormat));
     },
-    [value, onValueChange, disabled],
+    [value, onValueChange, valueFormat, disabled],
   );
 
-  const goToNextMonth = useCallback(() => setCurrentMonth((m) => addMonths(m, 1)), []);
-  const goToPrevMonth = useCallback(() => setCurrentMonth((m) => subMonths(m, 1)), []);
+  const goToNextMonth = useCallback(() => {
+    setCurrentMonth((m) => {
+      const d = Temporal.PlainDate.from({ year: m.year, month: m.month, day: 1 }).add({ months: 1 });
+      return { year: d.year, month: d.month };
+    });
+  }, []);
 
-  const weeks = useMemo(() => {
-    const monthStart = startOfMonth(currentMonth);
-    const monthEnd = endOfMonth(currentMonth);
-    const weekStarts = eachWeekOfInterval({ start: monthStart, end: monthEnd }, { weekStartsOn: 0 });
-    return weekStarts.map((weekStart) =>
-      eachDayOfInterval({
-        start: startOfWeek(weekStart, { weekStartsOn: 0 }),
-        end: endOfWeek(weekStart, { weekStartsOn: 0 }),
-      }),
-    );
-  }, [currentMonth]);
+  const goToPrevMonth = useCallback(() => {
+    setCurrentMonth((m) => {
+      const d = Temporal.PlainDate.from({ year: m.year, month: m.month, day: 1 }).subtract({ months: 1 });
+      return { year: d.year, month: d.month };
+    });
+  }, []);
 
-  const ctx = useMemo(
+  const weeks = useMemo(
+    () => getMonthWeeks(currentMonth.year, currentMonth.month),
+    [currentMonth.year, currentMonth.month],
+  );
+
+  const ctx = useMemo<DatePickerContextValue>(
     () => ({ selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate, setFocusedDate }),
     [selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate],
   );
@@ -112,82 +257,110 @@ function Root({ children, value, defaultValue, onValueChange, disabled }: RootPr
   return <DatePickerContext.Provider value={ctx}>{children}</DatePickerContext.Provider>;
 }
 
-interface HeaderProps extends HTMLAttributes<HTMLDivElement> {}
-
-const Header = forwardRef<HTMLDivElement, HeaderProps>(({ className, ...props }, ref) => {
-  const { currentMonth, goToPrevMonth, goToNextMonth } = useDatePicker();
-
-  return (
-    <div
-      ref={ref}
-      className={cn("flex items-center justify-between gap-1 px-1 pb-3", className)}
-      {...props}
-    >
-      <button
-        type="button"
-        onClick={goToPrevMonth}
-        aria-label="Go to previous month"
-        data-testid="button-prev-month"
-        className={cn(
-          "inline-flex h-7 w-7 items-center justify-center rounded-md",
-          "text-muted-foreground transition-colors",
-          "hover:bg-accent hover:text-accent-foreground",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        )}
-      >
-        <ChevronLeft className="h-4 w-4" />
-      </button>
-      <span
-        className="text-sm font-medium"
-        aria-live="polite"
-        data-testid="text-current-month"
-      >
-        {format(currentMonth, "MMMM yyyy")}
-      </span>
-      <button
-        type="button"
-        onClick={goToNextMonth}
-        aria-label="Go to next month"
-        data-testid="button-next-month"
-        className={cn(
-          "inline-flex h-7 w-7 items-center justify-center rounded-md",
-          "text-muted-foreground transition-colors",
-          "hover:bg-accent hover:text-accent-foreground",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        )}
-      >
-        <ChevronRight className="h-4 w-4" />
-      </button>
-    </div>
-  );
-});
-Header.displayName = "DatePicker.Header";
-
-interface MonthGridProps extends HTMLAttributes<HTMLDivElement> {
-  mode?: "grid";
-  children?: ReactNode;
+interface HeaderState {
+  month: number;
+  year: number;
 }
 
-const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(({ className, children, mode: _mode, ...props }, ref) => {
-  const { weeks, focusedDate, setFocusedDate, onSelect, disabled } = useDatePicker();
-  const dayLabels = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+type HeaderProps = useRender.ComponentProps<"div", HeaderState>;
+
+const Header = forwardRef<HTMLDivElement, HeaderProps>(function Header(props, ref) {
+  const { render, ...otherProps } = props;
+  const { currentMonth, goToPrevMonth, goToNextMonth } = useDatePicker();
+
+  const state = useMemo<HeaderState>(
+    () => ({ month: currentMonth.month, year: currentMonth.year }),
+    [currentMonth],
+  );
+
+  const monthName = MONTH_NAMES[currentMonth.month - 1];
+
+  const defaultProps: Record<string, unknown> = {
+    className: "flex items-center justify-between gap-1 px-1 pb-3",
+    children: (
+      <>
+        <button
+          type="button"
+          onClick={goToPrevMonth}
+          aria-label="Go to previous month"
+          data-testid="button-prev-month"
+          className={cn(
+            "inline-flex h-7 w-7 items-center justify-center rounded-md",
+            "text-muted-foreground transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          )}
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+        <span className="text-sm font-medium" aria-live="polite" data-testid="text-current-month">
+          {monthName} {currentMonth.year}
+        </span>
+        <button
+          type="button"
+          onClick={goToNextMonth}
+          aria-label="Go to next month"
+          data-testid="button-next-month"
+          className={cn(
+            "inline-flex h-7 w-7 items-center justify-center rounded-md",
+            "text-muted-foreground transition-colors",
+            "hover:bg-accent hover:text-accent-foreground",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          )}
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </>
+    ),
+  };
+
+  const element = useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+
+  return element;
+});
+
+interface MonthGridState {
+  month: number;
+  year: number;
+}
+
+interface MonthGridOwnProps {
+  mode?: "grid";
+}
+
+type MonthGridProps = useRender.ComponentProps<"div", MonthGridState> & MonthGridOwnProps;
+
+const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(function MonthGrid(props, ref) {
+  const { render, mode: _mode, children, ...otherProps } = props;
+  const { weeks, focusedDate, setFocusedDate, onSelect, disabled, currentMonth } = useDatePicker();
+
+  const state = useMemo<MonthGridState>(
+    () => ({ month: currentMonth.month, year: currentMonth.year }),
+    [currentMonth],
+  );
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      let nextDate: Date | null = null;
+      let nextDate: Temporal.PlainDate | null = null;
 
       switch (e.key) {
         case "ArrowRight":
-          nextDate = addDays(focusedDate, 1);
+          nextDate = focusedDate.add({ days: 1 });
           break;
         case "ArrowLeft":
-          nextDate = subDays(focusedDate, 1);
+          nextDate = focusedDate.subtract({ days: 1 });
           break;
         case "ArrowDown":
-          nextDate = addWeeks(focusedDate, 1);
+          nextDate = focusedDate.add({ weeks: 1 });
           break;
         case "ArrowUp":
-          nextDate = subWeeks(focusedDate, 1);
+          nextDate = focusedDate.subtract({ weeks: 1 });
           break;
         case "Enter":
         case " ":
@@ -208,17 +381,10 @@ const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(({ className, child
     [focusedDate, setFocusedDate, onSelect, disabled],
   );
 
-  return (
-    <div
-      ref={ref}
-      role="grid"
-      aria-label="Calendar"
-      className={cn("w-full", className)}
-      onKeyDown={handleKeyDown}
-      {...props}
-    >
+  const defaultChildren = (
+    <>
       <div role="row" className="grid grid-cols-7">
-        {dayLabels.map((label) => (
+        {DAY_LABELS.map((label) => (
           <div
             key={label}
             role="columnheader"
@@ -229,45 +395,84 @@ const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(({ className, child
           </div>
         ))}
       </div>
-      {children ??
-        weeks.map((weekDays, i) => (
-          <Week key={i}>
-            {weekDays.map((day) => (
-              <Day key={day.toISOString()} date={day} />
-            ))}
-          </Week>
-        ))}
-    </div>
+      {weeks.map((weekDays, i) => (
+        <Week key={i}>
+          {weekDays.map((day) => (
+            <Day key={day.toString()} date={day} />
+          ))}
+        </Week>
+      ))}
+    </>
   );
-});
-MonthGrid.displayName = "DatePicker.MonthGrid";
 
-interface WeekProps extends HTMLAttributes<HTMLDivElement> {
-  children?: ReactNode;
+  const defaultProps: Record<string, unknown> = {
+    role: "grid",
+    "aria-label": "Calendar",
+    className: "w-full",
+    onKeyDown: handleKeyDown,
+    children: children ?? defaultChildren,
+  };
+
+  const element = useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+
+  return element;
+});
+
+interface WeekState {}
+
+type WeekProps = useRender.ComponentProps<"div", WeekState>;
+
+const Week = forwardRef<HTMLDivElement, WeekProps>(function Week(props, ref) {
+  const { render, ...otherProps } = props;
+
+  const state = useMemo<WeekState>(() => ({}), []);
+
+  const defaultProps: Record<string, unknown> = {
+    role: "row",
+    className: "grid grid-cols-7 mt-0.5",
+  };
+
+  const element = useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+
+  return element;
+});
+
+interface DayState {
+  selected: boolean;
+  today: boolean;
+  disabled: boolean;
+  outsideMonth: boolean;
 }
 
-const Week = forwardRef<HTMLDivElement, WeekProps>(({ className, children, ...props }, ref) => {
-  return (
-    <div ref={ref} role="row" className={cn("grid grid-cols-7 mt-0.5", className)} {...props}>
-      {children}
-    </div>
-  );
-});
-Week.displayName = "DatePicker.Week";
-
-interface DayProps extends HTMLAttributes<HTMLDivElement> {
-  date: Date;
+interface DayOwnProps {
+  date: Temporal.PlainDate;
 }
 
-const Day = forwardRef<HTMLDivElement, DayProps>(({ date, className, ...props }, ref) => {
-  const { selected, onSelect, currentMonth, disabled, focusedDate, setFocusedDate } = useDatePicker();
+type DayProps = useRender.ComponentProps<"div", DayState> & DayOwnProps;
+
+const Day = forwardRef<HTMLDivElement, DayProps>(function Day(props, ref) {
+  const { render, date, ...otherProps } = props;
+  const { selected, onSelect, currentMonth, disabled: disabledFn, focusedDate, setFocusedDate } = useDatePicker();
   const buttonRef = useRef<HTMLButtonElement>(null);
 
-  const isSelected = selected ? isSameDay(date, selected) : false;
-  const isCurrentMonth = isSameMonth(date, currentMonth);
-  const isTodayDate = isToday(date);
-  const isDisabled = disabled?.(date) ?? false;
-  const isFocused = isSameDay(date, focusedDate);
+  const today = useMemo(() => Temporal.Now.plainDateISO(), []);
+  const isSelected = selected ? Temporal.PlainDate.compare(date, selected) === 0 : false;
+  const isCurrentMonth = date.year === currentMonth.year && date.month === currentMonth.month;
+  const isToday = Temporal.PlainDate.compare(date, today) === 0;
+  const isDisabled = disabledFn?.(date) ?? false;
+  const isFocused = Temporal.PlainDate.compare(date, focusedDate) === 0;
 
   useEffect(() => {
     if (isFocused && buttonRef.current) {
@@ -275,13 +480,20 @@ const Day = forwardRef<HTMLDivElement, DayProps>(({ date, className, ...props },
     }
   }, [isFocused]);
 
-  return (
-    <div
-      ref={ref}
-      role="gridcell"
-      className={cn("h-9 w-9 p-0 text-center text-sm relative", className)}
-      {...props}
-    >
+  const state = useMemo<DayState>(
+    () => ({
+      selected: isSelected,
+      today: isToday,
+      disabled: isDisabled,
+      outsideMonth: !isCurrentMonth,
+    }),
+    [isSelected, isToday, isDisabled, isCurrentMonth],
+  );
+
+  const defaultProps: Record<string, unknown> = {
+    role: "gridcell",
+    className: "h-9 w-9 p-0 text-center text-sm relative",
+    children: (
       <button
         ref={buttonRef}
         type="button"
@@ -289,28 +501,42 @@ const Day = forwardRef<HTMLDivElement, DayProps>(({ date, className, ...props },
         disabled={isDisabled}
         aria-selected={isSelected}
         aria-disabled={isDisabled}
-        aria-label={format(date, "EEEE, MMMM d, yyyy")}
+        aria-label={`${WEEKDAY_NAMES[date.dayOfWeek - 1]}, ${MONTH_NAMES[date.month - 1]} ${date.day}, ${date.year}`}
         onClick={() => {
           setFocusedDate(date);
           onSelect(date);
         }}
-        data-testid={`button-day-${format(date, "yyyy-MM-dd")}`}
+        data-testid={`button-day-${date.toString()}`}
         className={cn(
           "inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
           !isCurrentMonth && "text-muted-foreground opacity-40",
-          isCurrentMonth && !isSelected && !isTodayDate && "text-foreground hover:bg-accent hover:text-accent-foreground",
-          isTodayDate && !isSelected && "bg-accent text-accent-foreground",
+          isCurrentMonth && !isSelected && !isToday && "text-foreground hover:bg-accent hover:text-accent-foreground",
+          isToday && !isSelected && "bg-accent text-accent-foreground",
           isSelected && "bg-primary text-primary-foreground",
           isDisabled && "pointer-events-none opacity-50",
         )}
       >
-        {format(date, "d")}
+        {date.day}
       </button>
-    </div>
-  );
+    ),
+  };
+
+  const stateAttributesMapping = useMemo(() => ({
+    outsideMonth: (value: boolean) => value ? { "data-outside-month": "" } : null,
+  }), []);
+
+  const element = useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    stateAttributesMapping,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+
+  return element;
 });
-Day.displayName = "DatePicker.Day";
 
 export const DatePicker = {
   Root,
@@ -318,4 +544,19 @@ export const DatePicker = {
   MonthGrid,
   Week,
   Day,
+};
+
+export type {
+  RootProps as DatePickerRootProps,
+  HeaderProps as DatePickerHeaderProps,
+  HeaderState as DatePickerHeaderState,
+  MonthGridProps as DatePickerMonthGridProps,
+  MonthGridState as DatePickerMonthGridState,
+  WeekProps as DatePickerWeekProps,
+  WeekState as DatePickerWeekState,
+  DayProps as DatePickerDayProps,
+  DayState as DatePickerDayState,
+  ValueFormat as DatePickerValueFormat,
+  DateValue as DatePickerDateValue,
+  PlainDateObject as DatePickerPlainDateObject,
 };
