@@ -1,5 +1,6 @@
 import {
   createContext,
+  createElement,
   useContext,
   useState,
   useEffect,
@@ -1056,7 +1057,41 @@ export const DatePicker = {
   NextMonthButton,
 };
 
-export { useDatePicker };
+interface TypedDatePicker<F extends ValueFormat> {
+  Root: (props: RootProps<F> & { ref?: React.Ref<HTMLDivElement> }) => React.ReactElement | null;
+  MonthGrid: typeof MonthGrid;
+  Week: typeof Week;
+  Day: typeof Day;
+  DayLabels: typeof DayLabels;
+  DayLabel: typeof DayLabel;
+  DateString: typeof DateString;
+  TimeString: typeof TimeString;
+  MonthString: typeof MonthString;
+  PrevMonthButton: typeof PrevMonthButton;
+  NextMonthButton: typeof NextMonthButton;
+}
+
+function createDatePicker<F extends ValueFormat>(format: F): TypedDatePicker<F> {
+  const TypedRoot = forwardRef<HTMLDivElement, RootProps<F>>(function TypedRoot(props, ref) {
+    return createElement(RootInner, { ...props, format, innerRef: ref } as any);
+  }) as TypedDatePicker<F>["Root"];
+
+  return {
+    Root: TypedRoot,
+    MonthGrid,
+    Week,
+    Day,
+    DayLabels,
+    DayLabel,
+    DateString,
+    TimeString,
+    MonthString,
+    PrevMonthButton,
+    NextMonthButton,
+  };
+}
+
+export { useDatePicker, createDatePicker };
 
 export type {
   RootProps as DatePickerRootProps,
@@ -1084,4 +1119,5 @@ export type {
   DateValueObject as DatePickerDateValueObject,
   ValueForFormat as DatePickerValueForFormat,
   PlainDateObject as DatePickerPlainDateObject,
+  TypedDatePicker as DatePickerTyped,
 };

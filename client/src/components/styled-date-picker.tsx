@@ -1,11 +1,10 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DatePicker } from "@/components/ui/date-picker";
-import type { DatePickerDateValueObject, DatePickerValueFormat, DatePickerValueForFormat } from "@/components/ui/date-picker";
+import { createDatePicker } from "@/components/ui/date-picker";
+import type { DatePickerValueFormat, DatePickerValueForFormat, DatePickerTyped } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
-interface StyledDatePickerProps<F extends DatePickerValueFormat = DatePickerValueFormat> {
-  format?: F;
+interface StyledDatePickerProps<F extends DatePickerValueFormat> {
   value?: DatePickerValueForFormat<F>;
   defaultValue?: DatePickerValueForFormat<F>;
   onValueChange?: (value: DatePickerValueForFormat<F>) => void;
@@ -13,10 +12,10 @@ interface StyledDatePickerProps<F extends DatePickerValueFormat = DatePickerValu
   timeZone?: string;
   locale?: string;
   className?: string;
+  components: DatePickerTyped<F>;
 }
 
-export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerValueFormat>({
-  format,
+export function StyledDatePicker<F extends DatePickerValueFormat>({
   value,
   defaultValue,
   onValueChange,
@@ -24,10 +23,10 @@ export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerVal
   timeZone,
   locale,
   className,
+  components: DP,
 }: StyledDatePickerProps<F>) {
   return (
-    <DatePicker.Root
-      format={format}
+    <DP.Root
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
@@ -37,7 +36,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerVal
     >
       <div className={cn("p-3", className)}>
         <div className="flex items-center justify-between gap-1 px-1 pb-3">
-          <DatePicker.PrevMonthButton
+          <DP.PrevMonthButton
             data-testid="button-prev-month"
             className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-md",
@@ -47,14 +46,14 @@ export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerVal
             )}
           >
             <ChevronLeft className="h-4 w-4" />
-          </DatePicker.PrevMonthButton>
+          </DP.PrevMonthButton>
 
-          <DatePicker.MonthString
+          <DP.MonthString
             data-testid="text-current-month"
             className="text-sm font-medium"
           />
 
-          <DatePicker.NextMonthButton
+          <DP.NextMonthButton
             data-testid="button-next-month"
             className={cn(
               "inline-flex h-7 w-7 items-center justify-center rounded-md",
@@ -64,17 +63,17 @@ export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerVal
             )}
           >
             <ChevronRight className="h-4 w-4" />
-          </DatePicker.NextMonthButton>
+          </DP.NextMonthButton>
         </div>
 
-        <DatePicker.MonthGrid mode="grid" className="w-full">
-          <DatePicker.DayLabels className="grid grid-cols-7">
-            <DatePicker.DayLabel
+        <DP.MonthGrid mode="grid" className="w-full">
+          <DP.DayLabels className="grid grid-cols-7">
+            <DP.DayLabel
               className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
             />
-          </DatePicker.DayLabels>
-          <DatePicker.Week className="grid grid-cols-7 mt-0.5">
-            <DatePicker.Day
+          </DP.DayLabels>
+          <DP.Week className="grid grid-cols-7 mt-0.5">
+            <DP.Day
               render={(props, state) => (
                 <button
                   {...props}
@@ -90,9 +89,9 @@ export function StyledDatePicker<F extends DatePickerValueFormat = DatePickerVal
                 />
               )}
             />
-          </DatePicker.Week>
-        </DatePicker.MonthGrid>
+          </DP.Week>
+        </DP.MonthGrid>
       </div>
-    </DatePicker.Root>
+    </DP.Root>
   );
 }

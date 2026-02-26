@@ -1,8 +1,11 @@
 import { useState } from "react";
 import { Temporal } from "@js-temporal/polyfill";
-import { StyledDatePicker } from "@/components/styled-date-picker";
+import { createDatePicker } from "@/components/ui/date-picker";
 import type { DatePickerValueForFormat } from "@/components/ui/date-picker";
+import { StyledDatePicker } from "@/components/styled-date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+
+const ZonedDatePicker = createDatePicker("ZonedDateTime");
 
 type ZonedValue = DatePickerValueForFormat<"ZonedDateTime">;
 
@@ -24,7 +27,7 @@ export default function Home() {
         </CardHeader>
         <CardContent className="flex justify-center">
           <StyledDatePicker
-            format="ZonedDateTime"
+            components={ZonedDatePicker}
             value={selectedDate}
             onValueChange={setSelectedDate}
           />
