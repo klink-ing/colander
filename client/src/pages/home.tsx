@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { Temporal } from "@js-temporal/polyfill";
-import { DatePicker } from "@/components/ui/date-picker";
+import { StyledDatePicker } from "@/components/styled-date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-
-const MONTH_NAMES = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December",
-];
 
 export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Temporal.PlainDate | undefined>();
 
   const displayText = selectedDate
-    ? `Selected: ${MONTH_NAMES[selectedDate.month - 1]} ${selectedDate.day}, ${selectedDate.year}`
+    ? `Selected: ${new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`
     : "Pick a date below";
 
   return (
@@ -25,14 +20,11 @@ export default function Home() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex justify-center">
-          <DatePicker.Root
+          <StyledDatePicker
             value={selectedDate}
             onValueChange={(v) => setSelectedDate(v as Temporal.PlainDate)}
             valueFormat="PlainDate"
-          >
-            <DatePicker.Header />
-            <DatePicker.MonthGrid mode="grid" />
-          </DatePicker.Root>
+          />
         </CardContent>
       </Card>
     </div>
