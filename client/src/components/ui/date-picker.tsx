@@ -187,6 +187,7 @@ interface DatePickerContextValue {
   focusedDate: Temporal.PlainDate;
   setFocusedDate: (date: Temporal.PlainDate) => void;
   timeZone: string;
+  locale: string;
 }
 
 const DatePickerContext = createContext<DatePickerContextValue | null>(null);
@@ -211,6 +212,7 @@ interface RootState {
   focusedMonth: number;
   focusedYear: number;
   timeZone: string;
+  locale: string;
 }
 
 interface RootOwnProps {
@@ -220,6 +222,7 @@ interface RootOwnProps {
   valueFormat?: ValueFormat;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
+  locale?: string;
 }
 
 type RootProps = useRender.ComponentProps<"div", RootState> & RootOwnProps;
@@ -234,10 +237,12 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
     valueFormat = "PlainDate",
     disabled,
     timeZone: timeZoneProp,
+    locale: localeProp,
     ...otherProps
   } = props;
 
   const timeZone = timeZoneProp ?? getSystemTimeZone();
+  const locale = localeProp ?? "en-US";
 
   const [internalSelected, setInternalSelected] = useState<Temporal.ZonedDateTime | undefined>(() =>
     defaultValue ? toZonedDateTime(defaultValue, valueFormat, timeZone) : undefined,
@@ -316,8 +321,8 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
   );
 
   const ctx = useMemo<DatePickerContextValue>(
-    () => ({ selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate, setFocusedDate, timeZone }),
-    [selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate, timeZone],
+    () => ({ selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate, setFocusedDate, timeZone, locale }),
+    [selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate, timeZone, locale],
   );
 
   const state = useMemo<RootState>(
@@ -335,8 +340,9 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
       focusedMonth: focusedDate.month,
       focusedYear: focusedDate.year,
       timeZone,
+      locale,
     }),
-    [currentMonth, selected, focusedDate, timeZone],
+    [currentMonth, selected, focusedDate, timeZone, locale],
   );
 
   const stateAttributesMapping = useMemo(() => ({
@@ -351,6 +357,7 @@ const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
     focusedMonth: () => null,
     focusedYear: () => null,
     timeZone: () => null,
+    locale: () => null,
   }), []);
 
   const defaultProps: Record<string, unknown> = {
@@ -551,27 +558,96 @@ const NextMonthButton = forwardRef<HTMLButtonElement, NextMonthButtonProps>(func
   });
 });
 
+const REFERENCE_SUNDAY = Temporal.PlainDate.from("2024-01-07");
+
+function getWeekdayNames(locale: string) {
+  const names: { long: string; short: string; narrow: string }[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = REFERENCE_SUNDAY.add({ days: i });
+    names.push({
+      long: date.toLocaleString(locale, { weekday: "long" }),
+      short: date.toLocaleString(locale, { weekday: "short" }),
+      narrow: date.toLocaleString(locale, { weekday: "narrow" }),
+    });
+  }
+  return names;
+}
+
 interface DayLabelState {
   index: number;
+  dayOfWeek: number;
+  long: string;
+  short: string;
+  narrow: string;
 }
 
 interface DayLabelOwnProps {
-  index: number;
+  index?: number;
 }
 
 type DayLabelProps = useRender.ComponentProps<"div", DayLabelState> & DayLabelOwnProps;
 
-const DAY_LABELS = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
-
 const DayLabel = forwardRef<HTMLDivElement, DayLabelProps>(function DayLabel(props, ref) {
-  const { render, index, ...otherProps } = props;
+  const { render, index = 0, ...otherProps } = props;
+  const { locale } = useDatePicker();
 
-  const state = useMemo<DayLabelState>(() => ({ index }), [index]);
+  const weekdayNames = useMemo(() => getWeekdayNames(locale), [locale]);
+
+  const state = useMemo<DayLabelState>(() => ({
+    index,
+    dayOfWeek: index,
+    long: weekdayNames[index].long,
+    short: weekdayNames[index].short,
+    narrow: weekdayNames[index].narrow,
+  }), [index, weekdayNames]);
+
+  const stateAttributesMapping = useMemo(() => ({
+    index: () => null,
+    dayOfWeek: () => null,
+    long: () => null,
+    short: () => null,
+    narrow: () => null,
+  }), []);
 
   const defaultProps: Record<string, unknown> = {
     role: "columnheader",
-    "aria-label": DAY_LABELS[index],
-    children: DAY_LABELS[index],
+    "aria-label": state.long,
+    children: state.short,
+  };
+
+  return useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    stateAttributesMapping,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+});
+
+interface DayLabelsState {}
+
+type DayLabelsProps = useRender.ComponentProps<"div", DayLabelsState>;
+
+const DayLabels = forwardRef<HTMLDivElement, DayLabelsProps>(function DayLabels(props, ref) {
+  const { render, children, ...otherProps } = props;
+
+  const state = useMemo<DayLabelsState>(() => ({}), []);
+
+  let dayLabelTemplate: ReactElement | null = null;
+  Children.forEach(children, (child) => {
+    if (isValidElement(child) && (child.type as any) === DayLabel && !dayLabelTemplate) {
+      dayLabelTemplate = child;
+    }
+  });
+
+  const resolvedChildren = dayLabelTemplate
+    ? Array.from({ length: 7 }, (_, i) => cloneElement(dayLabelTemplate!, { key: i, index: i }))
+    : Array.from({ length: 7 }, (_, i) => <DayLabel key={i} index={i} />);
+
+  const defaultProps: Record<string, unknown> = {
+    role: "row",
+    children: resolvedChildren,
   };
 
   return useRender({
@@ -598,14 +674,14 @@ function buildTemplateChildren(
   children: ReactNode,
   weeks: Temporal.PlainDate[][],
 ): ReactNode {
-  let dayLabelTemplate: ReactElement | null = null;
+  let dayLabelsTemplate: ReactElement | null = null;
   let weekTemplate: ReactElement | null = null;
   let dayTemplate: ReactElement | null = null;
 
   Children.forEach(children, (child) => {
     if (!isValidElement(child)) return;
-    if ((child.type as any) === DayLabel && !dayLabelTemplate) {
-      dayLabelTemplate = child;
+    if ((child.type as any) === DayLabels && !dayLabelsTemplate) {
+      dayLabelsTemplate = child;
     } else if ((child.type as any) === Week && !weekTemplate) {
       weekTemplate = child;
       Children.forEach(child.props.children, (weekChild: ReactNode) => {
@@ -620,13 +696,7 @@ function buildTemplateChildren(
 
   return (
     <>
-      {dayLabelTemplate && (
-        <div role="row">
-          {DAY_LABELS.map((_, i) => (
-            cloneElement(dayLabelTemplate!, { key: i, index: i })
-          ))}
-        </div>
-      )}
+      {dayLabelsTemplate}
       {weeks.map((weekDays, wi) => (
         cloneElement(weekTemplate!, {
           key: wi,
@@ -686,11 +756,9 @@ const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(function MonthGrid(
 
   const bareDefaultChildren = (
     <>
-      <div role="row">
-        {DAY_LABELS.map((_, i) => (
-          <DayLabel key={i} index={i} />
-        ))}
-      </div>
+      <DayLabels>
+        <DayLabel />
+      </DayLabels>
       {weeks.map((weekDays, i) => (
         <Week key={i}>
           {weekDays.map((day) => (
@@ -827,6 +895,7 @@ export const DatePicker = {
   MonthGrid,
   Week,
   Day,
+  DayLabels,
   DayLabel,
   DateString,
   TimeString,
@@ -846,6 +915,8 @@ export type {
   WeekState as DatePickerWeekState,
   DayProps as DatePickerDayProps,
   DayState as DatePickerDayState,
+  DayLabelsProps as DatePickerDayLabelsProps,
+  DayLabelsState as DatePickerDayLabelsState,
   DayLabelProps as DatePickerDayLabelProps,
   DayLabelState as DatePickerDayLabelState,
   DateStringProps as DatePickerDateStringProps,

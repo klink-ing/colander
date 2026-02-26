@@ -65,9 +65,11 @@ export function StyledDatePicker({
         </div>
 
         <DatePicker.MonthGrid mode="grid" className="w-full">
-          <DatePicker.DayLabel
-            className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
-          />
+          <DatePicker.DayLabels className="grid grid-cols-7">
+            <DatePicker.DayLabel
+              className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
+            />
+          </DatePicker.DayLabels>
           <DatePicker.Week className="grid grid-cols-7 mt-0.5">
             <DatePicker.Day
               render={(props, state) => (
