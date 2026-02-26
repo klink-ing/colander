@@ -169,30 +169,6 @@ function selectedToZdt(
   return toZonedDateTime(selected, timeZone, T);
 }
 
-const WEEKDAY_NAMES = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-const MONTH_NAMES = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
 function getMonthWeeks(year: number, month: number, T: TemporalNamespace): Temporal.PlainDate[][] {
   const firstOfMonth = T.PlainDate.from({ year, month, day: 1 });
@@ -1023,6 +999,7 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
     focusedDate,
     setFocusedDate,
     timeZone,
+    locale,
     temporal: T,
   } = useDatePicker();
   const internalRef = useRef<HTMLButtonElement>(null);
@@ -1062,7 +1039,7 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
     disabled: isDisabled,
     "aria-selected": isSelected,
     "aria-disabled": isDisabled,
-    "aria-label": `${WEEKDAY_NAMES[date.dayOfWeek - 1]}, ${MONTH_NAMES[date.month - 1]} ${date.day}, ${date.year}`,
+    "aria-label": date.toLocaleString(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
     "data-testid": `button-day-${date.toString()}`,
     onClick: () => {
       setFocusedDate(date);
