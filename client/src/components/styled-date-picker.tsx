@@ -10,6 +10,7 @@ interface StyledDatePickerProps {
   onValueChange?: (value: DatePickerDateValue) => void;
   valueFormat?: DatePickerValueFormat;
   disabled?: (date: Temporal.PlainDate) => boolean;
+  timeZone?: string;
   className?: string;
 }
 
@@ -61,6 +62,7 @@ export function StyledDatePicker({
   onValueChange,
   valueFormat = "PlainDate",
   disabled,
+  timeZone,
   className,
 }: StyledDatePickerProps) {
   return (
@@ -70,6 +72,7 @@ export function StyledDatePicker({
       onValueChange={onValueChange}
       valueFormat={valueFormat}
       disabled={disabled}
+      timeZone={timeZone}
     >
       <div className={cn("p-3", className)}>
         <div className="flex items-center justify-between gap-1 px-1 pb-3">

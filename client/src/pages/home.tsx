@@ -4,10 +4,10 @@ import { StyledDatePicker } from "@/components/styled-date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 export default function Home() {
-  const [selectedDate, setSelectedDate] = useState<Temporal.PlainDate | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Temporal.ZonedDateTime | undefined>();
 
   const displayText = selectedDate
-    ? `Selected: ${new Date(selectedDate.year, selectedDate.month - 1, selectedDate.day).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })}`
+    ? `Selected: ${new Date(selectedDate.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${selectedDate.timeZoneId})`
     : "Pick a date below";
 
   return (
@@ -22,8 +22,8 @@ export default function Home() {
         <CardContent className="flex justify-center">
           <StyledDatePicker
             value={selectedDate}
-            onValueChange={(v) => setSelectedDate(v as Temporal.PlainDate)}
-            valueFormat="PlainDate"
+            onValueChange={(v) => setSelectedDate(v as Temporal.ZonedDateTime)}
+            valueFormat="ZonedDateTime"
           />
         </CardContent>
       </Card>
