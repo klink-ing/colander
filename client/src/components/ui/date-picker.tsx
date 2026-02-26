@@ -166,8 +166,19 @@ function useDatePicker() {
   return ctx;
 }
 
-interface RootProps {
-  children: ReactNode;
+interface RootState {
+  month: number;
+  year: number;
+  hasSelection: boolean;
+  selectedDay: number;
+  selectedMonth: number;
+  selectedYear: number;
+  focusedDay: number;
+  focusedMonth: number;
+  focusedYear: number;
+}
+
+interface RootOwnProps {
   value?: DateValue;
   defaultValue?: DateValue;
   onValueChange?: (value: DateValue) => void;
@@ -175,14 +186,20 @@ interface RootProps {
   disabled?: (date: Temporal.PlainDate) => boolean;
 }
 
-function Root({
-  children,
-  value,
-  defaultValue,
-  onValueChange,
-  valueFormat = "PlainDate",
-  disabled,
-}: RootProps) {
+type RootProps = useRender.ComponentProps<"div", RootState> & RootOwnProps;
+
+const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
+  const {
+    render,
+    children,
+    value,
+    defaultValue,
+    onValueChange,
+    valueFormat = "PlainDate",
+    disabled,
+    ...otherProps
+  } = props;
+
   const [internalSelected, setInternalSelected] = useState<Temporal.PlainDate | undefined>(() =>
     defaultValue ? toPlainDate(defaultValue, valueFormat) : undefined,
   );
@@ -254,8 +271,40 @@ function Root({
     [selected, onSelect, currentMonth, goToNextMonth, goToPrevMonth, weeks, disabled, focusedDate],
   );
 
-  return <DatePickerContext.Provider value={ctx}>{children}</DatePickerContext.Provider>;
-}
+  const state = useMemo<RootState>(
+    () => ({
+      month: currentMonth.month,
+      year: currentMonth.year,
+      hasSelection: !!selected,
+      selectedDay: selected?.day ?? 0,
+      selectedMonth: selected?.month ?? 0,
+      selectedYear: selected?.year ?? 0,
+      focusedDay: focusedDate.day,
+      focusedMonth: focusedDate.month,
+      focusedYear: focusedDate.year,
+    }),
+    [currentMonth, selected, focusedDate],
+  );
+
+  const stateAttributesMapping = useMemo(() => ({
+    hasSelection: (value: boolean) => value ? { "data-has-selection": "" } : null,
+  }), []);
+
+  const defaultProps: Record<string, unknown> = {
+    children,
+  };
+
+  const element = useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    stateAttributesMapping,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+
+  return <DatePickerContext.Provider value={ctx}>{element}</DatePickerContext.Provider>;
+});
 
 interface DateStringState {
   month: number;
@@ -670,6 +719,7 @@ export { useDatePicker };
 
 export type {
   RootProps as DatePickerRootProps,
+  RootState as DatePickerRootState,
   MonthGridProps as DatePickerMonthGridProps,
   MonthGridState as DatePickerMonthGridState,
   WeekProps as DatePickerWeekProps,
