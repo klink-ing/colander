@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { DatePicker, useDatePicker } from "@/components/ui/date-picker";
+import { DatePicker } from "@/components/ui/date-picker";
 import type { DatePickerDateValue, DatePickerValueFormat } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
@@ -12,48 +12,6 @@ interface StyledDatePickerProps {
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   className?: string;
-}
-
-function StyledGrid() {
-  const { weeks } = useDatePicker();
-
-  return (
-    <DatePicker.MonthGrid mode="grid" className="w-full">
-      <div role="row" className="grid grid-cols-7">
-        {Array.from({ length: 7 }, (_, i) => (
-          <DatePicker.DayLabel
-            key={i}
-            index={i}
-            className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
-          />
-        ))}
-      </div>
-      {weeks.map((weekDays, i) => (
-        <DatePicker.Week key={i} className="grid grid-cols-7 mt-0.5">
-          {weekDays.map((day) => (
-            <DatePicker.Day
-              key={day.toString()}
-              date={day}
-              render={(props, state) => (
-                <button
-                  {...props}
-                  className={cn(
-                    "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
-                    state.outsideMonth && "text-muted-foreground opacity-40",
-                    !state.outsideMonth && !state.selected && !state.today && "text-foreground hover:bg-accent hover:text-accent-foreground",
-                    state.today && !state.selected && "bg-accent text-accent-foreground",
-                    state.selected && "bg-primary text-primary-foreground",
-                    state.disabled && "pointer-events-none opacity-50",
-                  )}
-                />
-              )}
-            />
-          ))}
-        </DatePicker.Week>
-      ))}
-    </DatePicker.MonthGrid>
-  );
 }
 
 export function StyledDatePicker({
@@ -106,7 +64,29 @@ export function StyledDatePicker({
           </DatePicker.NextMonthButton>
         </div>
 
-        <StyledGrid />
+        <DatePicker.MonthGrid mode="grid" className="w-full">
+          <DatePicker.DayLabel
+            className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
+          />
+          <DatePicker.Week className="grid grid-cols-7 mt-0.5">
+            <DatePicker.Day
+              render={(props, state) => (
+                <button
+                  {...props}
+                  className={cn(
+                    "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
+                    state.outsideMonth && "text-muted-foreground opacity-40",
+                    !state.outsideMonth && !state.selected && !state.today && "text-foreground hover:bg-accent hover:text-accent-foreground",
+                    state.today && !state.selected && "bg-accent text-accent-foreground",
+                    state.selected && "bg-primary text-primary-foreground",
+                    state.disabled && "pointer-events-none opacity-50",
+                  )}
+                />
+              )}
+            />
+          </DatePicker.Week>
+        </DatePicker.MonthGrid>
       </div>
     </DatePicker.Root>
   );

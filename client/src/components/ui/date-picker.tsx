@@ -6,7 +6,11 @@ import {
   useMemo,
   useCallback,
   useRef,
+  Children,
+  isValidElement,
+  cloneElement,
   type ReactNode,
+  type ReactElement,
   type KeyboardEvent,
   forwardRef,
 } from "react";
@@ -590,6 +594,51 @@ interface MonthGridOwnProps {
 
 type MonthGridProps = useRender.ComponentProps<"div", MonthGridState> & MonthGridOwnProps;
 
+function buildTemplateChildren(
+  children: ReactNode,
+  weeks: Temporal.PlainDate[][],
+): ReactNode {
+  let dayLabelTemplate: ReactElement | null = null;
+  let weekTemplate: ReactElement | null = null;
+  let dayTemplate: ReactElement | null = null;
+
+  Children.forEach(children, (child) => {
+    if (!isValidElement(child)) return;
+    if ((child.type as any) === DayLabel && !dayLabelTemplate) {
+      dayLabelTemplate = child;
+    } else if ((child.type as any) === Week && !weekTemplate) {
+      weekTemplate = child;
+      Children.forEach(child.props.children, (weekChild: ReactNode) => {
+        if (isValidElement(weekChild) && (weekChild.type as any) === Day && !dayTemplate) {
+          dayTemplate = weekChild;
+        }
+      });
+    }
+  });
+
+  if (!weekTemplate || !dayTemplate) return null;
+
+  return (
+    <>
+      {dayLabelTemplate && (
+        <div role="row">
+          {DAY_LABELS.map((_, i) => (
+            cloneElement(dayLabelTemplate!, { key: i, index: i })
+          ))}
+        </div>
+      )}
+      {weeks.map((weekDays, wi) => (
+        cloneElement(weekTemplate!, {
+          key: wi,
+          children: weekDays.map((day) =>
+            cloneElement(dayTemplate!, { key: day.toString(), date: day })
+          ),
+        })
+      ))}
+    </>
+  );
+}
+
 const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(function MonthGrid(props, ref) {
   const { render, mode: _mode, children, ...otherProps } = props;
   const { weeks, focusedDate, setFocusedDate, onSelect, disabled, currentMonth } = useDatePicker();
@@ -635,7 +684,7 @@ const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(function MonthGrid(
     [focusedDate, setFocusedDate, onSelect, disabled],
   );
 
-  const defaultChildren = (
+  const bareDefaultChildren = (
     <>
       <div role="row">
         {DAY_LABELS.map((_, i) => (
@@ -652,11 +701,15 @@ const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(function MonthGrid(
     </>
   );
 
+  const resolvedChildren = children
+    ? (buildTemplateChildren(children, weeks) ?? bareDefaultChildren)
+    : bareDefaultChildren;
+
   const defaultProps: Record<string, unknown> = {
     role: "grid",
     "aria-label": "Calendar",
     onKeyDown: handleKeyDown,
-    children: children ?? defaultChildren,
+    children: resolvedChildren,
   };
 
   return useRender({
@@ -695,18 +748,21 @@ interface DayState {
   today: boolean;
   disabled: boolean;
   outsideMonth: boolean;
+  focused: boolean;
 }
 
 interface DayOwnProps {
-  date: Temporal.PlainDate;
+  date?: Temporal.PlainDate;
 }
 
 type DayProps = useRender.ComponentProps<"button", DayState> & DayOwnProps;
 
 const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
-  const { render, date, ...otherProps } = props;
+  const { render, date: dateProp, ...otherProps } = props;
   const { selected, onSelect, currentMonth, disabled: disabledFn, focusedDate, setFocusedDate } = useDatePicker();
   const internalRef = useRef<HTMLButtonElement>(null);
+
+  const date = dateProp ?? Temporal.Now.plainDateISO();
 
   const today = useMemo(() => Temporal.Now.plainDateISO(), []);
   const isSelected = selected ? sameCalendarDay(selected, date) : false;
@@ -727,8 +783,9 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
       today: isToday,
       disabled: isDisabled,
       outsideMonth: !isCurrentMonth,
+      focused: isFocused,
     }),
-    [isSelected, isToday, isDisabled, isCurrentMonth],
+    [isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -752,6 +809,7 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
     today: (v: boolean) => v ? { "data-today": "" } : null,
     disabled: (v: boolean) => v ? { "data-disabled": "" } : null,
     outsideMonth: (v: boolean) => v ? { "data-outside-month": "" } : null,
+    focused: (v: boolean) => v ? { "data-focused": "" } : null,
   }), []);
 
   return useRender({
