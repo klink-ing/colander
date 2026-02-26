@@ -37,8 +37,8 @@ function StyledGrid() {
                 <button
                   {...props}
                   className={cn(
-                    "inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
                     state.outsideMonth && "text-muted-foreground opacity-40",
                     !state.outsideMonth && !state.selected && !state.today && "text-foreground hover:bg-accent hover:text-accent-foreground",
                     state.today && !state.selected && "bg-accent text-accent-foreground",
