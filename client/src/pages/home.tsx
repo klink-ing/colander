@@ -6,7 +6,7 @@ import { StyledDatePicker } from "@/components/styled-date-picker";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-const ZonedDatePicker = createDatePicker("ZonedDateTime");
+const ZonedDatePicker = createDatePicker("ZonedDateTime", { temporal: Temporal });
 
 type ZonedValue = DatePickerValueForFormat<"ZonedDateTime">;
 
