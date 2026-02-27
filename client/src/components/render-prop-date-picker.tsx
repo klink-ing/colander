@@ -1,13 +1,13 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { createDatePicker } from "@/components/ui/date-picker";
-import type { DatePickerValueFormat, DatePickerValueForFormat, DatePickerTyped } from "@/components/ui/date-picker";
+import type { DatePickerValueFormat, DatePickerRawValueForFormat, DatePickerTyped } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
 interface RenderPropDatePickerProps<F extends DatePickerValueFormat> {
-  value?: DatePickerValueForFormat<F>;
-  defaultValue?: DatePickerValueForFormat<F>;
-  onValueChange?: (value: DatePickerValueForFormat<F>) => void;
+  value?: DatePickerRawValueForFormat<F>;
+  defaultValue?: DatePickerRawValueForFormat<F>;
+  onValueChange?: (value: DatePickerRawValueForFormat<F>) => void;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;

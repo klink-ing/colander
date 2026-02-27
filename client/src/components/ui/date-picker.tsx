@@ -74,6 +74,8 @@ type ValueFormat = DateValueObject["format"];
 
 type ValueForFormat<F extends ValueFormat> = Extract<DateValueObject, { format: F }>;
 
+type RawValueForFormat<F extends ValueFormat> = ValueForFormat<F>["value"];
+
 function getSystemTimeZone(T: TemporalNamespace): string {
   return T.Now.timeZoneId();
 }
@@ -257,9 +259,9 @@ interface RootState {
 
 interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   format?: F;
-  value?: ValueForFormat<F>;
-  defaultValue?: ValueForFormat<F>;
-  onValueChange?: (value: ValueForFormat<F>) => void;
+  value?: RawValueForFormat<F>;
+  defaultValue?: RawValueForFormat<F>;
+  onValueChange?: (value: RawValueForFormat<F>) => void;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
@@ -292,17 +294,27 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   const timeZone = timeZoneProp ?? getSystemTimeZone(T);
   const locale = localeProp ?? "en-US";
 
-  const resolvedFormat: ValueFormat = value?.format ?? defaultValue?.format ?? formatProp ?? "PlainDate";
+  const resolvedFormat: ValueFormat = formatProp ?? "PlainDate";
+
+  const taggedValue: DateValueObject | undefined = useMemo(
+    () => (value != null ? { format: resolvedFormat, value } as DateValueObject : undefined),
+    [value, resolvedFormat],
+  );
+
+  const taggedDefault: DateValueObject | undefined = useMemo(
+    () => (defaultValue != null ? { format: resolvedFormat, value: defaultValue } as DateValueObject : undefined),
+    [defaultValue, resolvedFormat],
+  );
 
   const [internalSelected, setInternalSelected] = useState<
     DateValueObject | undefined
-  >(() => (defaultValue ? defaultValue : undefined));
+  >(() => taggedDefault);
 
   const [currentMonth, setCurrentMonth] = useState<{
     year: number;
     month: number;
   }>(() => {
-    const src = value ?? defaultValue;
+    const src = taggedValue ?? taggedDefault;
     const init = src
       ? toZonedDateTime(src, timeZone, T)
       : T.Now.zonedDateTimeISO(timeZone);
@@ -310,7 +322,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   });
 
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
-    const src = value ?? defaultValue;
+    const src = taggedValue ?? taggedDefault;
     if (src) {
       return toZonedDateTime(src, timeZone, T).toPlainDate();
     }
@@ -318,9 +330,9 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   });
 
   const selected: DateValueObject | undefined = useMemo(() => {
-    if (value) return value;
+    if (taggedValue) return taggedValue;
     return internalSelected;
-  }, [value, internalSelected]);
+  }, [taggedValue, internalSelected]);
 
   const selectedZdt = useMemo(
     () => selectedToZdt(selected, timeZone, T),
@@ -328,11 +340,11 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   );
 
   useEffect(() => {
-    if (value) {
-      const zdt = toZonedDateTime(value, timeZone, T);
+    if (taggedValue) {
+      const zdt = toZonedDateTime(taggedValue, timeZone, T);
       setCurrentMonth({ year: zdt.year, month: zdt.month });
     }
-  }, [value, timeZone, T]);
+  }, [taggedValue, timeZone, T]);
 
   useEffect(() => {
     if (
@@ -357,7 +369,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
       const newTagged = fromZonedDateTime(newZdt, resolvedFormat, T);
       if (!value) setInternalSelected(newTagged);
       setCurrentMonth({ year: date.year, month: date.month });
-      onValueChange?.(newTagged as ValueForFormat<F>);
+      onValueChange?.(newTagged.value as RawValueForFormat<F>);
     },
     [value, selectedZdt, onValueChange, resolvedFormat, disabled, timeZone, T],
   );
@@ -1087,8 +1099,10 @@ interface CreateDatePickerOptions {
   temporal?: TemporalNamespace;
 }
 
+type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
+
 interface TypedDatePicker<F extends ValueFormat> {
-  Root: (props: RootProps<F> & { ref?: React.Ref<HTMLDivElement> }) => React.ReactElement | null;
+  Root: (props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> }) => React.ReactElement | null;
   MonthGrid: typeof MonthGrid;
   Week: typeof Week;
   Day: typeof Day;
@@ -1104,7 +1118,7 @@ interface TypedDatePicker<F extends ValueFormat> {
 function createDatePicker<F extends ValueFormat>(format: F, options?: CreateDatePickerOptions): TypedDatePicker<F> {
   const resolvedTemporal = resolveTemporal(options?.temporal);
 
-  const TypedRoot = forwardRef<HTMLDivElement, RootProps<F>>(function TypedRoot(props, ref) {
+  const TypedRoot = forwardRef<HTMLDivElement, TypedRootProps<F>>(function TypedRoot(props, ref) {
     return createElement(RootInner, { ...props, format, _resolvedTemporal: resolvedTemporal, innerRef: ref } as any);
   }) as TypedDatePicker<F>["Root"];
 
@@ -1150,8 +1164,10 @@ export type {
   ValueFormat as DatePickerValueFormat,
   DateValueObject as DatePickerDateValueObject,
   ValueForFormat as DatePickerValueForFormat,
+  RawValueForFormat as DatePickerRawValueForFormat,
   PlainDateObject as DatePickerPlainDateObject,
   TypedDatePicker as DatePickerTyped,
+  TypedRootProps as DatePickerTypedRootProps,
   TemporalNamespace as DatePickerTemporalNamespace,
   CreateDatePickerOptions as DatePickerCreateOptions,
 };

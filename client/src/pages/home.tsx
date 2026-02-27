@@ -1,14 +1,11 @@
 import { useState, useMemo, useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import { createDatePicker } from "@/components/ui/date-picker";
-import type { DatePickerValueForFormat } from "@/components/ui/date-picker";
 import { StyledDatePicker } from "@/components/styled-date-picker";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
 const ZonedDatePicker = createDatePicker("ZonedDateTime", { temporal: Temporal });
-
-type ZonedValue = DatePickerValueForFormat<"ZonedDateTime">;
 
 const TIMEZONES = [
   "America/New_York",
@@ -57,13 +54,12 @@ function formatTzLabel(tz: string): string {
 export default function Home() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
   const [timeZone, setTimeZone] = useState(systemTz);
-  const [selectedDate, setSelectedDate] = useState<ZonedValue | undefined>();
-  const [selectedDate2, setSelectedDate2] = useState<ZonedValue | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Temporal.ZonedDateTime | undefined>();
+  const [selectedDate2, setSelectedDate2] = useState<Temporal.ZonedDateTime | undefined>();
 
-  const rezoneDateValue = useCallback((val: ZonedValue | undefined, newTz: string): ZonedValue | undefined => {
+  const rezoneDateValue = useCallback((val: Temporal.ZonedDateTime | undefined, newTz: string): Temporal.ZonedDateTime | undefined => {
     if (!val) return undefined;
-    const rezoned = val.value.withTimeZone(newTz);
-    return { format: "ZonedDateTime", value: rezoned };
+    return val.withTimeZone(newTz);
   }, []);
 
   const handleTimeZoneChange = useCallback((newTz: string) => {
@@ -77,9 +73,9 @@ export default function Home() {
     return all.map((tz) => ({ value: tz, label: formatTzLabel(tz) }));
   }, [systemTz]);
 
-  const formatDisplay = (val: ZonedValue | undefined) =>
+  const formatDisplay = (val: Temporal.ZonedDateTime | undefined) =>
     val
-      ? `Selected: ${new Date(val.value.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
+      ? `Selected: ${new Date(val.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
       : "Pick a date below";
 
   return (
