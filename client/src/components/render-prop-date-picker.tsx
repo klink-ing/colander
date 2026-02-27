@@ -76,7 +76,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                {new Date(state.target.year, state.target.month - 1).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+                {state.target.toLocaleString(undefined, { month: "long", year: "numeric" })}
               </TooltipContent>
             </Tooltip>
           )}

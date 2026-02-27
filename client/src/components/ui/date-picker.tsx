@@ -39,6 +39,10 @@ type TemporalNamespace = {
   };
 };
 
+function calendarForLocale(locale: string): string {
+  return new Intl.DateTimeFormat(locale).resolvedOptions().calendar;
+}
+
 function resolveTemporal(provided?: TemporalNamespace): TemporalNamespace {
   if (provided) return provided;
   if (typeof globalThis !== "undefined" && (globalThis as any).Temporal) {
@@ -511,9 +515,11 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     ],
   );
 
+  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
+
   const viewingYearMonth = useMemo(
-    () => T.PlainYearMonth.from({ year: currentMonth.year, month: currentMonth.month }),
-    [currentMonth, T],
+    () => T.PlainYearMonth.from({ year: currentMonth.year, month: currentMonth.month, calendar: localeCalendar }),
+    [currentMonth, T, localeCalendar],
   );
 
   const rawSelected = useMemo(
@@ -727,7 +733,7 @@ function PrevMonthButton(
   props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToPrevMonth, currentMonth, minValue, temporal: T } = useDatePicker();
+  const { goToPrevMonth, currentMonth, minValue, locale, temporal: T } = useDatePicker();
 
   const destMonth = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
   const destYear = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
@@ -740,9 +746,11 @@ function PrevMonthButton(
     );
   }, [destYear, destMonth, minValue]);
 
+  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
+
   const target = useMemo(
-    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
-    [destYear, destMonth, T],
+    () => T.PlainYearMonth.from({ year: destYear, month: destMonth, calendar: localeCalendar }),
+    [destYear, destMonth, T, localeCalendar],
   );
 
   const state = useMemo<NavButtonState>(
@@ -772,7 +780,7 @@ function NextMonthButton(
   props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToNextMonth, currentMonth, maxValue, temporal: T } = useDatePicker();
+  const { goToNextMonth, currentMonth, maxValue, locale, temporal: T } = useDatePicker();
 
   const destMonth = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
   const destYear = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
@@ -785,9 +793,11 @@ function NextMonthButton(
     );
   }, [destYear, destMonth, maxValue]);
 
+  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
+
   const target = useMemo(
-    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
-    [destYear, destMonth, T],
+    () => T.PlainYearMonth.from({ year: destYear, month: destMonth, calendar: localeCalendar }),
+    [destYear, destMonth, T, localeCalendar],
   );
 
   const state = useMemo<NavButtonState>(
