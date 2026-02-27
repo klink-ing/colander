@@ -144,6 +144,7 @@ export default function Home() {
             onValueChange={setSelectedDate}
             min={minDate}
             max={maxDate}
+            locale="de-DE"
             timeZone={timeZone}
           />
         </div>
@@ -157,6 +158,7 @@ export default function Home() {
             onValueChange={setSelectedDate2}
             min={minDate}
             max={maxDate}
+            locale="de-DE"
             timeZone={timeZone}
           />
         </div>

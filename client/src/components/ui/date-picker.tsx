@@ -40,7 +40,7 @@ type TemporalNamespace = {
 };
 
 function calendarForLocale(locale: string): string {
-  return new Intl.DateTimeFormat(locale).resolvedOptions().calendar;
+  return new Intl.DateTimeFormat(locale || undefined).resolvedOptions().calendar;
 }
 
 function resolveTemporal(provided?: TemporalNamespace): TemporalNamespace {
