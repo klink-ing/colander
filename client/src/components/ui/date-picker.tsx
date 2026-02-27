@@ -18,16 +18,8 @@ import type { Temporal } from "@js-temporal/polyfill";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 
-function callUseRender<Tag extends keyof React.JSX.IntrinsicElements, S>(args: {
-  defaultTagName: Tag;
-  render: any;
-  ref: any[];
-  state: S;
-  stateAttributesMapping?: any;
-  props: any;
-}) {
-  return useRender(args as any);
-}
+type Indexable<T> = T & Record<string, unknown>;
+
 
 type TemporalNamespace = {
   Now: {
@@ -566,12 +558,12 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     children,
   };
 
-  const rendered = callUseRender({
+  const rendered = useRender<Indexable<RootState<F>>, HTMLDivElement>({
     defaultTagName: "div",
     render,
     ref: ref ? [ref] : [],
-    state,
-    stateAttributesMapping,
+    state: state as Indexable<RootState<F>>,
+    stateAttributesMapping: stateAttributesMapping as any,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
 
@@ -627,11 +619,11 @@ function DateString(
     "aria-live": "polite",
   };
 
-  return callUseRender({
+  return useRender<Indexable<DateStringState>, HTMLSpanElement>({
     defaultTagName: "span",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<DateStringState>,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -678,11 +670,11 @@ function TimeString(
     "aria-live": "polite",
   };
 
-  return callUseRender({
+  return useRender<Indexable<TimeStringState>, HTMLSpanElement>({
     defaultTagName: "span",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<TimeStringState>,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -723,11 +715,11 @@ function MonthString(
     "aria-live": "polite",
   };
 
-  return callUseRender({
+  return useRender<Indexable<MonthStringState>, HTMLSpanElement>({
     defaultTagName: "span",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<MonthStringState>,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -776,11 +768,11 @@ function PrevMonthButton(
     onClick: isDisabled ? undefined : goToPrevMonth,
   };
 
-  return callUseRender({
+  return useRender<Indexable<NavButtonState>, HTMLButtonElement>({
     defaultTagName: "button",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<NavButtonState>,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }
@@ -823,11 +815,11 @@ function NextMonthButton(
     onClick: isDisabled ? undefined : goToNextMonth,
   };
 
-  return callUseRender({
+  return useRender<Indexable<NavButtonState>, HTMLButtonElement>({
     defaultTagName: "button",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<NavButtonState>,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }
@@ -899,12 +891,12 @@ function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
     children: state.short,
   };
 
-  return callUseRender({
+  return useRender<Indexable<DayLabelState>, HTMLDivElement>({
     defaultTagName: "div",
     render,
-    ref: [ref],
-    state,
-    stateAttributesMapping,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<DayLabelState>,
+    stateAttributesMapping: stateAttributesMapping as any,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
 }
@@ -942,11 +934,11 @@ function DayLabels(
     children: resolvedChildren,
   };
 
-  return callUseRender({
+  return useRender<Indexable<DayLabelsState>, HTMLDivElement>({
     defaultTagName: "div",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<DayLabelsState>,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
 }
@@ -1091,11 +1083,11 @@ function MonthGrid(
     children: resolvedChildren,
   };
 
-  return callUseRender({
+  return useRender<Indexable<MonthGridState>, HTMLDivElement>({
     defaultTagName: "div",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<MonthGridState>,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
 }
@@ -1113,11 +1105,11 @@ function Week(props: WeekProps & { ref?: React.Ref<HTMLDivElement> }) {
     role: "row",
   };
 
-  return callUseRender({
+  return useRender<Indexable<WeekState>, HTMLDivElement>({
     defaultTagName: "div",
     render,
-    ref: [ref],
-    state,
+    ref: ref ? [ref] : [],
+    state: state as Indexable<WeekState>,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
 }
@@ -1211,12 +1203,12 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
     [],
   );
 
-  return callUseRender({
+  return useRender<Indexable<DayState>, HTMLButtonElement>({
     defaultTagName: "button",
     render,
-    ref: [ref, internalRef],
-    state,
-    stateAttributesMapping,
+    ref: ref ? [ref, internalRef] : [internalRef],
+    state: state as Indexable<DayState>,
+    stateAttributesMapping: stateAttributesMapping as any,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }
