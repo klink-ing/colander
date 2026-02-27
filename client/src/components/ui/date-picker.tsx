@@ -729,43 +729,10 @@ function MonthString(
   });
 }
 
-interface NavButtonMonthYear {
-  month: number;
-  year: number;
-  monthLong: string;
-  monthShort: string;
-  monthNarrow: string;
-  monthNumeric: string;
-  month2Digit: string;
-  yearNumeric: string;
-  year2Digit: string;
-  formatted: string;
-}
-
 interface NavButtonState {
   direction: "next" | "prev";
   disabled: boolean;
-  target: NavButtonMonthYear;
-}
-
-function getNavMonthYear(
-  month: number,
-  year: number,
-  locale: string,
-): NavButtonMonthYear {
-  const d = new Date(year, month - 1, 1);
-  return {
-    month,
-    year,
-    monthLong: d.toLocaleDateString(locale, { month: "long" }),
-    monthShort: d.toLocaleDateString(locale, { month: "short" }),
-    monthNarrow: d.toLocaleDateString(locale, { month: "narrow" }),
-    monthNumeric: d.toLocaleDateString(locale, { month: "numeric" }),
-    month2Digit: d.toLocaleDateString(locale, { month: "2-digit" }),
-    yearNumeric: d.toLocaleDateString(locale, { year: "numeric" }),
-    year2Digit: d.toLocaleDateString(locale, { year: "2-digit" }),
-    formatted: d.toLocaleDateString(locale, { month: "long", year: "numeric" }),
-  };
+  target: Temporal.PlainYearMonth;
 }
 
 type PrevMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
@@ -774,7 +741,7 @@ function PrevMonthButton(
   props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToPrevMonth, currentMonth, minValue, locale } = useDatePicker();
+  const { goToPrevMonth, currentMonth, minValue, temporal: T } = useDatePicker();
 
   const destMonth = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
   const destYear = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
@@ -788,8 +755,8 @@ function PrevMonthButton(
   }, [destYear, destMonth, minValue]);
 
   const target = useMemo(
-    () => getNavMonthYear(destMonth, destYear, locale),
-    [destMonth, destYear, locale],
+    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
+    [destYear, destMonth, T],
   );
 
   const state = useMemo<NavButtonState>(
@@ -799,7 +766,7 @@ function PrevMonthButton(
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
-    "aria-label": `Go to ${target.formatted}`,
+    "aria-label": `Go to previous month`,
     disabled: isDisabled,
     onClick: isDisabled ? undefined : goToPrevMonth,
   };
@@ -819,7 +786,7 @@ function NextMonthButton(
   props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToNextMonth, currentMonth, maxValue, locale } = useDatePicker();
+  const { goToNextMonth, currentMonth, maxValue, temporal: T } = useDatePicker();
 
   const destMonth = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
   const destYear = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
@@ -833,8 +800,8 @@ function NextMonthButton(
   }, [destYear, destMonth, maxValue]);
 
   const target = useMemo(
-    () => getNavMonthYear(destMonth, destYear, locale),
-    [destMonth, destYear, locale],
+    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
+    [destYear, destMonth, T],
   );
 
   const state = useMemo<NavButtonState>(
@@ -844,7 +811,7 @@ function NextMonthButton(
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
-    "aria-label": `Go to ${target.formatted}`,
+    "aria-label": `Go to next month`,
     disabled: isDisabled,
     onClick: isDisabled ? undefined : goToNextMonth,
   };
@@ -1336,7 +1303,6 @@ export type {
   PrevMonthButtonProps as DatePickerPrevMonthButtonProps,
   NextMonthButtonProps as DatePickerNextMonthButtonProps,
   NavButtonState as DatePickerNavButtonState,
-  NavButtonMonthYear as DatePickerNavButtonMonthYear,
   ValueFormat as DatePickerValueFormat,
   DateValueObject as DatePickerDateValueObject,
   ValueForFormat as DatePickerValueForFormat,

@@ -75,7 +75,9 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                   <ChevronLeft className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>{state.target.formatted}</TooltipContent>
+              <TooltipContent>
+                {new Date(state.target.year, state.target.month - 1).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+              </TooltipContent>
             </Tooltip>
           )}
         />
@@ -105,7 +107,9 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                   <ChevronRight className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>{state.target.formatted}</TooltipContent>
+              <TooltipContent>
+                {new Date(state.target.year, state.target.month - 1).toLocaleDateString(undefined, { month: "long", year: "numeric" })}
+              </TooltipContent>
             </Tooltip>
           )}
         />
