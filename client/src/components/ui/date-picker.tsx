@@ -237,8 +237,8 @@ interface DatePickerContextValue {
   goToPrevMonth: () => void;
   weeks: Temporal.PlainDate[][];
   disabled?: (date: Temporal.PlainDate) => boolean;
-  minDate?: Temporal.PlainDate;
-  maxDate?: Temporal.PlainDate;
+  minValue?: Temporal.PlainDate;
+  maxValue?: Temporal.PlainDate;
   focusedDate: Temporal.PlainDate;
   setFocusedDate: (date: Temporal.PlainDate) => void;
   timeZone: string;
@@ -340,13 +340,13 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     [defaultValue, resolvedFormat],
   );
 
-  const minDate: Temporal.PlainDate | undefined = useMemo(() => {
+  const minValue: Temporal.PlainDate | undefined = useMemo(() => {
     if (min == null) return undefined;
     const tagged = { format: resolvedFormat, value: min } as DateValueObject;
     return toZonedDateTime(tagged, timeZone, T).toPlainDate();
   }, [min, resolvedFormat, timeZone, T]);
 
-  const maxDate: Temporal.PlainDate | undefined = useMemo(() => {
+  const maxValue: Temporal.PlainDate | undefined = useMemo(() => {
     if (max == null) return undefined;
     const tagged = { format: resolvedFormat, value: max } as DateValueObject;
     return toZonedDateTime(tagged, timeZone, T).toPlainDate();
@@ -354,11 +354,11 @@ function RootInner<F extends ValueFormat = ValueFormat>(
 
   const disabled = useCallback(
     (date: Temporal.PlainDate): boolean => {
-      if (minDate && T.PlainDate.compare(date, minDate) < 0) return true;
-      if (maxDate && T.PlainDate.compare(date, maxDate) > 0) return true;
+      if (minValue && T.PlainDate.compare(date, minValue) < 0) return true;
+      if (maxValue && T.PlainDate.compare(date, maxValue) > 0) return true;
       return disabledProp?.(date) ?? false;
     },
-    [minDate, maxDate, disabledProp, T],
+    [minValue, maxValue, disabledProp, T],
   );
 
   const [internalSelected, setInternalSelected] = useState<
@@ -414,15 +414,15 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     if (!selected) return;
     const selPlain = toZonedDateTime(selected, timeZone, T).toPlainDate();
     const outOfBounds =
-      (minDate && T.PlainDate.compare(selPlain, minDate) < 0) ||
-      (maxDate && T.PlainDate.compare(selPlain, maxDate) > 0);
+      (minValue && T.PlainDate.compare(selPlain, minValue) < 0) ||
+      (maxValue && T.PlainDate.compare(selPlain, maxValue) > 0);
     if (outOfBounds) {
       if (!value) {
         setInternalSelected(undefined);
       }
       onValueChange?.(undefined);
     }
-  }, [minDate, maxDate, selected, value, onValueChange, timeZone, T]);
+  }, [minValue, maxValue, selected, value, onValueChange, timeZone, T]);
 
   const onSelect = useCallback(
     (date: Temporal.PlainDate) => {
@@ -493,8 +493,8 @@ function RootInner<F extends ValueFormat = ValueFormat>(
       goToPrevMonth,
       weeks,
       disabled,
-      minDate,
-      maxDate,
+      minValue,
+      maxValue,
       focusedDate,
       setFocusedDate,
       timeZone,
@@ -510,8 +510,8 @@ function RootInner<F extends ValueFormat = ValueFormat>(
       goToPrevMonth,
       weeks,
       disabled,
-      minDate,
-      maxDate,
+      minValue,
+      maxValue,
       focusedDate,
       timeZone,
       locale,
@@ -740,17 +740,17 @@ function PrevMonthButton(
   props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToPrevMonth, currentMonth, minDate } = useDatePicker();
+  const { goToPrevMonth, currentMonth, minValue } = useDatePicker();
 
   const isDisabled = useMemo(() => {
-    if (!minDate) return false;
+    if (!minValue) return false;
     const prevYear = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
     const prevMonth = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
     return (
-      prevYear < minDate.year ||
-      (prevYear === minDate.year && prevMonth < minDate.month)
+      prevYear < minValue.year ||
+      (prevYear === minValue.year && prevMonth < minValue.month)
     );
-  }, [currentMonth, minDate]);
+  }, [currentMonth, minValue]);
 
   const state = useMemo<NavButtonState>(
     () => ({ direction: "prev", disabled: isDisabled }),
@@ -779,17 +779,17 @@ function NextMonthButton(
   props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToNextMonth, currentMonth, maxDate } = useDatePicker();
+  const { goToNextMonth, currentMonth, maxValue } = useDatePicker();
 
   const isDisabled = useMemo(() => {
-    if (!maxDate) return false;
+    if (!maxValue) return false;
     const nextYear = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
     const nextMonth = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
     return (
-      nextYear > maxDate.year ||
-      (nextYear === maxDate.year && nextMonth > maxDate.month)
+      nextYear > maxValue.year ||
+      (nextYear === maxValue.year && nextMonth > maxValue.month)
     );
-  }, [currentMonth, maxDate]);
+  }, [currentMonth, maxValue]);
 
   const state = useMemo<NavButtonState>(
     () => ({ direction: "next", disabled: isDisabled }),
@@ -996,8 +996,8 @@ function MonthGrid(
     setFocusedDate,
     onSelect,
     disabled,
-    minDate,
-    maxDate,
+    minValue,
+    maxValue,
     currentMonth,
     temporal: T,
   } = useDatePicker();
@@ -1036,13 +1036,13 @@ function MonthGrid(
       }
 
       if (nextDate) {
-        if (minDate && T.PlainDate.compare(nextDate, minDate) < 0) return;
-        if (maxDate && T.PlainDate.compare(nextDate, maxDate) > 0) return;
+        if (minValue && T.PlainDate.compare(nextDate, minValue) < 0) return;
+        if (maxValue && T.PlainDate.compare(nextDate, maxValue) > 0) return;
         e.preventDefault();
         setFocusedDate(nextDate);
       }
     },
-    [focusedDate, setFocusedDate, onSelect, disabled, minDate, maxDate, T],
+    [focusedDate, setFocusedDate, onSelect, disabled, minValue, maxValue, T],
   );
 
   const bareDefaultChildren = (
