@@ -69,6 +69,15 @@ export default function Home() {
     Temporal.ZonedDateTime | undefined
   >();
 
+  const minDate = useMemo(
+    () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ days: 7 }),
+    [systemTz],
+  );
+  const maxDate = useMemo(
+    () => Temporal.Now.zonedDateTimeISO(systemTz).add({ days: 30 }),
+    [systemTz],
+  );
+
   const rezoneDateValue = useCallback(
     (
       val: Temporal.ZonedDateTime | undefined,
@@ -126,24 +135,28 @@ export default function Home() {
       </div>
 
       <div className="flex items-start justify-center gap-4 flex-wrap">
-        <div className="w-fit ">
+        <div className="w-min ">
           Styled DatePicker
           {formatDisplay(selectedDate)}
           <StyledDatePicker
             components={ZonedDatePicker}
             value={selectedDate}
             onValueChange={setSelectedDate}
+            min={minDate}
+            max={maxDate}
             timeZone={timeZone}
           />
         </div>
 
-        <div className="w-fit">
+        <div className="w-min">
           Render Prop DatePicker
           {formatDisplay(selectedDate2)}
           <RenderPropDatePicker
             components={ZonedDatePicker}
             value={selectedDate2}
             onValueChange={setSelectedDate2}
+            min={minDate}
+            max={maxDate}
             timeZone={timeZone}
           />
         </div>

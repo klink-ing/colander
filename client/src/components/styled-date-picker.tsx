@@ -2,7 +2,6 @@ import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type {
   DatePickerValueFormat,
-  DatePickerValueForFormat,
   DatePickerTyped,
   DatePickerRawValueForFormat,
 } from "@/components/ui/date-picker";
@@ -11,7 +10,9 @@ import { cn } from "@/lib/utils";
 interface StyledDatePickerProps<F extends DatePickerValueFormat> {
   value?: DatePickerRawValueForFormat<F>;
   defaultValue?: DatePickerRawValueForFormat<F>;
-  onValueChange?: (value: DatePickerValueForFormat<F>) => void;
+  onValueChange?: (value: DatePickerRawValueForFormat<F> | undefined) => void;
+  min?: DatePickerRawValueForFormat<F>;
+  max?: DatePickerRawValueForFormat<F>;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
@@ -23,6 +24,8 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
   value,
   defaultValue,
   onValueChange,
+  min,
+  max,
   disabled,
   timeZone,
   locale,
@@ -34,6 +37,8 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
+      min={min}
+      max={max}
       disabled={disabled}
       timeZone={timeZone}
       locale={locale}
@@ -42,15 +47,21 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
         <div className="flex items-center justify-between gap-1 px-1 pb-3">
           <DP.PrevMonthButton
             data-testid="button-prev-month"
-            className={cn(
-              "inline-flex h-7 w-7 items-center justify-center rounded-md",
-              "text-muted-foreground transition-colors",
-              "hover:bg-accent hover:text-accent-foreground",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            render={(props, state) => (
+              <button
+                {...props}
+                className={cn(
+                  "inline-flex h-7 w-7 items-center justify-center rounded-md",
+                  "text-muted-foreground transition-colors",
+                  "hover:bg-accent hover:text-accent-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  state.disabled && "pointer-events-none opacity-50",
+                )}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
             )}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </DP.PrevMonthButton>
+          />
 
           <DP.MonthString
             data-testid="text-current-month"
@@ -59,19 +70,25 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
 
           <DP.NextMonthButton
             data-testid="button-next-month"
-            className={cn(
-              "inline-flex h-7 w-7 items-center justify-center rounded-md",
-              "text-muted-foreground transition-colors",
-              "hover:bg-accent hover:text-accent-foreground",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+            render={(props, state) => (
+              <button
+                {...props}
+                className={cn(
+                  "inline-flex h-7 w-7 items-center justify-center rounded-md",
+                  "text-muted-foreground transition-colors",
+                  "hover:bg-accent hover:text-accent-foreground",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  state.disabled && "pointer-events-none opacity-50",
+                )}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
             )}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </DP.NextMonthButton>
+          />
         </div>
 
         <DP.MonthGrid mode="grid" className="w-full">
-          <DP.DayLabels className="grid grid-cols-7">
+          <DP.DayLabels className="grid grid-cols-[repeat(7,1fr            )]">
             <DP.DayLabel className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground" />
           </DP.DayLabels>
           <DP.Week className="grid grid-cols-7 mt-0.5">

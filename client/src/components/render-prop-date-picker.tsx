@@ -1,12 +1,24 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { DatePickerValueFormat, DatePickerRawValueForFormat, DatePickerTyped } from "@/components/ui/date-picker";
+import type {
+  DatePickerValueFormat,
+  DatePickerRawValueForFormat,
+  DatePickerTyped,
+} from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
+
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
 
 interface RenderPropDatePickerProps<F extends DatePickerValueFormat> {
   value?: DatePickerRawValueForFormat<F>;
   defaultValue?: DatePickerRawValueForFormat<F>;
-  onValueChange?: (value: DatePickerRawValueForFormat<F>) => void;
+  onValueChange?: (value: DatePickerRawValueForFormat<F> | undefined) => void;
+  min?: DatePickerRawValueForFormat<F>;
+  max?: DatePickerRawValueForFormat<F>;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
@@ -18,6 +30,8 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
   value,
   defaultValue,
   onValueChange,
+  min,
+  max,
   disabled,
   timeZone,
   locale,
@@ -29,6 +43,8 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
       value={value}
       defaultValue={defaultValue}
       onValueChange={onValueChange}
+      min={min}
+      max={max}
       disabled={disabled}
       timeZone={timeZone}
       locale={locale}
@@ -44,27 +60,30 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
         <DP.PrevMonthButton
           data-testid="button-prev-month"
           render={(props, state) => (
-            <button
-              {...props}
-              className={cn(
-                "inline-flex h-7 w-7 items-center justify-center rounded-md",
-                "text-muted-foreground transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-              )}
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  {...props}
+                  className={cn(
+                    "inline-flex h-7 w-7 items-center justify-center rounded-md",
+                    "text-muted-foreground transition-colors",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    state.disabled && "pointer-events-none opacity-50",
+                  )}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>Go to {state.direction}</TooltipContent>
+            </Tooltip>
           )}
         />
 
         <DP.MonthString
           data-testid="text-current-month"
           render={(props, state) => (
-            <span
-              {...props}
-              className="text-sm font-medium"
-            />
+            <span {...props} className="text-sm font-medium" />
           )}
         />
 
@@ -78,6 +97,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                 "text-muted-foreground transition-colors",
                 "hover:bg-accent hover:text-accent-foreground",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                state.disabled && "pointer-events-none opacity-50",
               )}
             >
               <ChevronRight className="h-4 w-4" />
@@ -89,19 +109,12 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
       <DP.MonthGrid
         mode="grid"
         render={(props, state) => (
-          <div
-            {...props}
-            data-testid="monthgrid"
-            className="w-full"
-          />
+          <div {...props} data-testid="monthgrid" className="w-full" />
         )}
       >
         <DP.DayLabels
           render={(props, state) => (
-            <div
-              {...props}
-              className="grid grid-cols-7"
-            />
+            <div {...props} className="grid grid-cols-[repeat(7,1fr)]" />
           )}
         >
           <DP.DayLabel
@@ -118,10 +131,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
 
         <DP.Week
           render={(props, state) => (
-            <div
-              {...props}
-              className="grid grid-cols-7 mt-0.5"
-            />
+            <div {...props} className="grid grid-cols-7 mt-0.5" />
           )}
         >
           <DP.Day
@@ -132,8 +142,13 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                   "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
                   state.outsideMonth && "text-muted-foreground opacity-40",
-                  !state.outsideMonth && !state.selected && !state.today && "text-foreground hover:bg-accent hover:text-accent-foreground",
-                  state.today && !state.selected && "bg-accent text-accent-foreground",
+                  !state.outsideMonth &&
+                    !state.selected &&
+                    !state.today &&
+                    "text-foreground hover:bg-accent hover:text-accent-foreground",
+                  state.today &&
+                    !state.selected &&
+                    "bg-accent text-accent-foreground",
                   state.selected && "bg-primary text-primary-foreground",
                   state.disabled && "pointer-events-none opacity-50",
                 )}

@@ -231,11 +231,14 @@ function sameCalendarDay(
 interface DatePickerContextValue {
   selected: DateValueObject | undefined;
   onSelect: (date: Temporal.PlainDate) => void;
+  currentDateTime: Temporal.PlainDateTime;
   currentMonth: { year: number; month: number };
   goToNextMonth: () => void;
   goToPrevMonth: () => void;
   weeks: Temporal.PlainDate[][];
   disabled?: (date: Temporal.PlainDate) => boolean;
+  minDate?: Temporal.PlainDate;
+  maxDate?: Temporal.PlainDate;
   focusedDate: Temporal.PlainDate;
   setFocusedDate: (date: Temporal.PlainDate) => void;
   timeZone: string;
@@ -275,7 +278,9 @@ interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   format?: F;
   value?: RawValueForFormat<F>;
   defaultValue?: RawValueForFormat<F>;
-  onValueChange?: (value: RawValueForFormat<F>) => void;
+  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+  min?: RawValueForFormat<F>;
+  max?: RawValueForFormat<F>;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
@@ -302,7 +307,9 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     value,
     defaultValue,
     onValueChange,
-    disabled,
+    min,
+    max,
+    disabled: disabledProp,
     timeZone: timeZoneProp,
     locale: localeProp,
     temporal: temporalProp,
@@ -331,6 +338,27 @@ function RootInner<F extends ValueFormat = ValueFormat>(
         ? ({ format: resolvedFormat, value: defaultValue } as DateValueObject)
         : undefined,
     [defaultValue, resolvedFormat],
+  );
+
+  const minDate: Temporal.PlainDate | undefined = useMemo(() => {
+    if (min == null) return undefined;
+    const tagged = { format: resolvedFormat, value: min } as DateValueObject;
+    return toZonedDateTime(tagged, timeZone, T).toPlainDate();
+  }, [min, resolvedFormat, timeZone, T]);
+
+  const maxDate: Temporal.PlainDate | undefined = useMemo(() => {
+    if (max == null) return undefined;
+    const tagged = { format: resolvedFormat, value: max } as DateValueObject;
+    return toZonedDateTime(tagged, timeZone, T).toPlainDate();
+  }, [max, resolvedFormat, timeZone, T]);
+
+  const disabled = useCallback(
+    (date: Temporal.PlainDate): boolean => {
+      if (minDate && T.PlainDate.compare(date, minDate) < 0) return true;
+      if (maxDate && T.PlainDate.compare(date, maxDate) > 0) return true;
+      return disabledProp?.(date) ?? false;
+    },
+    [minDate, maxDate, disabledProp, T],
   );
 
   const [internalSelected, setInternalSelected] = useState<
@@ -382,6 +410,20 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     }
   }, [focusedDate]);
 
+  useEffect(() => {
+    if (!selected) return;
+    const selPlain = toZonedDateTime(selected, timeZone, T).toPlainDate();
+    const outOfBounds =
+      (minDate && T.PlainDate.compare(selPlain, minDate) < 0) ||
+      (maxDate && T.PlainDate.compare(selPlain, maxDate) > 0);
+    if (outOfBounds) {
+      if (!value) {
+        setInternalSelected(undefined);
+      }
+      onValueChange?.(undefined);
+    }
+  }, [minDate, maxDate, selected, value, onValueChange, timeZone, T]);
+
   const onSelect = useCallback(
     (date: Temporal.PlainDate) => {
       if (disabled?.(date)) return;
@@ -428,15 +470,31 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     [currentMonth.year, currentMonth.month, T],
   );
 
+  const currentDateTime = useMemo<Temporal.PlainDateTime>(
+    () =>
+      T.PlainDateTime.from({
+        year: currentMonth.year,
+        month: currentMonth.month,
+        day: focusedDate.day,
+        hour: selectedZdt?.hour ?? 0,
+        minute: selectedZdt?.minute ?? 0,
+        second: selectedZdt?.second ?? 0,
+      }),
+    [currentMonth, focusedDate.day, selectedZdt],
+  );
+
   const ctx = useMemo<DatePickerContextValue>(
     () => ({
       selected,
       onSelect,
+      currentDateTime,
       currentMonth,
       goToNextMonth,
       goToPrevMonth,
       weeks,
       disabled,
+      minDate,
+      maxDate,
       focusedDate,
       setFocusedDate,
       timeZone,
@@ -446,11 +504,14 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     [
       selected,
       onSelect,
+      currentDateTime,
       currentMonth,
       goToNextMonth,
       goToPrevMonth,
       weeks,
       disabled,
+      minDate,
+      maxDate,
       focusedDate,
       timeZone,
       locale,
@@ -536,7 +597,9 @@ interface DateStringOwnProps {
 type DateStringProps = useRender.ComponentProps<"span", DateStringState> &
   DateStringOwnProps;
 
-function DateString(props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+function DateString(
+  props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },
+) {
   const { ref, render, locales, options, ...otherProps } = props;
   const { currentMonth, selected, timeZone, temporal: T } = useDatePicker();
 
@@ -584,7 +647,9 @@ interface TimeStringOwnProps {
 type TimeStringProps = useRender.ComponentProps<"span", TimeStringState> &
   TimeStringOwnProps;
 
-function TimeString(props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+function TimeString(
+  props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> },
+) {
   const { ref, render, locales, options, ...otherProps } = props;
   const { selected, timeZone, temporal: T } = useDatePicker();
 
@@ -632,7 +697,9 @@ interface MonthStringOwnProps {
 type MonthStringProps = useRender.ComponentProps<"span", MonthStringState> &
   MonthStringOwnProps;
 
-function MonthString(props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+function MonthString(
+  props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> },
+) {
   const { ref, render, locales, options, ...otherProps } = props;
   const { currentMonth } = useDatePicker();
 
@@ -664,20 +731,37 @@ function MonthString(props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement
 
 interface NavButtonState {
   direction: "next" | "prev";
+  disabled: boolean;
 }
 
 type PrevMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
 
-function PrevMonthButton(props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+function PrevMonthButton(
+  props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+) {
   const { ref, render, ...otherProps } = props;
-  const { goToPrevMonth } = useDatePicker();
+  const { goToPrevMonth, currentMonth, minDate } = useDatePicker();
 
-  const state = useMemo<NavButtonState>(() => ({ direction: "prev" }), []);
+  const isDisabled = useMemo(() => {
+    if (!minDate) return false;
+    const prevYear = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
+    const prevMonth = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
+    return (
+      prevYear < minDate.year ||
+      (prevYear === minDate.year && prevMonth < minDate.month)
+    );
+  }, [currentMonth, minDate]);
+
+  const state = useMemo<NavButtonState>(
+    () => ({ direction: "prev", disabled: isDisabled }),
+    [isDisabled],
+  );
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
     "aria-label": "Go to previous month",
-    onClick: goToPrevMonth,
+    disabled: isDisabled,
+    onClick: isDisabled ? undefined : goToPrevMonth,
   };
 
   return useRender({
@@ -691,16 +775,32 @@ function PrevMonthButton(props: PrevMonthButtonProps & { ref?: React.Ref<HTMLBut
 
 type NextMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
 
-function NextMonthButton(props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+function NextMonthButton(
+  props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+) {
   const { ref, render, ...otherProps } = props;
-  const { goToNextMonth } = useDatePicker();
+  const { goToNextMonth, currentMonth, maxDate } = useDatePicker();
 
-  const state = useMemo<NavButtonState>(() => ({ direction: "next" }), []);
+  const isDisabled = useMemo(() => {
+    if (!maxDate) return false;
+    const nextYear = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
+    const nextMonth = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
+    return (
+      nextYear > maxDate.year ||
+      (nextYear === maxDate.year && nextMonth > maxDate.month)
+    );
+  }, [currentMonth, maxDate]);
+
+  const state = useMemo<NavButtonState>(
+    () => ({ direction: "next", disabled: isDisabled }),
+    [isDisabled],
+  );
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
     "aria-label": "Go to next month",
-    onClick: goToNextMonth,
+    disabled: isDisabled,
+    onClick: isDisabled ? undefined : goToNextMonth,
   };
 
   return useRender({
@@ -793,7 +893,9 @@ interface DayLabelsState {}
 
 type DayLabelsProps = useRender.ComponentProps<"div", DayLabelsState>;
 
-function DayLabels(props: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> }) {
+function DayLabels(
+  props: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> },
+) {
   const { ref, render, children, ...otherProps } = props;
 
   const state = useMemo<DayLabelsState>(() => ({}), []);
@@ -884,7 +986,9 @@ function buildTemplateChildren(
   );
 }
 
-function MonthGrid(props: MonthGridProps & { ref?: React.Ref<HTMLDivElement> }) {
+function MonthGrid(
+  props: MonthGridProps & { ref?: React.Ref<HTMLDivElement> },
+) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
   const {
     weeks,
@@ -892,7 +996,10 @@ function MonthGrid(props: MonthGridProps & { ref?: React.Ref<HTMLDivElement> }) 
     setFocusedDate,
     onSelect,
     disabled,
+    minDate,
+    maxDate,
     currentMonth,
+    temporal: T,
   } = useDatePicker();
 
   const state = useMemo<MonthGridState>(
@@ -929,11 +1036,13 @@ function MonthGrid(props: MonthGridProps & { ref?: React.Ref<HTMLDivElement> }) 
       }
 
       if (nextDate) {
+        if (minDate && T.PlainDate.compare(nextDate, minDate) < 0) return;
+        if (maxDate && T.PlainDate.compare(nextDate, maxDate) > 0) return;
         e.preventDefault();
         setFocusedDate(nextDate);
       }
     },
-    [focusedDate, setFocusedDate, onSelect, disabled],
+    [focusedDate, setFocusedDate, onSelect, disabled, minDate, maxDate, T],
   );
 
   const bareDefaultChildren = (
@@ -1113,9 +1222,7 @@ interface CreateDatePickerOptions {
 type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 
 interface TypedDatePicker<F extends ValueFormat> {
-  Root: (
-    props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
-  ) => React.ReactElement | null;
+  Root: typeof Root<F>;
   MonthGrid: typeof MonthGrid;
   Week: typeof Week;
   Day: typeof Day;
@@ -1134,7 +1241,9 @@ function createDatePicker<F extends ValueFormat>(
 ): TypedDatePicker<F> {
   const resolvedTemporal = resolveTemporal(options?.temporal);
 
-  const TypedRoot = ((props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> }) => {
+  const TypedRoot = ((
+    props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
+  ) => {
     return createElement(RootInner, {
       ...props,
       format,
