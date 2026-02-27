@@ -76,7 +76,10 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                 </button>
               </TooltipTrigger>
               <TooltipContent>
-                {state.target.toLocaleString(undefined, { month: "long", year: "numeric" })}
+                {state.target.toLocaleString(undefined, {
+                  month: "long",
+                  year: "numeric",
+                })}
               </TooltipContent>
             </Tooltip>
           )}
@@ -84,10 +87,14 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
 
         <DP.MonthString
           data-testid="text-current-month"
-          render={(props, state) => (
-            <span {...props} className="text-sm font-medium" />
+          options={{ month: "short" }}
+          render={({ children, ...props }, state) => (
+            <span {...props} className="text-sm font-medium">
+              Hi! {children}
+            </span>
           )}
         />
+        <DP.DateString options={{ year: "2-digit" }} className="text-xs" />
 
         <DP.NextMonthButton
           data-testid="button-next-month"
@@ -123,14 +130,11 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
 
       <DP.MonthGrid
         mode="grid"
-        render={(props, state) => (
-          <div {...props} data-testid="monthgrid" className="w-full" />
-        )}
+        className="grid grid-cols-[repeat(7,1fr)] w-full"
+        render={(props, state) => <div {...props} data-testid="monthgrid" />}
       >
         <DP.DayLabels
-          render={(props, state) => (
-            <div {...props} className="grid grid-cols-[repeat(7,1fr)]" />
-          )}
+          render={(props, state) => <div {...props} className="contents" />}
         >
           <DP.DayLabel
             render={(props, state) => (
@@ -146,7 +150,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
 
         <DP.Week
           render={(props, state) => (
-            <div {...props} className="grid grid-cols-7 mt-0.5" />
+            <div {...props} className="grid grid-cols-subgrid col-span-7 pt-5" />
           )}
         >
           <DP.Day
