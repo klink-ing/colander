@@ -18,6 +18,17 @@ import type { Temporal } from "@js-temporal/polyfill";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 
+function callUseRender<Tag extends keyof React.JSX.IntrinsicElements, S>(args: {
+  defaultTagName: Tag;
+  render: any;
+  ref: any[];
+  state: S;
+  stateAttributesMapping?: any;
+  props: any;
+}) {
+  return useRender(args as any);
+}
+
 type TemporalNamespace = {
   Now: {
     timeZoneId(): string;
@@ -283,9 +294,9 @@ interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   temporal?: TemporalNamespace;
 }
 
-type RootProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "div",
-  RootState<F>
+type RootProps<F extends ValueFormat = ValueFormat> = Omit<
+  useRender.ComponentProps<"div", RootState<F>>,
+  keyof RootOwnProps<F>
 > &
   RootOwnProps<F>;
 
@@ -434,7 +445,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
       const newTagged = fromZonedDateTime(newZdt, resolvedFormat, T);
       if (!value) setInternalSelected(newTagged);
       setCurrentMonth({ year: date.year, month: date.month });
-      onValueChange?.(newTagged.value as RawValueForFormat<F>);
+      (onValueChange as ((v: DateValueObject["value"]) => void) | undefined)?.(newTagged.value);
     },
     [value, selectedZdt, onValueChange, resolvedFormat, disabled, timeZone, T],
   );
@@ -555,10 +566,10 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     children,
   };
 
-  const rendered = useRender({
+  const rendered = callUseRender({
     defaultTagName: "div",
     render,
-    ref: [ref],
+    ref: ref ? [ref] : [],
     state,
     stateAttributesMapping,
     props: mergeProps<"div">(defaultProps, otherProps),
@@ -616,7 +627,7 @@ function DateString(
     "aria-live": "polite",
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "span",
     render,
     ref: [ref],
@@ -667,7 +678,7 @@ function TimeString(
     "aria-live": "polite",
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "span",
     render,
     ref: [ref],
@@ -712,7 +723,7 @@ function MonthString(
     "aria-live": "polite",
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "span",
     render,
     ref: [ref],
@@ -765,7 +776,7 @@ function PrevMonthButton(
     onClick: isDisabled ? undefined : goToPrevMonth,
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "button",
     render,
     ref: [ref],
@@ -812,7 +823,7 @@ function NextMonthButton(
     onClick: isDisabled ? undefined : goToNextMonth,
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "button",
     render,
     ref: [ref],
@@ -888,7 +899,7 @@ function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
     children: state.short,
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "div",
     render,
     ref: [ref],
@@ -931,7 +942,7 @@ function DayLabels(
     children: resolvedChildren,
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "div",
     render,
     ref: [ref],
@@ -1080,7 +1091,7 @@ function MonthGrid(
     children: resolvedChildren,
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "div",
     render,
     ref: [ref],
@@ -1102,7 +1113,7 @@ function Week(props: WeekProps & { ref?: React.Ref<HTMLDivElement> }) {
     role: "row",
   };
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "div",
     render,
     ref: [ref],
@@ -1200,7 +1211,7 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
     [],
   );
 
-  return useRender({
+  return callUseRender({
     defaultTagName: "button",
     render,
     ref: [ref, internalRef],
