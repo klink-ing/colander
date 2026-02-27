@@ -257,19 +257,11 @@ function useDatePicker() {
   return ctx;
 }
 
-interface RootState {
-  month: number;
-  year: number;
+interface RootState<F extends ValueFormat = ValueFormat> {
   hasSelection: boolean;
-  selectedDay: number;
-  selectedMonth: number;
-  selectedYear: number;
-  selectedHour: number;
-  selectedMinute: number;
-  selectedSecond: number;
-  focusedDay: number;
-  focusedMonth: number;
-  focusedYear: number;
+  selected: RawValueForFormat<F> | undefined;
+  focused: Temporal.PlainDate;
+  viewing: Temporal.PlainYearMonth;
   timeZone: string;
   locale: string;
 }
@@ -289,7 +281,7 @@ interface RootOwnProps<F extends ValueFormat = ValueFormat> {
 
 type RootProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
   "div",
-  RootState
+  RootState<F>
 > &
   RootOwnProps<F>;
 
@@ -519,40 +511,34 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     ],
   );
 
-  const state = useMemo<RootState>(
+  const viewingYearMonth = useMemo(
+    () => T.PlainYearMonth.from({ year: currentMonth.year, month: currentMonth.month }),
+    [currentMonth, T],
+  );
+
+  const rawSelected = useMemo(
+    () => (selected ? selected.value as RawValueForFormat<F> : undefined),
+    [selected],
+  );
+
+  const state = useMemo<RootState<F>>(
     () => ({
-      month: currentMonth.month,
-      year: currentMonth.year,
-      hasSelection: !!selectedZdt,
-      selectedDay: selectedZdt?.day ?? 0,
-      selectedMonth: selectedZdt?.month ?? 0,
-      selectedYear: selectedZdt?.year ?? 0,
-      selectedHour: selectedZdt?.hour ?? 0,
-      selectedMinute: selectedZdt?.minute ?? 0,
-      selectedSecond: selectedZdt?.second ?? 0,
-      focusedDay: focusedDate.day,
-      focusedMonth: focusedDate.month,
-      focusedYear: focusedDate.year,
+      hasSelection: !!selected,
+      selected: rawSelected,
+      focused: focusedDate,
+      viewing: viewingYearMonth,
       timeZone,
       locale,
     }),
-    [currentMonth, selectedZdt, focusedDate, timeZone, locale],
+    [selected, rawSelected, focusedDate, viewingYearMonth, timeZone, locale],
   );
 
   const stateAttributesMapping = useMemo(
     () => ({
-      month: () => null,
-      year: () => null,
       hasSelection: (v: boolean) => (v ? { "data-has-selection": "" } : null),
-      selectedDay: () => null,
-      selectedMonth: () => null,
-      selectedYear: () => null,
-      selectedHour: () => null,
-      selectedMinute: () => null,
-      selectedSecond: () => null,
-      focusedDay: () => null,
-      focusedMonth: () => null,
-      focusedYear: () => null,
+      selected: () => null,
+      focused: () => null,
+      viewing: () => null,
       timeZone: () => null,
       locale: () => null,
     }),
