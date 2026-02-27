@@ -594,14 +594,14 @@ function DateString(
   props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentMonth, selected, timeZone, temporal: T } = useDatePicker();
+  const { currentMonth, selected, timeZone, locale, temporal: T } = useDatePicker();
 
   const selectedZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selectedZdt
     ? zdtToNativeDate(selectedZdt)
     : new Date(currentMonth.year, currentMonth.month - 1, 1);
 
-  const formatted = displayDate.toLocaleDateString(locales, options);
+  const formatted = displayDate.toLocaleDateString(locales ?? locale, options);
 
   const state = useMemo<DateStringState>(
     () => ({
@@ -644,7 +644,7 @@ function TimeString(
   props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { selected, timeZone, temporal: T } = useDatePicker();
+  const { selected, timeZone, locale, temporal: T } = useDatePicker();
 
   const selZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selZdt
@@ -652,7 +652,7 @@ function TimeString(
     : zdtToNativeDate(T.Now.zonedDateTimeISO(timeZone));
 
   const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
-  const formatted = displayDate.toLocaleTimeString(locales, mergedOptions);
+  const formatted = displayDate.toLocaleTimeString(locales ?? locale, mergedOptions);
 
   const state = useMemo<TimeStringState>(
     () => ({
@@ -694,14 +694,14 @@ function MonthString(
   props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentMonth } = useDatePicker();
+  const { currentMonth, locale } = useDatePicker();
 
   const displayDate = new Date(currentMonth.year, currentMonth.month - 1, 1);
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
     year: "numeric",
   };
-  const formatted = displayDate.toLocaleDateString(locales, defaultOptions);
+  const formatted = displayDate.toLocaleDateString(locales ?? locale, defaultOptions);
 
   const state = useMemo<MonthStringState>(
     () => ({ month: currentMonth.month, year: currentMonth.year }),

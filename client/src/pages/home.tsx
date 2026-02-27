@@ -70,11 +70,11 @@ export default function Home() {
   >();
 
   const minDate = useMemo(
-    () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ days: 7 }),
+    () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ months: 7 }),
     [systemTz],
   );
   const maxDate = useMemo(
-    () => Temporal.Now.zonedDateTimeISO(systemTz).add({ days: 30 }),
+    () => Temporal.Now.zonedDateTimeISO(systemTz).add({ months: 7 }),
     [systemTz],
   );
 

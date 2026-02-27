@@ -87,11 +87,14 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
           />
         </div>
 
-        <DP.MonthGrid mode="grid" className="w-full">
-          <DP.DayLabels className="grid grid-cols-[repeat(7,1fr            )]">
+        <DP.MonthGrid
+          mode="grid"
+          className="w-full grid grid-cols-[repeat(7,1fr)]"
+        >
+          <DP.DayLabels className="contents">
             <DP.DayLabel className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground" />
           </DP.DayLabels>
-          <DP.Week className="grid grid-cols-7 mt-0.5">
+          <DP.Week className="contents mt-0.5">
             <DP.Day
               render={(props, state) => (
                 <button
