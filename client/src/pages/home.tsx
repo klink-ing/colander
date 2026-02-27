@@ -3,9 +3,17 @@ import { Temporal } from "@js-temporal/polyfill";
 import { createDatePicker } from "@/components/ui/date-picker";
 import { StyledDatePicker } from "@/components/styled-date-picker";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
 
-const ZonedDatePicker = createDatePicker("ZonedDateTime", { temporal: Temporal });
+const ZonedDatePicker = createDatePicker("ZonedDateTime", {
+  temporal: Temporal,
+});
 
 const TIMEZONES = [
   "America/New_York",
@@ -54,22 +62,37 @@ function formatTzLabel(tz: string): string {
 export default function Home() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
   const [timeZone, setTimeZone] = useState(systemTz);
-  const [selectedDate, setSelectedDate] = useState<Temporal.ZonedDateTime | undefined>();
-  const [selectedDate2, setSelectedDate2] = useState<Temporal.ZonedDateTime | undefined>();
+  const [selectedDate, setSelectedDate] = useState<
+    Temporal.ZonedDateTime | undefined
+  >();
+  const [selectedDate2, setSelectedDate2] = useState<
+    Temporal.ZonedDateTime | undefined
+  >();
 
-  const rezoneDateValue = useCallback((val: Temporal.ZonedDateTime | undefined, newTz: string): Temporal.ZonedDateTime | undefined => {
-    if (!val) return undefined;
-    return val.withTimeZone(newTz);
-  }, []);
+  const rezoneDateValue = useCallback(
+    (
+      val: Temporal.ZonedDateTime | undefined,
+      newTz: string,
+    ): Temporal.ZonedDateTime | undefined => {
+      if (!val) return undefined;
+      return val.withTimeZone(newTz);
+    },
+    [],
+  );
 
-  const handleTimeZoneChange = useCallback((newTz: string) => {
-    setTimeZone(newTz);
-    setSelectedDate((prev) => rezoneDateValue(prev, newTz));
-    setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
-  }, [rezoneDateValue]);
+  const handleTimeZoneChange = useCallback(
+    (newTz: string) => {
+      setTimeZone(newTz);
+      setSelectedDate((prev) => rezoneDateValue(prev, newTz));
+      setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
+    },
+    [rezoneDateValue],
+  );
 
   const tzOptions = useMemo(() => {
-    const all = TIMEZONES.includes(systemTz) ? TIMEZONES : [systemTz, ...TIMEZONES];
+    const all = TIMEZONES.includes(systemTz)
+      ? TIMEZONES
+      : [systemTz, ...TIMEZONES];
     return all.map((tz) => ({ value: tz, label: formatTzLabel(tz) }));
   }, [systemTz]);
 
@@ -102,40 +125,28 @@ export default function Home() {
         </select>
       </div>
 
-      <div className="flex items-start justify-center gap-6 flex-wrap">
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle data-testid="text-title">Styled DatePicker</CardTitle>
-            <CardDescription data-testid="text-selected-date">
-              {formatDisplay(selectedDate)}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center">
-            <StyledDatePicker
-              components={ZonedDatePicker}
-              value={selectedDate}
-              onValueChange={setSelectedDate}
-              timeZone={timeZone}
-            />
-          </CardContent>
-        </Card>
+      <div className="flex items-start justify-center gap-4 flex-wrap">
+        <div className="w-fit ">
+          Styled DatePicker
+          {formatDisplay(selectedDate)}
+          <StyledDatePicker
+            components={ZonedDatePicker}
+            value={selectedDate}
+            onValueChange={setSelectedDate}
+            timeZone={timeZone}
+          />
+        </div>
 
-        <Card className="w-full max-w-sm">
-          <CardHeader>
-            <CardTitle data-testid="text-title-render">Render Prop DatePicker</CardTitle>
-            <CardDescription data-testid="text-selected-date-render">
-              {formatDisplay(selectedDate2)}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="flex justify-center">
-            <RenderPropDatePicker
-              components={ZonedDatePicker}
-              value={selectedDate2}
-              onValueChange={setSelectedDate2}
-              timeZone={timeZone}
-            />
-          </CardContent>
-        </Card>
+        <div className="w-fit">
+          Render Prop DatePicker
+          {formatDisplay(selectedDate2)}
+          <RenderPropDatePicker
+            components={ZonedDatePicker}
+            value={selectedDate2}
+            onValueChange={setSelectedDate2}
+            timeZone={timeZone}
+          />
+        </div>
       </div>
     </div>
   );

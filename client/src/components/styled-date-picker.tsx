@@ -1,13 +1,17 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { createDatePicker } from "@/components/ui/date-picker";
-import type { DatePickerValueFormat, DatePickerRawValueForFormat, DatePickerTyped } from "@/components/ui/date-picker";
+import type {
+  DatePickerValueFormat,
+  DatePickerValueForFormat,
+  DatePickerTyped,
+  DatePickerRawValueForFormat,
+} from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
 interface StyledDatePickerProps<F extends DatePickerValueFormat> {
   value?: DatePickerRawValueForFormat<F>;
   defaultValue?: DatePickerRawValueForFormat<F>;
-  onValueChange?: (value: DatePickerRawValueForFormat<F>) => void;
+  onValueChange?: (value: DatePickerValueForFormat<F>) => void;
   disabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
@@ -68,9 +72,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
 
         <DP.MonthGrid mode="grid" className="w-full">
           <DP.DayLabels className="grid grid-cols-7">
-            <DP.DayLabel
-              className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
-            />
+            <DP.DayLabel className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground" />
           </DP.DayLabels>
           <DP.Week className="grid grid-cols-7 mt-0.5">
             <DP.Day
@@ -81,8 +83,13 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
                     "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
                     state.outsideMonth && "text-muted-foreground opacity-40",
-                    !state.outsideMonth && !state.selected && !state.today && "text-foreground hover:bg-accent hover:text-accent-foreground",
-                    state.today && !state.selected && "bg-accent text-accent-foreground",
+                    !state.outsideMonth &&
+                      !state.selected &&
+                      !state.today &&
+                      "text-foreground hover:bg-accent hover:text-accent-foreground",
+                    state.today &&
+                      !state.selected &&
+                      "bg-accent text-accent-foreground",
                     state.selected && "bg-primary text-primary-foreground",
                     state.disabled && "pointer-events-none opacity-50",
                   )}

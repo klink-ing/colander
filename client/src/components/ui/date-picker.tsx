@@ -13,7 +13,6 @@ import {
   type ReactNode,
   type ReactElement,
   type KeyboardEvent,
-  forwardRef,
 } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
 import { useRender } from "@base-ui/react/use-render";
@@ -72,7 +71,10 @@ type DateValueObject =
 
 type ValueFormat = DateValueObject["format"];
 
-type ValueForFormat<F extends ValueFormat> = Extract<DateValueObject, { format: F }>;
+type ValueForFormat<F extends ValueFormat> = Extract<
+  DateValueObject,
+  { format: F }
+>;
 
 type RawValueForFormat<F extends ValueFormat> = ValueForFormat<F>["value"];
 
@@ -96,7 +98,10 @@ function toZonedDateTime(
       return pd.toZonedDateTime(timeZone);
     }
     case "PlainTime":
-      return now.toPlainDate().toPlainDateTime(tagged.value).toZonedDateTime(timeZone);
+      return now
+        .toPlainDate()
+        .toPlainDateTime(tagged.value)
+        .toZonedDateTime(timeZone);
     case "PlainYearMonth":
       return tagged.value.toPlainDate({ day: 1 }).toZonedDateTime(timeZone);
     case "ZonedDateTime":
@@ -137,11 +142,17 @@ function fromZonedDateTime(
     case "PlainDateTime":
       return { format, value: zdt.toPlainDateTime() };
     case "PlainMonthDay":
-      return { format, value: T.PlainMonthDay.from({ month: zdt.month, day: zdt.day }) };
+      return {
+        format,
+        value: T.PlainMonthDay.from({ month: zdt.month, day: zdt.day }),
+      };
     case "PlainTime":
       return { format, value: zdt.toPlainTime() };
     case "PlainYearMonth":
-      return { format, value: T.PlainYearMonth.from({ year: zdt.year, month: zdt.month }) };
+      return {
+        format,
+        value: T.PlainYearMonth.from({ year: zdt.year, month: zdt.month }),
+      };
     case "ZonedDateTime":
       return { format, value: zdt };
     case "object":
@@ -171,8 +182,11 @@ function selectedToZdt(
   return toZonedDateTime(selected, timeZone, T);
 }
 
-
-function getMonthWeeks(year: number, month: number, T: TemporalNamespace): Temporal.PlainDate[][] {
+function getMonthWeeks(
+  year: number,
+  month: number,
+  T: TemporalNamespace,
+): Temporal.PlainDate[][] {
   const firstOfMonth = T.PlainDate.from({ year, month, day: 1 });
   const daysInMonth = firstOfMonth.daysInMonth;
   const lastOfMonth = T.PlainDate.from({
@@ -268,13 +282,20 @@ interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   temporal?: TemporalNamespace;
 }
 
-type RootProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<"div", RootState> & RootOwnProps<F>;
+type RootProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
+  "div",
+  RootState
+> &
+  RootOwnProps<F>;
 
 function RootInner<F extends ValueFormat = ValueFormat>(
-  props: RootProps<F> & { innerRef?: React.Ref<HTMLDivElement>; _resolvedTemporal?: TemporalNamespace },
+  props: RootProps<F> & {
+    ref?: React.Ref<HTMLDivElement>;
+    _resolvedTemporal?: TemporalNamespace;
+  },
 ) {
   const {
-    innerRef,
+    ref,
     render,
     children,
     format: formatProp,
@@ -297,12 +318,18 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   const resolvedFormat: ValueFormat = formatProp ?? "PlainDate";
 
   const taggedValue: DateValueObject | undefined = useMemo(
-    () => (value != null ? { format: resolvedFormat, value } as DateValueObject : undefined),
+    () =>
+      value != null
+        ? ({ format: resolvedFormat, value } as DateValueObject)
+        : undefined,
     [value, resolvedFormat],
   );
 
   const taggedDefault: DateValueObject | undefined = useMemo(
-    () => (defaultValue != null ? { format: resolvedFormat, value: defaultValue } as DateValueObject : undefined),
+    () =>
+      defaultValue != null
+        ? ({ format: resolvedFormat, value: defaultValue } as DateValueObject)
+        : undefined,
     [defaultValue, resolvedFormat],
   );
 
@@ -455,8 +482,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     () => ({
       month: () => null,
       year: () => null,
-      hasSelection: (v: boolean) =>
-        v ? { "data-has-selection": "" } : null,
+      hasSelection: (v: boolean) => (v ? { "data-has-selection": "" } : null),
       selectedDay: () => null,
       selectedMonth: () => null,
       selectedYear: () => null,
@@ -479,7 +505,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   const rendered = useRender({
     defaultTagName: "div",
     render,
-    ref: [innerRef],
+    ref: [ref],
     state,
     stateAttributesMapping,
     props: mergeProps<"div">(defaultProps, otherProps),
@@ -492,9 +518,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
   );
 }
 
-const Root = forwardRef<HTMLDivElement, RootProps>(function Root(props, ref) {
-  return <RootInner {...props} innerRef={ref} />;
-}) as <F extends ValueFormat = ValueFormat>(
+const Root = RootInner as <F extends ValueFormat = ValueFormat>(
   props: RootProps<F> & { ref?: React.Ref<HTMLDivElement> },
 ) => React.ReactElement | null;
 
@@ -512,41 +536,39 @@ interface DateStringOwnProps {
 type DateStringProps = useRender.ComponentProps<"span", DateStringState> &
   DateStringOwnProps;
 
-const DateString = forwardRef<HTMLSpanElement, DateStringProps>(
-  function DateString(props, ref) {
-    const { render, locales, options, ...otherProps } = props;
-    const { currentMonth, selected, timeZone, temporal: T } = useDatePicker();
+function DateString(props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+  const { ref, render, locales, options, ...otherProps } = props;
+  const { currentMonth, selected, timeZone, temporal: T } = useDatePicker();
 
-    const selectedZdt = selectedToZdt(selected, timeZone, T);
-    const displayDate = selectedZdt
-      ? zdtToNativeDate(selectedZdt)
-      : new Date(currentMonth.year, currentMonth.month - 1, 1);
+  const selectedZdt = selectedToZdt(selected, timeZone, T);
+  const displayDate = selectedZdt
+    ? zdtToNativeDate(selectedZdt)
+    : new Date(currentMonth.year, currentMonth.month - 1, 1);
 
-    const formatted = displayDate.toLocaleDateString(locales, options);
+  const formatted = displayDate.toLocaleDateString(locales, options);
 
-    const state = useMemo<DateStringState>(
-      () => ({
-        month: displayDate.getMonth() + 1,
-        year: displayDate.getFullYear(),
-        day: displayDate.getDate(),
-      }),
-      [displayDate],
-    );
+  const state = useMemo<DateStringState>(
+    () => ({
+      month: displayDate.getMonth() + 1,
+      year: displayDate.getFullYear(),
+      day: displayDate.getDate(),
+    }),
+    [displayDate],
+  );
 
-    const defaultProps: Record<string, unknown> = {
-      children: formatted,
-      "aria-live": "polite",
-    };
+  const defaultProps: Record<string, unknown> = {
+    children: formatted,
+    "aria-live": "polite",
+  };
 
-    return useRender({
-      defaultTagName: "span",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"span">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "span",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"span">(defaultProps, otherProps),
+  });
+}
 
 interface TimeStringState {
   hour: number;
@@ -562,44 +584,40 @@ interface TimeStringOwnProps {
 type TimeStringProps = useRender.ComponentProps<"span", TimeStringState> &
   TimeStringOwnProps;
 
-const TimeString = forwardRef<HTMLSpanElement, TimeStringProps>(
-  function TimeString(props, ref) {
-    const { render, locales, options, ...otherProps } = props;
-    const { selected, timeZone, temporal: T } = useDatePicker();
+function TimeString(props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+  const { ref, render, locales, options, ...otherProps } = props;
+  const { selected, timeZone, temporal: T } = useDatePicker();
 
-    const selZdt = selectedToZdt(selected, timeZone, T);
-    const displayDate = selZdt
-      ? zdtToNativeDate(selZdt)
-      : zdtToNativeDate(T.Now.zonedDateTimeISO(timeZone));
+  const selZdt = selectedToZdt(selected, timeZone, T);
+  const displayDate = selZdt
+    ? zdtToNativeDate(selZdt)
+    : zdtToNativeDate(T.Now.zonedDateTimeISO(timeZone));
 
-    const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
-    const formatted = displayDate.toLocaleTimeString(locales, mergedOptions);
+  const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
+  const formatted = displayDate.toLocaleTimeString(locales, mergedOptions);
 
-    const state = useMemo<TimeStringState>(
-      () => ({
-        hour: selZdt?.hour ?? T.Now.zonedDateTimeISO(timeZone).hour,
-        minute:
-          selZdt?.minute ?? T.Now.zonedDateTimeISO(timeZone).minute,
-        second:
-          selZdt?.second ?? T.Now.zonedDateTimeISO(timeZone).second,
-      }),
-      [selZdt, timeZone, T],
-    );
+  const state = useMemo<TimeStringState>(
+    () => ({
+      hour: selZdt?.hour ?? T.Now.zonedDateTimeISO(timeZone).hour,
+      minute: selZdt?.minute ?? T.Now.zonedDateTimeISO(timeZone).minute,
+      second: selZdt?.second ?? T.Now.zonedDateTimeISO(timeZone).second,
+    }),
+    [selZdt, timeZone, T],
+  );
 
-    const defaultProps: Record<string, unknown> = {
-      children: formatted,
-      "aria-live": "polite",
-    };
+  const defaultProps: Record<string, unknown> = {
+    children: formatted,
+    "aria-live": "polite",
+  };
 
-    return useRender({
-      defaultTagName: "span",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"span">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "span",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"span">(defaultProps, otherProps),
+  });
+}
 
 interface MonthStringState {
   month: number;
@@ -614,37 +632,35 @@ interface MonthStringOwnProps {
 type MonthStringProps = useRender.ComponentProps<"span", MonthStringState> &
   MonthStringOwnProps;
 
-const MonthString = forwardRef<HTMLSpanElement, MonthStringProps>(
-  function MonthString(props, ref) {
-    const { render, locales, options, ...otherProps } = props;
-    const { currentMonth } = useDatePicker();
+function MonthString(props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+  const { ref, render, locales, options, ...otherProps } = props;
+  const { currentMonth } = useDatePicker();
 
-    const displayDate = new Date(currentMonth.year, currentMonth.month - 1, 1);
-    const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
-      month: "long",
-      year: "numeric",
-    };
-    const formatted = displayDate.toLocaleDateString(locales, defaultOptions);
+  const displayDate = new Date(currentMonth.year, currentMonth.month - 1, 1);
+  const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
+    month: "long",
+    year: "numeric",
+  };
+  const formatted = displayDate.toLocaleDateString(locales, defaultOptions);
 
-    const state = useMemo<MonthStringState>(
-      () => ({ month: currentMonth.month, year: currentMonth.year }),
-      [currentMonth],
-    );
+  const state = useMemo<MonthStringState>(
+    () => ({ month: currentMonth.month, year: currentMonth.year }),
+    [currentMonth],
+  );
 
-    const defaultProps: Record<string, unknown> = {
-      children: formatted,
-      "aria-live": "polite",
-    };
+  const defaultProps: Record<string, unknown> = {
+    children: formatted,
+    "aria-live": "polite",
+  };
 
-    return useRender({
-      defaultTagName: "span",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"span">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "span",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"span">(defaultProps, otherProps),
+  });
+}
 
 interface NavButtonState {
   direction: "next" | "prev";
@@ -652,53 +668,49 @@ interface NavButtonState {
 
 type PrevMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
 
-const PrevMonthButton = forwardRef<HTMLButtonElement, PrevMonthButtonProps>(
-  function PrevMonthButton(props, ref) {
-    const { render, ...otherProps } = props;
-    const { goToPrevMonth } = useDatePicker();
+function PrevMonthButton(props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+  const { ref, render, ...otherProps } = props;
+  const { goToPrevMonth } = useDatePicker();
 
-    const state = useMemo<NavButtonState>(() => ({ direction: "prev" }), []);
+  const state = useMemo<NavButtonState>(() => ({ direction: "prev" }), []);
 
-    const defaultProps: Record<string, unknown> = {
-      type: "button",
-      "aria-label": "Go to previous month",
-      onClick: goToPrevMonth,
-    };
+  const defaultProps: Record<string, unknown> = {
+    type: "button",
+    "aria-label": "Go to previous month",
+    onClick: goToPrevMonth,
+  };
 
-    return useRender({
-      defaultTagName: "button",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"button">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "button",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"button">(defaultProps, otherProps),
+  });
+}
 
 type NextMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
 
-const NextMonthButton = forwardRef<HTMLButtonElement, NextMonthButtonProps>(
-  function NextMonthButton(props, ref) {
-    const { render, ...otherProps } = props;
-    const { goToNextMonth } = useDatePicker();
+function NextMonthButton(props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+  const { ref, render, ...otherProps } = props;
+  const { goToNextMonth } = useDatePicker();
 
-    const state = useMemo<NavButtonState>(() => ({ direction: "next" }), []);
+  const state = useMemo<NavButtonState>(() => ({ direction: "next" }), []);
 
-    const defaultProps: Record<string, unknown> = {
-      type: "button",
-      "aria-label": "Go to next month",
-      onClick: goToNextMonth,
-    };
+  const defaultProps: Record<string, unknown> = {
+    type: "button",
+    "aria-label": "Go to next month",
+    onClick: goToNextMonth,
+  };
 
-    return useRender({
-      defaultTagName: "button",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"button">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "button",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"button">(defaultProps, otherProps),
+  });
+}
 
 function getReferenceSunday(T: TemporalNamespace): Temporal.PlainDate {
   return T.PlainDate.from("2024-01-07");
@@ -733,93 +745,89 @@ interface DayLabelOwnProps {
 type DayLabelProps = useRender.ComponentProps<"div", DayLabelState> &
   DayLabelOwnProps;
 
-const DayLabel = forwardRef<HTMLDivElement, DayLabelProps>(
-  function DayLabel(props, ref) {
-    const { render, index = 0, ...otherProps } = props;
-    const { locale, temporal: T } = useDatePicker();
+function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { ref, render, index = 0, ...otherProps } = props;
+  const { locale, temporal: T } = useDatePicker();
 
-    const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
+  const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
 
-    const state = useMemo<DayLabelState>(
-      () => ({
-        index,
-        dayOfWeek: index,
-        long: weekdayNames[index].long,
-        short: weekdayNames[index].short,
-        narrow: weekdayNames[index].narrow,
-      }),
-      [index, weekdayNames],
-    );
+  const state = useMemo<DayLabelState>(
+    () => ({
+      index,
+      dayOfWeek: index,
+      long: weekdayNames[index].long,
+      short: weekdayNames[index].short,
+      narrow: weekdayNames[index].narrow,
+    }),
+    [index, weekdayNames],
+  );
 
-    const stateAttributesMapping = useMemo(
-      () => ({
-        index: () => null,
-        dayOfWeek: () => null,
-        long: () => null,
-        short: () => null,
-        narrow: () => null,
-      }),
-      [],
-    );
+  const stateAttributesMapping = useMemo(
+    () => ({
+      index: () => null,
+      dayOfWeek: () => null,
+      long: () => null,
+      short: () => null,
+      narrow: () => null,
+    }),
+    [],
+  );
 
-    const defaultProps: Record<string, unknown> = {
-      role: "columnheader",
-      "aria-label": state.long,
-      children: state.short,
-    };
+  const defaultProps: Record<string, unknown> = {
+    role: "columnheader",
+    "aria-label": state.long,
+    children: state.short,
+  };
 
-    return useRender({
-      defaultTagName: "div",
-      render,
-      ref: [ref],
-      state,
-      stateAttributesMapping,
-      props: mergeProps<"div">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    stateAttributesMapping,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+}
 
 interface DayLabelsState {}
 
 type DayLabelsProps = useRender.ComponentProps<"div", DayLabelsState>;
 
-const DayLabels = forwardRef<HTMLDivElement, DayLabelsProps>(
-  function DayLabels(props, ref) {
-    const { render, children, ...otherProps } = props;
+function DayLabels(props: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { ref, render, children, ...otherProps } = props;
 
-    const state = useMemo<DayLabelsState>(() => ({}), []);
+  const state = useMemo<DayLabelsState>(() => ({}), []);
 
-    let dayLabelTemplate: ReactElement | null = null;
-    Children.forEach(children, (child) => {
-      if (
-        isValidElement(child) &&
-        (child.type as any) === DayLabel &&
-        !dayLabelTemplate
-      ) {
-        dayLabelTemplate = child;
-      }
-    });
+  let dayLabelTemplate: ReactElement | null = null;
+  Children.forEach(children, (child) => {
+    if (
+      isValidElement(child) &&
+      (child.type as any) === DayLabel &&
+      !dayLabelTemplate
+    ) {
+      dayLabelTemplate = child;
+    }
+  });
 
-    const resolvedChildren = dayLabelTemplate
-      ? Array.from({ length: 7 }, (_, i) =>
-          cloneElement(dayLabelTemplate!, { key: i, index: i }),
-        )
-      : Array.from({ length: 7 }, (_, i) => <DayLabel key={i} index={i} />);
+  const resolvedChildren = dayLabelTemplate
+    ? Array.from({ length: 7 }, (_, i) =>
+        cloneElement(dayLabelTemplate!, { key: i, index: i }),
+      )
+    : Array.from({ length: 7 }, (_, i) => <DayLabel key={i} index={i} />);
 
-    const defaultProps: Record<string, unknown> = {
-      role: "row",
-      children: resolvedChildren,
-    };
+  const defaultProps: Record<string, unknown> = {
+    role: "row",
+    children: resolvedChildren,
+  };
 
-    return useRender({
-      defaultTagName: "div",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"div">(defaultProps, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+}
 
 interface MonthGridState {
   month: number;
@@ -876,101 +884,99 @@ function buildTemplateChildren(
   );
 }
 
-const MonthGrid = forwardRef<HTMLDivElement, MonthGridProps>(
-  function MonthGrid(props, ref) {
-    const { render, mode: _mode, children, ...otherProps } = props;
-    const {
-      weeks,
-      focusedDate,
-      setFocusedDate,
-      onSelect,
-      disabled,
-      currentMonth,
-    } = useDatePicker();
+function MonthGrid(props: MonthGridProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { ref, render, mode: _mode, children, ...otherProps } = props;
+  const {
+    weeks,
+    focusedDate,
+    setFocusedDate,
+    onSelect,
+    disabled,
+    currentMonth,
+  } = useDatePicker();
 
-    const state = useMemo<MonthGridState>(
-      () => ({ month: currentMonth.month, year: currentMonth.year }),
-      [currentMonth],
-    );
+  const state = useMemo<MonthGridState>(
+    () => ({ month: currentMonth.month, year: currentMonth.year }),
+    [currentMonth],
+  );
 
-    const handleKeyDown = useCallback(
-      (e: KeyboardEvent<HTMLDivElement>) => {
-        let nextDate: Temporal.PlainDate | null = null;
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      let nextDate: Temporal.PlainDate | null = null;
 
-        switch (e.key) {
-          case "ArrowRight":
-            nextDate = focusedDate.add({ days: 1 });
-            break;
-          case "ArrowLeft":
-            nextDate = focusedDate.subtract({ days: 1 });
-            break;
-          case "ArrowDown":
-            nextDate = focusedDate.add({ weeks: 1 });
-            break;
-          case "ArrowUp":
-            nextDate = focusedDate.subtract({ weeks: 1 });
-            break;
-          case "Enter":
-          case " ":
-            e.preventDefault();
-            if (!disabled?.(focusedDate)) {
-              onSelect(focusedDate);
-            }
-            return;
-          default:
-            return;
-        }
-
-        if (nextDate) {
+      switch (e.key) {
+        case "ArrowRight":
+          nextDate = focusedDate.add({ days: 1 });
+          break;
+        case "ArrowLeft":
+          nextDate = focusedDate.subtract({ days: 1 });
+          break;
+        case "ArrowDown":
+          nextDate = focusedDate.add({ weeks: 1 });
+          break;
+        case "ArrowUp":
+          nextDate = focusedDate.subtract({ weeks: 1 });
+          break;
+        case "Enter":
+        case " ":
           e.preventDefault();
-          setFocusedDate(nextDate);
-        }
-      },
-      [focusedDate, setFocusedDate, onSelect, disabled],
-    );
+          if (!disabled?.(focusedDate)) {
+            onSelect(focusedDate);
+          }
+          return;
+        default:
+          return;
+      }
 
-    const bareDefaultChildren = (
-      <>
-        <DayLabels>
-          <DayLabel />
-        </DayLabels>
-        {weeks.map((weekDays, i) => (
-          <Week key={i}>
-            {weekDays.map((day) => (
-              <Day key={day.toString()} date={day} />
-            ))}
-          </Week>
-        ))}
-      </>
-    );
+      if (nextDate) {
+        e.preventDefault();
+        setFocusedDate(nextDate);
+      }
+    },
+    [focusedDate, setFocusedDate, onSelect, disabled],
+  );
 
-    const resolvedChildren = children
-      ? (buildTemplateChildren(children, weeks) ?? bareDefaultChildren)
-      : bareDefaultChildren;
+  const bareDefaultChildren = (
+    <>
+      <DayLabels>
+        <DayLabel />
+      </DayLabels>
+      {weeks.map((weekDays, i) => (
+        <Week key={i}>
+          {weekDays.map((day) => (
+            <Day key={day.toString()} date={day} />
+          ))}
+        </Week>
+      ))}
+    </>
+  );
 
-    const defaultProps: Record<string, unknown> = {
-      role: "grid",
-      "aria-label": "Calendar",
-      onKeyDown: handleKeyDown,
-      children: resolvedChildren,
-    };
+  const resolvedChildren = children
+    ? (buildTemplateChildren(children, weeks) ?? bareDefaultChildren)
+    : bareDefaultChildren;
 
-    return useRender({
-      defaultTagName: "div",
-      render,
-      ref: [ref],
-      state,
-      props: mergeProps<"div">(defaultProps, otherProps),
-    });
-  },
-);
+  const defaultProps: Record<string, unknown> = {
+    role: "grid",
+    "aria-label": "Calendar",
+    onKeyDown: handleKeyDown,
+    children: resolvedChildren,
+  };
+
+  return useRender({
+    defaultTagName: "div",
+    render,
+    ref: [ref],
+    state,
+    props: mergeProps<"div">(defaultProps, otherProps),
+  });
+}
 
 interface WeekState {}
 
 type WeekProps = useRender.ComponentProps<"div", WeekState>;
 
-const Week = forwardRef<HTMLDivElement, WeekProps>(function Week(props, ref) {
-  const { render, ...otherProps } = props;
+function Week(props: WeekProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { ref, render, ...otherProps } = props;
 
   const state = useMemo<WeekState>(() => ({}), []);
 
@@ -985,7 +991,7 @@ const Week = forwardRef<HTMLDivElement, WeekProps>(function Week(props, ref) {
     state,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
-});
+}
 
 interface DayState {
   selected: boolean;
@@ -1001,8 +1007,8 @@ interface DayOwnProps {
 
 type DayProps = useRender.ComponentProps<"button", DayState> & DayOwnProps;
 
-const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
-  const { render, date: dateProp, ...otherProps } = props;
+function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
+  const { ref, render, date: dateProp, ...otherProps } = props;
   const {
     selected,
     onSelect,
@@ -1051,7 +1057,12 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
     disabled: isDisabled,
     "aria-selected": isSelected,
     "aria-disabled": isDisabled,
-    "aria-label": date.toLocaleString(locale, { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
+    "aria-label": date.toLocaleString(locale, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }),
     "data-testid": `button-day-${date.toString()}`,
     onClick: () => {
       setFocusedDate(date);
@@ -1079,7 +1090,7 @@ const Day = forwardRef<HTMLButtonElement, DayProps>(function Day(props, ref) {
     stateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-});
+}
 
 export const DatePicker = {
   Root,
@@ -1102,7 +1113,9 @@ interface CreateDatePickerOptions {
 type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 
 interface TypedDatePicker<F extends ValueFormat> {
-  Root: (props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> }) => React.ReactElement | null;
+  Root: (
+    props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
+  ) => React.ReactElement | null;
   MonthGrid: typeof MonthGrid;
   Week: typeof Week;
   Day: typeof Day;
@@ -1115,11 +1128,18 @@ interface TypedDatePicker<F extends ValueFormat> {
   NextMonthButton: typeof NextMonthButton;
 }
 
-function createDatePicker<F extends ValueFormat>(format: F, options?: CreateDatePickerOptions): TypedDatePicker<F> {
+function createDatePicker<F extends ValueFormat>(
+  format: F,
+  options?: CreateDatePickerOptions,
+): TypedDatePicker<F> {
   const resolvedTemporal = resolveTemporal(options?.temporal);
 
-  const TypedRoot = forwardRef<HTMLDivElement, TypedRootProps<F>>(function TypedRoot(props, ref) {
-    return createElement(RootInner, { ...props, format, _resolvedTemporal: resolvedTemporal, innerRef: ref } as any);
+  const TypedRoot = ((props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> }) => {
+    return createElement(RootInner, {
+      ...props,
+      format,
+      _resolvedTemporal: resolvedTemporal,
+    } as any);
   }) as TypedDatePicker<F>["Root"];
 
   return {
