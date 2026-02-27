@@ -262,14 +262,14 @@ function useDatePicker() {
   return ctx;
 }
 
-interface RootState<F extends ValueFormat = ValueFormat> {
+type RootState<F extends ValueFormat = ValueFormat> = {
   hasSelection: boolean;
   selected: RawValueForFormat<F> | undefined;
   focused: Temporal.PlainDate;
   viewing: Temporal.PlainYearMonth;
   timeZone: string;
   locale: string;
-}
+};
 
 interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   format?: F;
@@ -563,7 +563,7 @@ function RootInner<F extends ValueFormat = ValueFormat>(
     state,
     stateAttributesMapping,
     props: mergeProps<"div">(defaultProps, otherProps),
-  } as any);
+  });
 
   return (
     <DatePickerContext.Provider value={ctx}>
@@ -576,11 +576,11 @@ const Root = RootInner as <F extends ValueFormat = ValueFormat>(
   props: RootProps<F> & { ref?: React.Ref<HTMLDivElement> },
 ) => React.ReactElement | null;
 
-interface DateStringState {
+type DateStringState = {
   month: number;
   year: number;
   day: number;
-}
+};
 
 interface DateStringOwnProps {
   locales?: string | string[];
@@ -623,14 +623,14 @@ function DateString(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"span">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface TimeStringState {
+type TimeStringState = {
   hour: number;
   minute: number;
   second: number;
-}
+};
 
 interface TimeStringOwnProps {
   locales?: string | string[];
@@ -674,13 +674,13 @@ function TimeString(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"span">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface MonthStringState {
+type MonthStringState = {
   month: number;
   year: number;
-}
+};
 
 interface MonthStringOwnProps {
   locales?: string | string[];
@@ -719,14 +719,14 @@ function MonthString(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"span">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface NavButtonState {
+type NavButtonState = {
   direction: "next" | "prev";
   disabled: boolean;
   target: Temporal.PlainYearMonth;
-}
+};
 
 type PrevMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
 
@@ -772,7 +772,7 @@ function PrevMonthButton(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"button">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
 type NextMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
@@ -819,7 +819,7 @@ function NextMonthButton(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"button">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
 function getReferenceSunday(T: TemporalNamespace): Temporal.PlainDate {
@@ -840,13 +840,13 @@ function getWeekdayNames(locale: string, T: TemporalNamespace) {
   return names;
 }
 
-interface DayLabelState {
+type DayLabelState = {
   index: number;
   dayOfWeek: number;
   long: string;
   short: string;
   narrow: string;
-}
+};
 
 interface DayLabelOwnProps {
   index?: number;
@@ -896,10 +896,10 @@ function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
     state,
     stateAttributesMapping,
     props: mergeProps<"div">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface DayLabelsState {}
+type DayLabelsState = {};
 
 type DayLabelsProps = useRender.ComponentProps<"div", DayLabelsState>;
 
@@ -938,13 +938,13 @@ function DayLabels(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"div">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface MonthGridState {
+type MonthGridState = {
   month: number;
   year: number;
-}
+};
 
 interface MonthGridOwnProps {
   mode?: "grid";
@@ -1087,10 +1087,10 @@ function MonthGrid(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"div">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface WeekState {}
+type WeekState = {};
 
 type WeekProps = useRender.ComponentProps<"div", WeekState>;
 
@@ -1109,16 +1109,16 @@ function Week(props: WeekProps & { ref?: React.Ref<HTMLDivElement> }) {
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"div">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
-interface DayState {
+type DayState = {
   selected: boolean;
   today: boolean;
   disabled: boolean;
   outsideMonth: boolean;
   focused: boolean;
-}
+};
 
 interface DayOwnProps {
   date?: Temporal.PlainDate;
@@ -1208,7 +1208,7 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
     state,
     stateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
-  } as any);
+  });
 }
 
 export const DatePicker = {
