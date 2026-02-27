@@ -75,7 +75,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                   <ChevronLeft className="h-4 w-4" />
                 </button>
               </TooltipTrigger>
-              <TooltipContent>Go to {state.direction}</TooltipContent>
+              <TooltipContent>{state.target.formatted}</TooltipContent>
             </Tooltip>
           )}
         />
@@ -90,18 +90,23 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
         <DP.NextMonthButton
           data-testid="button-next-month"
           render={(props, state) => (
-            <button
-              {...props}
-              className={cn(
-                "inline-flex h-7 w-7 items-center justify-center rounded-md",
-                "text-muted-foreground transition-colors",
-                "hover:bg-accent hover:text-accent-foreground",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                state.disabled && "pointer-events-none opacity-50",
-              )}
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  {...props}
+                  className={cn(
+                    "inline-flex h-7 w-7 items-center justify-center rounded-md",
+                    "text-muted-foreground transition-colors",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    state.disabled && "pointer-events-none opacity-50",
+                  )}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent>{state.target.formatted}</TooltipContent>
+            </Tooltip>
           )}
         />
       </div>

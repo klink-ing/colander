@@ -729,9 +729,43 @@ function MonthString(
   });
 }
 
+interface NavButtonMonthYear {
+  month: number;
+  year: number;
+  monthLong: string;
+  monthShort: string;
+  monthNarrow: string;
+  monthNumeric: string;
+  month2Digit: string;
+  yearNumeric: string;
+  year2Digit: string;
+  formatted: string;
+}
+
 interface NavButtonState {
   direction: "next" | "prev";
   disabled: boolean;
+  target: NavButtonMonthYear;
+}
+
+function getNavMonthYear(
+  month: number,
+  year: number,
+  locale: string,
+): NavButtonMonthYear {
+  const d = new Date(year, month - 1, 1);
+  return {
+    month,
+    year,
+    monthLong: d.toLocaleDateString(locale, { month: "long" }),
+    monthShort: d.toLocaleDateString(locale, { month: "short" }),
+    monthNarrow: d.toLocaleDateString(locale, { month: "narrow" }),
+    monthNumeric: d.toLocaleDateString(locale, { month: "numeric" }),
+    month2Digit: d.toLocaleDateString(locale, { month: "2-digit" }),
+    yearNumeric: d.toLocaleDateString(locale, { year: "numeric" }),
+    year2Digit: d.toLocaleDateString(locale, { year: "2-digit" }),
+    formatted: d.toLocaleDateString(locale, { month: "long", year: "numeric" }),
+  };
 }
 
 type PrevMonthButtonProps = useRender.ComponentProps<"button", NavButtonState>;
@@ -740,26 +774,32 @@ function PrevMonthButton(
   props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToPrevMonth, currentMonth, minValue } = useDatePicker();
+  const { goToPrevMonth, currentMonth, minValue, locale } = useDatePicker();
+
+  const destMonth = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
+  const destYear = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
 
   const isDisabled = useMemo(() => {
     if (!minValue) return false;
-    const prevYear = currentMonth.month === 1 ? currentMonth.year - 1 : currentMonth.year;
-    const prevMonth = currentMonth.month === 1 ? 12 : currentMonth.month - 1;
     return (
-      prevYear < minValue.year ||
-      (prevYear === minValue.year && prevMonth < minValue.month)
+      destYear < minValue.year ||
+      (destYear === minValue.year && destMonth < minValue.month)
     );
-  }, [currentMonth, minValue]);
+  }, [destYear, destMonth, minValue]);
+
+  const target = useMemo(
+    () => getNavMonthYear(destMonth, destYear, locale),
+    [destMonth, destYear, locale],
+  );
 
   const state = useMemo<NavButtonState>(
-    () => ({ direction: "prev", disabled: isDisabled }),
-    [isDisabled],
+    () => ({ direction: "prev", disabled: isDisabled, target }),
+    [isDisabled, target],
   );
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
-    "aria-label": "Go to previous month",
+    "aria-label": `Go to ${target.formatted}`,
     disabled: isDisabled,
     onClick: isDisabled ? undefined : goToPrevMonth,
   };
@@ -779,26 +819,32 @@ function NextMonthButton(
   props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { goToNextMonth, currentMonth, maxValue } = useDatePicker();
+  const { goToNextMonth, currentMonth, maxValue, locale } = useDatePicker();
+
+  const destMonth = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
+  const destYear = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
 
   const isDisabled = useMemo(() => {
     if (!maxValue) return false;
-    const nextYear = currentMonth.month === 12 ? currentMonth.year + 1 : currentMonth.year;
-    const nextMonth = currentMonth.month === 12 ? 1 : currentMonth.month + 1;
     return (
-      nextYear > maxValue.year ||
-      (nextYear === maxValue.year && nextMonth > maxValue.month)
+      destYear > maxValue.year ||
+      (destYear === maxValue.year && destMonth > maxValue.month)
     );
-  }, [currentMonth, maxValue]);
+  }, [destYear, destMonth, maxValue]);
+
+  const target = useMemo(
+    () => getNavMonthYear(destMonth, destYear, locale),
+    [destMonth, destYear, locale],
+  );
 
   const state = useMemo<NavButtonState>(
-    () => ({ direction: "next", disabled: isDisabled }),
-    [isDisabled],
+    () => ({ direction: "next", disabled: isDisabled, target }),
+    [isDisabled, target],
   );
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
-    "aria-label": "Go to next month",
+    "aria-label": `Go to ${target.formatted}`,
     disabled: isDisabled,
     onClick: isDisabled ? undefined : goToNextMonth,
   };
@@ -1290,6 +1336,7 @@ export type {
   PrevMonthButtonProps as DatePickerPrevMonthButtonProps,
   NextMonthButtonProps as DatePickerNextMonthButtonProps,
   NavButtonState as DatePickerNavButtonState,
+  NavButtonMonthYear as DatePickerNavButtonMonthYear,
   ValueFormat as DatePickerValueFormat,
   DateValueObject as DatePickerDateValueObject,
   ValueForFormat as DatePickerValueForFormat,
