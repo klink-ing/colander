@@ -3,7 +3,8 @@ import { cn } from "@/lib/utils";
 import {
   DaysGrid,
   WeekTemplate,
-  DayTemplate,
+  DayCellTemplate,
+  DayButtonTemplate,
   DayLabels,
   DayLabel,
   MonthYearString,
@@ -15,7 +16,8 @@ import {
 import type {
   DaysGridProps,
   WeekTemplateProps,
-  DayTemplateProps,
+  DayCellTemplateProps,
+  DayButtonTemplateProps,
   DayLabelsProps,
   DayLabelProps,
   MonthYearStringProps,
@@ -159,13 +161,20 @@ export function StyledWeekTemplate({
   );
 }
 
-export function StyledDayTemplate({
+export function StyledDayCellTemplate({
+  className,
+  ...props
+}: DayCellTemplateProps & { ref?: React.Ref<HTMLTableCellElement> }) {
+  return <DayCellTemplate {...props} className={cn("text-center", className)} />;
+}
+
+export function StyledDayButtonTemplate({
   className,
   render: _render,
   ...props
-}: DayTemplateProps & { ref?: React.Ref<HTMLButtonElement> }) {
+}: DayButtonTemplateProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
-    <DayTemplate
+    <DayButtonTemplate
       {...props}
       render={(renderProps, state) => (
         <button
@@ -188,5 +197,25 @@ export function StyledDayTemplate({
         />
       )}
     />
+  );
+}
+
+export function StyledDayTemplate({
+  cellClassName,
+  buttonClassName,
+  cellRef,
+  buttonRef,
+  date,
+}: {
+  cellClassName?: string;
+  buttonClassName?: string;
+  cellRef?: React.Ref<HTMLTableCellElement>;
+  buttonRef?: React.Ref<HTMLButtonElement>;
+  date?: import("@js-temporal/polyfill").Temporal.PlainDate;
+}) {
+  return (
+    <StyledDayCellTemplate ref={cellRef} className={cellClassName} date={date}>
+      <StyledDayButtonTemplate ref={buttonRef} className={buttonClassName} />
+    </StyledDayCellTemplate>
   );
 }

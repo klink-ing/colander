@@ -1,5 +1,5 @@
 export { Root, RootInner } from "./root";
-export { DaysGrid, WeekTemplate, DayTemplate } from "./grid";
+export { DaysGrid, WeekTemplate, DayCellTemplate, DayButtonTemplate } from "./grid";
 export { DayLabels, DayLabelTemplate as DayLabel } from "./labels";
 export {
   DateString,
@@ -15,12 +15,13 @@ export {
   useRootState,
   useNavButton,
   useDaysGridKeyboard,
-  useDayTemplateState,
+  useDayCellState,
+  useDayButtonState,
   useDayLabelState,
 } from "./hooks";
 
 import { Root } from "./root";
-import { DaysGrid, WeekTemplate, DayTemplate } from "./grid";
+import { DaysGrid, WeekTemplate, DayCellTemplate, DayButtonTemplate } from "./grid";
 import { DayLabels, DayLabelTemplate } from "./labels";
 import {
   DateString,
@@ -34,7 +35,8 @@ export const DatePicker = {
   Root,
   DaysGrid,
   WeekTemplate,
-  DayTemplate,
+  DayCellTemplate,
+  DayButtonTemplate,
   DayLabels,
   DayLabel: DayLabelTemplate,
   DateString,
@@ -51,8 +53,10 @@ export type {
   DaysGridState as DatePickerDaysGridState,
   WeekTemplateProps as DatePickerWeekTemplateProps,
   WeekTemplateState as DatePickerWeekTemplateState,
-  DayTemplateProps as DatePickerDayTemplateProps,
-  DayTemplateState as DatePickerDayTemplateState,
+  DayCellTemplateProps as DatePickerDayCellTemplateProps,
+  DayCellTemplateState as DatePickerDayCellTemplateState,
+  DayButtonTemplateProps as DatePickerDayButtonTemplateProps,
+  DayButtonTemplateState as DatePickerDayButtonTemplateState,
   DayLabelsProps as DatePickerDayLabelsProps,
   DayLabelsState as DatePickerDayLabelsState,
   DayLabelProps as DatePickerDayLabelProps,

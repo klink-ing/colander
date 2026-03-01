@@ -16,7 +16,8 @@ import type {
   DatePickerContextValue,
   RootState,
   NavButtonState,
-  DayTemplateState,
+  DayCellTemplateState,
+  DayButtonTemplateState,
   DayLabelState,
 } from "./types";
 import { useDatePicker } from "./context";
@@ -428,20 +429,16 @@ export function useDaysGridKeyboard() {
   );
 }
 
-export function useDayTemplateState(date: Temporal.PlainDate) {
+function useDayDerivedState(date: Temporal.PlainDate) {
   const {
     selected,
-    onSelect,
     currentDateTime,
     disabled,
     isDateDisabled,
     focusedDate,
-    setFocusedDate,
     timeZone,
-    locale,
     temporal: T,
   } = useDatePicker();
-  const internalRef = useRef<HTMLButtonElement>(null);
 
   const today = useMemo(() => T.Now.plainDateISO(), [T]);
   const selZdt = selectedToZdt(selected, timeZone, T);
@@ -452,13 +449,22 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
   const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
   const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
 
-  useEffect(() => {
-    if (isFocused && internalRef.current) {
-      internalRef.current.focus();
-    }
-  }, [isFocused]);
+  return { isSelected, isCurrentMonth, isToday, isDisabled, isFocused };
+}
 
-  const state = useMemo<DayTemplateState>(
+const dayStateAttributesMapping = {
+  selected: (v: boolean) => (v ? { "data-selected": "" } : null),
+  today: (v: boolean) => (v ? { "data-today": "" } : null),
+  disabled: (v: boolean) => (v ? { "data-disabled": "" } : null),
+  outsideMonth: (v: boolean) => (v ? { "data-outside-month": "" } : null),
+  focused: (v: boolean) => (v ? { "data-focused": "" } : null),
+};
+
+export function useDayCellState(date: Temporal.PlainDate) {
+  const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
+    useDayDerivedState(date);
+
+  const state = useMemo<DayCellTemplateState>(
     () => ({
       selected: isSelected,
       today: isToday,
@@ -469,15 +475,41 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
     [isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
   );
 
-  const stateAttributesMapping = useMemo(
+  const defaultProps: Record<string, unknown> = {
+    role: "gridcell",
+    "aria-selected": isSelected || undefined,
+    "aria-disabled": isDisabled || undefined,
+  };
+
+  return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps };
+}
+
+export function useDayButtonState(date: Temporal.PlainDate) {
+  const {
+    onSelect,
+    focusedDate,
+    setFocusedDate,
+    locale,
+  } = useDatePicker();
+  const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
+    useDayDerivedState(date);
+  const internalRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (isFocused && internalRef.current) {
+      internalRef.current.focus();
+    }
+  }, [isFocused]);
+
+  const state = useMemo<DayButtonTemplateState>(
     () => ({
-      selected: (v: boolean) => (v ? { "data-selected": "" } : null),
-      today: (v: boolean) => (v ? { "data-today": "" } : null),
-      disabled: (v: boolean) => (v ? { "data-disabled": "" } : null),
-      outsideMonth: (v: boolean) => (v ? { "data-outside-month": "" } : null),
-      focused: (v: boolean) => (v ? { "data-focused": "" } : null),
+      selected: isSelected,
+      today: isToday,
+      disabled: isDisabled,
+      outsideMonth: !isCurrentMonth,
+      focused: isFocused,
     }),
-    [],
+    [isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -498,13 +530,7 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
     children: date.day,
   };
 
-  const cellProps: Record<string, unknown> = {
-    role: "gridcell",
-    "aria-selected": isSelected || undefined,
-    "aria-disabled": isDisabled || undefined,
-  };
-
-  return { state, stateAttributesMapping, defaultProps, cellProps, internalRef };
+  return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps, internalRef };
 }
 
 export function useDayLabelState(index: number) {

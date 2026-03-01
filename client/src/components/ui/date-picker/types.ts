@@ -206,7 +206,7 @@ export type WeekTemplateProps = useRender.ComponentProps<
   WeekTemplateState
 >;
 
-export type DayTemplateState = {
+export type DayCellTemplateState = {
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -214,15 +214,33 @@ export type DayTemplateState = {
   focused: boolean;
 };
 
-export interface DayTemplateOwnProps {
+export interface DayCellTemplateOwnProps {
   date?: Temporal.PlainDate;
 }
 
-export type DayTemplateProps = useRender.ComponentProps<
-  "button",
-  DayTemplateState
+export type DayCellTemplateProps = useRender.ComponentProps<
+  "td",
+  DayCellTemplateState
 > &
-  DayTemplateOwnProps;
+  DayCellTemplateOwnProps;
+
+export type DayButtonTemplateState = {
+  selected: boolean;
+  today: boolean;
+  disabled: boolean;
+  outsideMonth: boolean;
+  focused: boolean;
+};
+
+export interface DayButtonTemplateOwnProps {
+  date?: Temporal.PlainDate;
+}
+
+export type DayButtonTemplateProps = useRender.ComponentProps<
+  "button",
+  DayButtonTemplateState
+> &
+  DayButtonTemplateOwnProps;
 
 export type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 
@@ -236,8 +254,11 @@ export interface TypedDatePicker<F extends ValueFormat> {
   WeekTemplate: (
     props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
   ) => React.ReactElement;
-  DayTemplate: (
-    props: DayTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
+  DayCellTemplate: (
+    props: DayCellTemplateProps & { ref?: React.Ref<HTMLTableCellElement> },
+  ) => React.ReactElement;
+  DayButtonTemplate: (
+    props: DayButtonTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
   ) => React.ReactElement;
   DayLabels: (
     props: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> },

@@ -18,3 +18,7 @@ export const WeekDataContext = createContext<{
   days: Temporal.PlainDate[];
   weekIndex: number;
 } | null>(null);
+
+export const DayCellDataContext = createContext<{
+  date: Temporal.PlainDate;
+} | null>(null);

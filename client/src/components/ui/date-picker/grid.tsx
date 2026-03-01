@@ -1,15 +1,16 @@
 import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { useDatePicker, WeekDataContext } from "./context";
-import { useDaysGridKeyboard, useDayTemplateState } from "./hooks";
+import { useDatePicker, WeekDataContext, DayCellDataContext } from "./context";
+import { useDaysGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
 import { DayLabels, DayLabelTemplate } from "./labels";
 import type {
   DaysGridState,
   DaysGridProps,
   WeekTemplateState,
   WeekTemplateProps,
-  DayTemplateProps,
+  DayCellTemplateProps,
+  DayButtonTemplateProps,
 } from "./types";
 
 export function DaysGrid(
@@ -36,7 +37,9 @@ export function DaysGrid(
         </DayLabels>
         <tbody>
           <WeekTemplate>
-            <DayTemplate />
+            <DayCellTemplate>
+              <DayButtonTemplate />
+            </DayCellTemplate>
           </WeekTemplate>
         </tbody>
       </>
@@ -99,17 +102,69 @@ export function WeekTemplate(
   );
 }
 
-function DayInstance(
-  props: Omit<DayTemplateProps, "date"> & {
+function DayCellInstance(
+  props: Omit<DayCellTemplateProps, "date"> & {
+    date: import("@js-temporal/polyfill").Temporal.PlainDate;
+    ref?: React.Ref<HTMLTableCellElement>;
+  },
+) {
+  const { ref, render, date, children, ...otherProps } = props;
+  const { state, stateAttributesMapping, defaultProps: cellDefaults } =
+    useDayCellState(date);
+
+  const defaultProps: Record<string, unknown> = {
+    ...cellDefaults,
+    children: children ?? <DayButtonTemplate />,
+  };
+
+  const cell = useRender({
+    defaultTagName: "td",
+    render,
+    ref: ref ? [ref] : [],
+    state,
+    stateAttributesMapping,
+    props: mergeProps<"td">(defaultProps, otherProps),
+  });
+
+  return (
+    <DayCellDataContext.Provider value={{ date }}>
+      {cell}
+    </DayCellDataContext.Provider>
+  );
+}
+
+export function DayCellTemplate(
+  props: DayCellTemplateProps & { ref?: React.Ref<HTMLTableCellElement> },
+) {
+  const { date: dateProp, ...restProps } = props;
+  const weekData = useContext(WeekDataContext);
+  const { weeks } = useDatePicker();
+
+  if (dateProp) {
+    return <DayCellInstance {...restProps} date={dateProp} />;
+  }
+
+  const days = weekData ? weekData.days : weeks.flat();
+  return (
+    <>
+      {days.map((day) => (
+        <DayCellInstance key={day.toString()} {...restProps} date={day} />
+      ))}
+    </>
+  );
+}
+
+function DayButtonInstance(
+  props: Omit<DayButtonTemplateProps, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
     ref?: React.Ref<HTMLButtonElement>;
   },
 ) {
   const { ref, render, date, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, cellProps, internalRef } =
-    useDayTemplateState(date);
+  const { state, stateAttributesMapping, defaultProps, internalRef } =
+    useDayButtonState(date);
 
-  const button = useRender({
+  return useRender({
     defaultTagName: "button",
     render,
     ref: ref ? [ref, internalRef] : [internalRef],
@@ -117,27 +172,21 @@ function DayInstance(
     stateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-
-  return <td {...cellProps}>{button}</td>;
 }
 
-export function DayTemplate(
-  props: DayTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
+export function DayButtonTemplate(
+  props: DayButtonTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { date: dateProp, ...restProps } = props;
-  const weekData = useContext(WeekDataContext);
-  const { weeks } = useDatePicker();
+  const cellData = useContext(DayCellDataContext);
 
-  if (dateProp) {
-    return <DayInstance {...restProps} date={dateProp} />;
+  const resolvedDate = dateProp ?? cellData?.date;
+
+  if (resolvedDate) {
+    return <DayButtonInstance {...restProps} date={resolvedDate} />;
   }
 
-  const days = weekData ? weekData.days : weeks.flat();
-  return (
-    <>
-      {days.map((day) => (
-        <DayInstance key={day.toString()} {...restProps} date={day} />
-      ))}
-    </>
+  throw new Error(
+    "DayButtonTemplate must be used inside DayCellTemplate or receive an explicit date prop.",
   );
 }
