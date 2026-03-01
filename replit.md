@@ -2,9 +2,7 @@
 
 ## Overview
 
-This is a full-stack TypeScript web application built with React on the frontend and Express on the backend. The current state of the app is essentially a starter/template that displays a custom `DatePicker` component on the home page. It uses a monorepo-style structure with `client/`, `server/`, and `shared/` directories.
-
-The app is set up with PostgreSQL via Drizzle ORM, though the current storage layer defaults to an in-memory implementation (`MemStorage`). The schema defines a basic `users` table, and the backend has no active API routes yet — it's a clean slate ready for feature development.
+This project is a full-stack TypeScript web application, serving as a starter template with a React frontend and an Express backend. It utilizes a monorepo structure with dedicated directories for client, server, and shared code. The application currently features a custom `DatePicker` component on the home page and is set up for PostgreSQL integration via Drizzle ORM, though it defaults to an in-memory storage solution for development ease. The backend is designed as a clean slate, ready for API development.
 
 ## User Preferences
 
@@ -12,136 +10,77 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Directory Structure
-
-- `client/` — React frontend (Vite-powered)
-  - `src/pages/` — Page components (`home.tsx`, `not-found.tsx`)
-  - `src/components/ui/` — Full shadcn/ui component library
-  - `src/hooks/` — Custom hooks (`use-mobile`, `use-toast`)
-  - `src/lib/` — Utilities and query client setup
-- `server/` — Express backend
-  - `index.ts` — App entry point
-  - `routes.ts` — Route registration (currently empty)
-  - `storage.ts` — Storage abstraction (currently `MemStorage`)
-  - `vite.ts` — Vite dev server middleware integration
-  - `static.ts` — Static file serving for production
-- `shared/` — Code shared between frontend and backend
-  - `schema.ts` — Drizzle ORM schema + Zod validation types
-- `script/build.ts` — Custom build script using esbuild + Vite
-- `migrations/` — Drizzle migration output directory
+The application is structured as a monorepo with `client/` for the React frontend, `server/` for the Express backend, and `shared/` for common code like Drizzle ORM schemas and Zod validation types.
 
 ### Frontend Architecture
 
-- **Framework**: React 19 with TypeScript
-- **Routing**: `wouter` (lightweight client-side router)
-- **Data Fetching**: TanStack Query (React Query) v5 with a custom `apiRequest` helper and `getQueryFn` factory
-- **Forms**: React Hook Form with `@hookform/resolvers` and Zod validation
-- **Styling**: Tailwind CSS with CSS variables for theming (light/dark mode support)
-- **UI Components**: Subset of shadcn/ui (New York style) — only `button`, `card`, `date-picker`, `dialog`, `input`, `label`, `separator`, `sheet`, `skeleton`, `toast`, `toaster`, `toggle`, `tooltip`
-- **Build Tool**: Vite with Replit-specific plugins (runtime error overlay, cartographer, dev banner)
-
-The `queryClient.ts` sets up a global QueryClient with `staleTime: Infinity` and no automatic refetching, meaning data is only fetched on demand. The `apiRequest` helper sends JSON requests with credentials included (for session cookies).
+- **Framework**: React 19 with TypeScript.
+- **Routing**: Lightweight `wouter` for client-side navigation.
+- **Data Fetching**: TanStack Query v5 configured with `staleTime: Infinity` and custom `apiRequest` for JSON requests with credentials.
+- **Forms**: React Hook Form with Zod for validation.
+- **Styling**: Tailwind CSS with CSS variables for theming (light/dark mode).
+- **UI Components**: A subset of `shadcn/ui` (New York style) for common elements, integrated with Radix UI for accessibility primitives.
+- **Build Tool**: Vite, enhanced with Replit-specific plugins for development.
+- **Custom `DatePicker` Component**: A headless, highly modular `DatePicker` built with `@base-ui/react` primitives and `Temporal` API polyfill. It features W3C APG conformance, sophisticated keyboard navigation, and flexible rendering options via styled wrappers or render props, supporting various Temporal formats.
 
 ### Backend Architecture
 
-- **Framework**: Express 5 with TypeScript
-- **Entry Point**: `server/index.ts` creates an HTTP server and registers routes
-- **Routes**: All API routes should be prefixed with `/api` and registered in `server/routes.ts`
-- **Storage Pattern**: An `IStorage` interface abstracts data access. Currently uses `MemStorage` (in-memory Map). Can be swapped for a Drizzle/PostgreSQL implementation.
-- **Dev Mode**: Vite middleware is integrated into Express for hot module replacement during development
-- **Production Mode**: Express serves the pre-built static files from `dist/public/`
-- **Build**: Custom `script/build.ts` runs Vite for the client and esbuild for the server, bundling common server deps for faster cold starts
+- **Framework**: Express 5 with TypeScript.
+- **Entry Point**: `server/index.ts` handles server initialization and route registration.
+- **API Routes**: All API routes are prefixed with `/api` and defined in `server/routes.ts`.
+- **Storage**: An `IStorage` interface abstracts data access, defaulting to `MemStorage` (in-memory) but designed for easy integration with Drizzle/PostgreSQL.
+- **Development**: Vite middleware is integrated for HMR.
+- **Production**: Serves pre-built static files from `dist/public/`.
+- **Build**: Custom build script uses Vite for the client and esbuild for the server.
 
 ### Data Storage
 
-- **ORM**: Drizzle ORM configured for PostgreSQL (`drizzle.config.ts`)
-- **Schema**: Defined in `shared/schema.ts` — currently only a `users` table with `id` (UUID), `username`, and `password`
-- **Validation**: `drizzle-zod` auto-generates Zod schemas from Drizzle table definitions
-- **Current Storage**: `MemStorage` (in-memory) — no DB connection required to run locally without `DATABASE_URL`
-- **Migration**: `drizzle-kit push` command syncs schema to the database
-
-To switch from in-memory to PostgreSQL storage, implement the `IStorage` interface using Drizzle queries and replace the `storage` export in `server/storage.ts`.
-
-### Authentication
-
-No authentication is implemented yet. The schema and storage interface include `getUser`, `getUserByUsername`, and `createUser` methods, suggesting session-based auth is planned. Dependencies for `passport`, `passport-local`, `express-session`, and `connect-pg-simple` are present in the build allowlist, meaning auth scaffolding can be added.
-
-### Custom Components
-
-- **DatePicker** (`client/src/components/ui/date-picker/`) — A **headless** (zero-styling) compound component split into a modular folder structure:
-  - **File structure**:
-    - `types.ts` — All TypeScript types, interfaces, and discriminated unions (`DateValueObject`, `ValueFormat`, `RawValueForFormat`, component state/props types, `TypedDatePicker`, `TemporalNamespace`)
-    - `utils.ts` — Pure utility functions (`calendarForLocale`, `resolveTemporal`, `toZonedDateTime`, `fromZonedDateTime`, `selectedToZdt`, `getMonthWeeks`, `zdtToNativeDate`, `sameCalendarDay`, `getWeekdayNames`)
-    - `context.ts` — React contexts (`DatePickerContext`, `WeekDataContext`) and `useDatePicker` hook
-    - `keyboard.ts` — Pure functions for keyboard navigation logic: `computeNextFocusDate` (resolves key + focused date + bounds → next date or action), `computeMonthJumpTarget` (month arithmetic with day constraining)
-    - `keyboard.test.ts` — Vitest unit tests for all keyboard navigation: arrow keys, Home/End, PageUp/PageDown, Shift+PageUp/PageDown, min/max bound enforcement, disabled state, Enter/Space selection, unrecognized keys (93 tests via `test.each`)
-    - `hooks.ts` — Extracted custom hooks that encapsulate complex state logic: `useRootState` (all Root state management), `useNavButton` (shared prev/next nav logic), `useGridKeyboard` (arrow key navigation — delegates to `computeNextFocusDate`), `useDayCellState` (cell ARIA props), `useDayButtonState` (button focus/click/ref), `useGridHeaderCellState` (weekday name resolution)
-    - `root.tsx` — `Root` and `RootInner` components
-    - `navigation.tsx` — `DateString`, `TimeString`, `MonthYearString`, `PrevMonthButton`, `NextMonthButton`
-    - `grid.tsx` — `Grid`, `GridBody`, `WeekTemplate`/`WeekInstance`, `DayCellTemplate`/`DayCellInstance`, `DayButton`/`DayButtonInstance`
-    - `labels.tsx` — `GridHeaderCell`/`GridHeaderCellInstance`, `GridHeader`
-    - `factory.ts` — `createDatePicker(format, options?)` factory
-    - `index.ts` — Barrel export (all components, hooks, types, `DatePicker` namespace object)
-    - `styled.tsx` — Pre-styled wrappers for every headless primitive using shadcn/tailwind design tokens
-  - Built with base-ui internals (`useRender`, `mergeProps`). **Internal state uses a discriminated union `DateValueObject`** — consumers pass **separate `format` and `value` props** with raw Temporal values. The `createDatePicker(format, options?)` factory returns a `TypedDatePicker<F>` where Root's `format` prop is stripped. Supported formats: `"PlainDate"`, `"PlainDateTime"`, `"PlainMonthDay"`, `"PlainTime"`, `"PlainYearMonth"`, `"ZonedDateTime"`, `"object"`, `"Date"`. Root accepts `timeZone`, `locale`, `min`, `max`, `disabled` (boolean — disables entire calendar, matching base-ui convention), and `isDateDisabled` (per-date predicate function `(date: PlainDate) => boolean`, following base-ui's `is___` naming pattern from Select's `isItemEqualToValue`). `Temporal` is resolved at factory time.
-  - **W3C APG Date Picker conformance** (non-dialog portions):
-    - `aria-selected` is only set on the selected day cell (omitted on all others, per spec)
-    - Day column headers use `aria-label` for full day names ("Sunday") with narrow text ("Su") as default children
-    - Keyboard shortcuts: Arrow keys, Home (start of week), End (end of week), PageUp/PageDown (prev/next month), Shift+PageUp/PageDown (prev/next year) — all clamp to min/max bounds (navigate to the boundary instead of refusing navigation; return "none" only when already at the boundary)
-    - `MonthYearString` auto-registers its `id` via context; `Grid` reads it as `aria-labelledby` — no manual wiring needed
-    - Semantic HTML table structure: `<table role="grid">` → `<thead>` (via `GridHeader`) with `<th scope="col" abbr="...">` (via `GridHeaderCell`) → `<tbody>` (via `GridBody`) with `<tr>` rows → `<td role="gridcell">` (via `DayCellTemplate`) wrapping `<button>` (via `DayButton`) for each day
-    - `DayCellTemplate` and `DayButton` are separate components — consumers can customize both the cell (`<td>`) and the button independently via `render` props. `DayCellTemplate` provides `DayCellDataContext` so `DayButton` automatically knows its date when nested inside. Default children of `DayCellTemplate` is `<DayButton />`.
-  - **Self-replicating components**: `WeekTemplate`, `DayCellTemplate`, and `GridHeaderCell` use a "self-replicating" pattern — each reads data from context and renders itself the correct number of times. No parent-side child scanning. Each is split into outer (maps over data) and inner `*Instance` (calls `useRender`) — e.g. `WeekTemplate` → `WeekInstance`, `DayCellTemplate` → `DayCellInstance`, `GridHeaderCell` → `GridHeaderCellInstance`. `WeekTemplate` maps over `weeks` via `WeekDataContext`. `DayCellTemplate` maps over days in week context and provides `DayCellDataContext`. `DayButton` reads its date from `DayCellDataContext` (when nested in a cell) or accepts an explicit `date` prop. `GridHeaderCell` self-replicates 7 times when no `index` prop. Components that do **not** self-replicate (like `DayButton`, `GridHeader`, `GridBody`) omit the `Template` suffix.
-  - **Styled components** (`styled.tsx`): `StyledPrevMonthButton`, `StyledNextMonthButton`, `StyledMonthYearString`, `StyledDateString`, `StyledTimeString`, `StyledGrid`, `StyledGridHeader`, `StyledGridHeaderCell`, `StyledGridBody`, `StyledWeekTemplate`, `StyledDayCellTemplate`, `StyledDayButton`, `StyledDayTemplate` (composite of cell+button) — each wraps a headless primitive with pre-applied styles. **No render props are used** — all state-dependent styling uses Tailwind data-attribute selectors (e.g. `data-[selected]:bg-primary`, `data-[today]:bg-accent`, `data-[outside-month]:opacity-40`, `disabled:opacity-50`) targeting data attributes emitted by the headless components' `stateAttributesMapping`. Nav button icons (`ChevronLeft`/`ChevronRight`) are passed as `children`. All accept additional `className` for extension. Mix-and-match with headless components is supported.
-- **StyledDatePicker** (`client/src/components/styled-date-picker.tsx`) — A fully styled calendar composed entirely from the styled wrapper components. Accepts a `components` prop of type `DatePickerTyped<F>` (from `createDatePicker`). Uses `StyledPrevMonthButton`, `StyledMonthYearString`, `StyledNextMonthButton`, `StyledGrid`, `StyledGridHeader`, `StyledGridHeaderCell`, `StyledGridBody`, `StyledWeekTemplate`, `StyledDayTemplate`.
-- **RenderPropDatePicker** (`client/src/components/render-prop-date-picker.tsx`) — Demonstrates mix-and-match: uses styled wrappers for grid/labels/day cells while using custom render props for nav buttons (with tooltips) and month string. Shows that headless and styled components compose freely.
+- **ORM**: Drizzle ORM with PostgreSQL (`pg` driver).
+- **Schema**: Defined in `shared/schema.ts`, including a `users` table.
+- **Validation**: `drizzle-zod` for generating Zod schemas from Drizzle.
+- **Migration**: `drizzle-kit` for schema synchronization.
+- **Authentication**: While no authentication is currently implemented, the schema and storage interface include methods (`getUser`, `createUser`) anticipating session-based authentication using `express-session` and `connect-pg-simple`.
 
 ### Theming
 
-CSS custom properties define the color palette in `client/src/index.css`. Light mode is defined on `:root`. Dark mode uses a `.dark` class selector. Colors include `background`, `foreground`, `primary`, `secondary`, `muted`, `accent`, `destructive`, `card`, `popover`, `sidebar`, and chart colors.
+CSS custom properties in `client/src/index.css` define the application's color palette, supporting light and dark modes through a `.dark` class selector.
 
 ## External Dependencies
 
-### UI Libraries
-- **Radix UI** — Headless accessible primitives for all interactive components
-- **shadcn/ui** — Pre-built component wrappers around Radix UI (New York style variant)
-- **Lucide React** — Icon library
-- **Tailwind CSS** — Utility-first CSS framework
-- **class-variance-authority (CVA)** — Variant-based class management
-- **clsx + tailwind-merge** — Class name composition utilities
-- **Embla Carousel** — Carousel component
-- **Vaul** — Drawer component
-- **cmdk** — Command palette component
-- **react-day-picker** — Used by the Calendar component
-- **Recharts** — Chart components
+### UI/Styling
+- **Radix UI**: Headless accessible component primitives.
+- **shadcn/ui**: Pre-built components based on Radix UI.
+- **Lucide React**: Icon library.
+- **Tailwind CSS**: Utility-first CSS framework.
+- **class-variance-authority (CVA)**: For variant-based class management.
+- **clsx**, **tailwind-merge**: Utilities for class name composition.
+- **Embla Carousel**: Carousel component.
+- **Vaul**: Drawer component.
+- **cmdk**: Command palette component.
+- **react-day-picker**: Used for calendar components.
+- **Recharts**: Charting library.
 
 ### Headless UI / Primitives
-- **@base-ui/react** — Base UI headless component library (useRender hook, mergeProps utility)
-- **@js-temporal/polyfill** — Temporal API polyfill for date/time handling (replaces date-fns in DatePicker)
+- **@base-ui/react**: Core headless component library.
+- **@js-temporal/polyfill**: Temporal API polyfill for advanced date/time handling.
 
 ### Data & Forms
-- **TanStack Query v5** — Server state management and caching
-- **React Hook Form** — Form state management
-- **Zod** — Schema validation
-- **date-fns** — Date utility functions
+- **TanStack Query v5**: Server state management.
+- **React Hook Form**: Form state management.
+- **Zod**: Schema validation.
 
-### Backend / Infrastructure
-- **Express 5** — HTTP server framework
-- **Drizzle ORM** — TypeScript-first SQL ORM
-- **`pg`** — PostgreSQL client (Node.js)
-- **`drizzle-kit`** — CLI for schema migrations
-- **`drizzle-zod`** — Auto-generates Zod schemas from Drizzle tables
-- **`nanoid`** — URL-safe unique ID generation
-- **`connect-pg-simple`** — PostgreSQL session store (for when sessions are added)
-- **`memorystore`** — In-memory session store alternative
+### Backend / Database
+- **Express 5**: Backend web framework.
+- **Drizzle ORM**: TypeScript ORM for SQL databases.
+- **pg**: PostgreSQL client for Node.js.
+- **drizzle-kit**: CLI for Drizzle schema migrations.
+- **drizzle-zod**: Zod schema generation from Drizzle.
+- **nanoid**: For unique ID generation.
+- **connect-pg-simple**: PostgreSQL session store (for future authentication).
+- **memorystore**: In-memory session store.
 
 ### Build Tools
-- **Vite** — Frontend bundler and dev server
-- **esbuild** — Server bundler for production
-- **tsx** — TypeScript execution for development
-- **Replit Vite plugins** — `@replit/vite-plugin-runtime-error-modal`, `@replit/vite-plugin-cartographer`, `@replit/vite-plugin-dev-banner`
-
-### Environment Variables
-- `DATABASE_URL` — Required for PostgreSQL connection (Drizzle config will throw if missing at build time)
-- `NODE_ENV` — Controls dev vs. production behavior
-- `REPL_ID` — Detected to enable Replit-specific Vite plugins
+- **Vite**: Frontend bundler and dev server.
+- **esbuild**: Server-side bundler.
+- **tsx**: TypeScript execution in development.
+- **Replit Vite plugins**: Specific plugins for Replit environment (`@replit/vite-plugin-runtime-error-modal`, `@replit/vite-plugin-cartographer`, `@replit/vite-plugin-dev-banner`).

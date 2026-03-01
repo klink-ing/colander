@@ -69,6 +69,7 @@ export interface DatePickerContextValue {
   temporal: TemporalNamespace;
   gridLabelId: string | undefined;
   setGridLabelId: (id: string | undefined) => void;
+  rootState: RootState;
 }
 
 export type RootState<F extends ValueFormat = ValueFormat> = {
@@ -100,7 +101,8 @@ export type RootProps<F extends ValueFormat = ValueFormat> = Omit<
 > &
   RootOwnProps<F>;
 
-export type DateStringState = {
+export type DateStringState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   month: number;
   year: number;
   day: number;
@@ -111,10 +113,11 @@ export interface DateStringOwnProps {
   options?: Intl.DateTimeFormatOptions;
 }
 
-export type DateStringProps = useRender.ComponentProps<"span", DateStringState> &
-  DateStringOwnProps;
+export type DateStringProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", DateStringState<F>> & DateStringOwnProps;
 
-export type TimeStringState = {
+export type TimeStringState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   hour: number;
   minute: number;
   second: number;
@@ -125,10 +128,11 @@ export interface TimeStringOwnProps {
   options?: Intl.DateTimeFormatOptions;
 }
 
-export type TimeStringProps = useRender.ComponentProps<"span", TimeStringState> &
-  TimeStringOwnProps;
+export type TimeStringProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", TimeStringState<F>> & TimeStringOwnProps;
 
-export type MonthYearStringState = {
+export type MonthYearStringState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   month: number;
   year: number;
 };
@@ -146,28 +150,24 @@ export interface MonthYearStringOwnProps {
   options?: Intl.DateTimeFormatOptions;
 }
 
-export type MonthYearStringProps = useRender.ComponentProps<
-  "span",
-  MonthYearStringState
-> &
-  MonthYearStringOwnProps;
+export type MonthYearStringProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", MonthYearStringState<F>> &
+    MonthYearStringOwnProps;
 
-export type NavButtonState = {
+export type NavButtonState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   direction: "next" | "prev";
   disabled: boolean;
   target: Temporal.PlainYearMonth;
 };
 
-export type PrevMonthButtonProps = useRender.ComponentProps<
-  "button",
-  NavButtonState
->;
-export type NextMonthButtonProps = useRender.ComponentProps<
-  "button",
-  NavButtonState
->;
+export type PrevMonthButtonProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"button", NavButtonState<F>>;
+export type NextMonthButtonProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"button", NavButtonState<F>>;
 
-export type GridHeaderCellState = {
+export type GridHeaderCellState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   dayOfWeek: number;
   long: string;
   short: string;
@@ -178,18 +178,26 @@ export interface GridHeaderCellOwnProps {
   index?: number;
 }
 
-export type GridHeaderCellProps = useRender.ComponentProps<"th", GridHeaderCellState> &
-  GridHeaderCellOwnProps;
+export type GridHeaderCellProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"th", GridHeaderCellState<F>> &
+    GridHeaderCellOwnProps;
 
-export type GridHeaderState = {};
+export type GridHeaderState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
+};
 
-export type GridHeaderProps = useRender.ComponentProps<"thead", GridHeaderState>;
+export type GridHeaderProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"thead", GridHeaderState<F>>;
 
-export type GridBodyState = {};
+export type GridBodyState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
+};
 
-export type GridBodyProps = useRender.ComponentProps<"tbody", GridBodyState>;
+export type GridBodyProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"tbody", GridBodyState<F>>;
 
-export type GridState = {
+export type GridState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   month: number;
   year: number;
 };
@@ -198,19 +206,19 @@ export interface GridOwnProps {
   mode?: "grid";
 }
 
-export type GridProps = useRender.ComponentProps<"table", GridState> &
-  GridOwnProps;
+export type GridProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"table", GridState<F>> & GridOwnProps;
 
-export type WeekTemplateState = {
+export type WeekTemplateState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   weekIndex: number;
 };
 
-export type WeekTemplateProps = useRender.ComponentProps<
-  "tr",
-  WeekTemplateState
->;
+export type WeekTemplateProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"tr", WeekTemplateState<F>>;
 
-export type DayCellTemplateState = {
+export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -222,13 +230,12 @@ export interface DayCellTemplateOwnProps {
   date?: Temporal.PlainDate;
 }
 
-export type DayCellTemplateProps = useRender.ComponentProps<
-  "td",
-  DayCellTemplateState
-> &
-  DayCellTemplateOwnProps;
+export type DayCellTemplateProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", DayCellTemplateState<F>> &
+    DayCellTemplateOwnProps;
 
-export type DayButtonState = {
+export type DayButtonState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -240,11 +247,8 @@ export interface DayButtonOwnProps {
   date?: Temporal.PlainDate;
 }
 
-export type DayButtonProps = useRender.ComponentProps<
-  "button",
-  DayButtonState
-> &
-  DayButtonOwnProps;
+export type DayButtonProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"button", DayButtonState<F>> & DayButtonOwnProps;
 
 export type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 
@@ -253,40 +257,40 @@ export interface TypedDatePicker<F extends ValueFormat> {
     props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
   ) => React.ReactElement | null;
   Grid: (
-    props: GridProps & { ref?: React.Ref<HTMLTableElement> },
+    props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
   ) => React.ReactElement;
   GridHeader: (
-    props: GridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
+    props: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
   ) => React.ReactElement;
   GridHeaderCell: (
-    props: GridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> },
+    props: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
   ) => React.ReactElement;
   GridBody: (
-    props: GridBodyProps & { ref?: React.Ref<HTMLTableSectionElement> },
+    props: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
   ) => React.ReactElement;
   WeekTemplate: (
-    props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
+    props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
   ) => React.ReactElement;
   DayCellTemplate: (
-    props: DayCellTemplateProps & { ref?: React.Ref<HTMLTableCellElement> },
+    props: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
   ) => React.ReactElement;
   DayButton: (
-    props: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+    props: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
   ) => React.ReactElement;
   DateString: (
-    props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },
+    props: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
   ) => React.ReactElement;
   TimeString: (
-    props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> },
+    props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
   ) => React.ReactElement;
   MonthYearString: (
-    props: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> },
+    props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
   ) => React.ReactElement;
   PrevMonthButton: (
-    props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+    props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
   ) => React.ReactElement;
   NextMonthButton: (
-    props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+    props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
   ) => React.ReactElement;
 }
 

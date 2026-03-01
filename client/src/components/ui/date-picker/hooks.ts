@@ -250,6 +250,18 @@ export function useRootState<F extends ValueFormat>(
     [selected],
   );
 
+  const state = useMemo<RootState<F>>(
+    () => ({
+      hasSelection: !!selected,
+      selected: rawSelected,
+      focused: focusedDate,
+      viewing: viewingYearMonth,
+      timeZone,
+      locale,
+    }),
+    [selected, rawSelected, focusedDate, viewingYearMonth, timeZone, locale],
+  );
+
   const ctx = useMemo<DatePickerContextValue>(
     () => ({
       selected,
@@ -269,6 +281,7 @@ export function useRootState<F extends ValueFormat>(
       temporal: T,
       gridLabelId,
       setGridLabelId,
+      rootState: state as unknown as RootState,
     }),
     [
       selected,
@@ -286,19 +299,8 @@ export function useRootState<F extends ValueFormat>(
       locale,
       T,
       gridLabelId,
+      state,
     ],
-  );
-
-  const state = useMemo<RootState<F>>(
-    () => ({
-      hasSelection: !!selected,
-      selected: rawSelected,
-      focused: focusedDate,
-      viewing: viewingYearMonth,
-      timeZone,
-      locale,
-    }),
-    [selected, rawSelected, focusedDate, viewingYearMonth, timeZone, locale],
   );
 
   const stateAttributesMapping = useMemo(
@@ -326,6 +328,7 @@ export function useNavButton(direction: "prev" | "next") {
     maxValue,
     locale,
     temporal: T,
+    rootState,
   } = useDatePicker();
 
   const destMonth =
@@ -376,12 +379,13 @@ export function useNavButton(direction: "prev" | "next") {
   );
 
   const state = useMemo<NavButtonState>(
-    () => ({ direction, disabled: isDisabled, target }),
-    [direction, isDisabled, target],
+    () => ({ root: rootState, direction, disabled: isDisabled, target }),
+    [rootState, direction, isDisabled, target],
   );
 
   const stateAttributesMapping = useMemo(
     () => ({
+      root: () => null,
       direction: (v: string) => ({ "data-direction": v }),
       disabled: () => null,
       target: () => null,
@@ -462,6 +466,7 @@ function useDayDerivedState(date: Temporal.PlainDate) {
 }
 
 const dayStateAttributesMapping = {
+  root: () => null,
   selected: (v: boolean) => (v ? { "data-selected": "" } : null),
   today: (v: boolean) => (v ? { "data-today": "" } : null),
   disabled: (v: boolean) => (v ? { "data-disabled": "" } : null),
@@ -470,18 +475,20 @@ const dayStateAttributesMapping = {
 };
 
 export function useDayCellState(date: Temporal.PlainDate) {
+  const { rootState } = useDatePicker();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
 
   const state = useMemo<DayCellTemplateState>(
     () => ({
+      root: rootState,
       selected: isSelected,
       today: isToday,
       disabled: isDisabled,
       outsideMonth: !isCurrentMonth,
       focused: isFocused,
     }),
-    [isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
+    [rootState, isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -499,6 +506,7 @@ export function useDayButtonState(date: Temporal.PlainDate) {
     focusedDate,
     setFocusedDate,
     locale,
+    rootState,
   } = useDatePicker();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
@@ -512,13 +520,14 @@ export function useDayButtonState(date: Temporal.PlainDate) {
 
   const state = useMemo<DayButtonState>(
     () => ({
+      root: rootState,
       selected: isSelected,
       today: isToday,
       disabled: isDisabled,
       outsideMonth: !isCurrentMonth,
       focused: isFocused,
     }),
-    [isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
+    [rootState, isSelected, isToday, isDisabled, isCurrentMonth, isFocused],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -543,22 +552,24 @@ export function useDayButtonState(date: Temporal.PlainDate) {
 }
 
 export function useGridHeaderCellState(index: number) {
-  const { locale, temporal: T } = useDatePicker();
+  const { locale, temporal: T, rootState } = useDatePicker();
 
   const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
 
   const state = useMemo<GridHeaderCellState>(
     () => ({
+      root: rootState,
       dayOfWeek: index,
       long: weekdayNames[index].long,
       short: weekdayNames[index].short,
       narrow: weekdayNames[index].narrow,
     }),
-    [index, weekdayNames],
+    [rootState, index, weekdayNames],
   );
 
   const stateAttributesMapping = useMemo(
     () => ({
+      root: () => null,
       dayOfWeek: () => null,
       long: () => null,
       short: () => null,

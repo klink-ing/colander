@@ -15,6 +15,8 @@ import type {
   NextMonthButtonProps,
 } from "./types";
 
+const rootNullMapping = { root: () => null };
+
 export function DateString(
   props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
@@ -25,6 +27,7 @@ export function DateString(
     timeZone,
     locale,
     temporal: T,
+    rootState,
   } = useDatePicker();
 
   const selectedZdt = selectedToZdt(selected, timeZone, T);
@@ -36,11 +39,12 @@ export function DateString(
 
   const state = useMemo<DateStringState>(
     () => ({
+      root: rootState,
       month: displayDate.getMonth() + 1,
       year: displayDate.getFullYear(),
       day: displayDate.getDate(),
     }),
-    [displayDate],
+    [rootState, displayDate],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -53,6 +57,7 @@ export function DateString(
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping: rootNullMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -61,7 +66,7 @@ export function TimeString(
   props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { selected, timeZone, locale, temporal: T } = useDatePicker();
+  const { selected, timeZone, locale, temporal: T, rootState } = useDatePicker();
 
   const selZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selZdt
@@ -76,11 +81,12 @@ export function TimeString(
 
   const state = useMemo<TimeStringState>(
     () => ({
+      root: rootState,
       hour: selZdt?.hour ?? T.Now.zonedDateTimeISO(timeZone).hour,
       minute: selZdt?.minute ?? T.Now.zonedDateTimeISO(timeZone).minute,
       second: selZdt?.second ?? T.Now.zonedDateTimeISO(timeZone).second,
     }),
-    [selZdt, timeZone, T],
+    [rootState, selZdt, timeZone, T],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -93,6 +99,7 @@ export function TimeString(
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping: rootNullMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -113,7 +120,7 @@ export function MonthYearString(
   props: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentDateTime, locale, setGridLabelId } = useDatePicker();
+  const { currentDateTime, locale, setGridLabelId, rootState } = useDatePicker();
 
   const id = useId();
 
@@ -133,8 +140,8 @@ export function MonthYearString(
   );
 
   const state = useMemo<MonthYearStringState>(
-    () => ({ month: currentDateTime.month, year: currentDateTime.year }),
-    [currentDateTime.month, currentDateTime.year],
+    () => ({ root: rootState, month: currentDateTime.month, year: currentDateTime.year }),
+    [rootState, currentDateTime.month, currentDateTime.year],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -148,6 +155,7 @@ export function MonthYearString(
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping: rootNullMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }

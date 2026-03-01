@@ -19,12 +19,21 @@ export function Grid(
   props: GridProps & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
-  const { currentDateTime, gridLabelId } = useDatePicker();
+  const { currentDateTime, gridLabelId, rootState } = useDatePicker();
   const handleKeyDown = useGridKeyboard();
 
   const state = useMemo<GridState>(
-    () => ({ month: currentDateTime.month, year: currentDateTime.year }),
-    [currentDateTime.month, currentDateTime.year],
+    () => ({ root: rootState, month: currentDateTime.month, year: currentDateTime.year }),
+    [rootState, currentDateTime.month, currentDateTime.year],
+  );
+
+  const stateAttributesMapping = useMemo(
+    () => ({
+      root: () => null,
+      month: () => null,
+      year: () => null,
+    }),
+    [],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -53,6 +62,7 @@ export function Grid(
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping,
     props: mergeProps<"table">(defaultProps, otherProps),
   });
 }
@@ -61,8 +71,16 @@ export function GridBody(
   props: GridBodyProps & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, ...otherProps } = props;
+  const { rootState } = useDatePicker();
 
-  const state = useMemo<GridBodyState>(() => ({}), []);
+  const state = useMemo<GridBodyState>(() => ({ root: rootState }), [rootState]);
+
+  const stateAttributesMapping = useMemo(
+    () => ({
+      root: () => null,
+    }),
+    [],
+  );
 
   const defaultProps: Record<string, unknown> = {
     children: props.children ?? (
@@ -81,6 +99,7 @@ export function GridBody(
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping,
     props: mergeProps<"tbody">(defaultProps, restOtherProps),
   });
 }
@@ -90,14 +109,16 @@ function WeekInstance(
 ) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
+  const { rootState } = useDatePicker();
 
   const state = useMemo<WeekTemplateState>(
-    () => ({ weekIndex: weekData.weekIndex }),
-    [weekData.weekIndex],
+    () => ({ root: rootState, weekIndex: weekData.weekIndex }),
+    [rootState, weekData.weekIndex],
   );
 
   const stateAttributesMapping = useMemo(
     () => ({
+      root: () => null,
       weekIndex: () => null,
     }),
     [],

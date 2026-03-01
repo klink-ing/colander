@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useDatePicker } from "./context";
 import { useGridHeaderCellState } from "./hooks";
 import type {
   GridHeaderCellProps,
@@ -48,8 +49,16 @@ export function GridHeader(
   props: GridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, children, ...otherProps } = props;
+  const { rootState } = useDatePicker();
 
-  const state = useMemo<GridHeaderState>(() => ({}), []);
+  const state = useMemo<GridHeaderState>(() => ({ root: rootState }), [rootState]);
+
+  const stateAttributesMapping = useMemo(
+    () => ({
+      root: () => null,
+    }),
+    [],
+  );
 
   const defaultProps: Record<string, unknown> = {
     children: <tr>{children ?? <GridHeaderCell />}</tr>,
@@ -60,6 +69,7 @@ export function GridHeader(
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping,
     props: mergeProps<"thead">(defaultProps, otherProps),
   });
 }
