@@ -3,13 +3,6 @@ import { Temporal } from "@js-temporal/polyfill";
 import { createDatePicker } from "@/components/ui/date-picker";
 import { StyledDatePicker } from "@/components/styled-date-picker";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
 
 const ZonedDatePicker = createDatePicker("ZonedDateTime", {
   temporal: Temporal,
@@ -48,6 +41,24 @@ const TIMEZONES = [
   "UTC",
 ];
 
+const LOCALES = [
+  { value: "en-US", label: "English (US)" },
+  { value: "en-GB", label: "English (UK)" },
+  { value: "de-DE", label: "Deutsch" },
+  { value: "fr-FR", label: "Fran\u00e7ais" },
+  { value: "es-ES", label: "Espa\u00f1ol" },
+  { value: "it-IT", label: "Italiano" },
+  { value: "pt-BR", label: "Portugu\u00eas (BR)" },
+  { value: "ja-JP", label: "\u65e5\u672c\u8a9e" },
+  { value: "zh-CN", label: "\u4e2d\u6587 (\u7b80\u4f53)" },
+  { value: "ko-KR", label: "\ud55c\uad6d\uc5b4" },
+  { value: "ar-SA", label: "\u0627\u0644\u0639\u0631\u0628\u064a\u0629" },
+  { value: "hi-IN", label: "\u0939\u093f\u0928\u094d\u0926\u0940" },
+  { value: "ru-RU", label: "\u0420\u0443\u0441\u0441\u043a\u0438\u0439" },
+  { value: "nl-NL", label: "Nederlands" },
+  { value: "sv-SE", label: "Svenska" },
+];
+
 function formatTzLabel(tz: string): string {
   try {
     const now = Temporal.Now.zonedDateTimeISO(tz);
@@ -62,6 +73,7 @@ function formatTzLabel(tz: string): string {
 export default function Home() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
   const [timeZone, setTimeZone] = useState(systemTz);
+  const [locale, setLocale] = useState("en-US");
   const [selectedDate, setSelectedDate] = useState<
     Temporal.ZonedDateTime | undefined
   >();
@@ -107,31 +119,58 @@ export default function Home() {
 
   const formatDisplay = (val: Temporal.ZonedDateTime | undefined) =>
     val
-      ? `Selected: ${new Date(val.epochMilliseconds).toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
+      ? `Selected: ${new Date(val.epochMilliseconds).toLocaleDateString(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
       : "Pick a date below";
+
+  const selectClassName =
+    "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 gap-6">
-      <div className="w-full max-w-2xl">
-        <label
-          htmlFor="timezone-select"
-          className="block text-sm font-medium text-foreground mb-1.5"
-        >
-          Timezone
-        </label>
-        <select
-          id="timezone-select"
-          data-testid="select-timezone"
-          value={timeZone}
-          onChange={(e) => handleTimeZoneChange(e.target.value)}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-        >
-          {tzOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+      <div className="w-full max-w-2xl flex gap-4">
+        <div className="flex-1">
+          <label
+            htmlFor="timezone-select"
+            className="block text-sm font-medium text-foreground mb-1.5"
+          >
+            Timezone
+          </label>
+          <select
+            id="timezone-select"
+            data-testid="select-timezone"
+            value={timeZone}
+            onChange={(e) => handleTimeZoneChange(e.target.value)}
+            className={selectClassName}
+          >
+            {tzOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label
+            htmlFor="locale-select"
+            className="block text-sm font-medium text-foreground mb-1.5"
+          >
+            Locale
+          </label>
+          <select
+            id="locale-select"
+            data-testid="select-locale"
+            value={locale}
+            onChange={(e) => setLocale(e.target.value)}
+            className={selectClassName}
+          >
+            {LOCALES.map((loc) => (
+              <option key={loc.value} value={loc.value}>
+                {loc.label}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
 
       <div className="flex items-start justify-center gap-4 flex-wrap">
@@ -144,7 +183,7 @@ export default function Home() {
             onValueChange={setSelectedDate}
             min={minDate}
             max={maxDate}
-            locale="de-DE"
+            locale={locale}
             timeZone={timeZone}
           />
         </div>
@@ -158,7 +197,7 @@ export default function Home() {
             onValueChange={setSelectedDate2}
             min={minDate}
             max={maxDate}
-            locale="de-DE"
+            locale={locale}
             timeZone={timeZone}
           />
         </div>

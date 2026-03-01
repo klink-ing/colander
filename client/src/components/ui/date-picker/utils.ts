@@ -1,0 +1,183 @@
+import type { Temporal } from "@js-temporal/polyfill";
+import type { TemporalNamespace, DateValueObject, ValueFormat } from "./types";
+
+export function calendarForLocale(locale: string): string {
+  return new Intl.DateTimeFormat(locale || undefined).resolvedOptions()
+    .calendar;
+}
+
+export function resolveTemporal(
+  provided?: TemporalNamespace,
+): TemporalNamespace {
+  if (provided) return provided;
+  if (typeof globalThis !== "undefined" && (globalThis as any).Temporal) {
+    return (globalThis as any).Temporal;
+  }
+  throw new Error(
+    "DatePicker: Temporal is not available. Pass a Temporal polyfill via the `temporal` option to createDatePicker, or use a browser that supports the Temporal API natively.",
+  );
+}
+
+export function getSystemTimeZone(T: TemporalNamespace): string {
+  return T.Now.timeZoneId();
+}
+
+export function toZonedDateTime(
+  tagged: DateValueObject,
+  timeZone: string,
+  T: TemporalNamespace,
+): Temporal.ZonedDateTime {
+  const now = T.Now.zonedDateTimeISO(timeZone);
+  switch (tagged.format) {
+    case "PlainDate":
+      return tagged.value.toZonedDateTime(timeZone);
+    case "PlainDateTime":
+      return tagged.value.toZonedDateTime(timeZone);
+    case "PlainMonthDay": {
+      const pd = tagged.value.toPlainDate({ year: now.year });
+      return pd.toZonedDateTime(timeZone);
+    }
+    case "PlainTime":
+      return now
+        .toPlainDate()
+        .toPlainDateTime(tagged.value)
+        .toZonedDateTime(timeZone);
+    case "PlainYearMonth":
+      return tagged.value.toPlainDate({ day: 1 }).toZonedDateTime(timeZone);
+    case "ZonedDateTime":
+      return tagged.value;
+    case "object": {
+      const obj = tagged.value;
+      return T.PlainDateTime.from({
+        year: obj.year ?? now.year,
+        month: obj.month ?? now.month,
+        day: obj.day ?? now.day,
+        hour: obj.hour ?? 0,
+        minute: obj.minute ?? 0,
+        second: obj.second ?? 0,
+      }).toZonedDateTime(obj.timeZone ?? timeZone);
+    }
+    case "Date": {
+      const d = tagged.value;
+      return T.PlainDateTime.from({
+        year: d.getFullYear(),
+        month: d.getMonth() + 1,
+        day: d.getDate(),
+        hour: d.getHours(),
+        minute: d.getMinutes(),
+        second: d.getSeconds(),
+      }).toZonedDateTime(timeZone);
+    }
+  }
+}
+
+export function fromZonedDateTime(
+  zdt: Temporal.ZonedDateTime,
+  format: ValueFormat,
+  T: TemporalNamespace,
+): DateValueObject {
+  switch (format) {
+    case "PlainDate":
+      return { format, value: zdt.toPlainDate() };
+    case "PlainDateTime":
+      return { format, value: zdt.toPlainDateTime() };
+    case "PlainMonthDay":
+      return {
+        format,
+        value: T.PlainMonthDay.from({ month: zdt.month, day: zdt.day }),
+      };
+    case "PlainTime":
+      return { format, value: zdt.toPlainTime() };
+    case "PlainYearMonth":
+      return {
+        format,
+        value: T.PlainYearMonth.from({ year: zdt.year, month: zdt.month }),
+      };
+    case "ZonedDateTime":
+      return { format, value: zdt };
+    case "object":
+      return {
+        format,
+        value: {
+          year: zdt.year,
+          month: zdt.month,
+          day: zdt.day,
+          hour: zdt.hour,
+          minute: zdt.minute,
+          second: zdt.second,
+          timeZone: zdt.timeZoneId,
+        },
+      };
+    case "Date":
+      return { format, value: new Date(zdt.epochMilliseconds) };
+  }
+}
+
+export function selectedToZdt(
+  selected: DateValueObject | undefined,
+  timeZone: string,
+  T: TemporalNamespace,
+): Temporal.ZonedDateTime | undefined {
+  if (!selected) return undefined;
+  return toZonedDateTime(selected, timeZone, T);
+}
+
+export function getMonthWeeks(
+  year: number,
+  month: number,
+  T: TemporalNamespace,
+): Temporal.PlainDate[][] {
+  const firstOfMonth = T.PlainDate.from({ year, month, day: 1 });
+  const daysInMonth = firstOfMonth.daysInMonth;
+  const lastOfMonth = T.PlainDate.from({ year, month, day: daysInMonth });
+
+  const isoDow = firstOfMonth.dayOfWeek;
+  const sundayDow = isoDow % 7;
+  const gridStart = firstOfMonth.subtract({ days: sundayDow });
+
+  const isoLast = lastOfMonth.dayOfWeek;
+  const sundayLast = isoLast % 7;
+  const daysAfter = 6 - sundayLast;
+  const gridEnd = lastOfMonth.add({ days: daysAfter });
+
+  const weeks: Temporal.PlainDate[][] = [];
+  let current = gridStart;
+  while (T.PlainDate.compare(current, gridEnd) <= 0) {
+    const week: Temporal.PlainDate[] = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(current);
+      current = current.add({ days: 1 });
+    }
+    weeks.push(week);
+  }
+  return weeks;
+}
+
+export function zdtToNativeDate(zdt: Temporal.ZonedDateTime): Date {
+  return new Date(zdt.epochMilliseconds);
+}
+
+export function sameCalendarDay(
+  a: Temporal.ZonedDateTime,
+  b: Temporal.PlainDate,
+): boolean {
+  return a.year === b.year && a.month === b.month && a.day === b.day;
+}
+
+export function getReferenceSunday(T: TemporalNamespace): Temporal.PlainDate {
+  return T.PlainDate.from("2024-01-07");
+}
+
+export function getWeekdayNames(locale: string, T: TemporalNamespace) {
+  const refSunday = getReferenceSunday(T);
+  const names: { long: string; short: string; narrow: string }[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = refSunday.add({ days: i });
+    names.push({
+      long: date.toLocaleString(locale, { weekday: "long" }),
+      short: date.toLocaleString(locale, { weekday: "short" }),
+      narrow: date.toLocaleString(locale, { weekday: "narrow" }),
+    });
+  }
+  return names;
+}

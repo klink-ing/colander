@@ -1,5 +1,4 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type {
   DatePickerValueFormat,
   DatePickerRawValueForFormat,
@@ -12,6 +11,15 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "@/components/ui/tooltip";
+
+import { ChevronLeft, ChevronRight } from "lucide-react";
+
+import {
+  StyledDayLabels,
+  StyledDayLabel,
+  StyledWeekTemplate,
+  StyledDayTemplate,
+} from "@/components/ui/date-picker/styled";
 
 interface RenderPropDatePickerProps<F extends DatePickerValueFormat> {
   value?: DatePickerRawValueForFormat<F>;
@@ -132,51 +140,17 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
         className="grid grid-cols-[repeat(7,1fr)] w-full"
         data-id="days wrapper"
       >
-        <DP.DayLabels
-          render={(props, state) => <div {...props} className="contents" />}
-        >
-          <DP.DayLabel
-            render={(props, state) => (
-              <span
-                {...props}
-                className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground"
-              >
-                {state.short}
-              </span>
-            )}
-          />
-        </DP.DayLabels>
+        <StyledDayLabels>
+          <StyledDayLabel />
+        </StyledDayLabels>
         <DP.DaysGrid
           mode="grid"
           className="grid grid-cols-subgrid col-span-full pt-4"
           render={(props, state) => <div {...props} data-testid="monthgrid" />}
         >
-          <DP.WeekTemplate
-            className="grid col-span-full grid-cols-subgrid"
-            render={(props, state) => <div {...props} />}
-          >
-            <DP.DayTemplate
-              render={(props, state) => (
-                <button
-                  {...props}
-                  className={cn(
-                    "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
-                    state.outsideMonth && "text-muted-foreground opacity-40",
-                    !state.outsideMonth &&
-                      !state.selected &&
-                      !state.today &&
-                      "text-foreground hover:bg-accent hover:text-accent-foreground",
-                    state.today &&
-                      !state.selected &&
-                      "bg-accent text-accent-foreground",
-                    state.selected && "bg-primary text-primary-foreground",
-                    state.disabled && "pointer-events-none opacity-50",
-                  )}
-                />
-              )}
-            />
-          </DP.WeekTemplate>
+          <StyledWeekTemplate className="grid col-span-full grid-cols-subgrid">
+            <StyledDayTemplate />
+          </StyledWeekTemplate>
         </DP.DaysGrid>
       </div>
     </DP.Root>
