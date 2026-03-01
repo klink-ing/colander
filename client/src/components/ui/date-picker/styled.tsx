@@ -1,12 +1,13 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
-  DaysGrid,
+  Grid,
+  GridBody,
   WeekTemplate,
   DayCellTemplate,
-  DayButtonTemplate,
-  DaysGridHeader,
-  DaysGridHeaderCellTemplate,
+  DayButton,
+  GridHeader,
+  GridHeaderCell,
   MonthYearString,
   DateString,
   TimeString,
@@ -14,12 +15,13 @@ import {
   NextMonthButton,
 } from "./index";
 import type {
-  DaysGridProps,
+  GridProps,
+  GridBodyProps,
   WeekTemplateProps,
   DayCellTemplateProps,
-  DayButtonTemplateProps,
-  DaysGridHeaderProps,
-  DaysGridHeaderCellProps,
+  DayButtonProps,
+  GridHeaderProps,
+  GridHeaderCellProps,
   MonthYearStringProps,
   DateStringProps,
   TimeStringProps,
@@ -117,12 +119,12 @@ export function StyledTimeString({
   );
 }
 
-export function StyledDaysGrid({
+export function StyledGrid({
   className,
   ...props
-}: DaysGridProps & { ref?: React.Ref<HTMLTableElement> }) {
+}: GridProps & { ref?: React.Ref<HTMLTableElement> }) {
   return (
-    <DaysGrid
+    <Grid
       mode="grid"
       {...props}
       className={cn("w-full table-fixed border-collapse", className)}
@@ -130,19 +132,19 @@ export function StyledDaysGrid({
   );
 }
 
-export function StyledDaysGridHeader({
+export function StyledGridHeader({
   className,
   ...props
-}: DaysGridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
-  return <DaysGridHeader {...props} className={cn("", className)} />;
+}: GridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
+  return <GridHeader {...props} className={cn("", className)} />;
 }
 
-export function StyledDaysGridHeaderCellTemplate({
+export function StyledGridHeaderCell({
   className,
   ...props
-}: DaysGridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> }) {
+}: GridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> }) {
   return (
-    <DaysGridHeaderCellTemplate
+    <GridHeaderCell
       {...props}
       className={cn(
         "h-9 w-9 text-center text-[0.8rem] font-normal text-muted-foreground",
@@ -150,6 +152,13 @@ export function StyledDaysGridHeaderCellTemplate({
       )}
     />
   );
+}
+
+export function StyledGridBody({
+  className,
+  ...props
+}: GridBodyProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
+  return <GridBody {...props} className={cn("", className)} />;
 }
 
 export function StyledWeekTemplate({
@@ -168,13 +177,13 @@ export function StyledDayCellTemplate({
   return <DayCellTemplate {...props} className={cn("text-center", className)} />;
 }
 
-export function StyledDayButtonTemplate({
+export function StyledDayButton({
   className,
   render: _render,
   ...props
-}: DayButtonTemplateProps & { ref?: React.Ref<HTMLButtonElement> }) {
+}: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
-    <DayButtonTemplate
+    <DayButton
       {...props}
       render={(renderProps, state) => (
         <button
@@ -215,7 +224,7 @@ export function StyledDayTemplate({
 }) {
   return (
     <StyledDayCellTemplate ref={cellRef} className={cellClassName} date={date}>
-      <StyledDayButtonTemplate ref={buttonRef} className={buttonClassName} />
+      <StyledDayButton ref={buttonRef} className={buttonClassName} />
     </StyledDayCellTemplate>
   );
 }

@@ -8,9 +8,10 @@ import {
   StyledPrevMonthButton,
   StyledNextMonthButton,
   StyledMonthYearString,
-  StyledDaysGrid,
-  StyledDaysGridHeader,
-  StyledDaysGridHeaderCellTemplate,
+  StyledGrid,
+  StyledGridHeader,
+  StyledGridHeaderCell,
+  StyledGridBody,
   StyledWeekTemplate,
   StyledDayTemplate,
 } from "@/components/ui/date-picker/styled";
@@ -62,16 +63,16 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
           <StyledNextMonthButton />
         </div>
 
-        <StyledDaysGrid>
-          <StyledDaysGridHeader>
-            <StyledDaysGridHeaderCellTemplate />
-          </StyledDaysGridHeader>
-          <tbody>
+        <StyledGrid>
+          <StyledGridHeader>
+            <StyledGridHeaderCell />
+          </StyledGridHeader>
+          <StyledGridBody>
             <StyledWeekTemplate>
               <StyledDayTemplate />
             </StyledWeekTemplate>
-          </tbody>
-        </StyledDaysGrid>
+          </StyledGridBody>
+        </StyledGrid>
       </div>
     </DP.Root>
   );

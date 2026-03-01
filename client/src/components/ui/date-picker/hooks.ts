@@ -17,8 +17,8 @@ import type {
   RootState,
   NavButtonState,
   DayCellTemplateState,
-  DayButtonTemplateState,
-  DaysGridHeaderCellState,
+  DayButtonState,
+  GridHeaderCellState,
 } from "./types";
 import { useDatePicker } from "./context";
 import {
@@ -392,7 +392,7 @@ export function useNavButton(direction: "prev" | "next") {
   return { state, defaultProps };
 }
 
-export function useDaysGridKeyboard() {
+export function useGridKeyboard() {
   const {
     focusedDate,
     setFocusedDate,
@@ -501,7 +501,7 @@ export function useDayButtonState(date: Temporal.PlainDate) {
     }
   }, [isFocused]);
 
-  const state = useMemo<DayButtonTemplateState>(
+  const state = useMemo<DayButtonState>(
     () => ({
       selected: isSelected,
       today: isToday,
@@ -533,12 +533,12 @@ export function useDayButtonState(date: Temporal.PlainDate) {
   return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps, internalRef };
 }
 
-export function useDaysGridHeaderCellState(index: number) {
+export function useGridHeaderCellState(index: number) {
   const { locale, temporal: T } = useDatePicker();
 
   const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
 
-  const state = useMemo<DaysGridHeaderCellState>(
+  const state = useMemo<GridHeaderCellState>(
     () => ({
       dayOfWeek: index,
       long: weekdayNames[index].long,

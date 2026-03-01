@@ -1,22 +1,22 @@
 import { useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { useDaysGridHeaderCellState } from "./hooks";
+import { useGridHeaderCellState } from "./hooks";
 import type {
-  DaysGridHeaderCellProps,
-  DaysGridHeaderState,
-  DaysGridHeaderProps,
+  GridHeaderCellProps,
+  GridHeaderState,
+  GridHeaderProps,
 } from "./types";
 
-function DaysGridHeaderCellInstance(
-  props: Omit<DaysGridHeaderCellProps, "index"> & {
+function GridHeaderCellInstance(
+  props: Omit<GridHeaderCellProps, "index"> & {
     index: number;
     ref?: React.Ref<HTMLTableCellElement>;
   },
 ) {
   const { ref, render, index, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps } =
-    useDaysGridHeaderCellState(index);
+    useGridHeaderCellState(index);
 
   return useRender({
     defaultTagName: "th",
@@ -28,31 +28,31 @@ function DaysGridHeaderCellInstance(
   });
 }
 
-export function DaysGridHeaderCellTemplate(
-  props: DaysGridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> },
+export function GridHeaderCell(
+  props: GridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
   if (indexProp != null) {
-    return <DaysGridHeaderCellInstance {...restProps} index={indexProp} />;
+    return <GridHeaderCellInstance {...restProps} index={indexProp} />;
   }
   return (
     <>
       {Array.from({ length: 7 }, (_, i) => (
-        <DaysGridHeaderCellInstance key={i} {...restProps} index={i} />
+        <GridHeaderCellInstance key={i} {...restProps} index={i} />
       ))}
     </>
   );
 }
 
-export function DaysGridHeader(
-  props: DaysGridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
+export function GridHeader(
+  props: GridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, children, ...otherProps } = props;
 
-  const state = useMemo<DaysGridHeaderState>(() => ({}), []);
+  const state = useMemo<GridHeaderState>(() => ({}), []);
 
   const defaultProps: Record<string, unknown> = {
-    children: <tr>{children ?? <DaysGridHeaderCellTemplate />}</tr>,
+    children: <tr>{children ?? <GridHeaderCell />}</tr>,
   };
 
   return useRender({

@@ -2,25 +2,27 @@ import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker, WeekDataContext, DayCellDataContext } from "./context";
-import { useDaysGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
-import { DaysGridHeader, DaysGridHeaderCellTemplate } from "./labels";
+import { useGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
+import { GridHeader, GridHeaderCell } from "./labels";
 import type {
-  DaysGridState,
-  DaysGridProps,
+  GridState,
+  GridProps,
+  GridBodyState,
+  GridBodyProps,
   WeekTemplateState,
   WeekTemplateProps,
   DayCellTemplateProps,
-  DayButtonTemplateProps,
+  DayButtonProps,
 } from "./types";
 
-export function DaysGrid(
-  props: DaysGridProps & { ref?: React.Ref<HTMLTableElement> },
+export function Grid(
+  props: GridProps & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
   const { currentDateTime, gridLabelId } = useDatePicker();
-  const handleKeyDown = useDaysGridKeyboard();
+  const handleKeyDown = useGridKeyboard();
 
-  const state = useMemo<DaysGridState>(
+  const state = useMemo<GridState>(
     () => ({ month: currentDateTime.month, year: currentDateTime.year }),
     [currentDateTime.month, currentDateTime.year],
   );
@@ -32,16 +34,16 @@ export function DaysGrid(
     onKeyDown: handleKeyDown,
     children: children ?? (
       <>
-        <DaysGridHeader>
-          <DaysGridHeaderCellTemplate />
-        </DaysGridHeader>
-        <tbody>
+        <GridHeader>
+          <GridHeaderCell />
+        </GridHeader>
+        <GridBody>
           <WeekTemplate>
             <DayCellTemplate>
-              <DayButtonTemplate />
+              <DayButton />
             </DayCellTemplate>
           </WeekTemplate>
-        </tbody>
+        </GridBody>
       </>
     ),
   };
@@ -52,6 +54,34 @@ export function DaysGrid(
     ref: ref ? [ref] : [],
     state,
     props: mergeProps<"table">(defaultProps, otherProps),
+  });
+}
+
+export function GridBody(
+  props: GridBodyProps & { ref?: React.Ref<HTMLTableSectionElement> },
+) {
+  const { ref, render, ...otherProps } = props;
+
+  const state = useMemo<GridBodyState>(() => ({}), []);
+
+  const defaultProps: Record<string, unknown> = {
+    children: props.children ?? (
+      <WeekTemplate>
+        <DayCellTemplate>
+          <DayButton />
+        </DayCellTemplate>
+      </WeekTemplate>
+    ),
+  };
+
+  const { children: _children, ...restOtherProps } = otherProps;
+
+  return useRender({
+    defaultTagName: "tbody",
+    render,
+    ref: ref ? [ref] : [],
+    state,
+    props: mergeProps<"tbody">(defaultProps, restOtherProps),
   });
 }
 
@@ -114,7 +144,7 @@ function DayCellInstance(
 
   const defaultProps: Record<string, unknown> = {
     ...cellDefaults,
-    children: children ?? <DayButtonTemplate />,
+    children: children ?? <DayButton />,
   };
 
   const cell = useRender({
@@ -155,7 +185,7 @@ export function DayCellTemplate(
 }
 
 function DayButtonInstance(
-  props: Omit<DayButtonTemplateProps, "date"> & {
+  props: Omit<DayButtonProps, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
     ref?: React.Ref<HTMLButtonElement>;
   },
@@ -174,8 +204,8 @@ function DayButtonInstance(
   });
 }
 
-export function DayButtonTemplate(
-  props: DayButtonTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
+export function DayButton(
+  props: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { date: dateProp, ...restProps } = props;
   const cellData = useContext(DayCellDataContext);
@@ -187,6 +217,6 @@ export function DayButtonTemplate(
   }
 
   throw new Error(
-    "DayButtonTemplate must be used inside DayCellTemplate or receive an explicit date prop.",
+    "DayButton must be used inside DayCellTemplate or receive an explicit date prop.",
   );
 }

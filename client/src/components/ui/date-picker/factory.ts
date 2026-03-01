@@ -1,8 +1,8 @@
 import { createElement } from "react";
 import { resolveTemporal } from "./utils";
 import { RootInner } from "./root";
-import { DaysGrid, WeekTemplate, DayCellTemplate, DayButtonTemplate } from "./grid";
-import { DaysGridHeader, DaysGridHeaderCellTemplate } from "./labels";
+import { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
+import { GridHeader, GridHeaderCell } from "./labels";
 import {
   DateString,
   TimeString,
@@ -35,12 +35,13 @@ export function createDatePicker<F extends ValueFormat>(
 
   return {
     Root: TypedRoot,
-    DaysGrid,
+    Grid,
+    GridHeader,
+    GridHeaderCell,
+    GridBody,
     WeekTemplate,
     DayCellTemplate,
-    DayButtonTemplate,
-    DaysGridHeader,
-    DaysGridHeaderCellTemplate,
+    DayButton,
     DateString,
     TimeString,
     MonthYearString,

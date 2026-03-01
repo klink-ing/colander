@@ -1,6 +1,6 @@
 export { Root, RootInner } from "./root";
-export { DaysGrid, WeekTemplate, DayCellTemplate, DayButtonTemplate } from "./grid";
-export { DaysGridHeader, DaysGridHeaderCellTemplate } from "./labels";
+export { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
+export { GridHeader, GridHeaderCell } from "./labels";
 export {
   DateString,
   TimeString,
@@ -14,15 +14,15 @@ export { useDatePicker } from "./context";
 export {
   useRootState,
   useNavButton,
-  useDaysGridKeyboard,
+  useGridKeyboard,
   useDayCellState,
   useDayButtonState,
-  useDaysGridHeaderCellState,
+  useGridHeaderCellState,
 } from "./hooks";
 
 import { Root } from "./root";
-import { DaysGrid, WeekTemplate, DayCellTemplate, DayButtonTemplate } from "./grid";
-import { DaysGridHeader, DaysGridHeaderCellTemplate } from "./labels";
+import { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
+import { GridHeader, GridHeaderCell } from "./labels";
 import {
   DateString,
   TimeString,
@@ -33,12 +33,13 @@ import {
 
 export const DatePicker = {
   Root,
-  DaysGrid,
+  Grid,
+  GridHeader,
+  GridHeaderCell,
+  GridBody,
   WeekTemplate,
   DayCellTemplate,
-  DayButtonTemplate,
-  DaysGridHeader,
-  DaysGridHeaderCellTemplate,
+  DayButton,
   DateString,
   TimeString,
   MonthYearString,
@@ -49,18 +50,20 @@ export const DatePicker = {
 export type {
   RootProps as DatePickerRootProps,
   RootState as DatePickerRootState,
-  DaysGridProps as DatePickerDaysGridProps,
-  DaysGridState as DatePickerDaysGridState,
+  GridProps as DatePickerGridProps,
+  GridState as DatePickerGridState,
+  GridHeaderProps as DatePickerGridHeaderProps,
+  GridHeaderState as DatePickerGridHeaderState,
+  GridHeaderCellProps as DatePickerGridHeaderCellProps,
+  GridHeaderCellState as DatePickerGridHeaderCellState,
+  GridBodyProps as DatePickerGridBodyProps,
+  GridBodyState as DatePickerGridBodyState,
   WeekTemplateProps as DatePickerWeekTemplateProps,
   WeekTemplateState as DatePickerWeekTemplateState,
   DayCellTemplateProps as DatePickerDayCellTemplateProps,
   DayCellTemplateState as DatePickerDayCellTemplateState,
-  DayButtonTemplateProps as DatePickerDayButtonTemplateProps,
-  DayButtonTemplateState as DatePickerDayButtonTemplateState,
-  DaysGridHeaderProps as DatePickerDaysGridHeaderProps,
-  DaysGridHeaderState as DatePickerDaysGridHeaderState,
-  DaysGridHeaderCellProps as DatePickerDaysGridHeaderCellProps,
-  DaysGridHeaderCellState as DatePickerDaysGridHeaderCellState,
+  DayButtonProps as DatePickerDayButtonProps,
+  DayButtonState as DatePickerDayButtonState,
   DateStringProps as DatePickerDateStringProps,
   DateStringState as DatePickerDateStringState,
   TimeStringProps as DatePickerTimeStringProps,

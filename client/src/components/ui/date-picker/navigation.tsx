@@ -100,7 +100,7 @@ export function TimeString(
 /**
  * Displays the currently viewed month and year as a live-region heading for the
  * calendar grid. Defaults to `{ month: "long", year: "numeric" }` (e.g.
- * "March 2026"). Automatically registers a unique `id` so that `DaysGrid` can
+ * "March 2026"). Automatically registers a unique `id` so that `Grid` can
  * reference it via `aria-labelledby`.
  *
  * **Accessibility requirement:** When using a custom `render` function or custom
