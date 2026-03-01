@@ -29,6 +29,7 @@ import type {
   PrevMonthButtonProps,
   NextMonthButtonProps,
 } from "./types";
+import type { createDatePicker } from "@/components/ui/date-picker";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,
@@ -128,7 +129,9 @@ export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
   className,
   ...props
 }: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
-  return <GridHeader {...(props as GridHeaderProps)} className={cn("", className)} />;
+  return (
+    <GridHeader {...(props as GridHeaderProps)} className={cn("", className)} />
+  );
 }
 
 export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
@@ -150,7 +153,9 @@ export function StyledGridBody<F extends ValueFormat = ValueFormat>({
   className,
   ...props
 }: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
-  return <GridBody {...(props as GridBodyProps)} className={cn("", className)} />;
+  return (
+    <GridBody {...(props as GridBodyProps)} className={cn("", className)} />
+  );
 }
 
 export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
@@ -158,7 +163,10 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   ...props
 }: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> }) {
   return (
-    <WeekTemplate {...(props as WeekTemplateProps)} className={cn("", className)} />
+    <WeekTemplate
+      {...(props as WeekTemplateProps)}
+      className={cn("", className)}
+    />
   );
 }
 

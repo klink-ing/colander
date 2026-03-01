@@ -84,3 +84,7 @@ CSS custom properties in `client/src/index.css` define the application's color p
 - **esbuild**: Server-side bundler.
 - **tsx**: TypeScript execution in development.
 - **Replit Vite plugins**: Specific plugins for Replit environment (`@replit/vite-plugin-runtime-error-modal`, `@replit/vite-plugin-cartographer`, `@replit/vite-plugin-dev-banner`).
+
+### Linting & Formatting
+- **Biome** (`@biomejs/biome`): Used for linting only (formatting disabled in `biome.json`). Run with `npx biome lint .` or `npx biome lint --fix .` for auto-fixes. CSS linting is disabled to avoid false positives with Tailwind directives. Config at `biome.json`.
+- **Prettier**: Used for formatting (no Biome formatting).

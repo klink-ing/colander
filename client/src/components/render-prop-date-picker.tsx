@@ -2,7 +2,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   RawValueForFormat,
-  CreateDatePickerReturn,
+  Components,
 } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
@@ -22,7 +22,6 @@ import {
   StyledDayTemplate,
 } from "@/components/ui/date-picker/styled";
 
-
 interface RenderPropDatePickerProps<F extends ValueFormat> {
   value?: RawValueForFormat<F>;
   defaultValue?: RawValueForFormat<F>;
@@ -34,7 +33,7 @@ interface RenderPropDatePickerProps<F extends ValueFormat> {
   timeZone?: string;
   locale?: string;
   className?: string;
-  components: CreateDatePickerReturn<F>;
+  components: Components<F>;
 }
 
 export function RenderPropDatePicker<F extends ValueFormat>({

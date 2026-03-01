@@ -16,6 +16,7 @@ import {
   StyledDayTemplate,
 } from "@/components/ui/date-picker/styled";
 import { cn } from "@/lib/utils";
+import type { Components } from "@/components/ui/date-picker";
 
 interface StyledDatePickerProps<F extends ValueFormat> {
   value?: RawValueForFormat<F>;
@@ -28,10 +29,10 @@ interface StyledDatePickerProps<F extends ValueFormat> {
   timeZone?: string;
   locale?: string;
   className?: string;
-  components: CreateDatePickerReturn<F>;
+  components: Components<F>;
 }
 
-export function StyledDatePicker<F extends ValueFormat>({
+export function StyledDatePicker<F extends ValueFormat = ValueFormat>({
   value,
   defaultValue,
   onValueChange,

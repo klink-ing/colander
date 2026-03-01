@@ -49,7 +49,8 @@ export type ValueForFormat<F extends ValueFormat> = Extract<
   { format: F }
 >;
 
-export type RawValueForFormat<F extends ValueFormat> = ValueForFormat<F>["value"];
+export type RawValueForFormat<F extends ValueFormat> =
+  ValueForFormat<F>["value"];
 
 export interface DatePickerContextValue {
   selected: DateValueObject | undefined;
@@ -250,25 +251,10 @@ export interface DayButtonOwnProps {
 export type DayButtonProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"button", DayButtonState<F>> & DayButtonOwnProps;
 
-export type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
-
-export type CreateDatePickerReturn<F extends ValueFormat> = {
-  Root: (
-    props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
-  ) => React.ReactElement | null;
-  Grid: typeof import("./grid").Grid;
-  GridBody: typeof import("./grid").GridBody;
-  GridHeader: typeof import("./grid-header").GridHeader;
-  GridHeaderCell: typeof import("./grid-header").GridHeaderCell;
-  WeekTemplate: typeof import("./grid").WeekTemplate;
-  DayCellTemplate: typeof import("./grid").DayCellTemplate;
-  DayButton: typeof import("./grid").DayButton;
-  DateString: typeof import("./navigation").DateString;
-  TimeString: typeof import("./navigation").TimeString;
-  MonthYearString: typeof import("./navigation").MonthYearString;
-  PrevMonthButton: typeof import("./navigation").PrevMonthButton;
-  NextMonthButton: typeof import("./navigation").NextMonthButton;
-};
+export type TypedRootProps<F extends ValueFormat> = Omit<
+  RootProps<F>,
+  "format"
+>;
 
 export interface CreateDatePickerOptions {
   temporal?: TemporalNamespace;

@@ -1,5 +1,11 @@
-export { Root, RootInner } from "./root";
-export { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
+export { Root } from "./root";
+export {
+  Grid,
+  GridBody,
+  WeekTemplate,
+  DayCellTemplate,
+  DayButton,
+} from "./grid";
 export { GridHeader, GridHeaderCell } from "./grid-header";
 export {
   DateString,
@@ -8,17 +14,8 @@ export {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-export { createDatePicker } from "./factory";
+export { createDatePicker, Components } from "./factory";
 export { useDatePicker } from "./context";
-
-export {
-  useRootState,
-  useNavButton,
-  useGridKeyboard,
-  useDayCellState,
-  useDayButtonState,
-  useGridHeaderCellState,
-} from "./hooks";
 
 export type {
   RootProps,
@@ -51,7 +48,6 @@ export type {
   ValueForFormat,
   RawValueForFormat,
   PlainDateObject,
-  CreateDatePickerReturn,
   TypedRootProps,
   TemporalNamespace,
   CreateDatePickerOptions,

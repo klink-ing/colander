@@ -1,6 +1,5 @@
-import { createElement } from "react";
-import { resolveTemporal } from "./utils";
-import * as DatePicker from "./index";
+import { type ComponentProps } from "react";
+import { Root } from "./root";
 import {
   Grid,
   GridHeader,
@@ -19,28 +18,22 @@ import {
 } from "./navigation";
 import type {
   ValueFormat,
-  TypedRootProps,
   CreateDatePickerOptions,
+  ValueForFormat,
 } from "./types";
 
 export function createDatePicker<F extends ValueFormat>(
   format: F,
   options?: CreateDatePickerOptions,
 ) {
-  const resolvedTemporal = resolveTemporal(options?.temporal);
-
-  const Root = ((
-    props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
+  const TypedRoot = (
+    props: Omit<ComponentProps<typeof Root<F>>, "format" | "temporal">,
   ) => {
-    return createElement(DatePicker.RootInner, {
-      ...props,
-      format,
-      _resolvedTemporal: resolvedTemporal,
-    } as any);
-  }) as TypedDatePicker<F>["Root"];
+    return <Root {...props} format={format} temporal={options?.temporal} />;
+  };
 
   return {
-    Root,
+    Root: TypedRoot,
     Grid: Grid<F>,
     GridHeader: GridHeader<F>,
     GridHeaderCell: GridHeaderCell<F>,
@@ -55,3 +48,7 @@ export function createDatePicker<F extends ValueFormat>(
     NextMonthButton: NextMonthButton<F>,
   };
 }
+
+export type Components<F extends ValueFormat> = ReturnType<
+  typeof createDatePicker<F>
+>;
