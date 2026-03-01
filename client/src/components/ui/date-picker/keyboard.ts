@@ -31,6 +31,20 @@ export function computeMonthJumpTarget(
   );
 }
 
+function clampToBounds(
+  target: Temporal.PlainDate,
+  focusedDate: Temporal.PlainDate,
+  minValue: Temporal.PlainDate | undefined,
+  maxValue: Temporal.PlainDate | undefined,
+  T: TemporalNamespace,
+): KeyboardNavResult {
+  let clamped = target;
+  if (minValue && T.PlainDate.compare(clamped, minValue) < 0) clamped = minValue;
+  if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0) clamped = maxValue;
+  if (T.PlainDate.compare(clamped, focusedDate) === 0) return { action: "none" };
+  return { action: "move", date: clamped };
+}
+
 export function computeNextFocusDate(input: KeyboardNavInput): KeyboardNavResult {
   const { key, shiftKey, focusedDate, minValue, maxValue, disabled, isDateDisabled, T } = input;
 
@@ -63,15 +77,11 @@ export function computeNextFocusDate(input: KeyboardNavInput): KeyboardNavResult
     }
     case "PageUp": {
       const target = computeMonthJumpTarget(focusedDate, shiftKey ? -12 : -1, T);
-      if (minValue && T.PlainDate.compare(target, minValue) < 0) return { action: "none" };
-      if (maxValue && T.PlainDate.compare(target, maxValue) > 0) return { action: "none" };
-      return { action: "move", date: target };
+      return clampToBounds(target, focusedDate, minValue, maxValue, T);
     }
     case "PageDown": {
       const target = computeMonthJumpTarget(focusedDate, shiftKey ? 12 : 1, T);
-      if (minValue && T.PlainDate.compare(target, minValue) < 0) return { action: "none" };
-      if (maxValue && T.PlainDate.compare(target, maxValue) > 0) return { action: "none" };
-      return { action: "move", date: target };
+      return clampToBounds(target, focusedDate, minValue, maxValue, T);
     }
     case "Enter":
     case " ":
@@ -84,9 +94,7 @@ export function computeNextFocusDate(input: KeyboardNavInput): KeyboardNavResult
   }
 
   if (nextDate) {
-    if (minValue && T.PlainDate.compare(nextDate, minValue) < 0) return { action: "none" };
-    if (maxValue && T.PlainDate.compare(nextDate, maxValue) > 0) return { action: "none" };
-    return { action: "move", date: nextDate };
+    return clampToBounds(nextDate, focusedDate, minValue, maxValue, T);
   }
 
   return { action: "none" };

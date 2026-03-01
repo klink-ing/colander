@@ -87,7 +87,7 @@ No authentication is implemented yet. The schema and storage interface include `
   - **W3C APG Date Picker conformance** (non-dialog portions):
     - `aria-selected` is only set on the selected day cell (omitted on all others, per spec)
     - Day column headers use `aria-label` for full day names ("Sunday") with narrow text ("Su") as default children
-    - Keyboard shortcuts: Arrow keys, Home (start of week), End (end of week), PageUp/PageDown (prev/next month), Shift+PageUp/PageDown (prev/next year) — all respect min/max bounds
+    - Keyboard shortcuts: Arrow keys, Home (start of week), End (end of week), PageUp/PageDown (prev/next month), Shift+PageUp/PageDown (prev/next year) — all clamp to min/max bounds (navigate to the boundary instead of refusing navigation; return "none" only when already at the boundary)
     - `MonthYearString` auto-registers its `id` via context; `DaysGrid` reads it as `aria-labelledby` — no manual wiring needed
     - Semantic HTML table structure: `<table role="grid">` → `<thead>` with `<th scope="col" abbr="...">` → `<tbody>` with `<tr>` rows → `<td role="gridcell">` (via `DayCellTemplate`) wrapping `<button>` (via `DayButtonTemplate`) for each day
     - `DayCellTemplate` and `DayButtonTemplate` are separate components — consumers can customize both the cell (`<td>`) and the button independently via `render` props. `DayCellTemplate` provides `DayCellDataContext` so `DayButtonTemplate` automatically knows its date when nested inside. Default children of `DayCellTemplate` is `<DayButtonTemplate />`.
