@@ -4,7 +4,7 @@ export { DayLabels, DayLabelTemplate as DayLabel } from "./labels";
 export {
   DateString,
   TimeString,
-  MonthString,
+  MonthYearString,
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
@@ -25,7 +25,7 @@ import { DayLabels, DayLabelTemplate } from "./labels";
 import {
   DateString,
   TimeString,
-  MonthString,
+  MonthYearString,
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
@@ -39,7 +39,7 @@ export const DatePicker = {
   DayLabel: DayLabelTemplate,
   DateString,
   TimeString,
-  MonthString,
+  MonthYearString,
   PrevMonthButton,
   NextMonthButton,
 };
@@ -61,8 +61,8 @@ export type {
   DateStringState as DatePickerDateStringState,
   TimeStringProps as DatePickerTimeStringProps,
   TimeStringState as DatePickerTimeStringState,
-  MonthStringProps as DatePickerMonthStringProps,
-  MonthStringState as DatePickerMonthStringState,
+  MonthYearStringProps as DatePickerMonthYearStringProps,
+  MonthYearStringState as DatePickerMonthYearStringState,
   PrevMonthButtonProps as DatePickerPrevMonthButtonProps,
   NextMonthButtonProps as DatePickerNextMonthButtonProps,
   NavButtonState as DatePickerNavButtonState,

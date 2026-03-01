@@ -6,7 +6,7 @@ import {
   DayTemplate,
   DayLabels,
   DayLabel,
-  MonthString,
+  MonthYearString,
   DateString,
   TimeString,
   PrevMonthButton,
@@ -18,7 +18,7 @@ import type {
   DayTemplateProps,
   DayLabelsProps,
   DayLabelProps,
-  MonthStringProps,
+  MonthYearStringProps,
   DateStringProps,
   TimeStringProps,
   PrevMonthButtonProps,
@@ -81,12 +81,12 @@ export function StyledNextMonthButton({
   );
 }
 
-export function StyledMonthString({
+export function StyledMonthYearString({
   className,
   ...props
-}: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+}: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
   return (
-    <MonthString
+    <MonthYearString
       data-testid="text-current-month"
       {...props}
       className={cn("text-sm font-medium", className)}

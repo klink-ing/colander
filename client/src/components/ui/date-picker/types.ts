@@ -8,7 +8,7 @@ export type TemporalNamespace = {
     plainDateISO(): Temporal.PlainDate;
   };
   PlainDate: {
-    from(item: any): Temporal.PlainDate;
+    from(item: any, options?: { overflow?: string }): Temporal.PlainDate;
     compare(a: Temporal.PlainDate, b: Temporal.PlainDate): number;
   };
   PlainDateTime: {
@@ -67,6 +67,8 @@ export interface DatePickerContextValue {
   timeZone: string;
   locale: string;
   temporal: TemporalNamespace;
+  gridLabelId: string | undefined;
+  setGridLabelId: (id: string | undefined) => void;
 }
 
 export type RootState<F extends ValueFormat = ValueFormat> = {
@@ -126,21 +128,29 @@ export interface TimeStringOwnProps {
 export type TimeStringProps = useRender.ComponentProps<"span", TimeStringState> &
   TimeStringOwnProps;
 
-export type MonthStringState = {
+export type MonthYearStringState = {
   month: number;
   year: number;
 };
 
-export interface MonthStringOwnProps {
+export interface MonthYearStringOwnProps {
   locales?: string | string[];
+  /**
+   * Intl.DateTimeFormatOptions to format the displayed month/year string.
+   * Defaults to `{ month: "long", year: "numeric" }` (e.g. "March 2026").
+   *
+   * **Accessibility requirement:** This element is referenced by the calendar
+   * grid's `aria-labelledby` and serves as its accessible name. When overriding
+   * `options`, both the month and year **must** remain present for screen readers.
+   */
   options?: Intl.DateTimeFormatOptions;
 }
 
-export type MonthStringProps = useRender.ComponentProps<
+export type MonthYearStringProps = useRender.ComponentProps<
   "span",
-  MonthStringState
+  MonthYearStringState
 > &
-  MonthStringOwnProps;
+  MonthYearStringOwnProps;
 
 export type NavButtonState = {
   direction: "next" | "prev";
@@ -241,8 +251,8 @@ export interface TypedDatePicker<F extends ValueFormat> {
   TimeString: (
     props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> },
   ) => React.ReactElement;
-  MonthString: (
-    props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> },
+  MonthYearString: (
+    props: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> },
   ) => React.ReactElement;
   PrevMonthButton: (
     props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },

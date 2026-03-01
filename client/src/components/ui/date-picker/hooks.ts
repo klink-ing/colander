@@ -115,6 +115,8 @@ export function useRootState<F extends ValueFormat>(
     return { year: init.year, month: init.month };
   });
 
+  const [gridLabelId, setGridLabelId] = useState<string | undefined>(undefined);
+
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
     const src = taggedValue ?? taggedDefault;
     if (src) {
@@ -263,6 +265,8 @@ export function useRootState<F extends ValueFormat>(
       timeZone,
       locale,
       temporal: T,
+      gridLabelId,
+      setGridLabelId,
     }),
     [
       selected,
@@ -279,6 +283,7 @@ export function useRootState<F extends ValueFormat>(
       timeZone,
       locale,
       T,
+      gridLabelId,
     ],
   );
 
@@ -397,6 +402,22 @@ export function useDaysGridKeyboard() {
     temporal: T,
   } = useDatePicker();
 
+  const moveFocusByMonths = useCallback(
+    (months: number) => {
+      const totalMonths = focusedDate.year * 12 + (focusedDate.month - 1) + months;
+      const targetYear = Math.floor(totalMonths / 12);
+      const targetMonth = (totalMonths % 12) + 1;
+      const target = T.PlainDate.from(
+        { year: targetYear, month: targetMonth, day: focusedDate.day },
+        { overflow: "constrain" },
+      );
+      if (minValue && T.PlainDate.compare(target, minValue) < 0) return;
+      if (maxValue && T.PlainDate.compare(target, maxValue) > 0) return;
+      setFocusedDate(target);
+    },
+    [focusedDate, minValue, maxValue, setFocusedDate, T],
+  );
+
   return useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
       if (disabled) return;
@@ -416,6 +437,24 @@ export function useDaysGridKeyboard() {
         case "ArrowUp":
           nextDate = focusedDate.subtract({ weeks: 1 });
           break;
+        case "Home": {
+          const sundayDow = focusedDate.dayOfWeek % 7;
+          nextDate = focusedDate.subtract({ days: sundayDow });
+          break;
+        }
+        case "End": {
+          const sundayDow = focusedDate.dayOfWeek % 7;
+          nextDate = focusedDate.add({ days: 6 - sundayDow });
+          break;
+        }
+        case "PageUp":
+          e.preventDefault();
+          moveFocusByMonths(e.shiftKey ? -12 : -1);
+          return;
+        case "PageDown":
+          e.preventDefault();
+          moveFocusByMonths(e.shiftKey ? 12 : 1);
+          return;
         case "Enter":
         case " ":
           e.preventDefault();
@@ -434,7 +473,7 @@ export function useDaysGridKeyboard() {
         setFocusedDate(nextDate);
       }
     },
-    [focusedDate, setFocusedDate, onSelect, disabled, isDateDisabled, minValue, maxValue, T],
+    [focusedDate, setFocusedDate, onSelect, disabled, isDateDisabled, minValue, maxValue, T, moveFocusByMonths],
   );
 }
 
@@ -495,7 +534,7 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
     type: "button",
     tabIndex: isFocused ? 0 : -1,
     disabled: isDisabled,
-    "aria-selected": isSelected,
+    "aria-selected": isSelected || undefined,
     "aria-disabled": isDisabled,
     "aria-label": date.toLocaleString(locale, {
       weekday: "long",
@@ -542,7 +581,7 @@ export function useDayLabelState(index: number) {
   const defaultProps: Record<string, unknown> = {
     role: "columnheader",
     "aria-label": state.long,
-    children: state.short,
+    children: state.narrow,
   };
 
   return { state, stateAttributesMapping, defaultProps };

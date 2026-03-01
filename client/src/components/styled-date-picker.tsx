@@ -7,7 +7,7 @@ import type {
 import {
   StyledPrevMonthButton,
   StyledNextMonthButton,
-  StyledMonthString,
+  StyledMonthYearString,
   StyledDaysGrid,
   StyledDayLabels,
   StyledDayLabel,
@@ -58,7 +58,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
       <div className={cn("p-3", className)}>
         <div className="flex items-center justify-between gap-1 px-1 pb-3">
           <StyledPrevMonthButton />
-          <StyledMonthString />
+          <StyledMonthYearString />
           <StyledNextMonthButton />
         </div>
 

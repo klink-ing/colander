@@ -96,7 +96,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
           )}
         />
 
-        <DP.MonthString
+        <DP.MonthYearString
           data-testid="text-current-month"
           options={{ month: "short" }}
           render={({ children, ...props }, state) => (

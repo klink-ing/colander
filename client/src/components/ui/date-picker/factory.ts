@@ -6,7 +6,7 @@ import { DayLabels, DayLabelTemplate } from "./labels";
 import {
   DateString,
   TimeString,
-  MonthString,
+  MonthYearString,
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
@@ -42,7 +42,7 @@ export function createDatePicker<F extends ValueFormat>(
     DayLabelTemplate,
     DateString,
     TimeString,
-    MonthString,
+    MonthYearString,
     PrevMonthButton,
     NextMonthButton,
   };

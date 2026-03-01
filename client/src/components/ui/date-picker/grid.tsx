@@ -16,7 +16,7 @@ export function DaysGrid(
   props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
-  const { currentDateTime } = useDatePicker();
+  const { currentDateTime, gridLabelId } = useDatePicker();
   const handleKeyDown = useDaysGridKeyboard();
 
   const state = useMemo<DaysGridState>(
@@ -26,7 +26,8 @@ export function DaysGrid(
 
   const defaultProps: Record<string, unknown> = {
     role: "grid",
-    "aria-label": "Calendar",
+    "aria-labelledby": gridLabelId || undefined,
+    "aria-label": gridLabelId ? undefined : "Calendar",
     onKeyDown: handleKeyDown,
     children: children ?? (
       <>

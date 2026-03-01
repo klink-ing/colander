@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useId, useMemo, useEffect } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker } from "./context";
@@ -9,8 +9,8 @@ import type {
   DateStringProps,
   TimeStringState,
   TimeStringProps,
-  MonthStringState,
-  MonthStringProps,
+  MonthYearStringState,
+  MonthYearStringProps,
   PrevMonthButtonProps,
   NextMonthButtonProps,
 } from "./types";
@@ -97,27 +97,48 @@ export function TimeString(
   });
 }
 
-export function MonthString(
-  props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> },
+/**
+ * Displays the currently viewed month and year as a live-region heading for the
+ * calendar grid. Defaults to `{ month: "long", year: "numeric" }` (e.g.
+ * "March 2026"). Automatically registers a unique `id` so that `DaysGrid` can
+ * reference it via `aria-labelledby`.
+ *
+ * **Accessibility requirement:** When using a custom `render` function or custom
+ * `options` that change the displayed format, both the month and year **must**
+ * remain accessible to screen readers within this component. This element is
+ * referenced by the calendar grid's `aria-labelledby` and serves as its
+ * accessible name.
+ */
+export function MonthYearString(
+  props: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentDateTime, locale } = useDatePicker();
+  const { currentDateTime, locale, setGridLabelId } = useDatePicker();
+
+  const id = useId();
+
+  useEffect(() => {
+    setGridLabelId(id);
+    return () => setGridLabelId(undefined);
+  }, [id, setGridLabelId]);
 
   const displayDate = new Date(currentDateTime.year, currentDateTime.month - 1, 1);
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
+    year: "numeric",
   };
   const formatted = displayDate.toLocaleDateString(
     locales ?? locale,
     defaultOptions,
   );
 
-  const state = useMemo<MonthStringState>(
+  const state = useMemo<MonthYearStringState>(
     () => ({ month: currentDateTime.month, year: currentDateTime.year }),
     [currentDateTime.month, currentDateTime.year],
   );
 
   const defaultProps: Record<string, unknown> = {
+    id,
     children: formatted,
     "aria-live": "polite",
   };
