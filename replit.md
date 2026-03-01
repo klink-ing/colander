@@ -32,7 +32,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Frontend Architecture
 
-- **Framework**: React 18 with TypeScript
+- **Framework**: React 19 with TypeScript
 - **Routing**: `wouter` (lightweight client-side router)
 - **Data Fetching**: TanStack Query (React Query) v5 with a custom `apiRequest` helper and `getQueryFn` factory
 - **Forms**: React Hook Form with `@hookform/resolvers` and Zod validation
@@ -89,6 +89,7 @@ No authentication is implemented yet. The schema and storage interface include `
     - Day column headers use `aria-label` for full day names ("Sunday") with narrow text ("Su") as default children
     - Keyboard shortcuts: Arrow keys, Home (start of week), End (end of week), PageUp/PageDown (prev/next month), Shift+PageUp/PageDown (prev/next year) — all respect min/max bounds
     - `MonthYearString` auto-registers its `id` via context; `DaysGrid` reads it as `aria-labelledby` — no manual wiring needed
+    - Semantic HTML table structure: `<table role="grid">` → `<thead>` with `<th scope="col" abbr="...">` → `<tbody>` with `<tr>` rows → `<td role="gridcell">` wrapping `<button>` for each day
   - **Self-replicating components**: `WeekTemplate`, `DayTemplate`, and `DayLabel` use a "self-replicating" pattern — each reads data from context and renders itself the correct number of times. No parent-side child scanning. Each is split into outer (maps over data) and inner `*Instance` (calls `useRender`) — e.g. `WeekTemplate` → `WeekInstance`, `DayTemplate` → `DayInstance`, `DayLabel` → `DayInstance`. `WeekTemplate` maps over `weeks` via `WeekDataContext`. `DayTemplate` reads from `WeekDataContext` or flattens all weeks. `DayLabel` self-replicates 7 times when no `index` prop.
   - **Styled components** (`styled.tsx`): `StyledPrevMonthButton`, `StyledNextMonthButton`, `StyledMonthYearString`, `StyledDateString`, `StyledTimeString`, `StyledDaysGrid`, `StyledDayLabels`, `StyledDayLabel`, `StyledWeekTemplate`, `StyledDayTemplate` — each wraps a headless primitive with pre-applied styles. Simple components use `className` merging; complex ones (day template, nav buttons) use `render` props with conditional state-based classes and Lucide icons. All accept additional `className` for extension. Mix-and-match with headless components is supported.
 - **StyledDatePicker** (`client/src/components/styled-date-picker.tsx`) — A fully styled calendar composed entirely from the styled wrapper components. Accepts a `components` prop of type `DatePickerTyped<F>` (from `createDatePicker`). Uses `StyledPrevMonthButton`, `StyledMonthYearString`, `StyledNextMonthButton`, `StyledDaysGrid`, `StyledDayLabels`, `StyledDayLabel`, `StyledWeekTemplate`, `StyledDayTemplate`.

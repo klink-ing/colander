@@ -118,12 +118,12 @@ export function StyledTimeString({
 export function StyledDaysGrid({
   className,
   ...props
-}: DaysGridProps & { ref?: React.Ref<HTMLDivElement> }) {
+}: DaysGridProps & { ref?: React.Ref<HTMLTableElement> }) {
   return (
     <DaysGrid
       mode="grid"
       {...props}
-      className={cn("w-full grid grid-cols-[repeat(7,1fr)]", className)}
+      className={cn("w-full table-fixed border-collapse", className)}
     />
   );
 }
@@ -131,19 +131,19 @@ export function StyledDaysGrid({
 export function StyledDayLabels({
   className,
   ...props
-}: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> }) {
-  return <DayLabels {...props} className={cn("contents", className)} />;
+}: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
+  return <DayLabels {...props} className={cn("", className)} />;
 }
 
 export function StyledDayLabel({
   className,
   ...props
-}: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
+}: DayLabelProps & { ref?: React.Ref<HTMLTableCellElement> }) {
   return (
     <DayLabel
       {...props}
       className={cn(
-        "flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground",
+        "h-9 w-9 text-center text-[0.8rem] font-normal text-muted-foreground",
         className,
       )}
     />
@@ -153,9 +153,9 @@ export function StyledDayLabel({
 export function StyledWeekTemplate({
   className,
   ...props
-}: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> }) {
+}: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> }) {
   return (
-    <WeekTemplate {...props} className={cn("contents mt-0.5", className)} />
+    <WeekTemplate {...props} className={cn("", className)} />
   );
 }
 

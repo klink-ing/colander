@@ -481,12 +481,9 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
   );
 
   const defaultProps: Record<string, unknown> = {
-    role: "gridcell",
     type: "button",
     tabIndex: isFocused ? 0 : -1,
     disabled: isDisabled,
-    "aria-selected": isSelected || undefined,
-    "aria-disabled": isDisabled,
     "aria-label": date.toLocaleString(locale, {
       weekday: "long",
       month: "long",
@@ -501,7 +498,13 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
     children: date.day,
   };
 
-  return { state, stateAttributesMapping, defaultProps, internalRef };
+  const cellProps: Record<string, unknown> = {
+    role: "gridcell",
+    "aria-selected": isSelected || undefined,
+    "aria-disabled": isDisabled || undefined,
+  };
+
+  return { state, stateAttributesMapping, defaultProps, cellProps, internalRef };
 }
 
 export function useDayLabelState(index: number) {
@@ -530,7 +533,8 @@ export function useDayLabelState(index: number) {
   );
 
   const defaultProps: Record<string, unknown> = {
-    role: "columnheader",
+    scope: "col",
+    abbr: state.long,
     "aria-label": state.long,
     children: state.narrow,
   };

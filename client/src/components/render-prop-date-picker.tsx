@@ -98,7 +98,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
 
         <DP.MonthYearString
           data-testid="text-current-month"
-          options={{ month: "short" }}
+          options={{ month: "short", year: "numeric" }}
           render={({ children, ...props }, state) => (
             <span {...props} className="text-sm font-medium">
               Hi! {children}
@@ -139,23 +139,19 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
         />
       </div>
 
-      <div
-        className="grid grid-cols-[repeat(7,1fr)] w-full"
-        data-id="days wrapper"
+      <DP.DaysGrid
+        className="w-full table-fixed border-collapse"
+        data-testid="monthgrid"
       >
         <StyledDayLabels>
           <StyledDayLabel />
         </StyledDayLabels>
-        <DP.DaysGrid
-          mode="grid"
-          className="grid grid-cols-subgrid col-span-full pt-4"
-          render={(props, state) => <div {...props} data-testid="monthgrid" />}
-        >
-          <StyledWeekTemplate className="grid col-span-full grid-cols-subgrid">
+        <tbody>
+          <StyledWeekTemplate>
             <StyledDayTemplate />
           </StyledWeekTemplate>
-        </DP.DaysGrid>
-      </div>
+        </tbody>
+      </DP.DaysGrid>
     </DP.Root>
   );
 }

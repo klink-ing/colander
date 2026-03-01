@@ -13,7 +13,7 @@ import type {
 } from "./types";
 
 export function DaysGrid(
-  props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> },
+  props: DaysGridProps & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
   const { currentDateTime, gridLabelId } = useDatePicker();
@@ -34,24 +34,26 @@ export function DaysGrid(
         <DayLabels>
           <DayLabelTemplate />
         </DayLabels>
-        <WeekTemplate>
-          <DayTemplate />
-        </WeekTemplate>
+        <tbody>
+          <WeekTemplate>
+            <DayTemplate />
+          </WeekTemplate>
+        </tbody>
       </>
     ),
   };
 
   return useRender({
-    defaultTagName: "div",
+    defaultTagName: "table",
     render,
     ref: ref ? [ref] : [],
     state,
-    props: mergeProps<"div">(defaultProps, otherProps),
+    props: mergeProps<"table">(defaultProps, otherProps),
   });
 }
 
 function WeekInstance(
-  props: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> },
+  props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
 ) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
@@ -68,22 +70,18 @@ function WeekInstance(
     [],
   );
 
-  const defaultProps: Record<string, unknown> = {
-    role: "row",
-  };
-
   return useRender({
-    defaultTagName: "div",
+    defaultTagName: "tr",
     render,
     ref: ref ? [ref] : [],
     state,
     stateAttributesMapping,
-    props: mergeProps<"div">(defaultProps, otherProps),
+    props: mergeProps<"tr">({}, otherProps),
   });
 }
 
 export function WeekTemplate(
-  props: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> },
+  props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
 ) {
   const { weeks } = useDatePicker();
 
@@ -108,10 +106,10 @@ function DayInstance(
   },
 ) {
   const { ref, render, date, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, internalRef } =
+  const { state, stateAttributesMapping, defaultProps, cellProps, internalRef } =
     useDayTemplateState(date);
 
-  return useRender({
+  const button = useRender({
     defaultTagName: "button",
     render,
     ref: ref ? [ref, internalRef] : [internalRef],
@@ -119,6 +117,8 @@ function DayInstance(
     stateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
+
+  return <td {...cellProps}>{button}</td>;
 }
 
 export function DayTemplate(

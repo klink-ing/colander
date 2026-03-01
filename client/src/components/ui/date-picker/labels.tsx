@@ -11,7 +11,7 @@ import type {
 function DayLabelInstance(
   props: Omit<DayLabelProps, "index"> & {
     index: number;
-    ref?: React.Ref<HTMLDivElement>;
+    ref?: React.Ref<HTMLTableCellElement>;
   },
 ) {
   const { ref, render, index, ...otherProps } = props;
@@ -19,17 +19,17 @@ function DayLabelInstance(
     useDayLabelState(index);
 
   return useRender({
-    defaultTagName: "div",
+    defaultTagName: "th",
     render,
     ref: ref ? [ref] : [],
     state,
     stateAttributesMapping,
-    props: mergeProps<"div">(defaultProps, otherProps),
+    props: mergeProps<"th">(defaultProps, otherProps),
   });
 }
 
 export function DayLabelTemplate(
-  props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> },
+  props: DayLabelProps & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
   if (indexProp != null) {
@@ -45,22 +45,21 @@ export function DayLabelTemplate(
 }
 
 export function DayLabels(
-  props: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> },
+  props: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, children, ...otherProps } = props;
 
   const state = useMemo<DayLabelsState>(() => ({}), []);
 
   const defaultProps: Record<string, unknown> = {
-    role: "row",
-    children: children ?? <DayLabelTemplate />,
+    children: <tr>{children ?? <DayLabelTemplate />}</tr>,
   };
 
   return useRender({
-    defaultTagName: "div",
+    defaultTagName: "thead",
     render,
     ref: ref ? [ref] : [],
     state,
-    props: mergeProps<"div">(defaultProps, otherProps),
+    props: mergeProps<"thead">(defaultProps, otherProps),
   });
 }

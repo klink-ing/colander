@@ -178,12 +178,12 @@ export interface DayLabelOwnProps {
   index?: number;
 }
 
-export type DayLabelProps = useRender.ComponentProps<"div", DayLabelState> &
+export type DayLabelProps = useRender.ComponentProps<"th", DayLabelState> &
   DayLabelOwnProps;
 
 export type DayLabelsState = {};
 
-export type DayLabelsProps = useRender.ComponentProps<"div", DayLabelsState>;
+export type DayLabelsProps = useRender.ComponentProps<"thead", DayLabelsState>;
 
 export type DaysGridState = {
   month: number;
@@ -194,7 +194,7 @@ export interface DaysGridOwnProps {
   mode?: "grid";
 }
 
-export type DaysGridProps = useRender.ComponentProps<"div", DaysGridState> &
+export type DaysGridProps = useRender.ComponentProps<"table", DaysGridState> &
   DaysGridOwnProps;
 
 export type WeekTemplateState = {
@@ -202,7 +202,7 @@ export type WeekTemplateState = {
 };
 
 export type WeekTemplateProps = useRender.ComponentProps<
-  "div",
+  "tr",
   WeekTemplateState
 >;
 
@@ -231,19 +231,19 @@ export interface TypedDatePicker<F extends ValueFormat> {
     props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
   ) => React.ReactElement | null;
   DaysGrid: (
-    props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> },
+    props: DaysGridProps & { ref?: React.Ref<HTMLTableElement> },
   ) => React.ReactElement;
   WeekTemplate: (
-    props: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> },
+    props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
   ) => React.ReactElement;
   DayTemplate: (
     props: DayTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
   ) => React.ReactElement;
   DayLabels: (
-    props: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> },
+    props: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> },
   ) => React.ReactElement;
   DayLabelTemplate: (
-    props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> },
+    props: DayLabelProps & { ref?: React.Ref<HTMLTableCellElement> },
   ) => React.ReactElement;
   DateString: (
     props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },

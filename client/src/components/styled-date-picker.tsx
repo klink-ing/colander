@@ -66,9 +66,11 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
           <StyledDayLabels>
             <StyledDayLabel />
           </StyledDayLabels>
-          <StyledWeekTemplate>
-            <StyledDayTemplate />
-          </StyledWeekTemplate>
+          <tbody>
+            <StyledWeekTemplate>
+              <StyledDayTemplate />
+            </StyledWeekTemplate>
+          </tbody>
         </StyledDaysGrid>
       </div>
     </DP.Root>
