@@ -81,13 +81,37 @@ export default function Home() {
     Temporal.ZonedDateTime | undefined
   >();
 
-  const minDate = useMemo(
+  const defaultMin = useMemo(
     () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ months: 7 }),
     [systemTz],
   );
-  const maxDate = useMemo(
+  const defaultMax = useMemo(
     () => Temporal.Now.zonedDateTimeISO(systemTz).add({ months: 7 }),
     [systemTz],
+  );
+
+  const [minDate, setMinDate] = useState<Temporal.ZonedDateTime>(defaultMin);
+  const [maxDate, setMaxDate] = useState<Temporal.ZonedDateTime>(defaultMax);
+
+  const toInputValue = (zdt: Temporal.ZonedDateTime) =>
+    zdt.toPlainDate().toString();
+
+  const handleMinChange = useCallback(
+    (value: string) => {
+      if (!value) return;
+      const pd = Temporal.PlainDate.from(value);
+      setMinDate(pd.toZonedDateTime({ timeZone, plainTime: Temporal.PlainTime.from("00:00") }));
+    },
+    [timeZone],
+  );
+
+  const handleMaxChange = useCallback(
+    (value: string) => {
+      if (!value) return;
+      const pd = Temporal.PlainDate.from(value);
+      setMaxDate(pd.toZonedDateTime({ timeZone, plainTime: Temporal.PlainTime.from("23:59") }));
+    },
+    [timeZone],
   );
 
   const rezoneDateValue = useCallback(
@@ -170,6 +194,42 @@ export default function Home() {
               </option>
             ))}
           </select>
+        </div>
+      </div>
+
+      <div className="w-full max-w-2xl flex gap-4">
+        <div className="flex-1">
+          <label
+            htmlFor="min-date"
+            className="block text-sm font-medium text-foreground mb-1.5"
+          >
+            Min Date
+          </label>
+          <input
+            id="min-date"
+            type="date"
+            data-testid="input-min-date"
+            value={toInputValue(minDate)}
+            onChange={(e) => handleMinChange(e.target.value)}
+            className={selectClassName}
+          />
+        </div>
+
+        <div className="flex-1">
+          <label
+            htmlFor="max-date"
+            className="block text-sm font-medium text-foreground mb-1.5"
+          >
+            Max Date
+          </label>
+          <input
+            id="max-date"
+            type="date"
+            data-testid="input-max-date"
+            value={toInputValue(maxDate)}
+            onChange={(e) => handleMaxChange(e.target.value)}
+            className={selectClassName}
+          />
         </div>
       </div>
 
