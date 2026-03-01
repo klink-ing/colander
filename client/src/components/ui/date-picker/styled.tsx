@@ -31,57 +31,45 @@ import type {
 
 export function StyledPrevMonthButton({
   className,
-  render: _render,
   ...props
 }: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <PrevMonthButton
       data-testid="button-prev-month"
       {...props}
-      render={(renderProps, state) => (
-        <button
-          {...renderProps}
-          className={cn(
-            "inline-flex h-7 w-7 items-center justify-center rounded-md",
-            "text-muted-foreground transition-colors",
-            "hover:bg-accent hover:text-accent-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            state.disabled && "pointer-events-none opacity-50",
-            className,
-          )}
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
+      className={cn(
+        "inline-flex h-7 w-7 items-center justify-center rounded-md",
+        "text-muted-foreground transition-colors",
+        "hover:bg-accent hover:text-accent-foreground",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "disabled:pointer-events-none disabled:opacity-50",
+        className,
       )}
-    />
+    >
+      <ChevronLeft className="h-4 w-4" />
+    </PrevMonthButton>
   );
 }
 
 export function StyledNextMonthButton({
   className,
-  render: _render,
   ...props
 }: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <NextMonthButton
       data-testid="button-next-month"
       {...props}
-      render={(renderProps, state) => (
-        <button
-          {...renderProps}
-          className={cn(
-            "inline-flex h-7 w-7 items-center justify-center rounded-md",
-            "text-muted-foreground transition-colors",
-            "hover:bg-accent hover:text-accent-foreground",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            state.disabled && "pointer-events-none opacity-50",
-            className,
-          )}
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
+      className={cn(
+        "inline-flex h-7 w-7 items-center justify-center rounded-md",
+        "text-muted-foreground transition-colors",
+        "hover:bg-accent hover:text-accent-foreground",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "disabled:pointer-events-none disabled:opacity-50",
+        className,
       )}
-    />
+    >
+      <ChevronRight className="h-4 w-4" />
+    </NextMonthButton>
   );
 }
 
@@ -179,31 +167,20 @@ export function StyledDayCellTemplate({
 
 export function StyledDayButton({
   className,
-  render: _render,
   ...props
 }: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <DayButton
       {...props}
-      render={(renderProps, state) => (
-        <button
-          {...renderProps}
-          className={cn(
-            "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
-            state.outsideMonth && "text-muted-foreground opacity-40",
-            !state.outsideMonth &&
-              !state.selected &&
-              !state.today &&
-              "text-foreground hover:bg-accent hover:text-accent-foreground",
-            state.today &&
-              !state.selected &&
-              "bg-accent text-accent-foreground",
-            state.selected && "bg-primary text-primary-foreground",
-            state.disabled && "pointer-events-none opacity-50",
-            className,
-          )}
-        />
+      className={cn(
+        "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
+        "text-foreground hover:bg-accent hover:text-accent-foreground",
+        "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
+        "data-[today]:bg-accent data-[today]:text-accent-foreground",
+        "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
+        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        className,
       )}
     />
   );

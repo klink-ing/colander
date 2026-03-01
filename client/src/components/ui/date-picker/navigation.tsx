@@ -156,13 +156,14 @@ export function PrevMonthButton(
   props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, defaultProps } = useNavButton("prev");
+  const { state, stateAttributesMapping, defaultProps } = useNavButton("prev");
 
   return useRender({
     defaultTagName: "button",
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }
@@ -171,13 +172,14 @@ export function NextMonthButton(
   props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, defaultProps } = useNavButton("next");
+  const { state, stateAttributesMapping, defaultProps } = useNavButton("next");
 
   return useRender({
     defaultTagName: "button",
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }

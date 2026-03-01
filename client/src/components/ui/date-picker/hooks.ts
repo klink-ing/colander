@@ -380,6 +380,15 @@ export function useNavButton(direction: "prev" | "next") {
     [direction, isDisabled, target],
   );
 
+  const stateAttributesMapping = useMemo(
+    () => ({
+      direction: (v: string) => ({ "data-direction": v }),
+      disabled: () => null,
+      target: () => null,
+    }),
+    [],
+  );
+
   const goFn = direction === "prev" ? goToPrevMonth : goToNextMonth;
 
   const defaultProps: Record<string, unknown> = {
@@ -389,7 +398,7 @@ export function useNavButton(direction: "prev" | "next") {
     onClick: isDisabled ? undefined : goFn,
   };
 
-  return { state, defaultProps };
+  return { state, stateAttributesMapping, defaultProps };
 }
 
 export function useGridKeyboard() {
