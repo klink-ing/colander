@@ -36,7 +36,8 @@ interface UseRootStateParams<F extends ValueFormat> {
   onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
-  disabled?: (date: Temporal.PlainDate) => boolean;
+  disabled: boolean;
+  isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone: string;
   locale: string;
   temporal: TemporalNamespace;
@@ -53,10 +54,13 @@ export function useRootState<F extends ValueFormat>(
     min,
     max,
     disabled: disabledProp,
+    isDateDisabled: isDateDisabledProp,
     timeZone,
     locale,
     temporal: T,
   } = params;
+
+  const disabled = disabledProp ?? false;
 
   const taggedValue: DateValueObject | undefined = useMemo(
     () =>
@@ -86,13 +90,14 @@ export function useRootState<F extends ValueFormat>(
     return toZonedDateTime(tagged, timeZone, T).toPlainDate();
   }, [max, resolvedFormat, timeZone, T]);
 
-  const disabled = useCallback(
+  const isDateDisabled = useCallback(
     (date: Temporal.PlainDate): boolean => {
+      if (disabled) return true;
       if (minValue && T.PlainDate.compare(date, minValue) < 0) return true;
       if (maxValue && T.PlainDate.compare(date, maxValue) > 0) return true;
-      return disabledProp?.(date) ?? false;
+      return isDateDisabledProp?.(date) ?? false;
     },
-    [minValue, maxValue, disabledProp, T],
+    [disabled, minValue, maxValue, isDateDisabledProp, T],
   );
 
   const [internalSelected, setInternalSelected] = useState<
@@ -160,7 +165,7 @@ export function useRootState<F extends ValueFormat>(
 
   const onSelect = useCallback(
     (date: Temporal.PlainDate) => {
-      if (disabled?.(date)) return;
+      if (isDateDisabled(date)) return;
       const prevTime = selectedZdt
         ? {
             hour: selectedZdt.hour,
@@ -178,7 +183,7 @@ export function useRootState<F extends ValueFormat>(
           | undefined
       )?.(newTagged.value);
     },
-    [value, selectedZdt, onValueChange, resolvedFormat, disabled, timeZone, T],
+    [value, selectedZdt, onValueChange, resolvedFormat, isDateDisabled, timeZone, T],
   );
 
   const goToNextMonth = useCallback(() => {
@@ -248,6 +253,7 @@ export function useRootState<F extends ValueFormat>(
       goToPrevMonth,
       weeks,
       disabled,
+      isDateDisabled,
       minValue,
       maxValue,
       focusedDate,
@@ -265,6 +271,7 @@ export function useRootState<F extends ValueFormat>(
       goToPrevMonth,
       weeks,
       disabled,
+      isDateDisabled,
       minValue,
       maxValue,
       focusedDate,
@@ -306,6 +313,7 @@ export function useNavButton(direction: "prev" | "next") {
     goToPrevMonth,
     goToNextMonth,
     currentMonth,
+    disabled: globalDisabled,
     minValue,
     maxValue,
     locale,
@@ -333,6 +341,7 @@ export function useNavButton(direction: "prev" | "next") {
   const boundValue = direction === "prev" ? minValue : maxValue;
 
   const isDisabled = useMemo(() => {
+    if (globalDisabled) return true;
     if (!boundValue) return false;
     if (direction === "prev") {
       return (
@@ -344,7 +353,7 @@ export function useNavButton(direction: "prev" | "next") {
       destYear > boundValue.year ||
       (destYear === boundValue.year && destMonth > boundValue.month)
     );
-  }, [destYear, destMonth, boundValue, direction]);
+  }, [globalDisabled, destYear, destMonth, boundValue, direction]);
 
   const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
 
@@ -381,6 +390,7 @@ export function useDaysGridKeyboard() {
     setFocusedDate,
     onSelect,
     disabled,
+    isDateDisabled,
     minValue,
     maxValue,
     temporal: T,
@@ -388,6 +398,8 @@ export function useDaysGridKeyboard() {
 
   return useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
+      if (disabled) return;
+
       let nextDate: Temporal.PlainDate | null = null;
 
       switch (e.key) {
@@ -406,7 +418,7 @@ export function useDaysGridKeyboard() {
         case "Enter":
         case " ":
           e.preventDefault();
-          if (!disabled?.(focusedDate)) {
+          if (!isDateDisabled?.(focusedDate)) {
             onSelect(focusedDate);
           }
           return;
@@ -421,7 +433,7 @@ export function useDaysGridKeyboard() {
         setFocusedDate(nextDate);
       }
     },
-    [focusedDate, setFocusedDate, onSelect, disabled, minValue, maxValue, T],
+    [focusedDate, setFocusedDate, onSelect, disabled, isDateDisabled, minValue, maxValue, T],
   );
 }
 
@@ -430,7 +442,8 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
     selected,
     onSelect,
     currentMonth,
-    disabled: disabledFn,
+    disabled,
+    isDateDisabled,
     focusedDate,
     setFocusedDate,
     timeZone,
@@ -445,7 +458,7 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
   const isCurrentMonth =
     date.year === currentMonth.year && date.month === currentMonth.month;
   const isToday = T.PlainDate.compare(date, today) === 0;
-  const isDisabled = disabledFn?.(date) ?? false;
+  const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
   const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
 
   useEffect(() => {

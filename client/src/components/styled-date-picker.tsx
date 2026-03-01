@@ -22,7 +22,8 @@ interface StyledDatePickerProps<F extends DatePickerValueFormat> {
   onValueChange?: (value: DatePickerRawValueForFormat<F> | undefined) => void;
   min?: DatePickerRawValueForFormat<F>;
   max?: DatePickerRawValueForFormat<F>;
-  disabled?: (date: Temporal.PlainDate) => boolean;
+  disabled?: boolean;
+  isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   className?: string;
@@ -36,6 +37,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
   min,
   max,
   disabled,
+  isDateDisabled,
   timeZone,
   locale,
   className,
@@ -49,6 +51,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
       min={min}
       max={max}
       disabled={disabled}
+      isDateDisabled={isDateDisabled}
       timeZone={timeZone}
       locale={locale}
     >

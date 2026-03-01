@@ -23,6 +23,7 @@ export function RootInner<F extends ValueFormat = ValueFormat>(
     min,
     max,
     disabled,
+    isDateDisabled,
     timeZone: timeZoneProp,
     locale: localeProp,
     temporal: temporalProp,
@@ -42,7 +43,8 @@ export function RootInner<F extends ValueFormat = ValueFormat>(
     onValueChange,
     min,
     max,
-    disabled,
+    disabled: disabled ?? false,
+    isDateDisabled,
     timeZone,
     locale,
     temporal: T,
@@ -54,7 +56,10 @@ export function RootInner<F extends ValueFormat = ValueFormat>(
     ref: ref ? [ref] : [],
     state,
     stateAttributesMapping,
-    props: mergeProps<"div">({ children }, otherProps),
+    props: mergeProps<"div">(
+      { children, ...(disabled ? { "aria-disabled": true } : {}) },
+      otherProps,
+    ),
   });
 
   return (

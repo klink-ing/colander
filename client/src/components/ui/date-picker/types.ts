@@ -59,7 +59,8 @@ export interface DatePickerContextValue {
   goToNextMonth: () => void;
   goToPrevMonth: () => void;
   weeks: Temporal.PlainDate[][];
-  disabled?: (date: Temporal.PlainDate) => boolean;
+  disabled: boolean;
+  isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   minValue?: Temporal.PlainDate;
   maxValue?: Temporal.PlainDate;
   focusedDate: Temporal.PlainDate;
@@ -85,7 +86,8 @@ export interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
-  disabled?: (date: Temporal.PlainDate) => boolean;
+  disabled?: boolean;
+  isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   temporal?: TemporalNamespace;
