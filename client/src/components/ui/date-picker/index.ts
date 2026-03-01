@@ -20,33 +20,6 @@ export {
   useGridHeaderCellState,
 } from "./hooks";
 
-import { Root } from "./root";
-import { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
-import { GridHeader, GridHeaderCell } from "./labels";
-import {
-  DateString,
-  TimeString,
-  MonthYearString,
-  PrevMonthButton,
-  NextMonthButton,
-} from "./navigation";
-
-export const DatePicker = {
-  Root,
-  Grid,
-  GridHeader,
-  GridHeaderCell,
-  GridBody,
-  WeekTemplate,
-  DayCellTemplate,
-  DayButton,
-  DateString,
-  TimeString,
-  MonthYearString,
-  PrevMonthButton,
-  NextMonthButton,
-};
-
 export type {
   RootProps,
   RootState,
