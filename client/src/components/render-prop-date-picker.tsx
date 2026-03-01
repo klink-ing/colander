@@ -128,10 +128,9 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
         />
       </div>
 
-      <DP.MonthGrid
-        mode="grid"
+      <div
         className="grid grid-cols-[repeat(7,1fr)] w-full"
-        render={(props, state) => <div {...props} data-testid="monthgrid" />}
+        data-id="days wrapper"
       >
         <DP.DayLabels
           render={(props, state) => <div {...props} className="contents" />}
@@ -147,35 +146,40 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
             )}
           />
         </DP.DayLabels>
-
-        <DP.Week
-          render={(props, state) => (
-            <div {...props} className="grid grid-cols-subgrid col-span-7 pt-5" />
-          )}
+        <DP.DaysGrid
+          mode="grid"
+          className="grid grid-cols-subgrid col-span-full pt-4"
+          render={(props, state) => <div {...props} data-testid="monthgrid" />}
         >
-          <DP.Day
-            render={(props, state) => (
-              <button
-                {...props}
-                className={cn(
-                  "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
-                  state.outsideMonth && "text-muted-foreground opacity-40",
-                  !state.outsideMonth &&
-                    !state.selected &&
-                    !state.today &&
-                    "text-foreground hover:bg-accent hover:text-accent-foreground",
-                  state.today &&
-                    !state.selected &&
-                    "bg-accent text-accent-foreground",
-                  state.selected && "bg-primary text-primary-foreground",
-                  state.disabled && "pointer-events-none opacity-50",
-                )}
-              />
-            )}
-          />
-        </DP.Week>
-      </DP.MonthGrid>
+          <DP.Week
+            className="grid col-span-full grid-cols-subgrid"
+            render={(props, state) => <div {...props} />}
+          >
+            yo
+            <DP.Day
+              render={(props, state) => (
+                <button
+                  {...props}
+                  className={cn(
+                    "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
+                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
+                    state.outsideMonth && "text-muted-foreground opacity-40",
+                    !state.outsideMonth &&
+                      !state.selected &&
+                      !state.today &&
+                      "text-foreground hover:bg-accent hover:text-accent-foreground",
+                    state.today &&
+                      !state.selected &&
+                      "bg-accent text-accent-foreground",
+                    state.selected && "bg-primary text-primary-foreground",
+                    state.disabled && "pointer-events-none opacity-50",
+                  )}
+                />
+              )}
+            />
+          </DP.Week>
+        </DP.DaysGrid>
+      </div>
     </DP.Root>
   );
 }

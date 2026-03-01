@@ -993,7 +993,7 @@ interface MonthGridOwnProps {
   mode?: "grid";
 }
 
-type MonthGridProps = useRender.ComponentProps<"div", MonthGridState> &
+type DaysGridProps = useRender.ComponentProps<"div", MonthGridState> &
   MonthGridOwnProps;
 
 function buildTemplateChildren(
@@ -1039,9 +1039,7 @@ function buildTemplateChildren(
   );
 }
 
-function MonthGrid(
-  props: MonthGridProps & { ref?: React.Ref<HTMLDivElement> },
-) {
+function DaysGrid(props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> }) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
   const {
     weeks,
@@ -1256,7 +1254,7 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
 
 export const DatePicker = {
   Root,
-  MonthGrid,
+  MonthGrid: DaysGrid,
   Week,
   Day,
   DayLabels,
@@ -1276,7 +1274,7 @@ type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 
 interface TypedDatePicker<F extends ValueFormat> {
   Root: typeof Root<F>;
-  MonthGrid: typeof MonthGrid;
+  DaysGrid: typeof DaysGrid;
   Week: typeof Week;
   Day: typeof Day;
   DayLabels: typeof DayLabels;
@@ -1306,7 +1304,7 @@ function createDatePicker<F extends ValueFormat>(
 
   return {
     Root: TypedRoot,
-    MonthGrid,
+    DaysGrid: DaysGrid,
     Week,
     Day,
     DayLabels,
@@ -1324,7 +1322,7 @@ export { useDatePicker, createDatePicker };
 export type {
   RootProps as DatePickerRootProps,
   RootState as DatePickerRootState,
-  MonthGridProps as DatePickerMonthGridProps,
+  DaysGridProps as DatePickerMonthGridProps,
   MonthGridState as DatePickerMonthGridState,
   WeekProps as DatePickerWeekProps,
   WeekState as DatePickerWeekState,

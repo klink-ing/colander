@@ -87,7 +87,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
           />
         </div>
 
-        <DP.MonthGrid
+        <DP.DaysGrid
           mode="grid"
           className="w-full grid grid-cols-[repeat(7,1fr)]"
         >
@@ -117,7 +117,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
               )}
             />
           </DP.Week>
-        </DP.MonthGrid>
+        </DP.DaysGrid>
       </div>
     </DP.Root>
   );
