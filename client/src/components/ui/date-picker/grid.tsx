@@ -15,11 +15,11 @@ import type {
   DayButtonProps,
 } from "./types";
 
-export function Grid(
+export function Grid<F extends ValueFormat = ValueFormat >(
   props: GridProps & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
-  const { currentDateTime, gridLabelId, rootState } = useDatePicker();
+  const { currentDateTime, gridLabelId, rootState } = useDatePicker<F>();
   const handleKeyDown = useGridKeyboard();
 
   const state = useMemo<GridState>(
