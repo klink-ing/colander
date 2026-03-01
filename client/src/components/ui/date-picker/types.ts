@@ -167,23 +167,23 @@ export type NextMonthButtonProps = useRender.ComponentProps<
   NavButtonState
 >;
 
-export type DayLabelState = {
+export type DaysGridHeaderCellState = {
   dayOfWeek: number;
   long: string;
   short: string;
   narrow: string;
 };
 
-export interface DayLabelOwnProps {
+export interface DaysGridHeaderCellOwnProps {
   index?: number;
 }
 
-export type DayLabelProps = useRender.ComponentProps<"th", DayLabelState> &
-  DayLabelOwnProps;
+export type DaysGridHeaderCellProps = useRender.ComponentProps<"th", DaysGridHeaderCellState> &
+  DaysGridHeaderCellOwnProps;
 
-export type DayLabelsState = {};
+export type DaysGridHeaderState = {};
 
-export type DayLabelsProps = useRender.ComponentProps<"thead", DayLabelsState>;
+export type DaysGridHeaderProps = useRender.ComponentProps<"thead", DaysGridHeaderState>;
 
 export type DaysGridState = {
   month: number;
@@ -260,11 +260,11 @@ export interface TypedDatePicker<F extends ValueFormat> {
   DayButtonTemplate: (
     props: DayButtonTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
   ) => React.ReactElement;
-  DayLabels: (
-    props: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> },
+  DaysGridHeader: (
+    props: DaysGridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
   ) => React.ReactElement;
-  DayLabelTemplate: (
-    props: DayLabelProps & { ref?: React.Ref<HTMLTableCellElement> },
+  DaysGridHeaderCellTemplate: (
+    props: DaysGridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> },
   ) => React.ReactElement;
   DateString: (
     props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },

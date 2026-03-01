@@ -1,22 +1,22 @@
 import { useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { useDayLabelState } from "./hooks";
+import { useDaysGridHeaderCellState } from "./hooks";
 import type {
-  DayLabelProps,
-  DayLabelsState,
-  DayLabelsProps,
+  DaysGridHeaderCellProps,
+  DaysGridHeaderState,
+  DaysGridHeaderProps,
 } from "./types";
 
-function DayLabelInstance(
-  props: Omit<DayLabelProps, "index"> & {
+function DaysGridHeaderCellInstance(
+  props: Omit<DaysGridHeaderCellProps, "index"> & {
     index: number;
     ref?: React.Ref<HTMLTableCellElement>;
   },
 ) {
   const { ref, render, index, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps } =
-    useDayLabelState(index);
+    useDaysGridHeaderCellState(index);
 
   return useRender({
     defaultTagName: "th",
@@ -28,31 +28,31 @@ function DayLabelInstance(
   });
 }
 
-export function DayLabelTemplate(
-  props: DayLabelProps & { ref?: React.Ref<HTMLTableCellElement> },
+export function DaysGridHeaderCellTemplate(
+  props: DaysGridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
   if (indexProp != null) {
-    return <DayLabelInstance {...restProps} index={indexProp} />;
+    return <DaysGridHeaderCellInstance {...restProps} index={indexProp} />;
   }
   return (
     <>
       {Array.from({ length: 7 }, (_, i) => (
-        <DayLabelInstance key={i} {...restProps} index={i} />
+        <DaysGridHeaderCellInstance key={i} {...restProps} index={i} />
       ))}
     </>
   );
 }
 
-export function DayLabels(
-  props: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> },
+export function DaysGridHeader(
+  props: DaysGridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, children, ...otherProps } = props;
 
-  const state = useMemo<DayLabelsState>(() => ({}), []);
+  const state = useMemo<DaysGridHeaderState>(() => ({}), []);
 
   const defaultProps: Record<string, unknown> = {
-    children: <tr>{children ?? <DayLabelTemplate />}</tr>,
+    children: <tr>{children ?? <DaysGridHeaderCellTemplate />}</tr>,
   };
 
   return useRender({

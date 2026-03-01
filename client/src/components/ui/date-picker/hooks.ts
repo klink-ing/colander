@@ -18,7 +18,7 @@ import type {
   NavButtonState,
   DayCellTemplateState,
   DayButtonTemplateState,
-  DayLabelState,
+  DaysGridHeaderCellState,
 } from "./types";
 import { useDatePicker } from "./context";
 import {
@@ -533,12 +533,12 @@ export function useDayButtonState(date: Temporal.PlainDate) {
   return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps, internalRef };
 }
 
-export function useDayLabelState(index: number) {
+export function useDaysGridHeaderCellState(index: number) {
   const { locale, temporal: T } = useDatePicker();
 
   const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
 
-  const state = useMemo<DayLabelState>(
+  const state = useMemo<DaysGridHeaderCellState>(
     () => ({
       dayOfWeek: index,
       long: weekdayNames[index].long,

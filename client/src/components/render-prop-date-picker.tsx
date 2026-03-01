@@ -15,8 +15,8 @@ import {
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import {
-  StyledDayLabels,
-  StyledDayLabel,
+  StyledDaysGridHeader,
+  StyledDaysGridHeaderCellTemplate,
   StyledWeekTemplate,
   StyledDayTemplate,
 } from "@/components/ui/date-picker/styled";
@@ -144,9 +144,9 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
         className="w-full table-fixed border-collapse"
         data-testid="monthgrid"
       >
-        <StyledDayLabels>
-          <StyledDayLabel />
-        </StyledDayLabels>
+        <StyledDaysGridHeader>
+          <StyledDaysGridHeaderCellTemplate />
+        </StyledDaysGridHeader>
         <tbody>
           <StyledWeekTemplate>
             <StyledDayTemplate />

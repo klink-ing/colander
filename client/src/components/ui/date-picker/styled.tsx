@@ -5,8 +5,8 @@ import {
   WeekTemplate,
   DayCellTemplate,
   DayButtonTemplate,
-  DayLabels,
-  DayLabel,
+  DaysGridHeader,
+  DaysGridHeaderCellTemplate,
   MonthYearString,
   DateString,
   TimeString,
@@ -18,8 +18,8 @@ import type {
   WeekTemplateProps,
   DayCellTemplateProps,
   DayButtonTemplateProps,
-  DayLabelsProps,
-  DayLabelProps,
+  DaysGridHeaderProps,
+  DaysGridHeaderCellProps,
   MonthYearStringProps,
   DateStringProps,
   TimeStringProps,
@@ -130,19 +130,19 @@ export function StyledDaysGrid({
   );
 }
 
-export function StyledDayLabels({
+export function StyledDaysGridHeader({
   className,
   ...props
-}: DayLabelsProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
-  return <DayLabels {...props} className={cn("", className)} />;
+}: DaysGridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
+  return <DaysGridHeader {...props} className={cn("", className)} />;
 }
 
-export function StyledDayLabel({
+export function StyledDaysGridHeaderCellTemplate({
   className,
   ...props
-}: DayLabelProps & { ref?: React.Ref<HTMLTableCellElement> }) {
+}: DaysGridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> }) {
   return (
-    <DayLabel
+    <DaysGridHeaderCellTemplate
       {...props}
       className={cn(
         "h-9 w-9 text-center text-[0.8rem] font-normal text-muted-foreground",
