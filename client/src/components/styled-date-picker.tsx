@@ -1,8 +1,8 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type {
-  DatePickerValueFormat,
-  DatePickerTyped,
-  DatePickerRawValueForFormat,
+  ValueFormat,
+  TypedDatePicker,
+  RawValueForFormat,
 } from "@/components/ui/date-picker";
 import {
   StyledPrevMonthButton,
@@ -17,21 +17,21 @@ import {
 } from "@/components/ui/date-picker/styled";
 import { cn } from "@/lib/utils";
 
-interface StyledDatePickerProps<F extends DatePickerValueFormat> {
-  value?: DatePickerRawValueForFormat<F>;
-  defaultValue?: DatePickerRawValueForFormat<F>;
-  onValueChange?: (value: DatePickerRawValueForFormat<F> | undefined) => void;
-  min?: DatePickerRawValueForFormat<F>;
-  max?: DatePickerRawValueForFormat<F>;
+interface StyledDatePickerProps<F extends ValueFormat> {
+  value?: RawValueForFormat<F>;
+  defaultValue?: RawValueForFormat<F>;
+  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+  min?: RawValueForFormat<F>;
+  max?: RawValueForFormat<F>;
   disabled?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   className?: string;
-  components: DatePickerTyped<F>;
+  components: TypedDatePicker<F>;
 }
 
-export function StyledDatePicker<F extends DatePickerValueFormat>({
+export function StyledDatePicker<F extends ValueFormat>({
   value,
   defaultValue,
   onValueChange,

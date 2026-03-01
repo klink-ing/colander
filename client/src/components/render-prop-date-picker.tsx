@@ -1,8 +1,8 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type {
-  DatePickerValueFormat,
-  DatePickerRawValueForFormat,
-  DatePickerTyped,
+  ValueFormat,
+  RawValueForFormat,
+  TypedDatePicker,
 } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 
@@ -23,21 +23,21 @@ import {
 } from "@/components/ui/date-picker/styled";
 
 
-interface RenderPropDatePickerProps<F extends DatePickerValueFormat> {
-  value?: DatePickerRawValueForFormat<F>;
-  defaultValue?: DatePickerRawValueForFormat<F>;
-  onValueChange?: (value: DatePickerRawValueForFormat<F> | undefined) => void;
-  min?: DatePickerRawValueForFormat<F>;
-  max?: DatePickerRawValueForFormat<F>;
+interface RenderPropDatePickerProps<F extends ValueFormat> {
+  value?: RawValueForFormat<F>;
+  defaultValue?: RawValueForFormat<F>;
+  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+  min?: RawValueForFormat<F>;
+  max?: RawValueForFormat<F>;
   disabled?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   className?: string;
-  components: DatePickerTyped<F>;
+  components: TypedDatePicker<F>;
 }
 
-export function RenderPropDatePicker<F extends DatePickerValueFormat>({
+export function RenderPropDatePicker<F extends ValueFormat>({
   value,
   defaultValue,
   onValueChange,
