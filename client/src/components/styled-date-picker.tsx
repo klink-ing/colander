@@ -94,8 +94,8 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
           <DP.DayLabels className="contents">
             <DP.DayLabel className="flex h-9 w-9 items-center justify-center text-[0.8rem] font-normal text-muted-foreground" />
           </DP.DayLabels>
-          <DP.Week className="contents mt-0.5">
-            <DP.Day
+          <DP.WeekTemplate className="contents mt-0.5">
+            <DP.DayTemplate
               render={(props, state) => (
                 <button
                   {...props}
@@ -116,7 +116,7 @@ export function StyledDatePicker<F extends DatePickerValueFormat>({
                 />
               )}
             />
-          </DP.Week>
+          </DP.WeekTemplate>
         </DP.DaysGrid>
       </div>
     </DP.Root>

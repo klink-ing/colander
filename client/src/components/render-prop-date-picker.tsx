@@ -151,12 +151,11 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
           className="grid grid-cols-subgrid col-span-full pt-4"
           render={(props, state) => <div {...props} data-testid="monthgrid" />}
         >
-          <DP.Week
+          <DP.WeekTemplate
             className="grid col-span-full grid-cols-subgrid"
             render={(props, state) => <div {...props} />}
           >
-            yo
-            <DP.Day
+            <DP.DayTemplate
               render={(props, state) => (
                 <button
                   {...props}
@@ -177,7 +176,7 @@ export function RenderPropDatePicker<F extends DatePickerValueFormat>({
                 />
               )}
             />
-          </DP.Week>
+          </DP.WeekTemplate>
         </DP.DaysGrid>
       </div>
     </DP.Root>

@@ -7,11 +7,6 @@ import {
   useMemo,
   useCallback,
   useRef,
-  Children,
-  isValidElement,
-  cloneElement,
-  type ReactNode,
-  type ReactElement,
   type KeyboardEvent,
 } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
@@ -261,6 +256,11 @@ function useDatePicker() {
     );
   return ctx;
 }
+
+const WeekDataContext = createContext<{
+  days: Temporal.PlainDate[];
+  weekIndex: number;
+} | null>(null);
 
 type RootState<F extends ValueFormat = ValueFormat> = {
   hasSelection: boolean;
@@ -898,8 +898,13 @@ interface DayLabelOwnProps {
 type DayLabelProps = useRender.ComponentProps<"div", DayLabelState> &
   DayLabelOwnProps;
 
-function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
-  const { ref, render, index = 0, ...otherProps } = props;
+function DayLabelInstance(
+  props: Omit<DayLabelProps, "index"> & {
+    index: number;
+    ref?: React.Ref<HTMLDivElement>;
+  },
+) {
+  const { ref, render, index, ...otherProps } = props;
   const { locale, temporal: T } = useDatePicker();
 
   const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
@@ -942,6 +947,20 @@ function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
   });
 }
 
+function DayLabel(props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> }) {
+  const { index: indexProp, ...restProps } = props;
+  if (indexProp != null) {
+    return <DayLabelInstance {...restProps} index={indexProp} />;
+  }
+  return (
+    <>
+      {Array.from({ length: 7 }, (_, i) => (
+        <DayLabelInstance key={i} {...restProps} index={i} />
+      ))}
+    </>
+  );
+}
+
 type DayLabelsState = {};
 
 type DayLabelsProps = useRender.ComponentProps<"div", DayLabelsState>;
@@ -953,26 +972,9 @@ function DayLabels(
 
   const state = useMemo<DayLabelsState>(() => ({}), []);
 
-  let dayLabelTemplate: ReactElement | null = null;
-  Children.forEach(children, (child) => {
-    if (
-      isValidElement(child) &&
-      (child.type as any) === DayLabel &&
-      !dayLabelTemplate
-    ) {
-      dayLabelTemplate = child;
-    }
-  });
-
-  const resolvedChildren = dayLabelTemplate
-    ? Array.from({ length: 7 }, (_, i) =>
-        cloneElement(dayLabelTemplate!, { key: i, index: i }),
-      )
-    : Array.from({ length: 7 }, (_, i) => <DayLabel key={i} index={i} />);
-
   const defaultProps: Record<string, unknown> = {
     role: "row",
-    children: resolvedChildren,
+    children: children ?? <DayLabel />,
   };
 
   return useRender({
@@ -984,65 +986,21 @@ function DayLabels(
   });
 }
 
-type MonthGridState = {
+type DaysGridState = {
   month: number;
   year: number;
 };
 
-interface MonthGridOwnProps {
+interface DaysGridOwnProps {
   mode?: "grid";
 }
 
-type DaysGridProps = useRender.ComponentProps<"div", MonthGridState> &
-  MonthGridOwnProps;
-
-function buildTemplateChildren(
-  children: ReactNode,
-  weeks: Temporal.PlainDate[][],
-): ReactNode {
-  let dayLabelsTemplate: ReactElement | null = null;
-  let weekTemplate: ReactElement | null = null;
-  let dayTemplate: ReactElement | null = null;
-
-  Children.forEach(children, (child) => {
-    if (!isValidElement(child)) return;
-    if ((child.type as any) === DayLabels && !dayLabelsTemplate) {
-      dayLabelsTemplate = child;
-    } else if ((child.type as any) === Week && !weekTemplate) {
-      weekTemplate = child;
-      Children.forEach(child.props.children, (weekChild: ReactNode) => {
-        if (
-          isValidElement(weekChild) &&
-          (weekChild.type as any) === Day &&
-          !dayTemplate
-        ) {
-          dayTemplate = weekChild;
-        }
-      });
-    }
-  });
-
-  if (!weekTemplate || !dayTemplate) return null;
-
-  return (
-    <>
-      {dayLabelsTemplate}
-      {weeks.map((weekDays, wi) =>
-        cloneElement(weekTemplate!, {
-          key: wi,
-          children: weekDays.map((day) =>
-            cloneElement(dayTemplate!, { key: day.toString(), date: day }),
-          ),
-        }),
-      )}
-    </>
-  );
-}
+type DaysGridProps = useRender.ComponentProps<"div", DaysGridState> &
+  DaysGridOwnProps;
 
 function DaysGrid(props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> }) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
   const {
-    weeks,
     focusedDate,
     setFocusedDate,
     onSelect,
@@ -1053,7 +1011,7 @@ function DaysGrid(props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> }) {
     temporal: T,
   } = useDatePicker();
 
-  const state = useMemo<MonthGridState>(
+  const state = useMemo<DaysGridState>(
     () => ({ month: currentMonth.month, year: currentMonth.year }),
     [currentMonth],
   );
@@ -1096,30 +1054,20 @@ function DaysGrid(props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> }) {
     [focusedDate, setFocusedDate, onSelect, disabled, minValue, maxValue, T],
   );
 
-  const bareDefaultChildren = (
-    <>
-      <DayLabels>
-        <DayLabel />
-      </DayLabels>
-      {weeks.map((weekDays, i) => (
-        <Week key={i}>
-          {weekDays.map((day) => (
-            <Day key={day.toString()} date={day} />
-          ))}
-        </Week>
-      ))}
-    </>
-  );
-
-  const resolvedChildren = children
-    ? (buildTemplateChildren(children, weeks) ?? bareDefaultChildren)
-    : bareDefaultChildren;
-
   const defaultProps: Record<string, unknown> = {
     role: "grid",
     "aria-label": "Calendar",
     onKeyDown: handleKeyDown,
-    children: resolvedChildren,
+    children: children ?? (
+      <>
+        <DayLabels>
+          <DayLabel />
+        </DayLabels>
+        <WeekTemplate>
+          <DayTemplate />
+        </WeekTemplate>
+      </>
+    ),
   };
 
   return useRender({
@@ -1131,14 +1079,29 @@ function DaysGrid(props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> }) {
   });
 }
 
-type WeekState = {};
+type WeekTemplateState = {
+  weekIndex: number;
+};
 
-type WeekProps = useRender.ComponentProps<"div", WeekState>;
+type WeekTemplateProps = useRender.ComponentProps<"div", WeekTemplateState>;
 
-function Week(props: WeekProps & { ref?: React.Ref<HTMLDivElement> }) {
+function WeekTemplateInstance(
+  props: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> },
+) {
   const { ref, render, ...otherProps } = props;
+  const weekData = useContext(WeekDataContext)!;
 
-  const state = useMemo<WeekState>(() => ({}), []);
+  const state = useMemo<WeekTemplateState>(
+    () => ({ weekIndex: weekData.weekIndex }),
+    [weekData.weekIndex],
+  );
+
+  const stateAttributesMapping = useMemo(
+    () => ({
+      weekIndex: () => null,
+    }),
+    [],
+  );
 
   const defaultProps: Record<string, unknown> = {
     role: "row",
@@ -1149,11 +1112,31 @@ function Week(props: WeekProps & { ref?: React.Ref<HTMLDivElement> }) {
     render,
     ref: ref ? [ref] : [],
     state,
+    stateAttributesMapping,
     props: mergeProps<"div">(defaultProps, otherProps),
   });
 }
 
-type DayState = {
+function WeekTemplate(
+  props: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> },
+) {
+  const { weeks } = useDatePicker();
+
+  return (
+    <>
+      {weeks.map((weekDays, i) => (
+        <WeekDataContext.Provider
+          key={i}
+          value={{ days: weekDays, weekIndex: i }}
+        >
+          <WeekTemplateInstance {...props} />
+        </WeekDataContext.Provider>
+      ))}
+    </>
+  );
+}
+
+type DayTemplateState = {
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -1161,14 +1144,20 @@ type DayState = {
   focused: boolean;
 };
 
-interface DayOwnProps {
+interface DayTemplateOwnProps {
   date?: Temporal.PlainDate;
 }
 
-type DayProps = useRender.ComponentProps<"button", DayState> & DayOwnProps;
+type DayTemplateProps = useRender.ComponentProps<"button", DayTemplateState> &
+  DayTemplateOwnProps;
 
-function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
-  const { ref, render, date: dateProp, ...otherProps } = props;
+function DayTemplateInstance(
+  props: Omit<DayTemplateProps, "date"> & {
+    date: Temporal.PlainDate;
+    ref?: React.Ref<HTMLButtonElement>;
+  },
+) {
+  const { ref, render, date, ...otherProps } = props;
   const {
     selected,
     onSelect,
@@ -1181,8 +1170,6 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
     temporal: T,
   } = useDatePicker();
   const internalRef = useRef<HTMLButtonElement>(null);
-
-  const date = dateProp ?? T.Now.plainDateISO();
 
   const today = useMemo(() => T.Now.plainDateISO(), [T]);
   const selZdt = selectedToZdt(selected, timeZone, T);
@@ -1199,7 +1186,7 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
     }
   }, [isFocused]);
 
-  const state = useMemo<DayState>(
+  const state = useMemo<DayTemplateState>(
     () => ({
       selected: isSelected,
       today: isToday,
@@ -1252,11 +1239,32 @@ function Day(props: DayProps & { ref?: React.Ref<HTMLButtonElement> }) {
   });
 }
 
+function DayTemplate(
+  props: DayTemplateProps & { ref?: React.Ref<HTMLButtonElement> },
+) {
+  const { date: dateProp, ...restProps } = props;
+  const weekData = useContext(WeekDataContext);
+  const { weeks } = useDatePicker();
+
+  if (dateProp) {
+    return <DayTemplateInstance {...restProps} date={dateProp} />;
+  }
+
+  const days = weekData ? weekData.days : weeks.flat();
+  return (
+    <>
+      {days.map((day) => (
+        <DayTemplateInstance key={day.toString()} {...restProps} date={day} />
+      ))}
+    </>
+  );
+}
+
 export const DatePicker = {
   Root,
-  MonthGrid: DaysGrid,
-  Week,
-  Day,
+  DaysGrid,
+  WeekTemplate,
+  DayTemplate,
   DayLabels,
   DayLabel,
   DateString,
@@ -1275,8 +1283,8 @@ type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 interface TypedDatePicker<F extends ValueFormat> {
   Root: typeof Root<F>;
   DaysGrid: typeof DaysGrid;
-  Week: typeof Week;
-  Day: typeof Day;
+  WeekTemplate: typeof WeekTemplate;
+  DayTemplate: typeof DayTemplate;
   DayLabels: typeof DayLabels;
   DayLabel: typeof DayLabel;
   DateString: typeof DateString;
@@ -1304,9 +1312,9 @@ function createDatePicker<F extends ValueFormat>(
 
   return {
     Root: TypedRoot,
-    DaysGrid: DaysGrid,
-    Week,
-    Day,
+    DaysGrid,
+    WeekTemplate,
+    DayTemplate,
     DayLabels,
     DayLabel,
     DateString,
@@ -1322,12 +1330,12 @@ export { useDatePicker, createDatePicker };
 export type {
   RootProps as DatePickerRootProps,
   RootState as DatePickerRootState,
-  DaysGridProps as DatePickerMonthGridProps,
-  MonthGridState as DatePickerMonthGridState,
-  WeekProps as DatePickerWeekProps,
-  WeekState as DatePickerWeekState,
-  DayProps as DatePickerDayProps,
-  DayState as DatePickerDayState,
+  DaysGridProps as DatePickerDaysGridProps,
+  DaysGridState as DatePickerDaysGridState,
+  WeekTemplateProps as DatePickerWeekTemplateProps,
+  WeekTemplateState as DatePickerWeekTemplateState,
+  DayTemplateProps as DatePickerDayTemplateProps,
+  DayTemplateState as DatePickerDayTemplateState,
   DayLabelsProps as DatePickerDayLabelsProps,
   DayLabelsState as DatePickerDayLabelsState,
   DayLabelProps as DatePickerDayLabelProps,
