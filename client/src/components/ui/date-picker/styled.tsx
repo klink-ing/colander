@@ -15,6 +15,7 @@ import {
   NextMonthButton,
 } from "./index";
 import type {
+  ValueFormat,
   GridProps,
   GridBodyProps,
   WeekTemplateProps,
@@ -29,14 +30,14 @@ import type {
   NextMonthButtonProps,
 } from "./types";
 
-export function StyledPrevMonthButton({
+export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+}: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <PrevMonthButton
       data-testid="button-prev-month"
-      {...props}
+      {...(props as PrevMonthButtonProps)}
       className={cn(
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
@@ -51,14 +52,14 @@ export function StyledPrevMonthButton({
   );
 }
 
-export function StyledNextMonthButton({
+export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+}: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <NextMonthButton
       data-testid="button-next-month"
-      {...props}
+      {...(props as NextMonthButtonProps)}
       className={cn(
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
@@ -73,67 +74,70 @@ export function StyledNextMonthButton({
   );
 }
 
-export function StyledMonthYearString({
+export function StyledMonthYearString<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+}: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
   return (
     <MonthYearString
       data-testid="text-current-month"
-      {...props}
+      {...(props as MonthYearStringProps)}
       className={cn("text-sm font-medium", className)}
     />
   );
 }
 
-export function StyledDateString({
+export function StyledDateString<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: DateStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+}: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
   return (
-    <DateString {...props} className={cn("text-xs text-muted-foreground", className)} />
+    <DateString
+      {...(props as DateStringProps)}
+      className={cn("text-xs text-muted-foreground", className)}
+    />
   );
 }
 
-export function StyledTimeString({
+export function StyledTimeString<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> }) {
+}: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
   return (
     <TimeString
-      {...props}
+      {...(props as TimeStringProps)}
       className={cn("text-sm text-muted-foreground", className)}
     />
   );
 }
 
-export function StyledGrid({
+export function StyledGrid<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridProps & { ref?: React.Ref<HTMLTableElement> }) {
+}: GridProps<F> & { ref?: React.Ref<HTMLTableElement> }) {
   return (
     <Grid
       mode="grid"
-      {...props}
+      {...(props as GridProps)}
       className={cn("w-full table-fixed border-collapse", className)}
     />
   );
 }
 
-export function StyledGridHeader({
+export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
-  return <GridHeader {...props} className={cn("", className)} />;
+}: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
+  return <GridHeader {...(props as GridHeaderProps)} className={cn("", className)} />;
 }
 
-export function StyledGridHeaderCell({
+export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> }) {
+}: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> }) {
   return (
     <GridHeaderCell
-      {...props}
+      {...(props as GridHeaderCellProps)}
       className={cn(
         "h-9 w-9 text-center text-[0.8rem] font-normal text-muted-foreground",
         className,
@@ -142,36 +146,41 @@ export function StyledGridHeaderCell({
   );
 }
 
-export function StyledGridBody({
+export function StyledGridBody<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridBodyProps & { ref?: React.Ref<HTMLTableSectionElement> }) {
-  return <GridBody {...props} className={cn("", className)} />;
+}: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
+  return <GridBody {...(props as GridBodyProps)} className={cn("", className)} />;
 }
 
-export function StyledWeekTemplate({
+export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> }) {
+}: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> }) {
   return (
-    <WeekTemplate {...props} className={cn("", className)} />
+    <WeekTemplate {...(props as WeekTemplateProps)} className={cn("", className)} />
   );
 }
 
-export function StyledDayCellTemplate({
+export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: DayCellTemplateProps & { ref?: React.Ref<HTMLTableCellElement> }) {
-  return <DayCellTemplate {...props} className={cn("text-center", className)} />;
+}: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> }) {
+  return (
+    <DayCellTemplate
+      {...(props as DayCellTemplateProps)}
+      className={cn("text-center", className)}
+    />
+  );
 }
 
-export function StyledDayButton({
+export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> }) {
+}: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
   return (
     <DayButton
-      {...props}
+      {...(props as DayButtonProps)}
       className={cn(
         "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
@@ -186,7 +195,7 @@ export function StyledDayButton({
   );
 }
 
-export function StyledDayTemplate({
+export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
   cellClassName,
   buttonClassName,
   cellRef,
@@ -199,9 +208,11 @@ export function StyledDayTemplate({
   buttonRef?: React.Ref<HTMLButtonElement>;
   date?: import("@js-temporal/polyfill").Temporal.PlainDate;
 }) {
+  const Cell = StyledDayCellTemplate<F>;
+  const Button = StyledDayButton<F>;
   return (
-    <StyledDayCellTemplate ref={cellRef} className={cellClassName} date={date}>
-      <StyledDayButton ref={buttonRef} className={buttonClassName} />
-    </StyledDayCellTemplate>
+    <Cell ref={cellRef} className={cellClassName} date={date}>
+      <Button ref={buttonRef} className={buttonClassName} />
+    </Cell>
   );
 }
