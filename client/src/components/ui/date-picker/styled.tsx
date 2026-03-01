@@ -29,7 +29,6 @@ import type {
   PrevMonthButtonProps,
   NextMonthButtonProps,
 } from "./types";
-import type { createDatePicker } from "@/components/ui/date-picker";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,
@@ -191,7 +190,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       {...(props as DayButtonProps)}
       className={cn(
         "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:z-10",
+        "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-foreground hover:bg-accent hover:text-accent-foreground",
         "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
         "data-[today]:bg-accent data-[today]:text-accent-foreground",

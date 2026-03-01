@@ -2,7 +2,6 @@ import { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   RawValueForFormat,
-  CreateDatePickerReturn,
 } from "@/components/ui/date-picker";
 import {
   StyledPrevMonthButton,

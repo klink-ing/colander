@@ -57,12 +57,9 @@ describe("computeNextFocusDate", () => {
       ["ArrowUp", "2026-04-05", "2026-03-29"],
       ["ArrowRight", "2026-12-31", "2027-01-01"],
       ["ArrowLeft", "2027-01-01", "2026-12-31"],
-    ] as const)(
-      "%s from %s → %s",
-      (key, focused, expected) => {
-        expectMove(nav({ key, focusedDate: date(focused) }), expected);
-      },
-    );
+    ] as const)("%s from %s → %s", (key, focused, expected) => {
+      expectMove(nav({ key, focusedDate: date(focused) }), expected);
+    });
   });
 
   describe("Home — move to Sunday of current week", () => {
@@ -74,17 +71,11 @@ describe("computeNextFocusDate", () => {
       ["2026-03-20", "2026-03-15"],
       ["2026-03-21", "2026-03-15"],
       ["2026-04-01", "2026-03-29"],
-    ] as const)(
-      "from %s → %s",
-      (focused, expected) => {
-        expectMove(nav({ key: "Home", focusedDate: date(focused) }), expected);
-      },
-    );
+    ] as const)("from %s → %s", (focused, expected) => {
+      expectMove(nav({ key: "Home", focusedDate: date(focused) }), expected);
+    });
 
-    it.each([
-      "2026-03-15",
-      "2026-03-22",
-    ] as const)(
+    it.each(["2026-03-15", "2026-03-22"] as const)(
       "from %s (already Sunday) → none",
       (focused) => {
         expectNone(nav({ key: "Home", focusedDate: date(focused) }));
@@ -98,12 +89,9 @@ describe("computeNextFocusDate", () => {
       ["2026-03-16", "2026-03-21"],
       ["2026-03-22", "2026-03-28"],
       ["2026-03-29", "2026-04-04"],
-    ] as const)(
-      "from %s → %s",
-      (focused, expected) => {
-        expectMove(nav({ key: "End", focusedDate: date(focused) }), expected);
-      },
-    );
+    ] as const)("from %s → %s", (focused, expected) => {
+      expectMove(nav({ key: "End", focusedDate: date(focused) }), expected);
+    });
 
     it("from 2026-03-21 (already Saturday) → none", () => {
       expectNone(nav({ key: "End", focusedDate: date("2026-03-21") }));
@@ -118,15 +106,12 @@ describe("computeNextFocusDate", () => {
       ["2026-12-15", "2027-01-15"],
       ["2026-03-31", "2026-04-30"],
       ["2026-05-31", "2026-06-30"],
-    ] as const)(
-      "from %s → %s (day constrained)",
-      (focused, expected) => {
-        expectMove(
-          nav({ key: "PageDown", focusedDate: date(focused) }),
-          expected,
-        );
-      },
-    );
+    ] as const)("from %s → %s (day constrained)", (focused, expected) => {
+      expectMove(
+        nav({ key: "PageDown", focusedDate: date(focused) }),
+        expected,
+      );
+    });
   });
 
   describe("PageUp — previous month", () => {
@@ -136,15 +121,9 @@ describe("computeNextFocusDate", () => {
       ["2024-03-31", "2024-02-29"],
       ["2026-01-15", "2025-12-15"],
       ["2026-05-31", "2026-04-30"],
-    ] as const)(
-      "from %s → %s (day constrained)",
-      (focused, expected) => {
-        expectMove(
-          nav({ key: "PageUp", focusedDate: date(focused) }),
-          expected,
-        );
-      },
-    );
+    ] as const)("from %s → %s (day constrained)", (focused, expected) => {
+      expectMove(nav({ key: "PageUp", focusedDate: date(focused) }), expected);
+    });
   });
 
   describe("Shift+PageDown — next year", () => {
@@ -323,7 +302,11 @@ describe("computeNextFocusDate", () => {
 
     it("ArrowDown clamps to max when target exceeds max", () => {
       expectMove(
-        nav({ key: "ArrowDown", focusedDate: date("2026-03-18"), maxValue: max }),
+        nav({
+          key: "ArrowDown",
+          focusedDate: date("2026-03-18"),
+          maxValue: max,
+        }),
         "2026-03-20",
       );
     });
@@ -375,54 +358,94 @@ describe("computeNextFocusDate", () => {
 
     it("ArrowRight from 2026-03-15 → 2026-03-16 (within window)", () => {
       expectMove(
-        nav({ key: "ArrowRight", focusedDate: date("2026-03-15"), minValue: min, maxValue: max }),
+        nav({
+          key: "ArrowRight",
+          focusedDate: date("2026-03-15"),
+          minValue: min,
+          maxValue: max,
+        }),
         "2026-03-16",
       );
     });
 
     it("ArrowLeft from 2026-03-15 → 2026-03-14 (within window)", () => {
       expectMove(
-        nav({ key: "ArrowLeft", focusedDate: date("2026-03-15"), minValue: min, maxValue: max }),
+        nav({
+          key: "ArrowLeft",
+          focusedDate: date("2026-03-15"),
+          minValue: min,
+          maxValue: max,
+        }),
         "2026-03-14",
       );
     });
 
     it("ArrowRight from max boundary is none", () => {
       expectNone(
-        nav({ key: "ArrowRight", focusedDate: max, minValue: min, maxValue: max }),
+        nav({
+          key: "ArrowRight",
+          focusedDate: max,
+          minValue: min,
+          maxValue: max,
+        }),
       );
     });
 
     it("ArrowLeft from min boundary is none", () => {
       expectNone(
-        nav({ key: "ArrowLeft", focusedDate: min, minValue: min, maxValue: max }),
+        nav({
+          key: "ArrowLeft",
+          focusedDate: min,
+          minValue: min,
+          maxValue: max,
+        }),
       );
     });
 
     it("PageDown clamps to max in narrow window", () => {
       expectMove(
-        nav({ key: "PageDown", focusedDate: date("2026-03-15"), minValue: min, maxValue: max }),
+        nav({
+          key: "PageDown",
+          focusedDate: date("2026-03-15"),
+          minValue: min,
+          maxValue: max,
+        }),
         "2026-03-16",
       );
     });
 
     it("PageUp clamps to min in narrow window", () => {
       expectMove(
-        nav({ key: "PageUp", focusedDate: date("2026-03-15"), minValue: min, maxValue: max }),
+        nav({
+          key: "PageUp",
+          focusedDate: date("2026-03-15"),
+          minValue: min,
+          maxValue: max,
+        }),
         "2026-03-14",
       );
     });
 
     it("ArrowDown from 2026-03-15 clamps to max", () => {
       expectMove(
-        nav({ key: "ArrowDown", focusedDate: date("2026-03-15"), minValue: min, maxValue: max }),
+        nav({
+          key: "ArrowDown",
+          focusedDate: date("2026-03-15"),
+          minValue: min,
+          maxValue: max,
+        }),
         "2026-03-16",
       );
     });
 
     it("ArrowUp from 2026-03-15 clamps to min", () => {
       expectMove(
-        nav({ key: "ArrowUp", focusedDate: date("2026-03-15"), minValue: min, maxValue: max }),
+        nav({
+          key: "ArrowUp",
+          focusedDate: date("2026-03-15"),
+          minValue: min,
+          maxValue: max,
+        }),
         "2026-03-14",
       );
     });
@@ -444,11 +467,8 @@ describe("computeMonthJumpTarget", () => {
     ["2024-02-29", -12, "2023-02-28"],
     ["2026-03-15", 24, "2028-03-15"],
     ["2026-03-15", -24, "2024-03-15"],
-  ] as const)(
-    "from %s + %d months → %s",
-    (focused, months, expected) => {
-      const result = computeMonthJumpTarget(date(focused), months, T);
-      expect(result.toString()).toBe(expected);
-    },
-  );
+  ] as const)("from %s + %d months → %s", (focused, months, expected) => {
+    const result = computeMonthJumpTarget(date(focused), months, T);
+    expect(result.toString()).toBe(expected);
+  });
 });

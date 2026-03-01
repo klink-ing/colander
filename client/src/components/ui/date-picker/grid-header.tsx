@@ -53,7 +53,10 @@ export function GridHeader<F extends ValueFormat = ValueFormat>(
   const { ref, render, children, ...otherProps } = props;
   const { rootState } = useDatePicker<F>();
 
-  const state = useMemo<GridHeaderState<F>>(() => ({ root: rootState }), [rootState]);
+  const state = useMemo<GridHeaderState<F>>(
+    () => ({ root: rootState }),
+    [rootState],
+  );
 
   const stateAttributesMapping = useMemo(
     () => ({

@@ -67,7 +67,13 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
   props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { selected, timeZone, locale, temporal: T, rootState } = useDatePicker<F>();
+  const {
+    selected,
+    timeZone,
+    locale,
+    temporal: T,
+    rootState,
+  } = useDatePicker<F>();
 
   const selZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selZdt
@@ -121,7 +127,8 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
   props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentDateTime, locale, setGridLabelId, rootState } = useDatePicker<F>();
+  const { currentDateTime, locale, setGridLabelId, rootState } =
+    useDatePicker<F>();
 
   const id = useId();
 
@@ -130,7 +137,11 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
     return () => setGridLabelId(undefined);
   }, [id, setGridLabelId]);
 
-  const displayDate = new Date(currentDateTime.year, currentDateTime.month - 1, 1);
+  const displayDate = new Date(
+    currentDateTime.year,
+    currentDateTime.month - 1,
+    1,
+  );
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
     year: "numeric",
@@ -141,7 +152,11 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
   );
 
   const state = useMemo<MonthYearStringState<F>>(
-    () => ({ root: rootState, month: currentDateTime.month, year: currentDateTime.year }),
+    () => ({
+      root: rootState,
+      month: currentDateTime.month,
+      year: currentDateTime.year,
+    }),
     [rootState, currentDateTime.month, currentDateTime.year],
   );
 
@@ -165,7 +180,8 @@ export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
   props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } = useNavButton<F>("prev");
+  const { state, stateAttributesMapping, defaultProps } =
+    useNavButton<F>("prev");
 
   return useRender({
     defaultTagName: "button",
@@ -181,7 +197,8 @@ export function NextMonthButton<F extends ValueFormat = ValueFormat>(
   props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } = useNavButton<F>("next");
+  const { state, stateAttributesMapping, defaultProps } =
+    useNavButton<F>("next");
 
   return useRender({
     defaultTagName: "button",

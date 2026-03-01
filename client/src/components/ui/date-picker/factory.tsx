@@ -19,7 +19,6 @@ import {
 import type {
   ValueFormat,
   CreateDatePickerOptions,
-  ValueForFormat,
 } from "./types";
 
 export function createDatePicker<F extends ValueFormat>(

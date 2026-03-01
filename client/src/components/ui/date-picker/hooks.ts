@@ -151,7 +151,7 @@ export function useRootState<F extends ValueFormat>(
     ) {
       setCurrentMonth({ year: focusedDate.year, month: focusedDate.month });
     }
-  }, [focusedDate]);
+  }, [focusedDate, currentMonth.month, currentMonth.year]);
 
   useEffect(() => {
     if (!selected) return;
@@ -181,13 +181,19 @@ export function useRootState<F extends ValueFormat>(
       const newTagged = fromZonedDateTime(newZdt, resolvedFormat, T);
       if (!value) setInternalSelected(newTagged);
       setCurrentMonth({ year: date.year, month: date.month });
-      (
-        onValueChange as
-          | ((v: DateValueObject["value"]) => void)
-          | undefined
-      )?.(newTagged.value);
+      (onValueChange as ((v: DateValueObject["value"]) => void) | undefined)?.(
+        newTagged.value,
+      );
     },
-    [value, selectedZdt, onValueChange, resolvedFormat, isDateDisabled, timeZone, T],
+    [
+      value,
+      selectedZdt,
+      onValueChange,
+      resolvedFormat,
+      isDateDisabled,
+      timeZone,
+      T,
+    ],
   );
 
   const goToNextMonth = useCallback(() => {
@@ -230,7 +236,7 @@ export function useRootState<F extends ValueFormat>(
         },
         { overflow: "constrain" },
       ),
-    [currentMonth, focusedDate.day, selectedZdt],
+    [currentMonth, focusedDate.day, selectedZdt, T.PlainDateTime.from],
   );
 
   const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
@@ -318,7 +324,9 @@ export function useRootState<F extends ValueFormat>(
   return { ctx, state, stateAttributesMapping };
 }
 
-export function useNavButton<F extends ValueFormat = ValueFormat>(direction: "prev" | "next") {
+export function useNavButton<F extends ValueFormat = ValueFormat>(
+  direction: "prev" | "next",
+) {
   const {
     goToPrevMonth,
     goToNextMonth,
@@ -438,7 +446,16 @@ export function useGridKeyboard() {
         onSelect(focusedDate);
       }
     },
-    [focusedDate, setFocusedDate, onSelect, disabled, isDateDisabled, minValue, maxValue, T],
+    [
+      focusedDate,
+      setFocusedDate,
+      onSelect,
+      disabled,
+      isDateDisabled,
+      minValue,
+      maxValue,
+      T,
+    ],
   );
 }
 
@@ -474,7 +491,9 @@ const dayStateAttributesMapping = {
   focused: (v: boolean) => (v ? { "data-focused": "" } : null),
 };
 
-export function useDayCellState<F extends ValueFormat = ValueFormat>(date: Temporal.PlainDate) {
+export function useDayCellState<F extends ValueFormat = ValueFormat>(
+  date: Temporal.PlainDate,
+) {
   const { rootState } = useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
@@ -497,17 +516,18 @@ export function useDayCellState<F extends ValueFormat = ValueFormat>(date: Tempo
     "aria-disabled": isDisabled || undefined,
   };
 
-  return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps };
+  return {
+    state,
+    stateAttributesMapping: dayStateAttributesMapping,
+    defaultProps,
+  };
 }
 
-export function useDayButtonState<F extends ValueFormat = ValueFormat>(date: Temporal.PlainDate) {
-  const {
-    onSelect,
-    focusedDate,
-    setFocusedDate,
-    locale,
-    rootState,
-  } = useDatePicker<F>();
+export function useDayButtonState<F extends ValueFormat = ValueFormat>(
+  date: Temporal.PlainDate,
+) {
+  const { onSelect, setFocusedDate, locale, rootState } =
+    useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
   const internalRef = useRef<HTMLButtonElement>(null);
@@ -548,10 +568,17 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(date: Tem
     children: date.day,
   };
 
-  return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps, internalRef };
+  return {
+    state,
+    stateAttributesMapping: dayStateAttributesMapping,
+    defaultProps,
+    internalRef,
+  };
 }
 
-export function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(index: number) {
+export function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
+  index: number,
+) {
   const { locale, temporal: T, rootState } = useDatePicker<F>();
 
   const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);

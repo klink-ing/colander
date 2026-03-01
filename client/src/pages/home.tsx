@@ -100,7 +100,12 @@ export default function Home() {
     (value: string) => {
       if (!value) return;
       const pd = Temporal.PlainDate.from(value);
-      setMinDate(pd.toZonedDateTime({ timeZone, plainTime: Temporal.PlainTime.from("00:00") }));
+      setMinDate(
+        pd.toZonedDateTime({
+          timeZone,
+          plainTime: Temporal.PlainTime.from("00:00"),
+        }),
+      );
     },
     [timeZone],
   );
@@ -109,7 +114,12 @@ export default function Home() {
     (value: string) => {
       if (!value) return;
       const pd = Temporal.PlainDate.from(value);
-      setMaxDate(pd.toZonedDateTime({ timeZone, plainTime: Temporal.PlainTime.from("23:59") }));
+      setMaxDate(
+        pd.toZonedDateTime({
+          timeZone,
+          plainTime: Temporal.PlainTime.from("23:59"),
+        }),
+      );
     },
     [timeZone],
   );
@@ -150,12 +160,12 @@ export default function Home() {
     "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6 gap-6">
-      <div className="w-full max-w-2xl flex gap-4">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-6">
+      <div className="flex w-full max-w-2xl gap-4">
         <div className="flex-1">
           <label
             htmlFor="timezone-select"
-            className="block text-sm font-medium text-foreground mb-1.5"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Timezone
           </label>
@@ -177,7 +187,7 @@ export default function Home() {
         <div className="flex-1">
           <label
             htmlFor="locale-select"
-            className="block text-sm font-medium text-foreground mb-1.5"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Locale
           </label>
@@ -197,11 +207,11 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="w-full max-w-2xl flex gap-4">
+      <div className="flex w-full max-w-2xl gap-4">
         <div className="flex-1">
           <label
             htmlFor="min-date"
-            className="block text-sm font-medium text-foreground mb-1.5"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Min Date
           </label>
@@ -218,7 +228,7 @@ export default function Home() {
         <div className="flex-1">
           <label
             htmlFor="max-date"
-            className="block text-sm font-medium text-foreground mb-1.5"
+            className="mb-1.5 block text-sm font-medium text-foreground"
           >
             Max Date
           </label>
@@ -233,8 +243,8 @@ export default function Home() {
         </div>
       </div>
 
-      <div className="flex items-start justify-center gap-4 flex-wrap">
-        <div className="w-min ">
+      <div className="flex flex-wrap items-start justify-center gap-4">
+        <div className="w-min">
           Styled DatePicker
           {formatDisplay(selectedDate)}
           <StyledDatePicker
