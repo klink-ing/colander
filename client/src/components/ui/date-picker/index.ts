@@ -1,6 +1,6 @@
 export { Root, RootInner } from "./root";
 export { DaysGrid, WeekTemplate, DayTemplate } from "./grid";
-export { DayLabels, DayLabel } from "./labels";
+export { DayLabels, DayLabelTemplate as DayLabel } from "./labels";
 export {
   DateString,
   TimeString,
@@ -21,7 +21,7 @@ export {
 
 import { Root } from "./root";
 import { DaysGrid, WeekTemplate, DayTemplate } from "./grid";
-import { DayLabels, DayLabel } from "./labels";
+import { DayLabels, DayLabelTemplate } from "./labels";
 import {
   DateString,
   TimeString,
@@ -36,7 +36,7 @@ export const DatePicker = {
   WeekTemplate,
   DayTemplate,
   DayLabels,
-  DayLabel,
+  DayLabel: DayLabelTemplate,
   DateString,
   TimeString,
   MonthString,

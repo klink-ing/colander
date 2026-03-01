@@ -8,7 +8,7 @@ import type {
   DayLabelsProps,
 } from "./types";
 
-function DayInstance(
+function DayLabelInstance(
   props: Omit<DayLabelProps, "index"> & {
     index: number;
     ref?: React.Ref<HTMLDivElement>;
@@ -28,17 +28,17 @@ function DayInstance(
   });
 }
 
-export function DayLabel(
+export function DayLabelTemplate(
   props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
   if (indexProp != null) {
-    return <DayInstance {...restProps} index={indexProp} />;
+    return <DayLabelInstance {...restProps} index={indexProp} />;
   }
   return (
     <>
       {Array.from({ length: 7 }, (_, i) => (
-        <DayInstance key={i} {...restProps} index={i} />
+        <DayLabelInstance key={i} {...restProps} index={i} />
       ))}
     </>
   );
@@ -53,7 +53,7 @@ export function DayLabels(
 
   const defaultProps: Record<string, unknown> = {
     role: "row",
-    children: children ?? <DayLabel />,
+    children: children ?? <DayLabelTemplate />,
   };
 
   return useRender({

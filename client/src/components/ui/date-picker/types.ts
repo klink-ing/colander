@@ -232,7 +232,7 @@ export interface TypedDatePicker<F extends ValueFormat> {
   DayLabels: (
     props: DayLabelsProps & { ref?: React.Ref<HTMLDivElement> },
   ) => React.ReactElement;
-  DayLabel: (
+  DayLabelTemplate: (
     props: DayLabelProps & { ref?: React.Ref<HTMLDivElement> },
   ) => React.ReactElement;
   DateString: (

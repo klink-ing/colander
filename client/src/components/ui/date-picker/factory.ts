@@ -2,7 +2,7 @@ import { createElement } from "react";
 import { resolveTemporal } from "./utils";
 import { RootInner } from "./root";
 import { DaysGrid, WeekTemplate, DayTemplate } from "./grid";
-import { DayLabels, DayLabel } from "./labels";
+import { DayLabels, DayLabelTemplate } from "./labels";
 import {
   DateString,
   TimeString,
@@ -39,7 +39,7 @@ export function createDatePicker<F extends ValueFormat>(
     WeekTemplate,
     DayTemplate,
     DayLabels,
-    DayLabel,
+    DayLabelTemplate,
     DateString,
     TimeString,
     MonthString,

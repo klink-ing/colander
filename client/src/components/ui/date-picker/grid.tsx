@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker, WeekDataContext } from "./context";
 import { useDaysGridKeyboard, useDayTemplateState } from "./hooks";
-import { DayLabels, DayLabel } from "./labels";
+import { DayLabels, DayLabelTemplate } from "./labels";
 import type {
   DaysGridState,
   DaysGridProps,
@@ -31,7 +31,7 @@ export function DaysGrid(
     children: children ?? (
       <>
         <DayLabels>
-          <DayLabel />
+          <DayLabelTemplate />
         </DayLabels>
         <WeekTemplate>
           <DayTemplate />
