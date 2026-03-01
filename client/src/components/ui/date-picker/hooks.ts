@@ -318,7 +318,7 @@ export function useRootState<F extends ValueFormat>(
   return { ctx, state, stateAttributesMapping };
 }
 
-export function useNavButton(direction: "prev" | "next") {
+export function useNavButton<F extends ValueFormat = ValueFormat>(direction: "prev" | "next") {
   const {
     goToPrevMonth,
     goToNextMonth,
@@ -329,7 +329,7 @@ export function useNavButton(direction: "prev" | "next") {
     locale,
     temporal: T,
     rootState,
-  } = useDatePicker();
+  } = useDatePicker<F>();
 
   const destMonth =
     direction === "prev"
@@ -378,7 +378,7 @@ export function useNavButton(direction: "prev" | "next") {
     [destYear, destMonth, T, localeCalendar],
   );
 
-  const state = useMemo<NavButtonState>(
+  const state = useMemo<NavButtonState<F>>(
     () => ({ root: rootState, direction, disabled: isDisabled, target }),
     [rootState, direction, isDisabled, target],
   );
@@ -474,12 +474,12 @@ const dayStateAttributesMapping = {
   focused: (v: boolean) => (v ? { "data-focused": "" } : null),
 };
 
-export function useDayCellState(date: Temporal.PlainDate) {
-  const { rootState } = useDatePicker();
+export function useDayCellState<F extends ValueFormat = ValueFormat>(date: Temporal.PlainDate) {
+  const { rootState } = useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
 
-  const state = useMemo<DayCellTemplateState>(
+  const state = useMemo<DayCellTemplateState<F>>(
     () => ({
       root: rootState,
       selected: isSelected,
@@ -500,14 +500,14 @@ export function useDayCellState(date: Temporal.PlainDate) {
   return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps };
 }
 
-export function useDayButtonState(date: Temporal.PlainDate) {
+export function useDayButtonState<F extends ValueFormat = ValueFormat>(date: Temporal.PlainDate) {
   const {
     onSelect,
     focusedDate,
     setFocusedDate,
     locale,
     rootState,
-  } = useDatePicker();
+  } = useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
   const internalRef = useRef<HTMLButtonElement>(null);
@@ -518,7 +518,7 @@ export function useDayButtonState(date: Temporal.PlainDate) {
     }
   }, [isFocused]);
 
-  const state = useMemo<DayButtonState>(
+  const state = useMemo<DayButtonState<F>>(
     () => ({
       root: rootState,
       selected: isSelected,
@@ -551,12 +551,12 @@ export function useDayButtonState(date: Temporal.PlainDate) {
   return { state, stateAttributesMapping: dayStateAttributesMapping, defaultProps, internalRef };
 }
 
-export function useGridHeaderCellState(index: number) {
-  const { locale, temporal: T, rootState } = useDatePicker();
+export function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(index: number) {
+  const { locale, temporal: T, rootState } = useDatePicker<F>();
 
   const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
 
-  const state = useMemo<GridHeaderCellState>(
+  const state = useMemo<GridHeaderCellState<F>>(
     () => ({
       root: rootState,
       dayOfWeek: index,

@@ -1,8 +1,8 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
-  TypedDatePicker,
   RawValueForFormat,
+  CreateDatePickerReturn,
 } from "@/components/ui/date-picker";
 import {
   StyledPrevMonthButton,
@@ -28,7 +28,7 @@ interface StyledDatePickerProps<F extends ValueFormat> {
   timeZone?: string;
   locale?: string;
   className?: string;
-  components: TypedDatePicker<F>;
+  components: CreateDatePickerReturn<F>;
 }
 
 export function StyledDatePicker<F extends ValueFormat>({

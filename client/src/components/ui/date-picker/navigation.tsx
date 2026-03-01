@@ -5,6 +5,7 @@ import { useDatePicker } from "./context";
 import { useNavButton } from "./hooks";
 import { selectedToZdt, zdtToNativeDate } from "./utils";
 import type {
+  ValueFormat,
   DateStringState,
   DateStringProps,
   TimeStringState,
@@ -17,8 +18,8 @@ import type {
 
 const rootNullMapping = { root: () => null };
 
-export function DateString(
-  props: DateStringProps & { ref?: React.Ref<HTMLSpanElement> },
+export function DateString<F extends ValueFormat = ValueFormat>(
+  props: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
   const {
@@ -28,7 +29,7 @@ export function DateString(
     locale,
     temporal: T,
     rootState,
-  } = useDatePicker();
+  } = useDatePicker<F>();
 
   const selectedZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selectedZdt
@@ -37,7 +38,7 @@ export function DateString(
 
   const formatted = displayDate.toLocaleDateString(locales ?? locale, options);
 
-  const state = useMemo<DateStringState>(
+  const state = useMemo<DateStringState<F>>(
     () => ({
       root: rootState,
       month: displayDate.getMonth() + 1,
@@ -62,11 +63,11 @@ export function DateString(
   });
 }
 
-export function TimeString(
-  props: TimeStringProps & { ref?: React.Ref<HTMLSpanElement> },
+export function TimeString<F extends ValueFormat = ValueFormat>(
+  props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { selected, timeZone, locale, temporal: T, rootState } = useDatePicker();
+  const { selected, timeZone, locale, temporal: T, rootState } = useDatePicker<F>();
 
   const selZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selZdt
@@ -79,7 +80,7 @@ export function TimeString(
     mergedOptions,
   );
 
-  const state = useMemo<TimeStringState>(
+  const state = useMemo<TimeStringState<F>>(
     () => ({
       root: rootState,
       hour: selZdt?.hour ?? T.Now.zonedDateTimeISO(timeZone).hour,
@@ -116,11 +117,11 @@ export function TimeString(
  * referenced by the calendar grid's `aria-labelledby` and serves as its
  * accessible name.
  */
-export function MonthYearString(
-  props: MonthYearStringProps & { ref?: React.Ref<HTMLSpanElement> },
+export function MonthYearString<F extends ValueFormat = ValueFormat>(
+  props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentDateTime, locale, setGridLabelId, rootState } = useDatePicker();
+  const { currentDateTime, locale, setGridLabelId, rootState } = useDatePicker<F>();
 
   const id = useId();
 
@@ -139,7 +140,7 @@ export function MonthYearString(
     defaultOptions,
   );
 
-  const state = useMemo<MonthYearStringState>(
+  const state = useMemo<MonthYearStringState<F>>(
     () => ({ root: rootState, month: currentDateTime.month, year: currentDateTime.year }),
     [rootState, currentDateTime.month, currentDateTime.year],
   );
@@ -160,11 +161,11 @@ export function MonthYearString(
   });
 }
 
-export function PrevMonthButton(
-  props: PrevMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
+  props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } = useNavButton("prev");
+  const { state, stateAttributesMapping, defaultProps } = useNavButton<F>("prev");
 
   return useRender({
     defaultTagName: "button",
@@ -176,11 +177,11 @@ export function PrevMonthButton(
   });
 }
 
-export function NextMonthButton(
-  props: NextMonthButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+export function NextMonthButton<F extends ValueFormat = ValueFormat>(
+  props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } = useNavButton("next");
+  const { state, stateAttributesMapping, defaultProps } = useNavButton<F>("next");
 
   return useRender({
     defaultTagName: "button",

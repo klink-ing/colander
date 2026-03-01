@@ -1,9 +1,24 @@
 import { createElement } from "react";
 import { resolveTemporal } from "./utils";
 import * as DatePicker from "./index";
+import {
+  Grid,
+  GridHeader,
+  GridHeaderCell,
+  GridBody,
+  WeekTemplate,
+  DayCellTemplate,
+  DayButton,
+} from "./grid";
+import {
+  DateString,
+  TimeString,
+  MonthYearString,
+  PrevMonthButton,
+  NextMonthButton,
+} from "./navigation";
 import type {
   ValueFormat,
-  TypedDatePicker,
   TypedRootProps,
   CreateDatePickerOptions,
 } from "./types";
@@ -11,7 +26,7 @@ import type {
 export function createDatePicker<F extends ValueFormat>(
   format: F,
   options?: CreateDatePickerOptions,
-): TypedDatePicker<F> {
+) {
   const resolvedTemporal = resolveTemporal(options?.temporal);
 
   const Root = ((
@@ -26,17 +41,17 @@ export function createDatePicker<F extends ValueFormat>(
 
   return {
     Root,
-    Grid: DatePicker.Grid<F>,
-    GridHeader: DatePicker.GridHeader<F>,
-    GridHeaderCell: DatePicker.GridHeaderCell<F>,
-    GridBody: DatePicker.GridBody<F>,
-    WeekTemplate: DatePicker.WeekTemplate<F>,
-    DayCellTemplate: DatePicker.DayCellTemplate<F>,
-    DayButton: DatePicker.DayButton<F>,
-    DateString: DatePicker.DateString<F>,
-    TimeString: DatePicker.TimeString<F>,
-    MonthYearString: DatePicker.MonthYearString<F>,
-    PrevMonthButton: DatePicker.PrevMonthButton<F>,
-    NextMonthButton: DatePicker.NextMonthButton<F>,
-  } as TypedDatePicker<F>;
+    Grid: Grid<F>,
+    GridHeader: GridHeader<F>,
+    GridHeaderCell: GridHeaderCell<F>,
+    GridBody: GridBody<F>,
+    WeekTemplate: WeekTemplate<F>,
+    DayCellTemplate: DayCellTemplate<F>,
+    DayButton: DayButton<F>,
+    DateString: DateString<F>,
+    TimeString: TimeString<F>,
+    MonthYearString: MonthYearString<F>,
+    PrevMonthButton: PrevMonthButton<F>,
+    NextMonthButton: NextMonthButton<F>,
+  };
 }

@@ -252,47 +252,23 @@ export type DayButtonProps<F extends ValueFormat = ValueFormat> =
 
 export type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format">;
 
-export interface TypedDatePicker<F extends ValueFormat> {
+export type CreateDatePickerReturn<F extends ValueFormat> = {
   Root: (
     props: TypedRootProps<F> & { ref?: React.Ref<HTMLDivElement> },
   ) => React.ReactElement | null;
-  Grid: (
-    props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
-  ) => React.ReactElement;
-  GridHeader: (
-    props: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
-  ) => React.ReactElement;
-  GridHeaderCell: (
-    props: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
-  ) => React.ReactElement;
-  GridBody: (
-    props: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
-  ) => React.ReactElement;
-  WeekTemplate: (
-    props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
-  ) => React.ReactElement;
-  DayCellTemplate: (
-    props: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
-  ) => React.ReactElement;
-  DayButton: (
-    props: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
-  ) => React.ReactElement;
-  DateString: (
-    props: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
-  ) => React.ReactElement;
-  TimeString: (
-    props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
-  ) => React.ReactElement;
-  MonthYearString: (
-    props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
-  ) => React.ReactElement;
-  PrevMonthButton: (
-    props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
-  ) => React.ReactElement;
-  NextMonthButton: (
-    props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
-  ) => React.ReactElement;
-}
+  Grid: typeof import("./grid").Grid;
+  GridBody: typeof import("./grid").GridBody;
+  GridHeader: typeof import("./grid-header").GridHeader;
+  GridHeaderCell: typeof import("./grid-header").GridHeaderCell;
+  WeekTemplate: typeof import("./grid").WeekTemplate;
+  DayCellTemplate: typeof import("./grid").DayCellTemplate;
+  DayButton: typeof import("./grid").DayButton;
+  DateString: typeof import("./navigation").DateString;
+  TimeString: typeof import("./navigation").TimeString;
+  MonthYearString: typeof import("./navigation").MonthYearString;
+  PrevMonthButton: typeof import("./navigation").PrevMonthButton;
+  NextMonthButton: typeof import("./navigation").NextMonthButton;
+};
 
 export interface CreateDatePickerOptions {
   temporal?: TemporalNamespace;

@@ -4,20 +4,21 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker } from "./context";
 import { useGridHeaderCellState } from "./hooks";
 import type {
+  ValueFormat,
   GridHeaderCellProps,
   GridHeaderState,
   GridHeaderProps,
 } from "./types";
 
-function GridHeaderCellInstance(
-  props: Omit<GridHeaderCellProps, "index"> & {
+function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
+  props: Omit<GridHeaderCellProps<F>, "index"> & {
     index: number;
     ref?: React.Ref<HTMLTableCellElement>;
   },
 ) {
   const { ref, render, index, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps } =
-    useGridHeaderCellState(index);
+    useGridHeaderCellState<F>(index);
 
   return useRender({
     defaultTagName: "th",
@@ -29,29 +30,30 @@ function GridHeaderCellInstance(
   });
 }
 
-export function GridHeaderCell(
-  props: GridHeaderCellProps & { ref?: React.Ref<HTMLTableCellElement> },
+export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
+  props: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
+  const Instance = GridHeaderCellInstance<F>;
   if (indexProp != null) {
-    return <GridHeaderCellInstance {...restProps} index={indexProp} />;
+    return <Instance {...restProps} index={indexProp} />;
   }
   return (
     <>
       {Array.from({ length: 7 }, (_, i) => (
-        <GridHeaderCellInstance key={i} {...restProps} index={i} />
+        <Instance key={i} {...restProps} index={i} />
       ))}
     </>
   );
 }
 
-export function GridHeader(
-  props: GridHeaderProps & { ref?: React.Ref<HTMLTableSectionElement> },
+export function GridHeader<F extends ValueFormat = ValueFormat>(
+  props: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, children, ...otherProps } = props;
-  const { rootState } = useDatePicker();
+  const { rootState } = useDatePicker<F>();
 
-  const state = useMemo<GridHeaderState>(() => ({ root: rootState }), [rootState]);
+  const state = useMemo<GridHeaderState<F>>(() => ({ root: rootState }), [rootState]);
 
   const stateAttributesMapping = useMemo(
     () => ({

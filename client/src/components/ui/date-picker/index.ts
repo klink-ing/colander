@@ -1,6 +1,6 @@
 export { Root, RootInner } from "./root";
 export { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
-export { GridHeader, GridHeaderCell } from "./labels";
+export { GridHeader, GridHeaderCell } from "./grid-header";
 export {
   DateString,
   TimeString,
@@ -51,7 +51,7 @@ export type {
   ValueForFormat,
   RawValueForFormat,
   PlainDateObject,
-  TypedDatePicker,
+  CreateDatePickerReturn,
   TypedRootProps,
   TemporalNamespace,
   CreateDatePickerOptions,

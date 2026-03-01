@@ -3,8 +3,9 @@ import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker, WeekDataContext, DayCellDataContext } from "./context";
 import { useGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
-import { GridHeader, GridHeaderCell } from "./labels";
+import { GridHeader, GridHeaderCell } from "./grid-header";
 import type {
+  ValueFormat,
   GridState,
   GridProps,
   GridBodyState,
@@ -14,16 +15,21 @@ import type {
   DayCellTemplateProps,
   DayButtonProps,
 } from "./types";
+export { GridHeader, GridHeaderCell } from "./grid-header";
 
-export function Grid<F extends ValueFormat = ValueFormat >(
-  props: GridProps & { ref?: React.Ref<HTMLTableElement> },
+export function Grid<F extends ValueFormat = ValueFormat>(
+  props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
   const { currentDateTime, gridLabelId, rootState } = useDatePicker<F>();
   const handleKeyDown = useGridKeyboard();
 
-  const state = useMemo<GridState>(
-    () => ({ root: rootState, month: currentDateTime.month, year: currentDateTime.year }),
+  const state = useMemo<GridState<F>>(
+    () => ({
+      root: rootState,
+      month: currentDateTime.month,
+      year: currentDateTime.year,
+    }),
     [rootState, currentDateTime.month, currentDateTime.year],
   );
 
@@ -67,13 +73,16 @@ export function Grid<F extends ValueFormat = ValueFormat >(
   });
 }
 
-export function GridBody(
-  props: GridBodyProps & { ref?: React.Ref<HTMLTableSectionElement> },
+export function GridBody<F extends ValueFormat = ValueFormat>(
+  props: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { rootState } = useDatePicker();
+  const { rootState } = useDatePicker<F>();
 
-  const state = useMemo<GridBodyState>(() => ({ root: rootState }), [rootState]);
+  const state = useMemo<GridBodyState<F>>(
+    () => ({ root: rootState }),
+    [rootState],
+  );
 
   const stateAttributesMapping = useMemo(
     () => ({
@@ -104,14 +113,14 @@ export function GridBody(
   });
 }
 
-function WeekInstance(
-  props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
+function WeekInstance<F extends ValueFormat = ValueFormat>(
+  props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
 ) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
-  const { rootState } = useDatePicker();
+  const { rootState } = useDatePicker<F>();
 
-  const state = useMemo<WeekTemplateState>(
+  const state = useMemo<WeekTemplateState<F>>(
     () => ({ root: rootState, weekIndex: weekData.weekIndex }),
     [rootState, weekData.weekIndex],
   );
@@ -134,10 +143,11 @@ function WeekInstance(
   });
 }
 
-export function WeekTemplate(
-  props: WeekTemplateProps & { ref?: React.Ref<HTMLTableRowElement> },
+export function WeekTemplate<F extends ValueFormat = ValueFormat>(
+  props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
 ) {
-  const { weeks } = useDatePicker();
+  const { weeks } = useDatePicker<F>();
+  const Instance = WeekInstance<F>;
 
   return (
     <>
@@ -146,22 +156,25 @@ export function WeekTemplate(
           key={i}
           value={{ days: weekDays, weekIndex: i }}
         >
-          <WeekInstance {...props} />
+          <Instance {...props} />
         </WeekDataContext.Provider>
       ))}
     </>
   );
 }
 
-function DayCellInstance(
-  props: Omit<DayCellTemplateProps, "date"> & {
+function DayCellInstance<F extends ValueFormat = ValueFormat>(
+  props: Omit<DayCellTemplateProps<F>, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
     ref?: React.Ref<HTMLTableCellElement>;
   },
 ) {
   const { ref, render, date, children, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps: cellDefaults } =
-    useDayCellState(date);
+  const {
+    state,
+    stateAttributesMapping,
+    defaultProps: cellDefaults,
+  } = useDayCellState<F>(date);
 
   const defaultProps: Record<string, unknown> = {
     ...cellDefaults,
@@ -184,36 +197,38 @@ function DayCellInstance(
   );
 }
 
-export function DayCellTemplate(
-  props: DayCellTemplateProps & { ref?: React.Ref<HTMLTableCellElement> },
+export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
+  props: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { date: dateProp, ...restProps } = props;
   const weekData = useContext(WeekDataContext);
-  const { weeks } = useDatePicker();
+  const { weeks } = useDatePicker<F>();
+
+  const Instance = DayCellInstance<F>;
 
   if (dateProp) {
-    return <DayCellInstance {...restProps} date={dateProp} />;
+    return <Instance {...restProps} date={dateProp} />;
   }
 
   const days = weekData ? weekData.days : weeks.flat();
   return (
     <>
       {days.map((day) => (
-        <DayCellInstance key={day.toString()} {...restProps} date={day} />
+        <Instance key={day.toString()} {...restProps} date={day} />
       ))}
     </>
   );
 }
 
-function DayButtonInstance(
-  props: Omit<DayButtonProps, "date"> & {
+function DayButtonInstance<F extends ValueFormat = ValueFormat>(
+  props: Omit<DayButtonProps<F>, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
     ref?: React.Ref<HTMLButtonElement>;
   },
 ) {
   const { ref, render, date, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, internalRef } =
-    useDayButtonState(date);
+    useDayButtonState<F>(date);
 
   return useRender({
     defaultTagName: "button",
@@ -225,16 +240,18 @@ function DayButtonInstance(
   });
 }
 
-export function DayButton(
-  props: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> },
+export function DayButton<F extends ValueFormat = ValueFormat>(
+  props: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { date: dateProp, ...restProps } = props;
   const cellData = useContext(DayCellDataContext);
 
   const resolvedDate = dateProp ?? cellData?.date;
 
+  const Instance = DayButtonInstance<F>;
+
   if (resolvedDate) {
-    return <DayButtonInstance {...restProps} date={resolvedDate} />;
+    return <Instance {...restProps} date={resolvedDate} />;
   }
 
   throw new Error(

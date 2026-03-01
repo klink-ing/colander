@@ -21,7 +21,7 @@ The application is structured as a monorepo with `client/` for the React fronten
 - **Styling**: Tailwind CSS with CSS variables for theming (light/dark mode).
 - **UI Components**: A subset of `shadcn/ui` (New York style) for common elements, integrated with Radix UI for accessibility primitives.
 - **Build Tool**: Vite, enhanced with Replit-specific plugins for development.
-- **Custom `DatePicker` Component**: A headless, highly modular `DatePicker` built with `@base-ui/react` primitives and `Temporal` API polyfill. It features W3C APG conformance, sophisticated keyboard navigation, and flexible rendering options via styled wrappers or render props, supporting various Temporal formats.
+- **Custom `DatePicker` Component**: A headless, highly modular `DatePicker` built with `@base-ui/react` primitives and `Temporal` API polyfill. It features W3C APG conformance, sophisticated keyboard navigation, and flexible rendering options via styled wrappers or render props, supporting various Temporal formats. All components and hooks are generic over `F extends ValueFormat`, with `useDatePicker<F>()` narrowing `rootState` to `RootState<F>`. The factory `createDatePicker<F>()` returns `CreateDatePickerReturn<F>`, which uses `typeof` references to the actual generic component functions (only `Root` is manually typed as a closure). Consumers can index into this type (e.g. `CreateDatePickerReturn<"PlainDate">["Grid"]`). JSX generic syntax (`<Component<F>`) is avoided in favor of variable aliases (`const Instance = Component<F>`) for Vite Babel compatibility.
 
 ### Backend Architecture
 
