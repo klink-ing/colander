@@ -16,12 +16,12 @@ export function DaysGrid(
   props: DaysGridProps & { ref?: React.Ref<HTMLDivElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
-  const { currentMonth } = useDatePicker();
+  const { currentDateTime } = useDatePicker();
   const handleKeyDown = useDaysGridKeyboard();
 
   const state = useMemo<DaysGridState>(
-    () => ({ month: currentMonth.month, year: currentMonth.year }),
-    [currentMonth],
+    () => ({ month: currentDateTime.month, year: currentDateTime.year }),
+    [currentDateTime.month, currentDateTime.year],
   );
 
   const defaultProps: Record<string, unknown> = {

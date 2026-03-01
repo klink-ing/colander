@@ -12,7 +12,7 @@ export type TemporalNamespace = {
     compare(a: Temporal.PlainDate, b: Temporal.PlainDate): number;
   };
   PlainDateTime: {
-    from(item: any): Temporal.PlainDateTime;
+    from(item: any, options?: { overflow?: string }): Temporal.PlainDateTime;
   };
   PlainMonthDay: {
     from(item: any): Temporal.PlainMonthDay;
@@ -55,7 +55,6 @@ export interface DatePickerContextValue {
   selected: DateValueObject | undefined;
   onSelect: (date: Temporal.PlainDate) => void;
   currentDateTime: Temporal.PlainDateTime;
-  currentMonth: { year: number; month: number };
   goToNextMonth: () => void;
   goToPrevMonth: () => void;
   weeks: Temporal.PlainDate[][];

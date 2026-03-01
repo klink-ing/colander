@@ -20,7 +20,7 @@ export function DateString(
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
   const {
-    currentMonth,
+    currentDateTime,
     selected,
     timeZone,
     locale,
@@ -30,7 +30,7 @@ export function DateString(
   const selectedZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selectedZdt
     ? zdtToNativeDate(selectedZdt)
-    : new Date(currentMonth.year, currentMonth.month - 1, 1);
+    : new Date(currentDateTime.year, currentDateTime.month - 1, 1);
 
   const formatted = displayDate.toLocaleDateString(locales ?? locale, options);
 
@@ -101,9 +101,9 @@ export function MonthString(
   props: MonthStringProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const { currentMonth, locale } = useDatePicker();
+  const { currentDateTime, locale } = useDatePicker();
 
-  const displayDate = new Date(currentMonth.year, currentMonth.month - 1, 1);
+  const displayDate = new Date(currentDateTime.year, currentDateTime.month - 1, 1);
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
   };
@@ -113,8 +113,8 @@ export function MonthString(
   );
 
   const state = useMemo<MonthStringState>(
-    () => ({ month: currentMonth.month, year: currentMonth.year }),
-    [currentMonth],
+    () => ({ month: currentDateTime.month, year: currentDateTime.year }),
+    [currentDateTime.month, currentDateTime.year],
   );
 
   const defaultProps: Record<string, unknown> = {

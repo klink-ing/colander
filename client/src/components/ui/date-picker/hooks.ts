@@ -215,14 +215,17 @@ export function useRootState<F extends ValueFormat>(
 
   const currentDateTime = useMemo<Temporal.PlainDateTime>(
     () =>
-      T.PlainDateTime.from({
-        year: currentMonth.year,
-        month: currentMonth.month,
-        day: focusedDate.day,
-        hour: selectedZdt?.hour ?? 0,
-        minute: selectedZdt?.minute ?? 0,
-        second: selectedZdt?.second ?? 0,
-      }),
+      T.PlainDateTime.from(
+        {
+          year: currentMonth.year,
+          month: currentMonth.month,
+          day: focusedDate.day,
+          hour: selectedZdt?.hour ?? 0,
+          minute: selectedZdt?.minute ?? 0,
+          second: selectedZdt?.second ?? 0,
+        },
+        { overflow: "constrain" },
+      ),
     [currentMonth, focusedDate.day, selectedZdt],
   );
 
@@ -248,7 +251,6 @@ export function useRootState<F extends ValueFormat>(
       selected,
       onSelect,
       currentDateTime,
-      currentMonth,
       goToNextMonth,
       goToPrevMonth,
       weeks,
@@ -266,7 +268,6 @@ export function useRootState<F extends ValueFormat>(
       selected,
       onSelect,
       currentDateTime,
-      currentMonth,
       goToNextMonth,
       goToPrevMonth,
       weeks,
@@ -312,7 +313,7 @@ export function useNavButton(direction: "prev" | "next") {
   const {
     goToPrevMonth,
     goToNextMonth,
-    currentMonth,
+    currentDateTime,
     disabled: globalDisabled,
     minValue,
     maxValue,
@@ -322,21 +323,21 @@ export function useNavButton(direction: "prev" | "next") {
 
   const destMonth =
     direction === "prev"
-      ? currentMonth.month === 1
+      ? currentDateTime.month === 1
         ? 12
-        : currentMonth.month - 1
-      : currentMonth.month === 12
+        : currentDateTime.month - 1
+      : currentDateTime.month === 12
         ? 1
-        : currentMonth.month + 1;
+        : currentDateTime.month + 1;
 
   const destYear =
     direction === "prev"
-      ? currentMonth.month === 1
-        ? currentMonth.year - 1
-        : currentMonth.year
-      : currentMonth.month === 12
-        ? currentMonth.year + 1
-        : currentMonth.year;
+      ? currentDateTime.month === 1
+        ? currentDateTime.year - 1
+        : currentDateTime.year
+      : currentDateTime.month === 12
+        ? currentDateTime.year + 1
+        : currentDateTime.year;
 
   const boundValue = direction === "prev" ? minValue : maxValue;
 
@@ -441,7 +442,7 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
   const {
     selected,
     onSelect,
-    currentMonth,
+    currentDateTime,
     disabled,
     isDateDisabled,
     focusedDate,
@@ -456,7 +457,7 @@ export function useDayTemplateState(date: Temporal.PlainDate) {
   const selZdt = selectedToZdt(selected, timeZone, T);
   const isSelected = selZdt ? sameCalendarDay(selZdt, date) : false;
   const isCurrentMonth =
-    date.year === currentMonth.year && date.month === currentMonth.month;
+    date.year === currentDateTime.year && date.month === currentDateTime.month;
   const isToday = T.PlainDate.compare(date, today) === 0;
   const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
   const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
