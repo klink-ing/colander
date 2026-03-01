@@ -73,7 +73,9 @@ No authentication is implemented yet. The schema and storage interface include `
     - `types.ts` — All TypeScript types, interfaces, and discriminated unions (`DateValueObject`, `ValueFormat`, `RawValueForFormat`, component state/props types, `TypedDatePicker`, `TemporalNamespace`)
     - `utils.ts` — Pure utility functions (`calendarForLocale`, `resolveTemporal`, `toZonedDateTime`, `fromZonedDateTime`, `selectedToZdt`, `getMonthWeeks`, `zdtToNativeDate`, `sameCalendarDay`, `getWeekdayNames`)
     - `context.ts` — React contexts (`DatePickerContext`, `WeekDataContext`) and `useDatePicker` hook
-    - `hooks.ts` — Extracted custom hooks that encapsulate complex state logic: `useRootState` (all Root state management), `useNavButton` (shared prev/next nav logic), `useDaysGridKeyboard` (arrow key navigation), `useDayTemplateState` (day cell state — selected/today/disabled/focused), `useDayLabelState` (weekday name resolution)
+    - `keyboard.ts` — Pure functions for keyboard navigation logic: `computeNextFocusDate` (resolves key + focused date + bounds → next date or action), `computeMonthJumpTarget` (month arithmetic with day constraining)
+    - `keyboard.test.ts` — Vitest unit tests for all keyboard navigation: arrow keys, Home/End, PageUp/PageDown, Shift+PageUp/PageDown, min/max bound enforcement, disabled state, Enter/Space selection, unrecognized keys (93 tests via `test.each`)
+    - `hooks.ts` — Extracted custom hooks that encapsulate complex state logic: `useRootState` (all Root state management), `useNavButton` (shared prev/next nav logic), `useDaysGridKeyboard` (arrow key navigation — delegates to `computeNextFocusDate`), `useDayTemplateState` (day cell state — selected/today/disabled/focused), `useDayLabelState` (weekday name resolution)
     - `root.tsx` — `Root` and `RootInner` components
     - `navigation.tsx` — `DateString`, `TimeString`, `MonthYearString`, `PrevMonthButton`, `NextMonthButton`
     - `grid.tsx` — `DaysGrid`, `WeekTemplate`/`WeekTemplateInstance`, `DayTemplate`/`DayTemplateInstance`

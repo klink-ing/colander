@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
+import { computeNextFocusDate } from "./keyboard";
 import type {
   TemporalNamespace,
   DateValueObject,
@@ -402,78 +403,28 @@ export function useDaysGridKeyboard() {
     temporal: T,
   } = useDatePicker();
 
-  const moveFocusByMonths = useCallback(
-    (months: number) => {
-      const totalMonths = focusedDate.year * 12 + (focusedDate.month - 1) + months;
-      const targetYear = Math.floor(totalMonths / 12);
-      const targetMonth = (totalMonths % 12) + 1;
-      const target = T.PlainDate.from(
-        { year: targetYear, month: targetMonth, day: focusedDate.day },
-        { overflow: "constrain" },
-      );
-      if (minValue && T.PlainDate.compare(target, minValue) < 0) return;
-      if (maxValue && T.PlainDate.compare(target, maxValue) > 0) return;
-      setFocusedDate(target);
-    },
-    [focusedDate, minValue, maxValue, setFocusedDate, T],
-  );
-
   return useCallback(
     (e: KeyboardEvent<HTMLDivElement>) => {
-      if (disabled) return;
+      const result = computeNextFocusDate({
+        key: e.key,
+        shiftKey: e.shiftKey,
+        focusedDate,
+        minValue,
+        maxValue,
+        disabled,
+        isDateDisabled,
+        T,
+      });
 
-      let nextDate: Temporal.PlainDate | null = null;
-
-      switch (e.key) {
-        case "ArrowRight":
-          nextDate = focusedDate.add({ days: 1 });
-          break;
-        case "ArrowLeft":
-          nextDate = focusedDate.subtract({ days: 1 });
-          break;
-        case "ArrowDown":
-          nextDate = focusedDate.add({ weeks: 1 });
-          break;
-        case "ArrowUp":
-          nextDate = focusedDate.subtract({ weeks: 1 });
-          break;
-        case "Home": {
-          const sundayDow = focusedDate.dayOfWeek % 7;
-          nextDate = focusedDate.subtract({ days: sundayDow });
-          break;
-        }
-        case "End": {
-          const sundayDow = focusedDate.dayOfWeek % 7;
-          nextDate = focusedDate.add({ days: 6 - sundayDow });
-          break;
-        }
-        case "PageUp":
-          e.preventDefault();
-          moveFocusByMonths(e.shiftKey ? -12 : -1);
-          return;
-        case "PageDown":
-          e.preventDefault();
-          moveFocusByMonths(e.shiftKey ? 12 : 1);
-          return;
-        case "Enter":
-        case " ":
-          e.preventDefault();
-          if (!isDateDisabled?.(focusedDate)) {
-            onSelect(focusedDate);
-          }
-          return;
-        default:
-          return;
-      }
-
-      if (nextDate) {
-        if (minValue && T.PlainDate.compare(nextDate, minValue) < 0) return;
-        if (maxValue && T.PlainDate.compare(nextDate, maxValue) > 0) return;
+      if (result.action === "move") {
         e.preventDefault();
-        setFocusedDate(nextDate);
+        setFocusedDate(result.date);
+      } else if (result.action === "select") {
+        e.preventDefault();
+        onSelect(focusedDate);
       }
     },
-    [focusedDate, setFocusedDate, onSelect, disabled, isDateDisabled, minValue, maxValue, T, moveFocusByMonths],
+    [focusedDate, setFocusedDate, onSelect, disabled, isDateDisabled, minValue, maxValue, T],
   );
 }
 
