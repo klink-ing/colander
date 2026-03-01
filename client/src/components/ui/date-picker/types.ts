@@ -158,7 +158,6 @@ export type NextMonthButtonProps = useRender.ComponentProps<
 >;
 
 export type DayLabelState = {
-  index: number;
   dayOfWeek: number;
   long: string;
   short: string;

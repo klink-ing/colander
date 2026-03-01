@@ -521,7 +521,6 @@ export function useDayLabelState(index: number) {
 
   const state = useMemo<DayLabelState>(
     () => ({
-      index,
       dayOfWeek: index,
       long: weekdayNames[index].long,
       short: weekdayNames[index].short,
@@ -532,7 +531,6 @@ export function useDayLabelState(index: number) {
 
   const stateAttributesMapping = useMemo(
     () => ({
-      index: () => null,
       dayOfWeek: () => null,
       long: () => null,
       short: () => null,

@@ -49,7 +49,7 @@ export function DaysGrid(
   });
 }
 
-function WeekTemplateInstance(
+function WeekInstance(
   props: WeekTemplateProps & { ref?: React.Ref<HTMLDivElement> },
 ) {
   const { ref, render, ...otherProps } = props;
@@ -93,14 +93,14 @@ export function WeekTemplate(
           key={i}
           value={{ days: weekDays, weekIndex: i }}
         >
-          <WeekTemplateInstance {...props} />
+          <WeekInstance {...props} />
         </WeekDataContext.Provider>
       ))}
     </>
   );
 }
 
-function DayTemplateInstance(
+function DayInstance(
   props: Omit<DayTemplateProps, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
     ref?: React.Ref<HTMLButtonElement>;
@@ -128,14 +128,14 @@ export function DayTemplate(
   const { weeks } = useDatePicker();
 
   if (dateProp) {
-    return <DayTemplateInstance {...restProps} date={dateProp} />;
+    return <DayInstance {...restProps} date={dateProp} />;
   }
 
   const days = weekData ? weekData.days : weeks.flat();
   return (
     <>
       {days.map((day) => (
-        <DayTemplateInstance key={day.toString()} {...restProps} date={day} />
+        <DayInstance key={day.toString()} {...restProps} date={day} />
       ))}
     </>
   );

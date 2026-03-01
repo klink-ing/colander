@@ -8,7 +8,7 @@ import type {
   DayLabelsProps,
 } from "./types";
 
-function DayLabelInstance(
+function DayInstance(
   props: Omit<DayLabelProps, "index"> & {
     index: number;
     ref?: React.Ref<HTMLDivElement>;
@@ -33,12 +33,12 @@ export function DayLabel(
 ) {
   const { index: indexProp, ...restProps } = props;
   if (indexProp != null) {
-    return <DayLabelInstance {...restProps} index={indexProp} />;
+    return <DayInstance {...restProps} index={indexProp} />;
   }
   return (
     <>
       {Array.from({ length: 7 }, (_, i) => (
-        <DayLabelInstance key={i} {...restProps} index={i} />
+        <DayInstance key={i} {...restProps} index={i} />
       ))}
     </>
   );
