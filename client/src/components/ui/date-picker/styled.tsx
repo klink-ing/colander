@@ -251,7 +251,9 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledRangeStartDragHandle<F extends ValueFormat = ValueFormat>({
+export function StyledRangeStartDragHandle<
+  F extends ValueFormat = ValueFormat,
+>({
   className,
   ...props
 }: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
@@ -276,7 +278,7 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
     <RangeEndDragHandle
       {...(props as RangeEndDragHandleProps)}
       className={cn(
-        "absolute right-0 top-1/2 z-20 translate-x-1/2 -translate-y-1/2",
+        "absolute right-0 top-1/2 z-20 -translate-y-1/2 translate-x-1/2",
         "flex items-center justify-center px-1 py-2",
         "before:block before:h-4 before:w-1.5 before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
         className,
@@ -292,8 +294,9 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
   return (
     <SelectedRange
       {...(props as SelectedRangeProps)}
+      data-range-selection
       className={cn(
-        "rounded-md bg-primary/15",
+        "rounded-md bg-primary/80",
         "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none",
         className,
       )}

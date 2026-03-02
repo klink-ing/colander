@@ -143,47 +143,29 @@ export function useRootState<F extends ValueFormat>(
     [resolvedFormat, timeZone, T],
   );
 
-  const controlledRangeStart = useMemo(() => {
-    if (rangeValue) return rawToPlain(rangeValue.start);
-    if (singleValue != null) return rawToPlain(singleValue);
+  type RangePair = { start: Temporal.PlainDate; end: Temporal.PlainDate } | undefined;
+
+  const controlledRange = useMemo<RangePair>(() => {
+    if (rangeValue) return { start: rawToPlain(rangeValue.start), end: rawToPlain(rangeValue.end) };
+    if (singleValue != null) { const d = rawToPlain(singleValue); return { start: d, end: d }; }
     return undefined;
   }, [rangeValue, singleValue, rawToPlain]);
 
-  const controlledRangeEnd = useMemo(() => {
-    if (rangeValue) return rawToPlain(rangeValue.end);
-    if (singleValue != null) return rawToPlain(singleValue);
-    return undefined;
-  }, [rangeValue, singleValue, rawToPlain]);
-
-  const defaultRangeStart = useMemo(() => {
-    if (rangeDefault) return rawToPlain(rangeDefault.start);
-    if (singleDefault != null) return rawToPlain(singleDefault);
+  const defaultRange = useMemo<RangePair>(() => {
+    if (rangeDefault) return { start: rawToPlain(rangeDefault.start), end: rawToPlain(rangeDefault.end) };
+    if (singleDefault != null) { const d = rawToPlain(singleDefault); return { start: d, end: d }; }
     return undefined;
   }, [rangeDefault, singleDefault, rawToPlain]);
 
-  const defaultRangeEnd = useMemo(() => {
-    if (rangeDefault) return rawToPlain(rangeDefault.end);
-    if (singleDefault != null) return rawToPlain(singleDefault);
-    return undefined;
-  }, [rangeDefault, singleDefault, rawToPlain]);
-
-  const [internalRangeStart, setInternalRangeStart] = useState<
-    Temporal.PlainDate | undefined
-  >(defaultRangeStart);
-  const [internalRangeEnd, setInternalRangeEnd] = useState<
-    Temporal.PlainDate | undefined
-  >(defaultRangeEnd);
-
-  const [pendingRangeStart, setPendingRangeStart] = useState<
-    Temporal.PlainDate | undefined
-  >(undefined);
+  const [internalRange, setInternalRange] = useState<RangePair>(defaultRange);
 
   const isControlled = isRange ? rangeValue != null : singleValue != null;
-  const committedStart = isControlled ? controlledRangeStart : internalRangeStart;
-  const committedEnd = isControlled ? controlledRangeEnd : internalRangeEnd;
+  const committed = isControlled ? controlledRange : internalRange;
 
-  const rangeStart = pendingRangeStart ?? committedStart;
-  const rangeEnd = pendingRangeStart ? undefined : committedEnd;
+  const rangeStart = committed?.start;
+  const rangeEnd = committed?.end;
+  const committedStart = rangeStart;
+  const committedEnd = rangeEnd;
 
   const initSrc = useMemo(() => {
     if (taggedValue) return taggedValue;
@@ -250,10 +232,8 @@ export function useRootState<F extends ValueFormat>(
       (minValue && T.PlainDate.compare(start, minValue) < 0) ||
       (maxValue && T.PlainDate.compare(start, maxValue) > 0);
     if (outOfBounds) {
-      setPendingRangeStart(undefined);
       if (!isControlled) {
-        setInternalRangeStart(undefined);
-        setInternalRangeEnd(undefined);
+        setInternalRange(undefined);
       }
       (onValueChange as ((v: RawValueForFormat<F> | undefined) => void) | undefined)?.(undefined);
     }
@@ -293,10 +273,8 @@ export function useRootState<F extends ValueFormat>(
         newEnd = date;
       }
 
-      setPendingRangeStart(undefined);
       if (!isControlled) {
-        setInternalRangeStart(newStart);
-        setInternalRangeEnd(newEnd);
+        setInternalRange({ start: newStart, end: newEnd });
       }
       setCurrentMonth({ year: date.year, month: date.month });
 
@@ -338,10 +316,8 @@ export function useRootState<F extends ValueFormat>(
   const setRange = useCallback(
     (start: Temporal.PlainDate, end: Temporal.PlainDate) => {
       const effectiveEnd = isRange ? end : start;
-      setPendingRangeStart(undefined);
       if (!isControlled) {
-        setInternalRangeStart(start);
-        setInternalRangeEnd(effectiveEnd);
+        setInternalRange({ start, end: effectiveEnd });
       }
       if (isRange) {
         (onValueChange as ((v: DateRange<F> | undefined) => void) | undefined)?.({
