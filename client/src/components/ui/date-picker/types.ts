@@ -287,6 +287,8 @@ export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
   active: boolean;
   startIndex: number;
   endIndex: number;
+  startDayId: string;
+  endDayId: string;
   extendsBefore: boolean;
   extendsAfter: boolean;
 };

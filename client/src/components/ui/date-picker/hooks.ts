@@ -751,6 +751,7 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
       day: "numeric",
       year: "numeric",
     }),
+    id: `day-${date.toString()}`,
     "data-testid": `button-day-${date.toString()}`,
     onClick: () => {
       setFocusedDate(date);

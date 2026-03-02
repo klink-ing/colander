@@ -24,4 +24,5 @@ export const WeekDataContext = createContext<{
 
 export const DayCellDataContext = createContext<{
   date: Temporal.PlainDate;
+  columnIndex?: number;
 } | null>(null);

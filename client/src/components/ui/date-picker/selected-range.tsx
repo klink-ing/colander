@@ -19,16 +19,21 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     [days, rangeStart, rangeEnd, T],
   );
 
+  const startDayId = info.active ? `day-${days[info.startIndex].toString()}` : "";
+  const endDayId = info.active ? `day-${days[info.endIndex].toString()}` : "";
+
   const state = useMemo<SelectedRangeState<F>>(
     () => ({
       root: rootState,
       active: info.active,
       startIndex: info.startIndex,
       endIndex: info.endIndex,
+      startDayId,
+      endDayId,
       extendsBefore: info.extendsBefore,
       extendsAfter: info.extendsAfter,
     }),
-    [rootState, info],
+    [rootState, info, startDayId, endDayId],
   );
 
   const stateAttributesMapping = useMemo(
@@ -37,6 +42,8 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
       active: () => null,
       startIndex: () => null,
       endIndex: () => null,
+      startDayId: () => null,
+      endDayId: () => null,
       extendsBefore: (v: boolean) => (v ? { "data-extends-before": "" } : null),
       extendsAfter: (v: boolean) => (v ? { "data-extends-after": "" } : null),
     }),

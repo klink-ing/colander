@@ -183,18 +183,25 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
 function DayCellInstance<F extends ValueFormat = ValueFormat>(
   props: Omit<DayCellTemplateProps<F>, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
+    columnIndex?: number;
     ref?: React.Ref<HTMLTableCellElement>;
   },
 ) {
-  const { ref, render, date, children, ...otherProps } = props;
+  const { ref, render, date, columnIndex, children, ...otherProps } = props;
   const {
     state,
     stateAttributesMapping,
     defaultProps: cellDefaults,
   } = useDayCellState<F>(date);
 
+  const gridStyle =
+    columnIndex != null
+      ? { gridColumn: columnIndex + 1, gridRow: 1 }
+      : undefined;
+
   const defaultProps: Record<string, unknown> = {
     ...cellDefaults,
+    style: gridStyle,
     children: children ?? <DayButton />,
   };
 
@@ -208,7 +215,7 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
   });
 
   return (
-    <DayCellDataContext.Provider value={{ date }}>
+    <DayCellDataContext.Provider value={{ date, columnIndex }}>
       {cell}
     </DayCellDataContext.Provider>
   );
@@ -228,10 +235,16 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
   }
 
   const days = weekData ? weekData.days : weeks.flat();
+  const perWeek = weekData != null;
   return (
     <>
-      {days.map((day) => (
-        <Instance key={day.toString()} {...restProps} date={day} />
+      {days.map((day, i) => (
+        <Instance
+          key={day.toString()}
+          {...restProps}
+          date={day}
+          columnIndex={perWeek ? i : undefined}
+        />
       ))}
     </>
   );

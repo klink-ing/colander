@@ -4,6 +4,7 @@ import { createDatePicker, type DateRange } from "@/components/ui/date-picker";
 import { StyledDatePicker } from "@/components/styled-date-picker";
 import { StyledDatePickerHorizontal } from "@/components/styled-date-picker-horizontal";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
+import { AnchorDatePicker } from "@/components/anchor-date-picker";
 
 const ZonedDatePicker = createDatePicker("ZonedDateTime", {
   temporal: Temporal,
@@ -78,6 +79,9 @@ export default function Home() {
   const [range, setRange] = useState<
     DateRange<"ZonedDateTime"> | undefined
   >();
+  const [anchorRange, setAnchorRange] = useState<
+    DateRange<"ZonedDateTime"> | undefined
+  >();
   const [selectedDate2, setSelectedDate2] = useState<
     Temporal.ZonedDateTime | undefined
   >();
@@ -143,6 +147,14 @@ export default function Home() {
     (newTz: string) => {
       setTimeZone(newTz);
       setRange((prev) =>
+        prev
+          ? {
+              start: prev.start.withTimeZone(newTz),
+              end: prev.end.withTimeZone(newTz),
+            }
+          : undefined,
+      );
+      setAnchorRange((prev) =>
         prev
           ? {
               start: prev.start.withTimeZone(newTz),
@@ -269,6 +281,20 @@ export default function Home() {
             selectionMode="range"
             value={range}
             onValueChange={setRange}
+            min={minDate}
+            max={maxDate}
+            locale={locale}
+            timeZone={timeZone}
+          />
+        </div>
+
+        <div className="w-min">
+          Anchor-Positioned DatePicker
+          {formatRangeDisplay(anchorRange)}
+          <AnchorDatePicker
+            components={ZonedDatePicker}
+            value={anchorRange}
+            onValueChange={setAnchorRange}
             min={minDate}
             max={maxDate}
             locale={locale}
