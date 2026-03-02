@@ -268,27 +268,37 @@ export function useRootState<F extends ValueFormat>(
       if (isRange) {
         const onRangeChange = onValueChange as ((v: DateRange<F> | undefined) => void) | undefined;
 
-        if (pendingRangeStart) {
-          let newStart = pendingRangeStart;
-          let newEnd = date;
-          if (T.PlainDate.compare(newEnd, newStart) < 0) {
-            [newStart, newEnd] = [newEnd, newStart];
+        let newStart: Temporal.PlainDate;
+        let newEnd: Temporal.PlainDate;
+
+        if (committedStart && committedEnd) {
+          const beforeStart = T.PlainDate.compare(date, committedStart) < 0;
+          const afterEnd = T.PlainDate.compare(date, committedEnd) > 0;
+
+          if (beforeStart) {
+            newStart = date;
+            newEnd = committedEnd;
+          } else if (afterEnd) {
+            newStart = committedStart;
+            newEnd = date;
+          } else {
+            newStart = date;
+            newEnd = date;
           }
-          setPendingRangeStart(undefined);
-          if (!rangeValue) {
-            setInternalRangeStart(newStart);
-            setInternalRangeEnd(newEnd);
-          }
-          onRangeChange?.({
-            start: plainToFormatValue(newStart),
-            end: plainToFormatValue(newEnd),
-          });
         } else {
-          setPendingRangeStart(date);
-          if (!rangeValue) {
-            setInternalRangeEnd(undefined);
-          }
+          newStart = date;
+          newEnd = date;
         }
+
+        setPendingRangeStart(undefined);
+        if (!rangeValue) {
+          setInternalRangeStart(newStart);
+          setInternalRangeEnd(newEnd);
+        }
+        onRangeChange?.({
+          start: plainToFormatValue(newStart),
+          end: plainToFormatValue(newEnd),
+        });
         return;
       }
 
@@ -317,7 +327,8 @@ export function useRootState<F extends ValueFormat>(
       timeZone,
       T,
       isRange,
-      pendingRangeStart,
+      committedStart,
+      committedEnd,
       plainToFormatValue,
     ],
   );

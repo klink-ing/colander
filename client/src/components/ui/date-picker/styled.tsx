@@ -216,6 +216,8 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
         "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
         "data-[today]:bg-accent data-[today]:text-accent-foreground",
         "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
+        "data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:rounded-full data-[range-start]:hover:bg-primary data-[range-start]:hover:text-primary-foreground",
+        "data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:rounded-full data-[range-end]:hover:bg-primary data-[range-end]:hover:text-primary-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       )}
