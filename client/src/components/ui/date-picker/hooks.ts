@@ -203,9 +203,12 @@ export function useRootState<F extends ValueFormat>(
         month: m.month,
         day: 1,
       }).add({ months: 1 });
+      setFocusedDate((prev) =>
+        prev.year === d.year && prev.month === d.month ? prev : d,
+      );
       return { year: d.year, month: d.month };
     });
-  }, [T]);
+  }, [T, setFocusedDate]);
 
   const goToPrevMonth = useCallback(() => {
     setCurrentMonth((m) => {
@@ -214,9 +217,12 @@ export function useRootState<F extends ValueFormat>(
         month: m.month,
         day: 1,
       }).subtract({ months: 1 });
+      setFocusedDate((prev) =>
+        prev.year === d.year && prev.month === d.month ? prev : d,
+      );
       return { year: d.year, month: d.month };
     });
-  }, [T]);
+  }, [T, setFocusedDate]);
 
   const weeks = useMemo(
     () => getMonthWeeks(currentMonth.year, currentMonth.month, T),
