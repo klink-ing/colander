@@ -50,13 +50,17 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     [],
   );
 
-  const defaultProps: Record<string, unknown> = info.active
+  const interiorStart = info.extendsBefore ? info.startIndex : info.startIndex + 1;
+  const interiorEnd = info.extendsAfter ? info.endIndex : info.endIndex - 1;
+  const hasInterior = info.active && interiorStart <= interiorEnd;
+
+  const defaultProps: Record<string, unknown> = hasInterior
     ? {
         role: "presentation",
         "aria-hidden": true,
         "data-testid": "selected-range",
         style: {
-          gridColumn: `${info.startIndex + 1} / ${info.endIndex + 2}`,
+          gridColumn: `${interiorStart + 1} / ${interiorEnd + 2}`,
           gridRow: 1,
         },
       }
