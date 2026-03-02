@@ -22,6 +22,8 @@ export const WeekDataContext = createContext<{
   weekIndex: number;
 } | null>(null);
 
+export const GridOrientationContext = createContext<"horizontal" | "vertical">("vertical");
+
 export const DayCellDataContext = createContext<{
   date: Temporal.PlainDate;
   columnIndex?: number;

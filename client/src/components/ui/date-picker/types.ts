@@ -231,6 +231,7 @@ export type GridState<F extends ValueFormat = ValueFormat> = {
 
 export interface GridOwnProps {
   mode?: "grid";
+  orientation?: "horizontal" | "vertical";
 }
 
 export type GridProps<F extends ValueFormat = ValueFormat> =

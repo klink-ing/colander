@@ -76,6 +76,10 @@ export default function Home() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
   const [timeZone, setTimeZone] = useState(systemTz);
   const [locale, setLocale] = useState("en-US");
+  const [selectionMode, setSelectionMode] = useState<"single" | "range">("range");
+  const [singleDate, setSingleDate] = useState<
+    Temporal.ZonedDateTime | undefined
+  >();
   const [range, setRange] = useState<
     DateRange<"ZonedDateTime"> | undefined
   >();
@@ -162,6 +166,7 @@ export default function Home() {
             }
           : undefined,
       );
+      setSingleDate((prev) => rezoneDateValue(prev, newTz));
       setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
       setSelectedDate3((prev) => rezoneDateValue(prev, newTz));
     },
@@ -272,20 +277,52 @@ export default function Home() {
         </div>
       </div>
 
+      <div className="flex w-full max-w-2xl items-center gap-3">
+        <span className="text-sm font-medium text-foreground">Selection Mode:</span>
+        <button
+          data-testid="toggle-selection-mode"
+          onClick={() => setSelectionMode((m) => (m === "single" ? "range" : "single"))}
+          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors ${selectionMode === "range" ? "bg-primary" : "bg-input"}`}
+          role="switch"
+          aria-checked={selectionMode === "range"}
+          aria-label="Toggle range selection"
+        >
+          <span
+            className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${selectionMode === "range" ? "translate-x-5" : "translate-x-0"}`}
+          />
+        </button>
+        <span className="text-sm text-muted-foreground" data-testid="text-selection-mode">
+          {selectionMode === "range" ? "Range" : "Single"}
+        </span>
+      </div>
+
       <div className="flex flex-wrap items-start justify-center gap-4">
         <div className="w-min">
-          Range DatePicker
-          {formatRangeDisplay(range)}
-          <StyledDatePicker
-            components={ZonedDatePicker}
-            selectionMode="range"
-            value={range}
-            onValueChange={setRange}
-            min={minDate}
-            max={maxDate}
-            locale={locale}
-            timeZone={timeZone}
-          />
+          Styled DatePicker
+          {selectionMode === "range" ? formatRangeDisplay(range) : formatDisplay(singleDate)}
+          {selectionMode === "range" ? (
+            <StyledDatePicker
+              components={ZonedDatePicker}
+              selectionMode="range"
+              value={range}
+              onValueChange={setRange}
+              min={minDate}
+              max={maxDate}
+              locale={locale}
+              timeZone={timeZone}
+            />
+          ) : (
+            <StyledDatePicker
+              components={ZonedDatePicker}
+              selectionMode="single"
+              value={singleDate}
+              onValueChange={setSingleDate}
+              min={minDate}
+              max={maxDate}
+              locale={locale}
+              timeZone={timeZone}
+            />
+          )}
         </div>
 
         <div className="w-min">

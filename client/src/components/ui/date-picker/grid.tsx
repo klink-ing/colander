@@ -1,7 +1,7 @@
 import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { useDatePicker, WeekDataContext, DayCellDataContext } from "./context";
+import { useDatePicker, WeekDataContext, DayCellDataContext, GridOrientationContext } from "./context";
 import { useGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import type {
@@ -20,10 +20,11 @@ export { GridHeader, GridHeaderCell } from "./grid-header";
 export function Grid<F extends ValueFormat = ValueFormat>(
   props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
 ) {
-  const { ref, render, mode: _mode, children, ...otherProps } = props;
+  const { ref, render, mode: _mode, orientation, children, ...otherProps } = props;
   const { currentDateTime, gridLabelId, rootState, weeks, gridFocusedRef, setGridHasFocus } = useDatePicker<F>();
   const handleKeyDown = useGridKeyboard();
 
+  const resolvedOrientation = orientation ?? "vertical";
   const daysPerWeek = weeks[0]?.length ?? 7;
   const weeksInMonth = weeks.length;
 
@@ -80,7 +81,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     ),
   };
 
-  return useRender({
+  const el = useRender({
     defaultTagName: "table",
     render,
     ref: ref ? [ref] : [],
@@ -88,6 +89,16 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping,
     props: mergeProps<"table">(defaultProps, otherProps),
   });
+
+  if (resolvedOrientation === "horizontal") {
+    return (
+      <GridOrientationContext.Provider value="horizontal">
+        {el}
+      </GridOrientationContext.Provider>
+    );
+  }
+
+  return el;
 }
 
 export function GridBody<F extends ValueFormat = ValueFormat>(
@@ -193,10 +204,13 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping,
     defaultProps: cellDefaults,
   } = useDayCellState<F>(date);
+  const orientation = useContext(GridOrientationContext);
 
   const gridStyle =
     columnIndex != null
-      ? { gridColumn: columnIndex + 1, gridRow: 1 }
+      ? orientation === "horizontal"
+        ? { gridRow: columnIndex + 1, gridColumn: 1 }
+        : { gridColumn: columnIndex + 1, gridRow: 1 }
       : undefined;
 
   const defaultProps: Record<string, unknown> = {
