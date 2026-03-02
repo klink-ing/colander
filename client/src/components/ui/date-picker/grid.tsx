@@ -21,7 +21,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
   props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
-  const { currentDateTime, gridLabelId, rootState, weeks } = useDatePicker<F>();
+  const { currentDateTime, gridLabelId, rootState, weeks, gridFocusedRef } = useDatePicker<F>();
   const handleKeyDown = useGridKeyboard();
 
   const daysPerWeek = weeks[0]?.length ?? 7;
@@ -56,6 +56,12 @@ export function Grid<F extends ValueFormat = ValueFormat>(
       "--calendar-weeks-in-month": weeksInMonth,
     } as React.CSSProperties,
     onKeyDown: handleKeyDown,
+    onFocus: () => {
+      gridFocusedRef.current = true;
+    },
+    onBlur: () => {
+      gridFocusedRef.current = false;
+    },
     children: children ?? (
       <>
         <GridHeader>

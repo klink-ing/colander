@@ -121,6 +121,7 @@ export function useRootState<F extends ValueFormat>(
   });
 
   const [gridLabelId, setGridLabelId] = useState<string | undefined>(undefined);
+  const gridFocusedRef = useRef(false);
 
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
     const src = taggedValue ?? taggedDefault;
@@ -299,6 +300,7 @@ export function useRootState<F extends ValueFormat>(
       focusedDate,
       tabTargetDate,
       setFocusedDate,
+      gridFocusedRef,
       timeZone,
       locale,
       temporal: T,
@@ -550,6 +552,7 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
     locale,
     rootState,
     tabTargetDate,
+    gridFocusedRef,
     temporal: T,
   } = useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
@@ -558,10 +561,10 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
   const isTabTarget = T.PlainDate.compare(date, tabTargetDate) === 0;
 
   useEffect(() => {
-    if (isFocused && internalRef.current) {
+    if (isFocused && gridFocusedRef.current && internalRef.current) {
       internalRef.current.focus();
     }
-  }, [isFocused]);
+  }, [isFocused, gridFocusedRef]);
 
   const state = useMemo<DayButtonState<F>>(
     () => ({
