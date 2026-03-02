@@ -216,7 +216,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
       touchAction: "none",
       cursor: dragging ? "grabbing" : "grab",
       display: visible ? undefined : "none",
-      viewTransitionName: visible ? `drag-handle-${edge}` : "none",
+      viewTransitionName: isActive ? `drag-handle-${edge}` : "none",
     },
     onPointerDown: handlePointerDown,
     onPointerMove: handlePointerMove,
