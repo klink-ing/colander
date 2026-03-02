@@ -135,11 +135,7 @@ export function useRootState<F extends ValueFormat>(
     [disabled, minValue, maxValue, isDateDisabledProp, T],
   );
 
-  const [internalSelected, setInternalSelected] = useState<
-    DateValueObject | undefined
-  >(() => taggedDefault);
-
-  const rangeToPlain = useCallback(
+  const rawToPlain = useCallback(
     (raw: RawValueForFormat<F>): Temporal.PlainDate => {
       const tagged = { format: resolvedFormat, value: raw } as DateValueObject;
       return toZonedDateTime(tagged, timeZone, T).toPlainDate();
@@ -147,23 +143,29 @@ export function useRootState<F extends ValueFormat>(
     [resolvedFormat, timeZone, T],
   );
 
-  const controlledRangeStart = useMemo(
-    () => (rangeValue ? rangeToPlain(rangeValue.start) : undefined),
-    [rangeValue, rangeToPlain],
-  );
-  const controlledRangeEnd = useMemo(
-    () => (rangeValue ? rangeToPlain(rangeValue.end) : undefined),
-    [rangeValue, rangeToPlain],
-  );
+  const controlledRangeStart = useMemo(() => {
+    if (rangeValue) return rawToPlain(rangeValue.start);
+    if (singleValue != null) return rawToPlain(singleValue);
+    return undefined;
+  }, [rangeValue, singleValue, rawToPlain]);
 
-  const defaultRangeStart = useMemo(
-    () => (rangeDefault ? rangeToPlain(rangeDefault.start) : undefined),
-    [rangeDefault, rangeToPlain],
-  );
-  const defaultRangeEnd = useMemo(
-    () => (rangeDefault ? rangeToPlain(rangeDefault.end) : undefined),
-    [rangeDefault, rangeToPlain],
-  );
+  const controlledRangeEnd = useMemo(() => {
+    if (rangeValue) return rawToPlain(rangeValue.end);
+    if (singleValue != null) return rawToPlain(singleValue);
+    return undefined;
+  }, [rangeValue, singleValue, rawToPlain]);
+
+  const defaultRangeStart = useMemo(() => {
+    if (rangeDefault) return rawToPlain(rangeDefault.start);
+    if (singleDefault != null) return rawToPlain(singleDefault);
+    return undefined;
+  }, [rangeDefault, singleDefault, rawToPlain]);
+
+  const defaultRangeEnd = useMemo(() => {
+    if (rangeDefault) return rawToPlain(rangeDefault.end);
+    if (singleDefault != null) return rawToPlain(singleDefault);
+    return undefined;
+  }, [rangeDefault, singleDefault, rawToPlain]);
 
   const [internalRangeStart, setInternalRangeStart] = useState<
     Temporal.PlainDate | undefined
@@ -176,27 +178,27 @@ export function useRootState<F extends ValueFormat>(
     Temporal.PlainDate | undefined
   >(undefined);
 
-  const committedStart = rangeValue ? controlledRangeStart : internalRangeStart;
-  const committedEnd = rangeValue ? controlledRangeEnd : internalRangeEnd;
+  const isControlled = isRange ? rangeValue != null : singleValue != null;
+  const committedStart = isControlled ? controlledRangeStart : internalRangeStart;
+  const committedEnd = isControlled ? controlledRangeEnd : internalRangeEnd;
 
   const rangeStart = pendingRangeStart ?? committedStart;
   const rangeEnd = pendingRangeStart ? undefined : committedEnd;
 
-  const initSrc = isRange
-    ? rangeValue
-      ? { format: resolvedFormat, value: rangeValue.start } as DateValueObject
-      : rangeDefault
-        ? { format: resolvedFormat, value: rangeDefault.start } as DateValueObject
-        : undefined
-    : undefined;
+  const initSrc = useMemo(() => {
+    if (taggedValue) return taggedValue;
+    if (taggedDefault) return taggedDefault;
+    if (rangeValue) return { format: resolvedFormat, value: rangeValue.start } as DateValueObject;
+    if (rangeDefault) return { format: resolvedFormat, value: rangeDefault.start } as DateValueObject;
+    return undefined;
+  }, [taggedValue, taggedDefault, rangeValue, rangeDefault, resolvedFormat]);
 
   const [currentMonth, setCurrentMonth] = useState<{
     year: number;
     month: number;
   }>(() => {
-    const src = taggedValue ?? taggedDefault ?? initSrc;
-    const init = src
-      ? toZonedDateTime(src, timeZone, T)
+    const init = initSrc
+      ? toZonedDateTime(initSrc, timeZone, T)
       : T.Now.zonedDateTimeISO(timeZone);
     return { year: init.year, month: init.month };
   });
@@ -206,17 +208,18 @@ export function useRootState<F extends ValueFormat>(
   const [gridHasFocus, setGridHasFocus] = useState(false);
 
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
-    const src = taggedValue ?? taggedDefault ?? initSrc;
-    if (src) {
-      return toZonedDateTime(src, timeZone, T).toPlainDate();
+    if (initSrc) {
+      return toZonedDateTime(initSrc, timeZone, T).toPlainDate();
     }
     return T.Now.plainDateISO();
   });
 
   const selected: DateValueObject | undefined = useMemo(() => {
     if (taggedValue) return taggedValue;
-    return internalSelected;
-  }, [taggedValue, internalSelected]);
+    if (!rangeStart) return undefined;
+    const zdt = rangeStart.toPlainDateTime({ hour: 0, minute: 0, second: 0 }).toZonedDateTime(timeZone);
+    return fromZonedDateTime(zdt, resolvedFormat, T);
+  }, [taggedValue, rangeStart, timeZone, resolvedFormat, T]);
 
   const selectedZdt = useMemo(
     () => selectedToZdt(selected, timeZone, T),
@@ -240,18 +243,21 @@ export function useRootState<F extends ValueFormat>(
   }, [focusedDate]);
 
   useEffect(() => {
-    if (!selected || isRange) return;
-    const selPlain = toZonedDateTime(selected, timeZone, T).toPlainDate();
+    if (isRange) return;
+    const start = committedStart;
+    if (!start) return;
     const outOfBounds =
-      (minValue && T.PlainDate.compare(selPlain, minValue) < 0) ||
-      (maxValue && T.PlainDate.compare(selPlain, maxValue) > 0);
+      (minValue && T.PlainDate.compare(start, minValue) < 0) ||
+      (maxValue && T.PlainDate.compare(start, maxValue) > 0);
     if (outOfBounds) {
-      if (!singleValue) {
-        setInternalSelected(undefined);
+      setPendingRangeStart(undefined);
+      if (!isControlled) {
+        setInternalRangeStart(undefined);
+        setInternalRangeEnd(undefined);
       }
       (onValueChange as ((v: RawValueForFormat<F> | undefined) => void) | undefined)?.(undefined);
     }
-  }, [minValue, maxValue, selected, singleValue, onValueChange, timeZone, T, isRange]);
+  }, [minValue, maxValue, committedStart, isControlled, onValueChange, T, isRange]);
 
   const plainToFormatValue = useCallback(
     (plain: Temporal.PlainDate): RawValueForFormat<F> => {
@@ -265,61 +271,57 @@ export function useRootState<F extends ValueFormat>(
     (date: Temporal.PlainDate) => {
       if (isDateDisabled(date)) return;
 
-      if (isRange) {
-        const onRangeChange = onValueChange as ((v: DateRange<F> | undefined) => void) | undefined;
+      let newStart: Temporal.PlainDate;
+      let newEnd: Temporal.PlainDate;
 
-        let newStart: Temporal.PlainDate;
-        let newEnd: Temporal.PlainDate;
+      if (isRange && committedStart && committedEnd) {
+        const beforeStart = T.PlainDate.compare(date, committedStart) < 0;
+        const afterEnd = T.PlainDate.compare(date, committedEnd) > 0;
 
-        if (committedStart && committedEnd) {
-          const beforeStart = T.PlainDate.compare(date, committedStart) < 0;
-          const afterEnd = T.PlainDate.compare(date, committedEnd) > 0;
-
-          if (beforeStart) {
-            newStart = date;
-            newEnd = committedEnd;
-          } else if (afterEnd) {
-            newStart = committedStart;
-            newEnd = date;
-          } else {
-            newStart = date;
-            newEnd = date;
-          }
+        if (beforeStart) {
+          newStart = date;
+          newEnd = committedEnd;
+        } else if (afterEnd) {
+          newStart = committedStart;
+          newEnd = date;
         } else {
           newStart = date;
           newEnd = date;
         }
+      } else {
+        newStart = date;
+        newEnd = date;
+      }
 
-        setPendingRangeStart(undefined);
-        if (!rangeValue) {
-          setInternalRangeStart(newStart);
-          setInternalRangeEnd(newEnd);
-        }
-        onRangeChange?.({
+      setPendingRangeStart(undefined);
+      if (!isControlled) {
+        setInternalRangeStart(newStart);
+        setInternalRangeEnd(newEnd);
+      }
+      setCurrentMonth({ year: date.year, month: date.month });
+
+      if (isRange) {
+        (onValueChange as ((v: DateRange<F> | undefined) => void) | undefined)?.({
           start: plainToFormatValue(newStart),
           end: plainToFormatValue(newEnd),
         });
-        return;
+      } else {
+        const prevTime = selectedZdt
+          ? {
+              hour: selectedZdt.hour,
+              minute: selectedZdt.minute,
+              second: selectedZdt.second,
+            }
+          : { hour: 0, minute: 0, second: 0 };
+        const newZdt = date.toPlainDateTime(prevTime).toZonedDateTime(timeZone);
+        const newTagged = fromZonedDateTime(newZdt, resolvedFormat, T);
+        (onValueChange as ((v: DateValueObject["value"]) => void) | undefined)?.(
+          newTagged.value,
+        );
       }
-
-      const prevTime = selectedZdt
-        ? {
-            hour: selectedZdt.hour,
-            minute: selectedZdt.minute,
-            second: selectedZdt.second,
-          }
-        : { hour: 0, minute: 0, second: 0 };
-      const newZdt = date.toPlainDateTime(prevTime).toZonedDateTime(timeZone);
-      const newTagged = fromZonedDateTime(newZdt, resolvedFormat, T);
-      if (!singleValue) setInternalSelected(newTagged);
-      setCurrentMonth({ year: date.year, month: date.month });
-      (onValueChange as ((v: DateValueObject["value"]) => void) | undefined)?.(
-        newTagged.value,
-      );
     },
     [
-      singleValue,
-      rangeValue,
+      isControlled,
       selectedZdt,
       onValueChange,
       resolvedFormat,
@@ -335,19 +337,24 @@ export function useRootState<F extends ValueFormat>(
 
   const setRange = useCallback(
     (start: Temporal.PlainDate, end: Temporal.PlainDate) => {
-      if (!isRange) return;
-      const onRangeChange = onValueChange as ((v: DateRange<F> | undefined) => void) | undefined;
+      const effectiveEnd = isRange ? end : start;
       setPendingRangeStart(undefined);
-      if (!rangeValue) {
+      if (!isControlled) {
         setInternalRangeStart(start);
-        setInternalRangeEnd(end);
+        setInternalRangeEnd(effectiveEnd);
       }
-      onRangeChange?.({
-        start: plainToFormatValue(start),
-        end: plainToFormatValue(end),
-      });
+      if (isRange) {
+        (onValueChange as ((v: DateRange<F> | undefined) => void) | undefined)?.({
+          start: plainToFormatValue(start),
+          end: plainToFormatValue(effectiveEnd),
+        });
+      } else {
+        const zdt = start.toPlainDateTime({ hour: 0, minute: 0, second: 0 }).toZonedDateTime(timeZone);
+        const tagged = fromZonedDateTime(zdt, resolvedFormat, T);
+        (onValueChange as ((v: DateValueObject["value"]) => void) | undefined)?.(tagged.value);
+      }
     },
-    [isRange, rangeValue, onValueChange, plainToFormatValue],
+    [isControlled, isRange, onValueChange, plainToFormatValue, timeZone, resolvedFormat, T],
   );
 
   const goToNextMonth = useCallback(() => {
