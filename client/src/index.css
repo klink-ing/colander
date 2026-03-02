@@ -336,3 +336,17 @@
     inset: -1px;
   }
 }
+
+::view-transition-group(drag-handle-start),
+::view-transition-group(drag-handle-end) {
+  animation-duration: 150ms;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(drag-handle-start),
+::view-transition-new(drag-handle-start),
+::view-transition-old(drag-handle-end),
+::view-transition-new(drag-handle-end) {
+  animation: none;
+  mix-blend-mode: normal;
+}

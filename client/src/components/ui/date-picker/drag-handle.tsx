@@ -1,4 +1,5 @@
 import { useContext, useMemo, useState, useCallback, useRef } from "react";
+import { flushSync } from "react-dom";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker, DayCellDataContext } from "./context";
@@ -75,6 +76,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
 
   const [dragging, setDragging] = useState(false);
   const dayRectsRef = useRef<CachedDayRect[]>([]);
+  const vtRef = useRef<ViewTransition | null>(null);
   const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
   rangeRef.current = { start: rangeStart, end: rangeEnd };
 
@@ -141,7 +143,16 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
         Tp.PlainDate.compare(newStart, start) !== 0 ||
         Tp.PlainDate.compare(newEnd, end) !== 0
       ) {
-        setRangeRef.current(newStart, newEnd);
+        const update = () => setRangeRef.current(newStart, newEnd);
+        if (document.startViewTransition && !vtRef.current) {
+          const vt = document.startViewTransition(() => {
+            flushSync(update);
+          });
+          vtRef.current = vt;
+          vt.finished.then(() => { vtRef.current = null; }).catch(() => { vtRef.current = null; });
+        } else {
+          update();
+        }
       }
     },
     [dragging],
@@ -197,12 +208,15 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
     [],
   );
 
+  const visible = isActive || dragging;
+
   const defaultProps: Record<string, unknown> = {
     "data-testid": `drag-handle-${edge}`,
     style: {
       touchAction: "none",
       cursor: dragging ? "grabbing" : "grab",
-      display: isActive || dragging ? undefined : "none",
+      display: visible ? undefined : "none",
+      viewTransitionName: visible ? `drag-handle-${edge}` : "none",
     },
     onPointerDown: handlePointerDown,
     onPointerMove: handlePointerMove,
