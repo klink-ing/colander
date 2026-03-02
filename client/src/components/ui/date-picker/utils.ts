@@ -220,6 +220,13 @@ export function resolveFocusTarget(
   return firstEnabled ?? allDays[0];
 }
 
+export function shouldMoveDomFocus(
+  isFocused: boolean,
+  gridHasFocus: boolean,
+): boolean {
+  return isFocused && gridHasFocus;
+}
+
 export function getWeekdayNames(locale: string, T: TemporalNamespace) {
   const refSunday = getReferenceSunday(T);
   const names: { long: string; short: string; narrow: string }[] = [];

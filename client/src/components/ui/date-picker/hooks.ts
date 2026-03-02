@@ -32,6 +32,7 @@ import {
   computeAdjacentMonth,
   focusedDateForMonth,
   resolveFocusTarget,
+  shouldMoveDomFocus,
 } from "./utils";
 
 interface UseRootStateParams<F extends ValueFormat> {
@@ -561,7 +562,7 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
   const isTabTarget = T.PlainDate.compare(date, tabTargetDate) === 0;
 
   useEffect(() => {
-    if (isFocused && gridFocusedRef.current && internalRef.current) {
+    if (shouldMoveDomFocus(isFocused, gridFocusedRef.current) && internalRef.current) {
       internalRef.current.focus();
     }
   }, [isFocused, gridFocusedRef]);

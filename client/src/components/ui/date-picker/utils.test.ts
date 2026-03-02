@@ -5,6 +5,7 @@ import {
   focusedDateForMonth,
   getMonthWeeks,
   resolveFocusTarget,
+  shouldMoveDomFocus,
 } from "./utils";
 import type { TemporalNamespace } from "./types";
 
@@ -272,5 +273,23 @@ describe("resolveFocusTarget", () => {
     );
     const firstGridDay = marchWeeks[0][0];
     expect(result.toString()).toBe(firstGridDay.toString());
+  });
+});
+
+describe("shouldMoveDomFocus", () => {
+  it("returns true when cell is focused AND grid has focus (keyboard nav inside grid)", () => {
+    expect(shouldMoveDomFocus(true, true)).toBe(true);
+  });
+
+  it("returns false when cell is focused but grid does NOT have focus (nav button clicked)", () => {
+    expect(shouldMoveDomFocus(true, false)).toBe(false);
+  });
+
+  it("returns false when grid has focus but cell is not the focused date", () => {
+    expect(shouldMoveDomFocus(false, true)).toBe(false);
+  });
+
+  it("returns false when neither cell is focused nor grid has focus", () => {
+    expect(shouldMoveDomFocus(false, false)).toBe(false);
   });
 });
