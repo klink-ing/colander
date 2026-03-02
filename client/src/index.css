@@ -343,6 +343,11 @@
   animation-timing-function: ease-out;
 }
 
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+}
+
 ::view-transition-old(drag-handle-start),
 ::view-transition-new(drag-handle-start),
 ::view-transition-old(drag-handle-end),
