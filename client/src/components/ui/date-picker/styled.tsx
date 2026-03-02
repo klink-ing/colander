@@ -208,7 +208,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
     <DayButton
       {...(props as DayButtonProps)}
       className={cn(
-        "relative inline-flex h-9 w-9 items-center justify-center rounded-md text-sm font-normal transition-colors",
+        "relative inline-flex items-center justify-end rounded-md p-1 text-sm font-normal tabular-nums transition-colors min-w-[1",
         "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-foreground hover:bg-accent hover:text-accent-foreground",
         "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
