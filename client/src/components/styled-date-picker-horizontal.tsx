@@ -66,7 +66,7 @@ export function StyledDatePickerHorizontal<
         </div>
 
         <StyledGrid
-          className="grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)] grid-flow-col auto-cols-fr"
+          className="w-auto grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)] grid-flow-col auto-cols-auto"
         >
           <StyledGridHeader
             className={cn(
