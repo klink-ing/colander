@@ -168,6 +168,33 @@ export function getReferenceSunday(T: TemporalNamespace): Temporal.PlainDate {
   return T.PlainDate.from("2024-01-07");
 }
 
+export function computeAdjacentMonth(
+  current: { year: number; month: number },
+  direction: "prev" | "next",
+  T: TemporalNamespace,
+): { year: number; month: number; firstDay: Temporal.PlainDate } {
+  const d = T.PlainDate.from({
+    year: current.year,
+    month: current.month,
+    day: 1,
+  })[direction === "next" ? "add" : "subtract"]({ months: 1 });
+  return { year: d.year, month: d.month, firstDay: d };
+}
+
+export function focusedDateForMonth(
+  currentFocused: Temporal.PlainDate,
+  targetMonth: { year: number; month: number },
+  firstDay: Temporal.PlainDate,
+): Temporal.PlainDate {
+  if (
+    currentFocused.year === targetMonth.year &&
+    currentFocused.month === targetMonth.month
+  ) {
+    return currentFocused;
+  }
+  return firstDay;
+}
+
 export function getWeekdayNames(locale: string, T: TemporalNamespace) {
   const refSunday = getReferenceSunday(T);
   const names: { long: string; short: string; narrow: string }[] = [];

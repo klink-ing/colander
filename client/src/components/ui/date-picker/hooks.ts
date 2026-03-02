@@ -29,6 +29,8 @@ import {
   getMonthWeeks,
   sameCalendarDay,
   getWeekdayNames,
+  computeAdjacentMonth,
+  focusedDateForMonth,
 } from "./utils";
 
 interface UseRootStateParams<F extends ValueFormat> {
@@ -198,31 +200,23 @@ export function useRootState<F extends ValueFormat>(
 
   const goToNextMonth = useCallback(() => {
     setCurrentMonth((m) => {
-      const d = T.PlainDate.from({
-        year: m.year,
-        month: m.month,
-        day: 1,
-      }).add({ months: 1 });
+      const { year, month, firstDay } = computeAdjacentMonth(m, "next", T);
       setFocusedDate((prev) =>
-        prev.year === d.year && prev.month === d.month ? prev : d,
+        focusedDateForMonth(prev, { year, month }, firstDay),
       );
-      return { year: d.year, month: d.month };
+      return { year, month };
     });
-  }, [T, setFocusedDate]);
+  }, [T]);
 
   const goToPrevMonth = useCallback(() => {
     setCurrentMonth((m) => {
-      const d = T.PlainDate.from({
-        year: m.year,
-        month: m.month,
-        day: 1,
-      }).subtract({ months: 1 });
+      const { year, month, firstDay } = computeAdjacentMonth(m, "prev", T);
       setFocusedDate((prev) =>
-        prev.year === d.year && prev.month === d.month ? prev : d,
+        focusedDateForMonth(prev, { year, month }, firstDay),
       );
-      return { year: d.year, month: d.month };
+      return { year, month };
     });
-  }, [T, setFocusedDate]);
+  }, [T]);
 
   const weeks = useMemo(
     () => getMonthWeeks(currentMonth.year, currentMonth.month, T),
