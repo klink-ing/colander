@@ -125,14 +125,14 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
           newEnd = end;
         } else {
           newStart = end;
-          newEnd = target;
+          newEnd = end;
         }
       } else {
         if (Tp.PlainDate.compare(target, start) >= 0) {
           newStart = start;
           newEnd = target;
         } else {
-          newStart = target;
+          newStart = start;
           newEnd = start;
         }
       }
