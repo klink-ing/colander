@@ -14,7 +14,7 @@ export {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-export { createDatePicker, Components } from "./factory";
+export { createDatePicker, type Components } from "./factory";
 export { useDatePicker } from "./context";
 
 export type {

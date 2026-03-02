@@ -35,7 +35,7 @@ export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
 ) {
   const { index: indexProp, ...restProps } = props;
   const Instance = GridHeaderCellInstance<F>;
-  
+
   if (indexProp != null) {
     return <Instance {...restProps} index={indexProp} />;
   }

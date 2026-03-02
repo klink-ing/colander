@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker, WeekDataContext, DayCellDataContext } from "./context";
 import { useGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
-import { GridHeader, GridHeaderCell } from "./labels";
+import { GridHeader, GridHeaderCell } from "./grid-header";
 import type {
   ValueFormat,
   GridState,
