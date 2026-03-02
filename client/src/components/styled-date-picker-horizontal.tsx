@@ -74,7 +74,7 @@ export function StyledDatePickerHorizontal<
               "[&>tr]:col-auto [&>tr]:row-span-full [&>tr]:[grid-template-columns:unset] [&>tr]:[grid-template-rows:subgrid]",
             )}
           >
-            <StyledGridHeaderCell className="flex items-center text-right" />
+            <StyledGridHeaderCell className="w-auto flex items-center text-right" />
           </StyledGridHeader>
           <StyledGridBody
             className="col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid] grid-flow-col auto-cols-fr"

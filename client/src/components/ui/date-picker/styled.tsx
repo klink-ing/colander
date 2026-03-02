@@ -151,7 +151,7 @@ export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
     <GridHeaderCell
       {...(props as GridHeaderCellProps)}
       className={cn(
-        "h-9 w-9 text-center text-[0.8rem] font-normal text-muted-foreground",
+        "w-fit text-center text-[0.8rem] font-normal text-muted-foreground",
         className,
       )}
     />
