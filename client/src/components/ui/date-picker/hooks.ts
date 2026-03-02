@@ -31,6 +31,7 @@ import {
   getWeekdayNames,
   computeAdjacentMonth,
   focusedDateForMonth,
+  resolveFocusTarget,
 } from "./utils";
 
 interface UseRootStateParams<F extends ValueFormat> {
@@ -268,6 +269,21 @@ export function useRootState<F extends ValueFormat>(
     [selected, rawSelected, focusedDate, viewingYearMonth, timeZone, locale],
   );
 
+  const selectedPlain = selectedZdt?.toPlainDate();
+
+  const tabTargetDate = useMemo(
+    () =>
+      resolveFocusTarget(
+        focusedDate,
+        selectedPlain,
+        weeks,
+        currentMonth,
+        isDateDisabled,
+        T,
+      ),
+    [focusedDate, selectedPlain, weeks, currentMonth, isDateDisabled, T],
+  );
+
   const ctx = useMemo<DatePickerContextValue>(
     () => ({
       selected,
@@ -281,6 +297,7 @@ export function useRootState<F extends ValueFormat>(
       minValue,
       maxValue,
       focusedDate,
+      tabTargetDate,
       setFocusedDate,
       timeZone,
       locale,
@@ -301,6 +318,7 @@ export function useRootState<F extends ValueFormat>(
       minValue,
       maxValue,
       focusedDate,
+      tabTargetDate,
       timeZone,
       locale,
       T,
@@ -526,10 +544,18 @@ export function useDayCellState<F extends ValueFormat = ValueFormat>(
 export function useDayButtonState<F extends ValueFormat = ValueFormat>(
   date: Temporal.PlainDate,
 ) {
-  const { onSelect, setFocusedDate, locale, rootState } = useDatePicker<F>();
+  const {
+    onSelect,
+    setFocusedDate,
+    locale,
+    rootState,
+    tabTargetDate,
+    temporal: T,
+  } = useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
   const internalRef = useRef<HTMLButtonElement>(null);
+  const isTabTarget = T.PlainDate.compare(date, tabTargetDate) === 0;
 
   useEffect(() => {
     if (isFocused && internalRef.current) {
@@ -551,7 +577,7 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
-    tabIndex: isFocused ? 0 : -1,
+    tabIndex: isTabTarget ? 0 : -1,
     disabled: isDisabled,
     "aria-label": date.toLocaleString(locale, {
       weekday: "long",

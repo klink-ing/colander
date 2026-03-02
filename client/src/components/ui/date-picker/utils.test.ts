@@ -4,6 +4,7 @@ import {
   computeAdjacentMonth,
   focusedDateForMonth,
   getMonthWeeks,
+  resolveFocusTarget,
 } from "./utils";
 import type { TemporalNamespace } from "./types";
 
@@ -173,5 +174,103 @@ describe("getMonthWeeks", () => {
     expect(
       allPrevDays.some((d) => Temporal.PlainDate.compare(d, prevFocused) === 0),
     ).toBe(true);
+  });
+});
+
+describe("resolveFocusTarget", () => {
+  const noDisabled = () => false;
+  const marchWeeks = getMonthWeeks(2026, 3, T);
+  const march = { year: 2026, month: 3 };
+
+  it("priority 1: returns focusedDate when it is in the grid", () => {
+    const result = resolveFocusTarget(
+      date("2026-03-15"),
+      undefined,
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+    );
+    expect(result.toString()).toBe("2026-03-15");
+  });
+
+  it("priority 1: returns focusedDate even if selectedDate differs", () => {
+    const result = resolveFocusTarget(
+      date("2026-03-10"),
+      date("2026-03-20"),
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+    );
+    expect(result.toString()).toBe("2026-03-10");
+  });
+
+  it("priority 2: falls back to selectedDate when focusedDate is not in grid", () => {
+    const result = resolveFocusTarget(
+      date("2026-04-15"),
+      date("2026-03-20"),
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+    );
+    expect(result.toString()).toBe("2026-03-20");
+  });
+
+  it("priority 3: falls back to first enabled day of the month when neither focused nor selected is in grid", () => {
+    const result = resolveFocusTarget(
+      date("2026-04-15"),
+      date("2026-04-20"),
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+    );
+    expect(result.toString()).toBe("2026-03-01");
+  });
+
+  it("priority 3: skips disabled days at the start of the month", () => {
+    const disableFirst3 = (d: Temporal.PlainDate) =>
+      d.year === 2026 && d.month === 3 && d.day <= 3;
+    const result = resolveFocusTarget(
+      date("2026-04-15"),
+      undefined,
+      marchWeeks,
+      march,
+      disableFirst3,
+      T,
+    );
+    expect(result.toString()).toBe("2026-03-04");
+  });
+
+  it("priority 2: selected outside-month day in grid is still valid", () => {
+    const allDays = marchWeeks.flat();
+    const outsideDay = allDays.find((d) => d.month !== 3);
+    if (!outsideDay) return;
+    const result = resolveFocusTarget(
+      date("2026-05-01"),
+      outsideDay,
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+    );
+    expect(result.toString()).toBe(outsideDay.toString());
+  });
+
+  it("falls back to first grid day when all current-month days are disabled", () => {
+    const allDisabled = (d: Temporal.PlainDate) =>
+      d.year === 2026 && d.month === 3;
+    const result = resolveFocusTarget(
+      date("2026-05-01"),
+      undefined,
+      marchWeeks,
+      march,
+      allDisabled,
+      T,
+    );
+    const firstGridDay = marchWeeks[0][0];
+    expect(result.toString()).toBe(firstGridDay.toString());
   });
 });

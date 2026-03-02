@@ -64,6 +64,7 @@ export interface DatePickerContextValue {
   minValue?: Temporal.PlainDate;
   maxValue?: Temporal.PlainDate;
   focusedDate: Temporal.PlainDate;
+  tabTargetDate: Temporal.PlainDate;
   setFocusedDate: (date: Temporal.PlainDate) => void;
   timeZone: string;
   locale: string;

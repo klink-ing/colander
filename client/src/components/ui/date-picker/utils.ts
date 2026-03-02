@@ -195,6 +195,31 @@ export function focusedDateForMonth(
   return firstDay;
 }
 
+export function resolveFocusTarget(
+  focusedDate: Temporal.PlainDate,
+  selectedDate: Temporal.PlainDate | undefined,
+  weeks: Temporal.PlainDate[][],
+  currentMonth: { year: number; month: number },
+  isDateDisabled: (date: Temporal.PlainDate) => boolean,
+  T: TemporalNamespace,
+): Temporal.PlainDate {
+  const allDays = weeks.flat();
+  const inGrid = (d: Temporal.PlainDate) =>
+    allDays.some((g) => T.PlainDate.compare(g, d) === 0);
+
+  if (inGrid(focusedDate)) return focusedDate;
+
+  if (selectedDate && inGrid(selectedDate)) return selectedDate;
+
+  const firstEnabled = allDays.find(
+    (d) =>
+      d.year === currentMonth.year &&
+      d.month === currentMonth.month &&
+      !isDateDisabled(d),
+  );
+  return firstEnabled ?? allDays[0];
+}
+
 export function getWeekdayNames(locale: string, T: TemporalNamespace) {
   const refSunday = getReferenceSunday(T);
   const names: { long: string; short: string; narrow: string }[] = [];
