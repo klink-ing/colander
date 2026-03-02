@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker, WeekDataContext, DayCellDataContext } from "./context";
 import { useGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
-import { GridHeader, GridHeaderCell } from "./grid-header";
+import { GridHeader, GridHeaderCell } from "./labels";
 import type {
   ValueFormat,
   GridState,
@@ -153,7 +153,7 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
     <>
       {weeks.map((weekDays, i) => (
         <WeekDataContext.Provider
-          key={i}
+          key={weekDays[0].toString()}
           value={{ days: weekDays, weekIndex: i }}
         >
           <Instance {...props} />

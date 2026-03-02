@@ -8,7 +8,7 @@
     "build": "tsx script/build.ts",
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
-    "lint": "biome lint --apply .",
+    "lint": "biome check --formatter-enabled=false --write .",
     "format": "prettier --write .",
     "db:push": "drizzle-kit push"
   },

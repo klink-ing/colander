@@ -48,6 +48,7 @@ CSS custom properties in `client/src/index.css` define the application's color p
 ## External Dependencies
 
 ### UI/Styling
+
 - **Radix UI**: Headless accessible component primitives.
 - **shadcn/ui**: Pre-built components based on Radix UI.
 - **Lucide React**: Icon library.
@@ -61,15 +62,18 @@ CSS custom properties in `client/src/index.css` define the application's color p
 - **Recharts**: Charting library.
 
 ### Headless UI / Primitives
+
 - **@base-ui/react**: Core headless component library.
 - **@js-temporal/polyfill**: Temporal API polyfill for advanced date/time handling.
 
 ### Data & Forms
+
 - **TanStack Query v5**: Server state management.
 - **React Hook Form**: Form state management.
 - **Zod**: Schema validation.
 
 ### Backend / Database
+
 - **Express 5**: Backend web framework.
 - **Drizzle ORM**: TypeScript ORM for SQL databases.
 - **pg**: PostgreSQL client for Node.js.
@@ -80,11 +84,13 @@ CSS custom properties in `client/src/index.css` define the application's color p
 - **memorystore**: In-memory session store.
 
 ### Build Tools
+
 - **Vite**: Frontend bundler and dev server.
 - **esbuild**: Server-side bundler.
 - **tsx**: TypeScript execution in development.
 - **Replit Vite plugins**: Specific plugins for Replit environment (`@replit/vite-plugin-runtime-error-modal`, `@replit/vite-plugin-cartographer`, `@replit/vite-plugin-dev-banner`).
 
 ### Linting & Formatting
+
 - **Biome** (`@biomejs/biome`, devDependency): Used for linting only (formatting disabled in `biome.json`). Run with `npx biome lint .` or `npx biome lint --fix .` for auto-fixes. CSS linting is disabled to avoid false positives with Tailwind directives. Config at `biome.json`.
 - **Prettier** (devDependency): Used for formatting. Config at `.prettierrc`. Includes `prettier-plugin-tailwindcss` for automatic Tailwind class sorting.

@@ -16,10 +16,7 @@ import {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-import type {
-  ValueFormat,
-  CreateDatePickerOptions,
-} from "./types";
+import type { ValueFormat, CreateDatePickerOptions } from "./types";
 
 export function createDatePicker<F extends ValueFormat>(
   format: F,

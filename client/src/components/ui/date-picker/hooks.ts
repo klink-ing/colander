@@ -526,8 +526,7 @@ export function useDayCellState<F extends ValueFormat = ValueFormat>(
 export function useDayButtonState<F extends ValueFormat = ValueFormat>(
   date: Temporal.PlainDate,
 ) {
-  const { onSelect, setFocusedDate, locale, rootState } =
-    useDatePicker<F>();
+  const { onSelect, setFocusedDate, locale, rootState } = useDatePicker<F>();
   const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused } =
     useDayDerivedState(date);
   const internalRef = useRef<HTMLButtonElement>(null);

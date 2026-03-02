@@ -35,12 +35,14 @@ export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
 ) {
   const { index: indexProp, ...restProps } = props;
   const Instance = GridHeaderCellInstance<F>;
+  
   if (indexProp != null) {
     return <Instance {...restProps} index={indexProp} />;
   }
   return (
     <>
       {Array.from({ length: 7 }, (_, i) => (
+        // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length weekday headers never reorder
         <Instance key={i} {...restProps} index={i} />
       ))}
     </>
