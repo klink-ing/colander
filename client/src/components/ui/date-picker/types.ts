@@ -60,6 +60,7 @@ export type DateRange<F extends ValueFormat = ValueFormat> = {
 export interface DatePickerContextValue {
   selected: DateValueObject | undefined;
   onSelect: (date: Temporal.PlainDate) => void;
+  setRange: (start: Temporal.PlainDate, end: Temporal.PlainDate) => void;
   selectionMode: "single" | "range";
   rangeStart: Temporal.PlainDate | undefined;
   rangeEnd: Temporal.PlainDate | undefined;
@@ -295,6 +296,19 @@ export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
 
 export type SelectedRangeProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"td", SelectedRangeState<F>>;
+
+export type DragHandleState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
+  active: boolean;
+  dragging: boolean;
+  edge: "start" | "end";
+};
+
+export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", DragHandleState<F>>;
+
+export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", DragHandleState<F>>;
 
 export type TypedRootProps<F extends ValueFormat> = Omit<
   RootProps<F>,

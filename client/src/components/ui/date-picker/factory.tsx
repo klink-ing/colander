@@ -17,6 +17,7 @@ import {
   NextMonthButton,
 } from "./navigation";
 import { SelectedRange } from "./selected-range";
+import { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 import type { ValueFormat, CreateDatePickerOptions } from "./types";
 
 export function createDatePicker<F extends ValueFormat>(
@@ -39,6 +40,8 @@ export function createDatePicker<F extends ValueFormat>(
     DayCellTemplate: DayCellTemplate<F>,
     DayButton: DayButton<F>,
     SelectedRange: SelectedRange<F>,
+    RangeStartDragHandle: RangeStartDragHandle<F>,
+    RangeEndDragHandle: RangeEndDragHandle<F>,
     DateString: DateString<F>,
     TimeString: TimeString<F>,
     MonthYearString: MonthYearString<F>,

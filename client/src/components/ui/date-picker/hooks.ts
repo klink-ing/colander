@@ -333,6 +333,23 @@ export function useRootState<F extends ValueFormat>(
     ],
   );
 
+  const setRange = useCallback(
+    (start: Temporal.PlainDate, end: Temporal.PlainDate) => {
+      if (!isRange) return;
+      const onRangeChange = onValueChange as ((v: DateRange<F> | undefined) => void) | undefined;
+      setPendingRangeStart(undefined);
+      if (!rangeValue) {
+        setInternalRangeStart(start);
+        setInternalRangeEnd(end);
+      }
+      onRangeChange?.({
+        start: plainToFormatValue(start),
+        end: plainToFormatValue(end),
+      });
+    },
+    [isRange, rangeValue, onValueChange, plainToFormatValue],
+  );
+
   const goToNextMonth = useCallback(() => {
     setCurrentMonth((m) => {
       const { year, month, firstDay } = computeAdjacentMonth(m, "next", T);
@@ -435,6 +452,7 @@ export function useRootState<F extends ValueFormat>(
     () => ({
       selected,
       onSelect,
+      setRange,
       selectionMode,
       rangeStart,
       rangeEnd,
@@ -461,6 +479,7 @@ export function useRootState<F extends ValueFormat>(
     [
       selected,
       onSelect,
+      setRange,
       selectionMode,
       rangeStart,
       rangeEnd,

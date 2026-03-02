@@ -15,6 +15,7 @@ export {
   NextMonthButton,
 } from "./navigation";
 export { SelectedRange } from "./selected-range";
+export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 export { createDatePicker, type Components } from "./factory";
 export { useDatePicker } from "./context";
 
@@ -37,6 +38,9 @@ export type {
   DayButtonState,
   SelectedRangeProps,
   SelectedRangeState,
+  DragHandleState,
+  RangeStartDragHandleProps,
+  RangeEndDragHandleProps,
   DateStringProps,
   DateStringState,
   TimeStringProps,

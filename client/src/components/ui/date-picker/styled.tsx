@@ -14,6 +14,8 @@ import {
   PrevMonthButton,
   NextMonthButton,
   SelectedRange,
+  RangeStartDragHandle,
+  RangeEndDragHandle,
 } from "./index";
 import type {
   ValueFormat,
@@ -30,6 +32,8 @@ import type {
   PrevMonthButtonProps,
   NextMonthButtonProps,
   SelectedRangeProps,
+  RangeStartDragHandleProps,
+  RangeEndDragHandleProps,
 } from "./types";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
@@ -197,7 +201,7 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
   return (
     <DayCellTemplate
       {...(props as DayCellTemplateProps)}
-      className={cn("text-center", className)}
+      className={cn("relative text-center", className)}
     />
   );
 }
@@ -210,14 +214,14 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
     <DayButton
       {...(props as DayButtonProps)}
       className={cn(
-        "relative inline-flex min-w-[calc(2ch+(2*var(--spacing)))] items-center justify-end rounded-md p-1 text-sm font-normal tabular-nums transition-colors",
+        "relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-end rounded-md px-2 py-1 text-sm font-normal tabular-nums transition-colors",
         "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-foreground hover:bg-accent hover:text-accent-foreground",
         "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
         "data-[today]:bg-accent data-[today]:text-accent-foreground",
         "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
-        "data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:rounded-full data-[range-start]:hover:bg-primary data-[range-start]:hover:text-primary-foreground",
-        "data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:rounded-full data-[range-end]:hover:bg-primary data-[range-end]:hover:text-primary-foreground",
+        "data-[range-start]:rounded-full data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:hover:bg-primary data-[range-start]:hover:text-primary-foreground",
+        "data-[range-end]:rounded-full data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:hover:bg-primary data-[range-end]:hover:text-primary-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
         className,
       )}
@@ -247,6 +251,40 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
   );
 }
 
+export function StyledRangeStartDragHandle<F extends ValueFormat = ValueFormat>({
+  className,
+  ...props
+}: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
+  return (
+    <RangeStartDragHandle
+      {...(props as RangeStartDragHandleProps)}
+      className={cn(
+        "absolute left-0 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2",
+        "flex items-center justify-center px-1 py-2",
+        "before:block before:h-4 before:w-1.5 before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
+        className,
+      )}
+    />
+  );
+}
+
+export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
+  className,
+  ...props
+}: RangeEndDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
+  return (
+    <RangeEndDragHandle
+      {...(props as RangeEndDragHandleProps)}
+      className={cn(
+        "absolute right-0 top-1/2 z-20 translate-x-1/2 -translate-y-1/2",
+        "flex items-center justify-center px-1 py-2",
+        "before:block before:h-4 before:w-1.5 before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
+        className,
+      )}
+    />
+  );
+}
+
 export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
   className,
   ...props
@@ -256,7 +294,7 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
       {...(props as SelectedRangeProps)}
       className={cn(
         "rounded-md bg-primary/15",
-        "data-[extends-before]:rounded-l-none data-[extends-after]:rounded-r-none",
+        "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none",
         className,
       )}
     />
