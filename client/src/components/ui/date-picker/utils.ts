@@ -202,14 +202,17 @@ export function resolveFocusTarget(
   currentMonth: { year: number; month: number },
   isDateDisabled: (date: Temporal.PlainDate) => boolean,
   T: TemporalNamespace,
+  gridHasFocus = true,
 ): Temporal.PlainDate {
   const allDays = weeks.flat();
   const inGrid = (d: Temporal.PlainDate) =>
     allDays.some((g) => T.PlainDate.compare(g, d) === 0);
 
-  if (inGrid(focusedDate)) return focusedDate;
+  if (gridHasFocus && inGrid(focusedDate)) return focusedDate;
 
   if (selectedDate && inGrid(selectedDate)) return selectedDate;
+
+  if (!gridHasFocus && inGrid(focusedDate)) return focusedDate;
 
   const firstEnabled = allDays.find(
     (d) =>

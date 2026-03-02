@@ -123,6 +123,7 @@ export function useRootState<F extends ValueFormat>(
 
   const [gridLabelId, setGridLabelId] = useState<string | undefined>(undefined);
   const gridFocusedRef = useRef(false);
+  const [gridHasFocus, setGridHasFocus] = useState(false);
 
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
     const src = taggedValue ?? taggedDefault;
@@ -282,8 +283,9 @@ export function useRootState<F extends ValueFormat>(
         currentMonth,
         isDateDisabled,
         T,
+        gridHasFocus,
       ),
-    [focusedDate, selectedPlain, weeks, currentMonth, isDateDisabled, T],
+    [focusedDate, selectedPlain, weeks, currentMonth, isDateDisabled, T, gridHasFocus],
   );
 
   const ctx = useMemo<DatePickerContextValue>(
@@ -302,6 +304,7 @@ export function useRootState<F extends ValueFormat>(
       tabTargetDate,
       setFocusedDate,
       gridFocusedRef,
+      setGridHasFocus,
       timeZone,
       locale,
       temporal: T,

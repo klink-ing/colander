@@ -274,6 +274,45 @@ describe("resolveFocusTarget", () => {
     const firstGridDay = marchWeeks[0][0];
     expect(result.toString()).toBe(firstGridDay.toString());
   });
+
+  it("gridHasFocus=false: selectedDate wins over focusedDate when tabbing into grid", () => {
+    const result = resolveFocusTarget(
+      date("2026-03-01"),
+      date("2026-03-20"),
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+      false,
+    );
+    expect(result.toString()).toBe("2026-03-20");
+  });
+
+  it("gridHasFocus=false: focusedDate used as fallback when no selectedDate", () => {
+    const result = resolveFocusTarget(
+      date("2026-03-10"),
+      undefined,
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+      false,
+    );
+    expect(result.toString()).toBe("2026-03-10");
+  });
+
+  it("gridHasFocus=true: focusedDate wins over selectedDate (keyboard nav)", () => {
+    const result = resolveFocusTarget(
+      date("2026-03-01"),
+      date("2026-03-20"),
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+      true,
+    );
+    expect(result.toString()).toBe("2026-03-01");
+  });
 });
 
 describe("shouldMoveDomFocus", () => {

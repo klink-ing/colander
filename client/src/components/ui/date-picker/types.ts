@@ -67,6 +67,7 @@ export interface DatePickerContextValue {
   tabTargetDate: Temporal.PlainDate;
   setFocusedDate: (date: Temporal.PlainDate) => void;
   gridFocusedRef: React.MutableRefObject<boolean>;
+  setGridHasFocus: (v: boolean) => void;
   timeZone: string;
   locale: string;
   temporal: TemporalNamespace;
