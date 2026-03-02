@@ -6,6 +6,8 @@ import {
   getMonthWeeks,
   resolveFocusTarget,
   shouldMoveDomFocus,
+  isInRange,
+  computeWeekRangeInfo,
 } from "./utils";
 import type { TemporalNamespace } from "./types";
 
@@ -330,5 +332,158 @@ describe("shouldMoveDomFocus", () => {
 
   it("returns false when neither cell is focused nor grid has focus", () => {
     expect(shouldMoveDomFocus(false, false)).toBe(false);
+  });
+});
+
+describe("isInRange", () => {
+  const start = date("2026-03-10");
+  const end = date("2026-03-20");
+
+  it("returns false when date is before range", () => {
+    expect(isInRange(date("2026-03-05"), start, end, T)).toBe(false);
+  });
+
+  it("returns false when date equals range start (exclusive)", () => {
+    expect(isInRange(date("2026-03-10"), start, end, T)).toBe(false);
+  });
+
+  it("returns true when date is in the middle of range", () => {
+    expect(isInRange(date("2026-03-15"), start, end, T)).toBe(true);
+  });
+
+  it("returns false when date equals range end (exclusive)", () => {
+    expect(isInRange(date("2026-03-20"), start, end, T)).toBe(false);
+  });
+
+  it("returns false when date is after range", () => {
+    expect(isInRange(date("2026-03-25"), start, end, T)).toBe(false);
+  });
+
+  it("returns false when rangeStart is undefined", () => {
+    expect(isInRange(date("2026-03-15"), undefined, end, T)).toBe(false);
+  });
+
+  it("returns false when rangeEnd is undefined", () => {
+    expect(isInRange(date("2026-03-15"), start, undefined, T)).toBe(false);
+  });
+
+  it("returns false for a two-day range (no inner days)", () => {
+    expect(
+      isInRange(date("2026-03-10"), date("2026-03-10"), date("2026-03-11"), T),
+    ).toBe(false);
+    expect(
+      isInRange(date("2026-03-11"), date("2026-03-10"), date("2026-03-11"), T),
+    ).toBe(false);
+  });
+});
+
+describe("computeWeekRangeInfo", () => {
+  const marchWeeks = getMonthWeeks(2026, 3, T);
+  const week1 = marchWeeks[1];
+
+  it("returns inactive when rangeStart is undefined", () => {
+    const result = computeWeekRangeInfo(week1, undefined, date("2026-03-15"), T);
+    expect(result.active).toBe(false);
+  });
+
+  it("returns inactive when rangeEnd is undefined", () => {
+    const result = computeWeekRangeInfo(week1, date("2026-03-08"), undefined, T);
+    expect(result.active).toBe(false);
+  });
+
+  it("returns inactive when range has no overlap with week", () => {
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-04-01"),
+      date("2026-04-10"),
+      T,
+    );
+    expect(result.active).toBe(false);
+  });
+
+  it("range fully within week", () => {
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-03-09"),
+      date("2026-03-12"),
+      T,
+    );
+    expect(result.active).toBe(true);
+    expect(result.extendsBefore).toBe(false);
+    expect(result.extendsAfter).toBe(false);
+    const startDay = week1[result.startIndex];
+    const endDay = week1[result.endIndex];
+    expect(startDay.toString()).toBe("2026-03-09");
+    expect(endDay.toString()).toBe("2026-03-12");
+  });
+
+  it("range starts before week", () => {
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-03-01"),
+      date("2026-03-12"),
+      T,
+    );
+    expect(result.active).toBe(true);
+    expect(result.extendsBefore).toBe(true);
+    expect(result.extendsAfter).toBe(false);
+    expect(result.startIndex).toBe(0);
+  });
+
+  it("range ends after week", () => {
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-03-09"),
+      date("2026-03-25"),
+      T,
+    );
+    expect(result.active).toBe(true);
+    expect(result.extendsBefore).toBe(false);
+    expect(result.extendsAfter).toBe(true);
+    expect(result.endIndex).toBe(week1.length - 1);
+  });
+
+  it("range spans entire week", () => {
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-03-01"),
+      date("2026-03-25"),
+      T,
+    );
+    expect(result.active).toBe(true);
+    expect(result.extendsBefore).toBe(true);
+    expect(result.extendsAfter).toBe(true);
+    expect(result.startIndex).toBe(0);
+    expect(result.endIndex).toBe(week1.length - 1);
+  });
+
+  it("single-day range within week", () => {
+    const singleDay = date("2026-03-10");
+    const result = computeWeekRangeInfo(week1, singleDay, singleDay, T);
+    expect(result.active).toBe(true);
+    expect(result.startIndex).toBe(result.endIndex);
+    expect(result.extendsBefore).toBe(false);
+    expect(result.extendsAfter).toBe(false);
+  });
+
+  it("two-day range within week", () => {
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-03-10"),
+      date("2026-03-11"),
+      T,
+    );
+    expect(result.active).toBe(true);
+    expect(result.endIndex - result.startIndex).toBe(1);
+  });
+
+  it("returns inactive for empty weekDays array", () => {
+    const result = computeWeekRangeInfo(
+      [],
+      date("2026-03-10"),
+      date("2026-03-15"),
+      T,
+    );
+    expect(result.active).toBe(false);
   });
 });

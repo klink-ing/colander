@@ -16,6 +16,7 @@ import {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
+import { SelectedRange } from "./selected-range";
 import type { ValueFormat, CreateDatePickerOptions } from "./types";
 
 export function createDatePicker<F extends ValueFormat>(
@@ -25,7 +26,7 @@ export function createDatePicker<F extends ValueFormat>(
   const TypedRoot = (
     props: Omit<ComponentProps<typeof Root<F>>, "format" | "temporal">,
   ) => {
-    return <Root {...props} format={format} temporal={options?.temporal} />;
+    return <Root {...(props as any)} format={format} temporal={options?.temporal} />;
   };
 
   return {
@@ -37,6 +38,7 @@ export function createDatePicker<F extends ValueFormat>(
     WeekTemplate: WeekTemplate<F>,
     DayCellTemplate: DayCellTemplate<F>,
     DayButton: DayButton<F>,
+    SelectedRange: SelectedRange<F>,
     DateString: DateString<F>,
     TimeString: TimeString<F>,
     MonthYearString: MonthYearString<F>,

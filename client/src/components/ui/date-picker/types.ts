@@ -52,9 +52,17 @@ export type ValueForFormat<F extends ValueFormat> = Extract<
 export type RawValueForFormat<F extends ValueFormat> =
   ValueForFormat<F>["value"];
 
+export type DateRange<F extends ValueFormat = ValueFormat> = {
+  start: RawValueForFormat<F>;
+  end: RawValueForFormat<F>;
+};
+
 export interface DatePickerContextValue {
   selected: DateValueObject | undefined;
   onSelect: (date: Temporal.PlainDate) => void;
+  selectionMode: "single" | "range";
+  rangeStart: Temporal.PlainDate | undefined;
+  rangeEnd: Temporal.PlainDate | undefined;
   currentDateTime: Temporal.PlainDateTime;
   goToNextMonth: () => void;
   goToPrevMonth: () => void;
@@ -79,17 +87,16 @@ export interface DatePickerContextValue {
 export type RootState<F extends ValueFormat = ValueFormat> = {
   hasSelection: boolean;
   selected: RawValueForFormat<F> | undefined;
+  rangeStart: RawValueForFormat<F> | undefined;
+  rangeEnd: RawValueForFormat<F> | undefined;
   focused: Temporal.PlainDate;
   viewing: Temporal.PlainYearMonth;
   timeZone: string;
   locale: string;
 };
 
-export interface RootOwnProps<F extends ValueFormat = ValueFormat> {
+interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
   format?: F;
-  value?: RawValueForFormat<F>;
-  defaultValue?: RawValueForFormat<F>;
-  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;
@@ -99,9 +106,32 @@ export interface RootOwnProps<F extends ValueFormat = ValueFormat> {
   temporal?: TemporalNamespace;
 }
 
+interface SingleSelectionProps<F extends ValueFormat = ValueFormat> {
+  selectionMode?: "single";
+  value?: RawValueForFormat<F>;
+  defaultValue?: RawValueForFormat<F>;
+  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+}
+
+interface RangeSelectionProps<F extends ValueFormat = ValueFormat> {
+  selectionMode: "range";
+  value?: DateRange<F>;
+  defaultValue?: DateRange<F>;
+  onValueChange?: (value: DateRange<F> | undefined) => void;
+}
+
+export type RootOwnProps<F extends ValueFormat = ValueFormat> =
+  RootOwnPropsBase<F> &
+    (SingleSelectionProps<F> | RangeSelectionProps<F>);
+
+type AllRootOwnPropKeys =
+  | keyof RootOwnPropsBase
+  | keyof SingleSelectionProps
+  | keyof RangeSelectionProps;
+
 export type RootProps<F extends ValueFormat = ValueFormat> = Omit<
   useRender.ComponentProps<"div", RootState<F>>,
-  keyof RootOwnProps<F>
+  AllRootOwnPropKeys
 > &
   RootOwnProps<F>;
 
@@ -143,14 +173,6 @@ export type MonthYearStringState<F extends ValueFormat = ValueFormat> = {
 
 export interface MonthYearStringOwnProps {
   locales?: string | string[];
-  /**
-   * Intl.DateTimeFormatOptions to format the displayed month/year string.
-   * Defaults to `{ month: "long", year: "numeric" }` (e.g. "March 2026").
-   *
-   * **Accessibility requirement:** This element is referenced by the calendar
-   * grid's `aria-labelledby` and serves as its accessible name. When overriding
-   * `options`, both the month and year **must** remain present for screen readers.
-   */
   options?: Intl.DateTimeFormatOptions;
 }
 
@@ -228,6 +250,9 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   disabled: boolean;
   outsideMonth: boolean;
   focused: boolean;
+  rangeStart: boolean;
+  rangeEnd: boolean;
+  inRange: boolean;
 };
 
 export interface DayCellTemplateOwnProps {
@@ -245,6 +270,9 @@ export type DayButtonState<F extends ValueFormat = ValueFormat> = {
   disabled: boolean;
   outsideMonth: boolean;
   focused: boolean;
+  rangeStart: boolean;
+  rangeEnd: boolean;
+  inRange: boolean;
 };
 
 export interface DayButtonOwnProps {
@@ -254,9 +282,21 @@ export interface DayButtonOwnProps {
 export type DayButtonProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"button", DayButtonState<F>> & DayButtonOwnProps;
 
+export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
+  active: boolean;
+  startIndex: number;
+  endIndex: number;
+  extendsBefore: boolean;
+  extendsAfter: boolean;
+};
+
+export type SelectedRangeProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", SelectedRangeState<F>>;
+
 export type TypedRootProps<F extends ValueFormat> = Omit<
   RootProps<F>,
-  "format"
+  "format" | "temporal"
 >;
 
 export interface CreateDatePickerOptions {

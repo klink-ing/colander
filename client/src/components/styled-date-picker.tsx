@@ -1,7 +1,8 @@
-import { Temporal } from "@js-temporal/polyfill";
+import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   RawValueForFormat,
+  DateRange,
 } from "@/components/ui/date-picker";
 import {
   StyledPrevMonthButton,
@@ -13,14 +14,12 @@ import {
   StyledGridBody,
   StyledWeekTemplate,
   StyledDayTemplate,
+  StyledSelectedRange,
 } from "@/components/ui/date-picker/styled";
 import { cn } from "@/lib/utils";
 import type { Components } from "@/components/ui/date-picker";
 
-interface StyledDatePickerProps<F extends ValueFormat> {
-  value?: RawValueForFormat<F>;
-  defaultValue?: RawValueForFormat<F>;
-  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+type StyledDatePickerProps<F extends ValueFormat> = {
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;
@@ -29,26 +28,38 @@ interface StyledDatePickerProps<F extends ValueFormat> {
   locale?: string;
   className?: string;
   components: Components<F>;
-}
+} & (
+  | {
+      selectionMode?: "single";
+      value?: RawValueForFormat<F>;
+      defaultValue?: RawValueForFormat<F>;
+      onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+    }
+  | {
+      selectionMode: "range";
+      value?: DateRange<F>;
+      defaultValue?: DateRange<F>;
+      onValueChange?: (value: DateRange<F> | undefined) => void;
+    }
+);
 
-export function StyledDatePicker<F extends ValueFormat = ValueFormat>({
-  value,
-  defaultValue,
-  onValueChange,
-  min,
-  max,
-  disabled,
-  isDateDisabled,
-  timeZone,
-  locale,
-  className,
-  components: DP,
-}: StyledDatePickerProps<F>) {
+export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
+  props: StyledDatePickerProps<F>,
+) {
+  const {
+    min,
+    max,
+    disabled,
+    isDateDisabled,
+    timeZone,
+    locale,
+    className,
+    components: DP,
+    ...selectionProps
+  } = props;
   return (
     <DP.Root
-      value={value}
-      defaultValue={defaultValue}
-      onValueChange={onValueChange}
+      {...(selectionProps as any)}
       min={min}
       max={max}
       disabled={disabled}
@@ -69,6 +80,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>({
           </StyledGridHeader>
           <StyledGridBody>
             <StyledWeekTemplate>
+              <StyledSelectedRange />
               <StyledDayTemplate />
             </StyledWeekTemplate>
           </StyledGridBody>

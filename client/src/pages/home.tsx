@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
-import { createDatePicker } from "@/components/ui/date-picker";
+import { createDatePicker, type DateRange } from "@/components/ui/date-picker";
 import { StyledDatePicker } from "@/components/styled-date-picker";
 import { StyledDatePickerHorizontal } from "@/components/styled-date-picker-horizontal";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
@@ -75,8 +75,8 @@ export default function Home() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
   const [timeZone, setTimeZone] = useState(systemTz);
   const [locale, setLocale] = useState("en-US");
-  const [selectedDate, setSelectedDate] = useState<
-    Temporal.ZonedDateTime | undefined
+  const [range, setRange] = useState<
+    DateRange<"ZonedDateTime"> | undefined
   >();
   const [selectedDate2, setSelectedDate2] = useState<
     Temporal.ZonedDateTime | undefined
@@ -142,7 +142,14 @@ export default function Home() {
   const handleTimeZoneChange = useCallback(
     (newTz: string) => {
       setTimeZone(newTz);
-      setSelectedDate((prev) => rezoneDateValue(prev, newTz));
+      setRange((prev) =>
+        prev
+          ? {
+              start: prev.start.withTimeZone(newTz),
+              end: prev.end.withTimeZone(newTz),
+            }
+          : undefined,
+      );
       setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
       setSelectedDate3((prev) => rezoneDateValue(prev, newTz));
     },
@@ -160,6 +167,11 @@ export default function Home() {
     val
       ? `Selected: ${new Date(val.epochMilliseconds).toLocaleDateString(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
       : "Pick a date below";
+
+  const formatRangeDisplay = (val: DateRange<"ZonedDateTime"> | undefined) =>
+    val
+      ? `Range: ${new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" })} – ${new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
+      : "Pick a range below";
 
   const selectClassName =
     "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
@@ -250,12 +262,13 @@ export default function Home() {
 
       <div className="flex flex-wrap items-start justify-center gap-4">
         <div className="w-min">
-          Styled DatePicker
-          {formatDisplay(selectedDate)}
+          Range DatePicker
+          {formatRangeDisplay(range)}
           <StyledDatePicker
             components={ZonedDatePicker}
-            value={selectedDate}
-            onValueChange={setSelectedDate}
+            selectionMode="range"
+            value={range}
+            onValueChange={setRange}
             min={minDate}
             max={maxDate}
             locale={locale}

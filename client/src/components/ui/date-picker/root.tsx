@@ -7,30 +7,34 @@ import { resolveTemporal } from "./utils";
 import { getSystemTimeZone } from "./utils";
 import type { RootProps, ValueFormat } from "./types";
 
-export function Root<F extends ValueFormat = ValueFormat>({
-  ref,
-  render,
-  children,
-  format: formatProp,
-  value,
-  defaultValue,
-  onValueChange,
-  min,
-  max,
-  disabled,
-  isDateDisabled,
-  timeZone: timeZoneProp,
-  locale: localeProp,
-  temporal: temporalProp,
-  ...otherProps
-}: RootProps<F>) {
+export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
+  const {
+    ref,
+    render,
+    children,
+    format: formatProp,
+    selectionMode: selectionModeProp,
+    value,
+    defaultValue,
+    onValueChange,
+    min,
+    max,
+    disabled,
+    isDateDisabled,
+    timeZone: timeZoneProp,
+    locale: localeProp,
+    temporal: temporalProp,
+    ...otherProps
+  } = props as any;
   const T = useMemo(() => resolveTemporal(temporalProp), [temporalProp]);
   const timeZone = timeZoneProp ?? getSystemTimeZone(T);
   const locale = localeProp ?? "en-US";
   const resolvedFormat: ValueFormat = formatProp ?? "PlainDate";
+  const selectionMode = selectionModeProp ?? "single";
 
   const { ctx, state, stateAttributesMapping } = useRootState<F>({
     format: resolvedFormat as F,
+    selectionMode,
     value,
     defaultValue,
     onValueChange,

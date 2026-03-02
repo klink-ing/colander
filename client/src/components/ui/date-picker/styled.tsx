@@ -13,6 +13,7 @@ import {
   TimeString,
   PrevMonthButton,
   NextMonthButton,
+  SelectedRange,
 } from "./index";
 import type {
   ValueFormat,
@@ -28,6 +29,7 @@ import type {
   TimeStringProps,
   PrevMonthButtonProps,
   NextMonthButtonProps,
+  SelectedRangeProps,
 } from "./types";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
@@ -240,5 +242,21 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
     <Cell ref={cellRef} className={cellClassName} date={date}>
       <Button ref={buttonRef} className={buttonClassName} />
     </Cell>
+  );
+}
+
+export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
+  className,
+  ...props
+}: SelectedRangeProps<F> & { ref?: React.Ref<HTMLTableCellElement> }) {
+  return (
+    <SelectedRange
+      {...(props as SelectedRangeProps)}
+      className={cn(
+        "rounded-md bg-primary/15",
+        "data-[extends-before]:rounded-l-none data-[extends-after]:rounded-r-none",
+        className,
+      )}
+    />
   );
 }

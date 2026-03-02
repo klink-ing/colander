@@ -48,9 +48,9 @@ export function StyledDatePickerHorizontal<
 }: StyledDatePickerHorizontalProps<F>) {
   return (
     <DP.Root
-      value={value}
-      defaultValue={defaultValue}
-      onValueChange={onValueChange}
+      value={value as any}
+      defaultValue={defaultValue as any}
+      onValueChange={onValueChange as any}
       min={min}
       max={max}
       disabled={disabled}

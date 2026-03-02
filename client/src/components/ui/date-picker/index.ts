@@ -14,6 +14,7 @@ export {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
+export { SelectedRange } from "./selected-range";
 export { createDatePicker, type Components } from "./factory";
 export { useDatePicker } from "./context";
 
@@ -34,6 +35,8 @@ export type {
   DayCellTemplateState,
   DayButtonProps,
   DayButtonState,
+  SelectedRangeProps,
+  SelectedRangeState,
   DateStringProps,
   DateStringState,
   TimeStringProps,
@@ -44,6 +47,7 @@ export type {
   NextMonthButtonProps,
   NavButtonState,
   ValueFormat,
+  DateRange,
   DateValueObject,
   ValueForFormat,
   RawValueForFormat,

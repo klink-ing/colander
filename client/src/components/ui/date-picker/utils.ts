@@ -230,6 +230,72 @@ export function shouldMoveDomFocus(
   return isFocused && gridHasFocus;
 }
 
+export function isInRange(
+  date: Temporal.PlainDate,
+  rangeStart: Temporal.PlainDate | undefined,
+  rangeEnd: Temporal.PlainDate | undefined,
+  T: TemporalNamespace,
+): boolean {
+  if (!rangeStart || !rangeEnd) return false;
+  return (
+    T.PlainDate.compare(date, rangeStart) > 0 &&
+    T.PlainDate.compare(date, rangeEnd) < 0
+  );
+}
+
+export function computeWeekRangeInfo(
+  weekDays: Temporal.PlainDate[],
+  rangeStart: Temporal.PlainDate | undefined,
+  rangeEnd: Temporal.PlainDate | undefined,
+  T: TemporalNamespace,
+): {
+  active: boolean;
+  startIndex: number;
+  endIndex: number;
+  extendsBefore: boolean;
+  extendsAfter: boolean;
+} {
+  const inactive = {
+    active: false,
+    startIndex: 0,
+    endIndex: 0,
+    extendsBefore: false,
+    extendsAfter: false,
+  };
+  if (!rangeStart || !rangeEnd || weekDays.length === 0) return inactive;
+
+  const weekStart = weekDays[0];
+  const weekEnd = weekDays[weekDays.length - 1];
+
+  if (
+    T.PlainDate.compare(rangeEnd, weekStart) < 0 ||
+    T.PlainDate.compare(rangeStart, weekEnd) > 0
+  ) {
+    return inactive;
+  }
+
+  const extendsBefore = T.PlainDate.compare(rangeStart, weekStart) < 0;
+  const extendsAfter = T.PlainDate.compare(rangeEnd, weekEnd) > 0;
+
+  let startIndex = 0;
+  if (!extendsBefore) {
+    startIndex = weekDays.findIndex(
+      (d) => T.PlainDate.compare(d, rangeStart) === 0,
+    );
+    if (startIndex === -1) return inactive;
+  }
+
+  let endIndex = weekDays.length - 1;
+  if (!extendsAfter) {
+    endIndex = weekDays.findIndex(
+      (d) => T.PlainDate.compare(d, rangeEnd) === 0,
+    );
+    if (endIndex === -1) return inactive;
+  }
+
+  return { active: true, startIndex, endIndex, extendsBefore, extendsAfter };
+}
+
 export function getWeekdayNames(locale: string, T: TemporalNamespace) {
   const refSunday = getReferenceSunday(T);
   const names: { long: string; short: string; narrow: string }[] = [];
