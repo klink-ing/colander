@@ -119,7 +119,10 @@ export function StyledGrid<F extends ValueFormat = ValueFormat>({
     <Grid
       mode="grid"
       {...(props as GridProps)}
-      className={cn("w-full table-fixed border-collapse", className)}
+      className={cn(
+        "grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]",
+        className,
+      )}
     />
   );
 }
@@ -129,7 +132,14 @@ export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
   ...props
 }: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
   return (
-    <GridHeader {...(props as GridHeaderProps)} className={cn("", className)} />
+    <GridHeader
+      {...(props as GridHeaderProps)}
+      className={cn(
+        "col-span-full grid [grid-template-columns:subgrid]",
+        "[&>tr]:col-span-full [&>tr]:grid [&>tr]:[grid-template-columns:subgrid]",
+        className,
+      )}
+    />
   );
 }
 
@@ -153,7 +163,13 @@ export function StyledGridBody<F extends ValueFormat = ValueFormat>({
   ...props
 }: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
   return (
-    <GridBody {...(props as GridBodyProps)} className={cn("", className)} />
+    <GridBody
+      {...(props as GridBodyProps)}
+      className={cn(
+        "col-span-full grid [grid-template-columns:subgrid]",
+        className,
+      )}
+    />
   );
 }
 
@@ -164,7 +180,10 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   return (
     <WeekTemplate
       {...(props as WeekTemplateProps)}
-      className={cn("", className)}
+      className={cn(
+        "col-span-full grid [grid-template-columns:subgrid]",
+        className,
+      )}
     />
   );
 }

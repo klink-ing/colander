@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import { createDatePicker } from "@/components/ui/date-picker";
 import { StyledDatePicker } from "@/components/styled-date-picker";
+import { StyledDatePickerHorizontal } from "@/components/styled-date-picker-horizontal";
 import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
 
 const ZonedDatePicker = createDatePicker("ZonedDateTime", {
@@ -80,6 +81,9 @@ export default function Home() {
   const [selectedDate2, setSelectedDate2] = useState<
     Temporal.ZonedDateTime | undefined
   >();
+  const [selectedDate3, setSelectedDate3] = useState<
+    Temporal.ZonedDateTime | undefined
+  >();
 
   const defaultMin = useMemo(
     () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ months: 7 }),
@@ -140,6 +144,7 @@ export default function Home() {
       setTimeZone(newTz);
       setSelectedDate((prev) => rezoneDateValue(prev, newTz));
       setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
+      setSelectedDate3((prev) => rezoneDateValue(prev, newTz));
     },
     [rezoneDateValue],
   );
@@ -265,6 +270,22 @@ export default function Home() {
             components={ZonedDatePicker}
             value={selectedDate2}
             onValueChange={setSelectedDate2}
+            min={minDate}
+            max={maxDate}
+            locale={locale}
+            timeZone={timeZone}
+          />
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-start justify-center gap-4">
+        <div>
+          Horizontal DatePicker
+          {formatDisplay(selectedDate3)}
+          <StyledDatePickerHorizontal
+            components={ZonedDatePicker}
+            value={selectedDate3}
+            onValueChange={setSelectedDate3}
             min={minDate}
             max={maxDate}
             locale={locale}

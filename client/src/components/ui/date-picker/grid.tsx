@@ -21,8 +21,11 @@ export function Grid<F extends ValueFormat = ValueFormat>(
   props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
 ) {
   const { ref, render, mode: _mode, children, ...otherProps } = props;
-  const { currentDateTime, gridLabelId, rootState } = useDatePicker<F>();
+  const { currentDateTime, gridLabelId, rootState, weeks } = useDatePicker<F>();
   const handleKeyDown = useGridKeyboard();
+
+  const daysPerWeek = weeks[0]?.length ?? 7;
+  const weeksInMonth = weeks.length;
 
   const state = useMemo<GridState<F>>(
     () => ({
@@ -46,6 +49,12 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     role: "grid",
     "aria-labelledby": gridLabelId || undefined,
     "aria-label": gridLabelId ? undefined : "Calendar",
+    "data-calendar-days-per-week": daysPerWeek,
+    "data-calendar-weeks-in-month": weeksInMonth,
+    style: {
+      "--calendar-days-per-week": daysPerWeek,
+      "--calendar-weeks-in-month": weeksInMonth,
+    } as React.CSSProperties,
     onKeyDown: handleKeyDown,
     children: children ?? (
       <>
