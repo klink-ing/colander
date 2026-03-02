@@ -58,30 +58,27 @@ export function StyledDatePickerHorizontal<
       timeZone={timeZone}
       locale={locale}
     >
-      <div className={cn("p-3", className)} data-testid="horizontal-datepicker">
+      <div
+        className={cn("w-fit p-3", className)}
+        data-testid="horizontal-datepicker"
+      >
         <div className="flex items-center justify-between gap-1 px-1 pb-3">
           <StyledPrevMonthButton />
           <StyledMonthYearString />
           <StyledNextMonthButton />
         </div>
 
-        <StyledGrid
-          className="w-fit grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)] grid-flow-col auto-cols-auto"
-        >
+        <StyledGrid className="w-fit auto-cols-auto grid-flow-col grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)]">
           <StyledGridHeader
             className={cn(
               "contents [display:contents]",
-              "[&>tr]:col-auto [&>tr]:grid [&>tr]:row-span-full [&>tr]:[grid-template-columns:unset] [&>tr]:[grid-template-rows:subgrid]",
+              "[&>tr]:col-auto [&>tr]:row-span-full [&>tr]:grid [&>tr]:[grid-template-columns:unset] [&>tr]:[grid-template-rows:subgrid]",
             )}
           >
-            <StyledGridHeaderCell className="w-auto flex items-center text-right" />
+            <StyledGridHeaderCell className="flex w-fit items-center text-right" />
           </StyledGridHeader>
-          <StyledGridBody
-            className="col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid] grid-flow-col auto-cols-fr"
-          >
-            <StyledWeekTemplate
-              className="col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid]"
-            >
+          <StyledGridBody className="col-auto row-span-full auto-cols-fr grid-flow-col [grid-template-columns:unset] [grid-template-rows:subgrid]">
+            <StyledWeekTemplate className="col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid]">
               <StyledDayTemplate />
             </StyledWeekTemplate>
           </StyledGridBody>

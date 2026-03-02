@@ -151,7 +151,7 @@ export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
     <GridHeaderCell
       {...(props as GridHeaderCellProps)}
       className={cn(
-        "w-fit text-center text-[0.8rem] font-normal text-muted-foreground",
+        "flex justify-end p-1 text-center text-[0.8rem] font-normal text-muted-foreground",
         className,
       )}
     />
@@ -208,7 +208,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
     <DayButton
       {...(props as DayButtonProps)}
       className={cn(
-        "relative inline-flex items-center justify-end rounded-md p-1 text-sm font-normal tabular-nums transition-colors min-w-[1",
+        "relative inline-flex min-w-[calc(2ch+(2*var(--spacing)))] items-center justify-end rounded-md p-1 text-sm font-normal tabular-nums transition-colors",
         "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-foreground hover:bg-accent hover:text-accent-foreground",
         "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
