@@ -65,12 +65,23 @@ export function StyledDatePickerHorizontal<
           <StyledNextMonthButton />
         </div>
 
-        <StyledGrid className="auto-cols-[1fr] grid-flow-col !grid-cols-[auto] grid-rows-[repeat(var(--calendar-days-per-week),1fr)]">
-          <StyledGridHeader className="!col-auto row-span-full ![grid-template-columns:unset] [grid-template-rows:subgrid] [&>tr]:!col-auto [&>tr]:row-span-full [&>tr]:![grid-template-columns:unset] [&>tr]:[grid-template-rows:subgrid]">
+        <StyledGrid
+          className="grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)] grid-flow-col auto-cols-fr"
+        >
+          <StyledGridHeader
+            className={cn(
+              "col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid]",
+              "[&>tr]:col-auto [&>tr]:row-span-full [&>tr]:[grid-template-columns:unset] [&>tr]:[grid-template-rows:subgrid]",
+            )}
+          >
             <StyledGridHeaderCell className="flex items-center text-right" />
           </StyledGridHeader>
-          <StyledGridBody className="contents ![grid-template-columns:unset]">
-            <StyledWeekTemplate className="!col-auto row-span-full ![grid-template-columns:unset] [grid-template-rows:subgrid]">
+          <StyledGridBody
+            className="col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid] grid-flow-col auto-cols-fr"
+          >
+            <StyledWeekTemplate
+              className="col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid]"
+            >
               <StyledDayTemplate />
             </StyledWeekTemplate>
           </StyledGridBody>
