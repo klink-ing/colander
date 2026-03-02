@@ -141,7 +141,8 @@ export function RenderPropDatePicker<F extends ValueFormat>({
       </div>
 
       <DP.Grid
-        className="w-full table-fixed border-collapse"
+        mode="grid"
+        className="grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]"
         data-testid="monthgrid"
       >
         <StyledGridHeader>

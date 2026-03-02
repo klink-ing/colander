@@ -65,7 +65,7 @@ export function StyledDatePickerHorizontal<
           <StyledNextMonthButton />
         </div>
 
-        <StyledGrid className="auto-cols-fr grid-flow-col !grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)]">
+        <StyledGrid className="auto-cols-[1fr] grid-flow-col !grid-cols-[auto] grid-rows-[repeat(var(--calendar-days-per-week),1fr)]">
           <StyledGridHeader className="!col-auto row-span-full ![grid-template-columns:unset] [grid-template-rows:subgrid] [&>tr]:!col-auto [&>tr]:row-span-full [&>tr]:![grid-template-columns:unset] [&>tr]:[grid-template-rows:subgrid]">
             <StyledGridHeaderCell className="flex items-center text-right" />
           </StyledGridHeader>

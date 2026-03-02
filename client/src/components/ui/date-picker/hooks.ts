@@ -145,13 +145,13 @@ export function useRootState<F extends ValueFormat>(
   }, [taggedValue, timeZone, T]);
 
   useEffect(() => {
-    if (
-      focusedDate.year !== currentMonth.year ||
-      focusedDate.month !== currentMonth.month
-    ) {
-      setCurrentMonth({ year: focusedDate.year, month: focusedDate.month });
-    }
-  }, [focusedDate, currentMonth.month, currentMonth.year]);
+    setCurrentMonth((prev) => {
+      if (focusedDate.year !== prev.year || focusedDate.month !== prev.month) {
+        return { year: focusedDate.year, month: focusedDate.month };
+      }
+      return prev;
+    });
+  }, [focusedDate]);
 
   useEffect(() => {
     if (!selected) return;
