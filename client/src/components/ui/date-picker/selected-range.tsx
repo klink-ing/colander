@@ -19,7 +19,9 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     [days, rangeStart, rangeEnd, T],
   );
 
-  const startDayId = info.active ? `day-${days[info.startIndex].toString()}` : "";
+  const startDayId = info.active
+    ? `day-${days[info.startIndex].toString()}`
+    : "";
   const endDayId = info.active ? `day-${days[info.endIndex].toString()}` : "";
 
   const state = useMemo<SelectedRangeState<F>>(
@@ -50,8 +52,8 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     [],
   );
 
-  const interiorStart = info.extendsBefore ? info.startIndex : info.startIndex + 1;
-  const interiorEnd = info.extendsAfter ? info.endIndex : info.endIndex - 1;
+  const interiorStart = info.startIndex;
+  const interiorEnd = info.endIndex;
   const hasInterior = info.active && interiorStart <= interiorEnd;
 
   const defaultProps: Record<string, unknown> = hasInterior

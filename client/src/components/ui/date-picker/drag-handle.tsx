@@ -1,7 +1,10 @@
-import { useContext, useMemo, useState, useCallback, useRef } from "react";
+import { useContext, useMemo, useRef, useEffect, useState } from "react";
 import { flushSync } from "react-dom";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { disableNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { useDatePicker, DayCellDataContext } from "./context";
 import type {
   ValueFormat,
@@ -12,70 +15,22 @@ import type {
 } from "./types";
 import type { Temporal } from "@js-temporal/polyfill";
 
-interface CachedDayRect {
-  rect: DOMRect;
-  date: Temporal.PlainDate;
-}
-
-function findClosestDay(
-  px: number,
-  py: number,
-  cache: CachedDayRect[],
-): Temporal.PlainDate | undefined {
-  let closest: Temporal.PlainDate | undefined;
-  let minDist = Infinity;
-  for (let i = 0; i < cache.length; i++) {
-    const { rect, date } = cache[i];
-    const cx = rect.left + rect.width / 2;
-    const cy = rect.top + rect.height / 2;
-    const dist = (px - cx) ** 2 + (py - cy) ** 2;
-    if (dist < minDist) {
-      minDist = dist;
-      closest = date;
-    }
-  }
-  return closest;
-}
-
-function findGridAncestor(el: HTMLElement): HTMLElement | null {
-  let node: HTMLElement | null = el;
-  while (node) {
-    if (node.getAttribute("role") === "grid") return node;
-    node = node.parentElement;
-  }
-  return null;
-}
-
-function collectDayRects(
-  gridEl: HTMLElement | null,
-  T: TemporalNamespace,
-): CachedDayRect[] {
-  const scope = gridEl ?? document;
-  const rects: CachedDayRect[] = [];
-  scope.querySelectorAll("[id^='day-']").forEach((el) => {
-    const dateStr = el.id.slice(4);
-    try {
-      const d = T.PlainDate.from(dateStr);
-      rects.push({ rect: el.getBoundingClientRect(), date: d });
-    } catch {
-      // skip invalid
-    }
-  });
-  return rects;
-}
-
 function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end") {
   const { rangeStart, rangeEnd, setRange, temporal: T, rootState } = useDatePicker<F>();
   const cellData = useContext(DayCellDataContext);
   const date = cellData?.date;
+
+  const [dragging, setDragging] = useState(false);
+  const draggingRef = useRef(false);
 
   const isActive =
     edge === "start"
       ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
       : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
 
-  const [dragging, setDragging] = useState(false);
-  const dayRectsRef = useRef<CachedDayRect[]>([]);
+  const isDragging = dragging && isActive;
+
+  const handleRef = useRef<HTMLSpanElement>(null);
   const vtRef = useRef<ViewTransition | null>(null);
   const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
   rangeRef.current = { start: rangeStart, end: rangeEnd };
@@ -89,35 +44,74 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
   const edgeRef = useRef(edge);
   edgeRef.current = edge;
 
-  const stopDrag = useCallback(() => {
-    setDragging(false);
-    dayRectsRef.current = [];
-  }, []);
+  // Register the drag handle as a draggable element
+  useEffect(() => {
+    const el = handleRef.current;
+    if (!el || !isActive) return;
+    const cleanup = draggable({
+      element: el,
+      getInitialData: () => ({ type: "date-range-handle", edge }),
+      onGenerateDragPreview: ({ nativeSetDragImage }) => {
+        disableNativeDragPreview({ nativeSetDragImage });
+      },
+      onDragStart: () => {
+        draggingRef.current = true;
+        setDragging(true);
+        document.body.style.cursor = "grabbing";
+      },
+      onDrop: () => {
+        draggingRef.current = false;
+        setDragging(false);
+        document.body.style.cursor = "";
+      },
+    });
+    return () => {
+      cleanup();
+      // If the draggable tears down mid-drag (because isActive went false),
+      // reset cursor since onDrop won't fire on this instance
+      if (draggingRef.current) {
+        document.body.style.cursor = "";
+      }
+    };
+  }, [isActive, edge]);
 
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      if (!isActive) return;
-      e.preventDefault();
-      e.stopPropagation();
-      (e.target as HTMLElement).setPointerCapture(e.pointerId);
-      setDragging(true);
+  // Monitor drag events to update the range
+  useEffect(() => {
+    if (!dragging) return;
+    return monitorForElements({
+      canMonitor: ({ source }) =>
+        source.data.type === "date-range-handle" && source.data.edge === edgeRef.current,
+      onDrag: ({ location }) => {
+        const dropTarget = location.current.dropTargets[0];
+        if (!dropTarget) return;
+        applyDropTarget(dropTarget.data.date as string);
+      },
+      onDropTargetChange: ({ location }) => {
+        const dropTarget = location.current.dropTargets[0];
+        if (!dropTarget) return;
+        applyDropTarget(dropTarget.data.date as string);
+      },
+      onDrop: () => {
+        // Handles cleanup when the original draggable was torn down
+        // (draggable.onDrop won't fire if the element was unmounted)
+        draggingRef.current = false;
+        setDragging(false);
+        document.body.style.cursor = "";
+      },
+    });
 
-      const grid = findGridAncestor(e.target as HTMLElement);
-      dayRectsRef.current = collectDayRects(grid, TRef.current);
-    },
-    [isActive],
-  );
-
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      if (!dragging) return;
+    function applyDropTarget(dateStr: string) {
       const { start, end } = rangeRef.current;
       if (!start || !end) return;
 
-      const target = findClosestDay(e.clientX, e.clientY, dayRectsRef.current);
-      if (!target) return;
-
       const Tp = TRef.current;
+      let target: Temporal.PlainDate;
+      try {
+        target = Tp.PlainDate.from(dateStr);
+      } catch {
+        return;
+      }
+
       let newStart: Temporal.PlainDate;
       let newEnd: Temporal.PlainDate;
 
@@ -154,48 +148,17 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
           update();
         }
       }
-    },
-    [dragging],
-  );
-
-  const handlePointerUp = useCallback(
-    (e: React.PointerEvent) => {
-      if (!dragging) return;
-      try {
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch {
-        // may already be released
-      }
-      stopDrag();
-    },
-    [dragging, stopDrag],
-  );
-
-  const handlePointerCancel = useCallback(
-    (e: React.PointerEvent) => {
-      if (!dragging) return;
-      try {
-        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
-      } catch {
-        // may already be released
-      }
-      stopDrag();
-    },
-    [dragging, stopDrag],
-  );
-
-  const handleLostPointerCapture = useCallback(() => {
-    if (dragging) stopDrag();
-  }, [dragging, stopDrag]);
+    }
+  }, [dragging]);
 
   const state = useMemo<DragHandleState<F>>(
     () => ({
       root: rootState,
-      active: isActive || dragging,
-      dragging,
+      active: isActive,
+      dragging: isDragging,
       edge,
     }),
-    [rootState, isActive, dragging, edge],
+    [rootState, isActive, isDragging, edge],
   );
 
   const stateAttributesMapping = useMemo(
@@ -208,36 +171,31 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(edge: "start" | "end
     [],
   );
 
-  const visible = isActive || dragging;
+  const visible = isActive;
 
   const defaultProps: Record<string, unknown> = {
     "data-testid": `drag-handle-${edge}`,
     style: {
       touchAction: "none",
-      cursor: dragging ? "grabbing" : "grab",
+      cursor: isDragging ? "grabbing" : "grab",
       display: visible ? undefined : "none",
       viewTransitionName: isActive ? `drag-handle-${edge}` : "none",
     },
-    onPointerDown: handlePointerDown,
-    onPointerMove: handlePointerMove,
-    onPointerUp: handlePointerUp,
-    onPointerCancel: handlePointerCancel,
-    onLostPointerCapture: handleLostPointerCapture,
   };
 
-  return { state, stateAttributesMapping, defaultProps };
+  return { state, stateAttributesMapping, defaultProps, handleRef };
 }
 
 export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } = useDragHandle<F>("start");
+  const { state, stateAttributesMapping, defaultProps, handleRef } = useDragHandle<F>("start");
 
   return useRender({
     defaultTagName: "span",
     render,
-    ref: ref ? [ref] : [],
+    ref: ref ? [ref, handleRef] : [handleRef],
     state,
     stateAttributesMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
@@ -248,12 +206,12 @@ export function RangeEndDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeEndDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } = useDragHandle<F>("end");
+  const { state, stateAttributesMapping, defaultProps, handleRef } = useDragHandle<F>("end");
 
   return useRender({
     defaultTagName: "span",
     render,
-    ref: ref ? [ref] : [],
+    ref: ref ? [ref, handleRef] : [handleRef],
     state,
     stateAttributesMapping,
     props: mergeProps<"span">(defaultProps, otherProps),

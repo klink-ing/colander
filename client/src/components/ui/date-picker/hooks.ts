@@ -6,6 +6,7 @@ import {
   useRef,
   type KeyboardEvent,
 } from "react";
+import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import type { Temporal } from "@js-temporal/polyfill";
 import { computeNextFocusDate } from "./keyboard";
 import type {
@@ -738,6 +739,17 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
       internalRef.current.focus();
     }
   }, [isFocused, gridFocusedRef]);
+
+  useEffect(() => {
+    const el = internalRef.current;
+    if (!el) return;
+    return dropTargetForElements({
+      element: el,
+      getData: () => ({ date: date.toString() }),
+      canDrop: ({ source }) => source.data.type === "date-range-handle",
+      getIsSticky: () => true,
+    });
+  }, [date]);
 
   const state = useMemo<DayButtonState<F>>(
     () => ({
