@@ -381,90 +381,51 @@ describe("getWeekdayNames", () => {
 });
 
 describe("computeAdjacentMonth", () => {
-  it("computes the next month from a mid-year month", () => {
-    const result = computeAdjacentMonth({ year: 2026, month: 3 }, "next", T);
-    expect(result.year).toBe(2026);
-    expect(result.month).toBe(4);
-    expect(result.firstDay.toString()).toBe("2026-04-01");
-  });
-
-  it("computes the previous month from a mid-year month", () => {
-    const result = computeAdjacentMonth({ year: 2026, month: 3 }, "prev", T);
-    expect(result.year).toBe(2026);
-    expect(result.month).toBe(2);
-    expect(result.firstDay.toString()).toBe("2026-02-01");
-  });
-
-  it("wraps from December to January (next)", () => {
-    const result = computeAdjacentMonth({ year: 2026, month: 12 }, "next", T);
-    expect(result.year).toBe(2027);
-    expect(result.month).toBe(1);
-    expect(result.firstDay.toString()).toBe("2027-01-01");
-  });
-
-  it("wraps from January to December (prev)", () => {
-    const result = computeAdjacentMonth({ year: 2027, month: 1 }, "prev", T);
-    expect(result.year).toBe(2026);
-    expect(result.month).toBe(12);
-    expect(result.firstDay.toString()).toBe("2026-12-01");
-  });
+  it.each<{
+    description: string;
+    current: { year: number; month: number };
+    direction: "prev" | "next";
+    expected: { year: number; month: number; firstDay: string };
+  }>([
+    { description: "mid-year next", current: { year: 2026, month: 3 }, direction: "next", expected: { year: 2026, month: 4, firstDay: "2026-04-01" } },
+    { description: "mid-year prev", current: { year: 2026, month: 3 }, direction: "prev", expected: { year: 2026, month: 2, firstDay: "2026-02-01" } },
+    { description: "Dec→Jan wrap", current: { year: 2026, month: 12 }, direction: "next", expected: { year: 2027, month: 1, firstDay: "2027-01-01" } },
+    { description: "Jan→Dec wrap", current: { year: 2027, month: 1 }, direction: "prev", expected: { year: 2026, month: 12, firstDay: "2026-12-01" } },
+  ])(
+    "$description",
+    ({ current, direction, expected }) => {
+      const result = computeAdjacentMonth(current, direction, T);
+      expect(result.year).toBe(expected.year);
+      expect(result.month).toBe(expected.month);
+      expect(result.firstDay.toString()).toBe(expected.firstDay);
+    },
+  );
 });
 
 describe("focusedDateForMonth", () => {
-  it("returns firstDay when focused date is in a different month", () => {
-    const focused = date("2026-03-15");
-    const firstDay = date("2026-04-01");
-    const result = focusedDateForMonth(
-      focused,
-      { year: 2026, month: 4 },
-      firstDay,
-    );
-    expect(result.toString()).toBe("2026-04-01");
-  });
-
-  it("preserves focused date when it is already in the target month", () => {
-    const focused = date("2026-04-10");
-    const firstDay = date("2026-04-01");
-    const result = focusedDateForMonth(
-      focused,
-      { year: 2026, month: 4 },
-      firstDay,
-    );
-    expect(result.toString()).toBe("2026-04-10");
-  });
-
-  it("returns firstDay when focused date is in a different year", () => {
-    const focused = date("2025-12-20");
-    const firstDay = date("2026-01-01");
-    const result = focusedDateForMonth(
-      focused,
-      { year: 2026, month: 1 },
-      firstDay,
-    );
-    expect(result.toString()).toBe("2026-01-01");
-  });
-
-  it("preserves focused date at month boundaries (day 1)", () => {
-    const focused = date("2026-05-01");
-    const firstDay = date("2026-05-01");
-    const result = focusedDateForMonth(
-      focused,
-      { year: 2026, month: 5 },
-      firstDay,
-    );
-    expect(result.toString()).toBe("2026-05-01");
-  });
-
-  it("preserves focused date at month boundaries (last day)", () => {
-    const focused = date("2026-05-31");
-    const firstDay = date("2026-05-01");
-    const result = focusedDateForMonth(
-      focused,
-      { year: 2026, month: 5 },
-      firstDay,
-    );
-    expect(result.toString()).toBe("2026-05-31");
-  });
+  it.each<{
+    description: string;
+    focused: string;
+    targetMonth: { year: number; month: number };
+    firstDay: string;
+    expected: string;
+  }>([
+    { description: "falls back to firstDay when in a different month", focused: "2026-03-15", targetMonth: { year: 2026, month: 4 }, firstDay: "2026-04-01", expected: "2026-04-01" },
+    { description: "preserves focused when already in target month", focused: "2026-04-10", targetMonth: { year: 2026, month: 4 }, firstDay: "2026-04-01", expected: "2026-04-10" },
+    { description: "falls back to firstDay when in a different year", focused: "2025-12-20", targetMonth: { year: 2026, month: 1 }, firstDay: "2026-01-01", expected: "2026-01-01" },
+    { description: "preserves focused at month boundary (day 1)", focused: "2026-05-01", targetMonth: { year: 2026, month: 5 }, firstDay: "2026-05-01", expected: "2026-05-01" },
+    { description: "preserves focused at month boundary (last day)", focused: "2026-05-31", targetMonth: { year: 2026, month: 5 }, firstDay: "2026-05-01", expected: "2026-05-31" },
+  ])(
+    "$description",
+    ({ focused, targetMonth, firstDay, expected }) => {
+      const result = focusedDateForMonth(
+        date(focused),
+        targetMonth,
+        date(firstDay),
+      );
+      expect(result.toString()).toBe(expected);
+    },
+  );
 });
 
 describe("getMonthWeeks", () => {
@@ -673,45 +634,47 @@ describe("resolveFocusTarget", () => {
 });
 
 describe("shouldMoveDomFocus", () => {
-  it("returns true when cell is focused AND grid has focus (keyboard nav inside grid)", () => {
-    expect(shouldMoveDomFocus(true, true)).toBe(true);
-  });
-
-  it("returns false when cell is focused but grid does NOT have focus (nav button clicked)", () => {
-    expect(shouldMoveDomFocus(true, false)).toBe(false);
-  });
-
-  it("returns false when grid has focus but cell is not the focused date", () => {
-    expect(shouldMoveDomFocus(false, true)).toBe(false);
-  });
-
-  it("returns false when neither cell is focused nor grid has focus", () => {
-    expect(shouldMoveDomFocus(false, false)).toBe(false);
-  });
+  it.each<{
+    description: string;
+    isFocused: boolean;
+    gridHasFocus: boolean;
+    expected: boolean;
+  }>([
+    { description: "focused + grid has focus → true (keyboard nav)", isFocused: true, gridHasFocus: true, expected: true },
+    { description: "focused + grid blurred → false (nav button click)", isFocused: true, gridHasFocus: false, expected: false },
+    { description: "not focused + grid has focus → false", isFocused: false, gridHasFocus: true, expected: false },
+    { description: "not focused + grid blurred → false", isFocused: false, gridHasFocus: false, expected: false },
+  ])(
+    "$description",
+    ({ isFocused, gridHasFocus, expected }) => {
+      expect(shouldMoveDomFocus(isFocused, gridHasFocus)).toBe(expected);
+    },
+  );
 });
 
 describe("isInRange", () => {
   const start = date("2026-03-10");
   const end = date("2026-03-20");
 
-  it("returns false when date is before range", () => {
-    expect(isInRange(date("2026-03-05"), start, end, T)).toBe(false);
-  });
-
-  it("returns true when date equals range start (inclusive)", () => {
-    expect(isInRange(date("2026-03-10"), start, end, T)).toBe(true);
-  });
-
-  it("returns true when date is in the middle of range", () => {
-    expect(isInRange(date("2026-03-15"), start, end, T)).toBe(true);
-  });
-
-  it("returns true when date equals range end (inclusive)", () => {
-    expect(isInRange(date("2026-03-20"), start, end, T)).toBe(true);
-  });
-
-  it("returns false when date is after range", () => {
-    expect(isInRange(date("2026-03-25"), start, end, T)).toBe(false);
+  it.each<{
+    description: string;
+    d: string;
+    s: string;
+    e: string;
+    expected: boolean;
+  }>([
+    { description: "before range", d: "2026-03-05", s: "2026-03-10", e: "2026-03-20", expected: false },
+    { description: "at range start (inclusive)", d: "2026-03-10", s: "2026-03-10", e: "2026-03-20", expected: true },
+    { description: "middle of range", d: "2026-03-15", s: "2026-03-10", e: "2026-03-20", expected: true },
+    { description: "at range end (inclusive)", d: "2026-03-20", s: "2026-03-10", e: "2026-03-20", expected: true },
+    { description: "after range", d: "2026-03-25", s: "2026-03-10", e: "2026-03-20", expected: false },
+    { description: "one day before start", d: "2026-03-09", s: "2026-03-10", e: "2026-03-20", expected: false },
+    { description: "one day after end", d: "2026-03-21", s: "2026-03-10", e: "2026-03-20", expected: false },
+    { description: "two-day range start endpoint", d: "2026-03-10", s: "2026-03-10", e: "2026-03-11", expected: true },
+    { description: "two-day range end endpoint", d: "2026-03-11", s: "2026-03-10", e: "2026-03-11", expected: true },
+    { description: "single-day range (start = end = date)", d: "2026-03-15", s: "2026-03-15", e: "2026-03-15", expected: true },
+  ])("$description", ({ d, s, e, expected }) => {
+    expect(isInRange(date(d), date(s), date(e), T)).toBe(expected);
   });
 
   it("returns false when rangeStart is undefined", () => {
@@ -722,30 +685,8 @@ describe("isInRange", () => {
     expect(isInRange(date("2026-03-15"), start, undefined, T)).toBe(false);
   });
 
-  it("returns true for both endpoints of a two-day range", () => {
-    expect(
-      isInRange(date("2026-03-10"), date("2026-03-10"), date("2026-03-11"), T),
-    ).toBe(true);
-    expect(
-      isInRange(date("2026-03-11"), date("2026-03-10"), date("2026-03-11"), T),
-    ).toBe(true);
-  });
-
-  it("returns false when both rangeStart and rangeEnd are undefined", () => {
+  it("returns false when both are undefined", () => {
     expect(isInRange(date("2026-03-15"), undefined, undefined, T)).toBe(false);
-  });
-
-  it("returns true for a single-day range where date equals start and end", () => {
-    const d = date("2026-03-15");
-    expect(isInRange(d, d, d, T)).toBe(true);
-  });
-
-  it("returns false when date is one day before range start", () => {
-    expect(isInRange(date("2026-03-09"), start, end, T)).toBe(false);
-  });
-
-  it("returns false when date is one day after range end", () => {
-    expect(isInRange(date("2026-03-21"), start, end, T)).toBe(false);
   });
 });
 

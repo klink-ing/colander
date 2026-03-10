@@ -9,9 +9,7 @@ const T: TemporalNamespace = {
   PlainDate: Temporal.PlainDate,
   PlainDateTime: Temporal.PlainDateTime,
   PlainMonthDay: Temporal.PlainMonthDay,
-  PlainTime: Temporal.PlainTime,
   PlainYearMonth: Temporal.PlainYearMonth,
-  ZonedDateTime: Temporal.ZonedDateTime,
 };
 
 function date(iso: string): Temporal.PlainDate {

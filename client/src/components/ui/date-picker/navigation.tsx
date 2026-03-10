@@ -1,6 +1,7 @@
 import { useId, useMemo, useEffect } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 import { useDatePicker } from "./context";
 import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
 import type {
@@ -16,8 +17,30 @@ import type {
   NavButtonState,
 } from "./types";
 
-const rootNullMapping = { root: () => null };
+const dateStringStateAttributesMapping = {
+  root: () => null,
+  month: () => null,
+  year: () => null,
+  day: () => null,
+} as const satisfies StateAttributesMapping<DateStringState>;
 
+const timeStringStateAttributesMapping = {
+  root: () => null,
+  hour: () => null,
+  minute: () => null,
+  second: () => null,
+} as const satisfies StateAttributesMapping<TimeStringState>;
+
+const monthYearStringStateAttributesMapping = {
+  root: () => null,
+  month: () => null,
+  year: () => null,
+} as const satisfies StateAttributesMapping<MonthYearStringState>;
+
+/**
+ * Displays the currently selected (or current) date as localized text.
+ * Renders a `<span>` with `aria-live="polite"`.
+ */
 export function DateString<F extends ValueFormat = ValueFormat>(
   props: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
@@ -58,11 +81,16 @@ export function DateString<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping: rootNullMapping,
+    stateAttributesMapping: dateStringStateAttributesMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
 
+/**
+ * Displays the currently selected time as localized text.
+ * Falls back to the current time when nothing is selected.
+ * Renders a `<span>` with `aria-live="polite"`.
+ */
 export function TimeString<F extends ValueFormat = ValueFormat>(
   props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
@@ -106,7 +134,7 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping: rootNullMapping,
+    stateAttributesMapping: timeStringStateAttributesMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -171,7 +199,7 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping: rootNullMapping,
+    stateAttributesMapping: monthYearStringStateAttributesMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
 }
@@ -257,11 +285,15 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
 
 const navButtonStateAttributesMapping = {
   root: () => null,
-  direction: (v: string) => ({ "data-direction": v }),
+  direction: (v) => ({ "data-direction": v }),
   disabled: () => null,
   target: () => null,
-};
+} as const satisfies StateAttributesMapping<NavButtonState>;
 
+/**
+ * Button that navigates to the previous month. Automatically disabled
+ * when the previous month falls before `min`. Exposes `data-direction="prev"`.
+ */
 export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
   props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
@@ -278,6 +310,10 @@ export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
   });
 }
 
+/**
+ * Button that navigates to the next month. Automatically disabled
+ * when the next month falls after `max`. Exposes `data-direction="next"`.
+ */
 export function NextMonthButton<F extends ValueFormat = ValueFormat>(
   props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {

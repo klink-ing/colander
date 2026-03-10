@@ -1,6 +1,7 @@
 import { useContext, useMemo, useRef } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 import { useDatePicker, DayCellDataContext } from "./context";
 import type {
   ValueFormat,
@@ -12,10 +13,10 @@ import type {
 
 const dragHandleStateAttributesMapping = {
   root: () => null,
-  active: (v: boolean) => (v ? { "data-active": "" } : null),
-  dragging: (v: boolean) => (v ? { "data-dragging": "" } : null),
-  edge: (v: string) => ({ "data-edge": v }),
-};
+  active: (v) => (v ? { "data-active": "" } : null),
+  dragging: (v) => (v ? { "data-dragging": "" } : null),
+  edge: (v) => ({ "data-edge": v }),
+} as const satisfies StateAttributesMapping<DragHandleState>;
 
 function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
@@ -56,14 +57,16 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   };
 }
 
+/**
+ * Drag handle (`<span>`) rendered at a range boundary. Exposes
+ * `data-active`, `data-dragging`, and `data-edge` attributes.
+ */
 export function RangeDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
-  const { ref, render, dragging, ...otherProps } = props;
+  const { ref, render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
-    useDragHandle<F>(props.edge, { dragging });
-
-  console.log("ref", ref);
+    useDragHandle<F>(edge, { dragging });
 
   return useRender({
     defaultTagName: "span",
@@ -75,12 +78,14 @@ export function RangeDragHandle<F extends ValueFormat = ValueFormat>(
   });
 }
 
+/** Convenience wrapper for {@link RangeDragHandle} with `edge="start"`. */
 export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   return <RangeDragHandle edge="start" {...props} />;
 }
 
+/** Convenience wrapper for {@link RangeDragHandle} with `edge="end"`. */
 export function RangeEndDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeEndDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {

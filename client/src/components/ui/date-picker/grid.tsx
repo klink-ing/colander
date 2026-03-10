@@ -35,7 +35,6 @@ import type {
   DayCellTemplateProps,
   DayButtonProps,
   DayCellTemplateState,
-  RootState,
 } from "./types";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 export { GridHeader, GridHeaderCell } from "./grid-header";
@@ -131,6 +130,12 @@ function useDayDerivedState(date: TemporalPoly.PlainDate) {
   };
 }
 
+/**
+ * Returns the full {@link DayCellTemplateState} for a given date.
+ *
+ * Useful for custom day-cell render functions that need access to all
+ * derived state (selected, today, disabled, range membership, etc.).
+ */
 export function useDayState<F extends ValueFormat = ValueFormat>(
   date: TemporalPoly.PlainDate,
   orientation: GridOrientation = "vertical",
@@ -236,8 +241,17 @@ const gridStateAttributesMapping = {
   root: () => null,
   month: () => null,
   year: () => null,
-};
+  orientation: (v) => ({ "data-orientation": v }),
+} as const satisfies StateAttributesMapping<GridState>;
 
+/**
+ * Calendar grid container. Renders a `<table>` with `role="grid"` by default.
+ *
+ * Sets CSS custom properties `--calendar-days-per-week` and
+ * `--calendar-weeks-in-month`, and matching `data-calendar-*` attributes.
+ * Manages keyboard navigation, grid focus tracking, and
+ * `aria-labelledby` linkage to {@link MonthYearString}.
+ */
 export function Grid<F extends ValueFormat = ValueFormat>(
   props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
 ) {
@@ -336,8 +350,9 @@ export function Grid<F extends ValueFormat = ValueFormat>(
 
 const gridBodyStateAttributesMapping = {
   root: () => null,
-} as const satisfies StateAttributesMapping<{ root: RootState }>;
+} as const satisfies StateAttributesMapping<GridBodyState>;
 
+/** Table body wrapping the week rows. Renders a `<tbody>` by default. */
 export function GridBody<F extends ValueFormat = ValueFormat>(
   props: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
@@ -374,7 +389,7 @@ export function GridBody<F extends ValueFormat = ValueFormat>(
 const weekInstanceStateAttributesMapping = {
   root: () => null,
   weekIndex: () => null,
-};
+} as const satisfies StateAttributesMapping<WeekTemplateState>;
 
 function WeekInstance<F extends ValueFormat = ValueFormat>(
   props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
@@ -398,6 +413,10 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(
   });
 }
 
+/**
+ * Iterates over the weeks in the current month and renders one `<tr>` per week.
+ * Each instance receives its week's days and index via {@link WeekDataContext}.
+ */
 export function WeekTemplate<F extends ValueFormat = ValueFormat>(
   props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
 ) {
@@ -423,7 +442,7 @@ const dayStateAttributesMapping = {
   date: (v: TemporalPoly.PlainDate) =>
     v ? { "data-date": v.toString() } : null,
   columnIndex: () => null,
-  orientation: (v) => (v ? { "data-orientation": "" } : null),
+  orientation: (v) => (v ? { "data-orientation": v } : null),
   selected: (v) => (v ? { "data-selected": "" } : null),
   today: (v) => (v ? { "data-today": "" } : null),
   disabled: (v) => (v ? { "data-disabled": "" } : null),
@@ -450,8 +469,6 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
     role: "gridcell",
     "aria-selected": state.selected || undefined,
     "aria-disabled": state.disabled || undefined,
-    "data-range-boundary": true,
-    "data-bummertown": true,
     children: children ?? <DayButton />,
   };
 
@@ -471,6 +488,14 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
   );
 }
 
+/**
+ * Renders one `<td role="gridcell">` per day. Exposes data-attributes for
+ * `selected`, `today`, `disabled`, `outside-month`, `focused`,
+ * `range-start`, `range-end`, `range-boundary`, `in-range`, and `date`.
+ *
+ * When used inside a {@link WeekTemplate}, iterates over that week's days.
+ * An explicit `date` prop renders a single cell.
+ */
 export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
   props: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
@@ -523,6 +548,12 @@ function DayButtonInstance<F extends ValueFormat = ValueFormat>(
   });
 }
 
+/**
+ * Interactive `<button>` inside a day cell. Handles click-to-select,
+ * roving tabindex, and imperative focus on keyboard navigation.
+ *
+ * Must be used inside a {@link DayCellTemplate} or given an explicit `date` prop.
+ */
 export function DayButton<F extends ValueFormat = ValueFormat>(
   props: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {

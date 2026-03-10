@@ -1,11 +1,13 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { TemporalNamespace } from "./types";
 
+/** Result of a keyboard navigation action. */
 export type KeyboardNavResult =
   | { action: "move"; date: Temporal.PlainDate }
   | { action: "select" }
   | { action: "none" };
 
+/** Input parameters for keyboard navigation computation. */
 export interface KeyboardNavInput {
   key: string;
   shiftKey: boolean;
@@ -17,6 +19,11 @@ export interface KeyboardNavInput {
   T: TemporalNamespace;
 }
 
+/**
+ * Computes the target date when jumping by `months` from `focusedDate`.
+ *
+ * Day-of-month is constrained (e.g. Jan 31 + 1 month → Feb 28/29).
+ */
 export function computeMonthJumpTarget(
   focusedDate: Temporal.PlainDate,
   months: number,
@@ -48,6 +55,13 @@ function clampToBounds(
   return { action: "move", date: clamped };
 }
 
+/**
+ * Pure function that maps a keyboard event to a navigation result.
+ *
+ * Handles Arrow keys (±1 day / ±1 week), Home/End (start/end of week),
+ * PageUp/PageDown (±1 month, ±1 year with Shift), and Enter/Space (select).
+ * Results are clamped to `minValue`/`maxValue` bounds.
+ */
 export function computeNextFocusDate(
   input: KeyboardNavInput,
 ): KeyboardNavResult {

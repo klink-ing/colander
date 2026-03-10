@@ -2,6 +2,7 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 import { DatePickerContext } from "./context";
 import type {
   DatePickerContextValue,
@@ -554,7 +555,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
 }
 
 const rootStateAttributesMapping = {
-  hasSelection: (v: boolean) => (v ? { "data-has-selection": "" } : null),
+  hasSelection: (v) => (v ? { "data-has-selection": "" } : null),
   selected: () => null,
   rangeStart: () => null,
   rangeEnd: () => null,
@@ -562,8 +563,16 @@ const rootStateAttributesMapping = {
   viewing: () => null,
   timeZone: () => null,
   locale: () => null,
-};
+} as const satisfies StateAttributesMapping<RootState>;
 
+/**
+ * Top-level container for the DatePicker. Provides all calendar state
+ * (selected value, focused date, navigation, range, etc.) to descendants
+ * via React context.
+ *
+ * Renders a `<div>` by default. Exposes `data-has-selection` when a value
+ * is selected.
+ */
 export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
   const {
     ref,

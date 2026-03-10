@@ -20,6 +20,11 @@ import { SelectedRange } from "./selected-range";
 import { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 import type { ValueFormat, CreateDatePickerOptions } from "./types";
 
+/**
+ * Creates a type-narrowed set of DatePicker components for a specific
+ * {@link ValueFormat}. The returned `Root` component automatically passes
+ * the `format` and optional `temporal` polyfill, so consumers don't need to.
+ */
 export function createDatePicker<F extends ValueFormat>(
   format: F,
   options?: CreateDatePickerOptions,
@@ -52,6 +57,7 @@ export function createDatePicker<F extends ValueFormat>(
   };
 }
 
+/** The component map returned by {@link createDatePicker}. */
 export type Components<F extends ValueFormat> = ReturnType<
   typeof createDatePicker<F>
 >;

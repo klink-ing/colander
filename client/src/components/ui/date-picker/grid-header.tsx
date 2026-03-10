@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 import { useDatePicker } from "./context";
 import { getWeekdayNames } from "./utils";
 import type {
@@ -41,7 +42,7 @@ function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
 
 const gridHeaderStateAttributesMapping = {
   root: () => null,
-};
+} as const satisfies StateAttributesMapping<GridHeaderState>;
 
 const gridHeaderCellStateAttributesMapping = {
   root: () => null,
@@ -49,7 +50,7 @@ const gridHeaderCellStateAttributesMapping = {
   long: () => null,
   short: () => null,
   narrow: () => null,
-};
+} as const satisfies StateAttributesMapping<GridHeaderCellState>;
 
 function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
   props: Omit<GridHeaderCellProps<F>, "index"> & {
@@ -70,6 +71,11 @@ function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
   });
 }
 
+/**
+ * Renders weekday column headers (`<th>`). When no `index` is provided,
+ * renders all 7 days (Sunday–Saturday). Each cell includes `abbr` and
+ * `aria-label` with the full weekday name.
+ */
 export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
   props: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
@@ -89,6 +95,7 @@ export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
   );
 }
 
+/** Table header section (`<thead>`) wrapping a row of {@link GridHeaderCell}s. */
 export function GridHeader<F extends ValueFormat = ValueFormat>(
   props: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {

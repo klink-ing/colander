@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 import { useDatePicker, WeekDataContext } from "./context";
 import { computeWeekRangeInfo } from "./utils";
 import type {
@@ -11,16 +12,22 @@ import type {
 
 const selectedRangeStateAttributesMapping = {
   root: () => null,
-  active: (v: boolean) => (v ? { "data-active": "" } : null),
-  weekIndex: (v: number) => ({ "data-week-index": String(v) }),
-  startIndex: (v: number) => ({ "data-start-index": String(v) }),
-  endIndex: (v: number) => ({ "data-end-index": String(v) }),
-  startDate: (v: string) => (v ? { "data-start-date": v } : null),
-  endDate: (v: string) => (v ? { "data-end-date": v } : null),
-  extendsBefore: (v: boolean) => (v ? { "data-extends-before": "" } : null),
-  extendsAfter: (v: boolean) => (v ? { "data-extends-after": "" } : null),
-};
+  active: (v) => (v ? { "data-active": "" } : null),
+  weekIndex: (v) => ({ "data-week-index": String(v) }),
+  startIndex: (v) => ({ "data-start-index": String(v) }),
+  endIndex: (v) => ({ "data-end-index": String(v) }),
+  startDate: (v) => (v ? { "data-start-date": v } : null),
+  endDate: (v) => (v ? { "data-end-date": v } : null),
+  extendsBefore: (v) => (v ? { "data-extends-before": "" } : null),
+  extendsAfter: (v) => (v ? { "data-extends-after": "" } : null),
+} as const satisfies StateAttributesMapping<SelectedRangeState>;
 
+/**
+ * Visual overlay (`<td role="presentation">`) that highlights the selected
+ * date range within a single week row. Exposes data-attributes for
+ * `active`, `week-index`, `start-index`, `end-index`, `start-date`,
+ * `end-date`, `extends-before`, and `extends-after`.
+ */
 export function SelectedRange<F extends ValueFormat = ValueFormat>(
   props: SelectedRangeProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
