@@ -41,7 +41,7 @@
     }
   },
   "files": {
-    "includes": ["client/src/**", "server/**", "shared/**"]
+    "includes": ["src/**", "dev/**"]
   },
   "css": {
     "linter": {
