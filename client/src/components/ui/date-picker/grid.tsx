@@ -116,7 +116,7 @@ function useDayDerivedState(date: TemporalPoly.PlainDate) {
     : false;
   const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
 
-  const columnIndex = date.dayOfWeek;
+  const columnIndex = date.dayOfWeek % 7;
 
   return {
     isSelected,

@@ -1,11 +1,24 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { TemporalNamespace, DateValueObject, ValueFormat } from "./types";
 
+/**
+ * Returns the default calendar system for a given locale (e.g. `"gregory"` for `"en-US"`).
+ *
+ * @param locale - A BCP 47 locale string. Falls back to the runtime default when empty.
+ */
 export function calendarForLocale(locale: string): string {
   return new Intl.DateTimeFormat(locale || undefined).resolvedOptions()
     .calendar;
 }
 
+/**
+ * Resolves a {@link TemporalNamespace} instance.
+ *
+ * Returns `provided` when given, otherwise checks `globalThis.Temporal`.
+ * Throws if neither is available.
+ *
+ * @param provided - An explicit Temporal polyfill or namespace.
+ */
 export function resolveTemporal(
   provided?: TemporalNamespace,
 ): TemporalNamespace {
@@ -18,10 +31,27 @@ export function resolveTemporal(
   );
 }
 
+/**
+ * Returns the IANA time zone identifier of the host environment (e.g. `"America/New_York"`).
+ *
+ * @param T - Temporal namespace.
+ */
 export function getSystemTimeZone(T: TemporalNamespace): string {
   return T.Now.timeZoneId();
 }
 
+/**
+ * Converts any {@link DateValueObject} into a `Temporal.ZonedDateTime`.
+ *
+ * Handles all supported value formats (`PlainDate`, `PlainDateTime`,
+ * `PlainMonthDay`, `PlainTime`, `PlainYearMonth`, `ZonedDateTime`,
+ * `object`, and `Date`). For partial types (`PlainMonthDay`, `PlainTime`)
+ * the missing components are filled from the current date/time.
+ *
+ * @param tagged - The tagged date value to convert.
+ * @param timeZone - IANA time zone used for the resulting `ZonedDateTime`.
+ * @param T - Temporal namespace.
+ */
 export function toZonedDateTime(
   tagged: DateValueObject,
   timeZone: string,
@@ -71,6 +101,16 @@ export function toZonedDateTime(
   }
 }
 
+/**
+ * Converts a `Temporal.ZonedDateTime` back into a {@link DateValueObject}
+ * of the requested format.
+ *
+ * This is the inverse of {@link toZonedDateTime}.
+ *
+ * @param zdt - The zoned date-time to convert from.
+ * @param format - The target {@link ValueFormat}.
+ * @param T - Temporal namespace.
+ */
 export function fromZonedDateTime(
   zdt: Temporal.ZonedDateTime,
   format: ValueFormat,
@@ -113,6 +153,16 @@ export function fromZonedDateTime(
   }
 }
 
+/**
+ * Convenience wrapper around {@link toZonedDateTime} that accepts `undefined`.
+ *
+ * Returns `undefined` when `selected` is not provided, otherwise converts to
+ * a `Temporal.ZonedDateTime`.
+ *
+ * @param selected - The currently selected value, or `undefined`.
+ * @param timeZone - IANA time zone.
+ * @param T - Temporal namespace.
+ */
 export function selectedToZdt(
   selected: DateValueObject | undefined,
   timeZone: string,
@@ -122,6 +172,17 @@ export function selectedToZdt(
   return toZonedDateTime(selected, timeZone, T);
 }
 
+/**
+ * Builds a 2D array of calendar weeks for a given month.
+ *
+ * Each inner array has exactly 7 entries (Sunday–Saturday). The grid is padded
+ * with days from adjacent months so every week is complete.
+ *
+ * @param year - Calendar year.
+ * @param month - Calendar month (1–12).
+ * @param T - Temporal namespace.
+ * @returns An array of 4–6 weeks, each containing 7 `PlainDate` values.
+ */
 export function getMonthWeeks(
   year: number,
   month: number,
@@ -153,10 +214,22 @@ export function getMonthWeeks(
   return weeks;
 }
 
+/**
+ * Converts a `Temporal.ZonedDateTime` to a native JavaScript `Date`.
+ *
+ * @param zdt - The zoned date-time to convert.
+ */
 export function zdtToNativeDate(zdt: Temporal.ZonedDateTime): Date {
   return new Date(zdt.epochMilliseconds);
 }
 
+/**
+ * Checks whether a `ZonedDateTime` and a `PlainDate` represent the same
+ * calendar day (year, month, and day all equal).
+ *
+ * @param a - A zoned date-time.
+ * @param b - A plain date.
+ */
 export function sameCalendarDay(
   a: Temporal.ZonedDateTime,
   b: Temporal.PlainDate,
@@ -164,10 +237,25 @@ export function sameCalendarDay(
   return a.year === b.year && a.month === b.month && a.day === b.day;
 }
 
+/**
+ * Returns a known Sunday (`2024-01-07`) used as an anchor for generating
+ * weekday name lists starting from Sunday.
+ *
+ * @param T - Temporal namespace.
+ */
 export function getReferenceSunday(T: TemporalNamespace): Temporal.PlainDate {
   return T.PlainDate.from("2024-01-07");
 }
 
+/**
+ * Computes the year/month and first day of the month adjacent to `current`.
+ *
+ * Handles year boundaries (e.g. Dec → Jan, Jan → Dec).
+ *
+ * @param current - The reference month.
+ * @param direction - `"next"` or `"prev"`.
+ * @param T - Temporal namespace.
+ */
 export function computeAdjacentMonth(
   current: { year: number; month: number },
   direction: "prev" | "next",
@@ -181,6 +269,16 @@ export function computeAdjacentMonth(
   return { year: d.year, month: d.month, firstDay: d };
 }
 
+/**
+ * Determines the focused date after navigating to a new month.
+ *
+ * If `currentFocused` is already within `targetMonth`, it is preserved.
+ * Otherwise, `firstDay` of the target month is returned.
+ *
+ * @param currentFocused - The currently focused date.
+ * @param targetMonth - The month being navigated to.
+ * @param firstDay - The first day of the target month (fallback).
+ */
 export function focusedDateForMonth(
   currentFocused: Temporal.PlainDate,
   targetMonth: { year: number; month: number },
@@ -195,6 +293,25 @@ export function focusedDateForMonth(
   return firstDay;
 }
 
+/**
+ * Resolves which date should receive focus/tabindex in the calendar grid.
+ *
+ * Priority when `gridHasFocus` is `true` (keyboard navigation):
+ * 1. `focusedDate` if it exists in the grid.
+ * 2. `selectedDate` if it exists in the grid.
+ * 3. First enabled day of `currentMonth`, or first grid day as last resort.
+ *
+ * When `gridHasFocus` is `false` (tab-in), `selectedDate` takes priority
+ * over `focusedDate`.
+ *
+ * @param focusedDate - The date currently tracked as focused.
+ * @param selectedDate - The currently selected date, if any.
+ * @param weeks - The 2D weeks array from {@link getMonthWeeks}.
+ * @param currentMonth - The month being displayed.
+ * @param isDateDisabled - Predicate for disabled dates.
+ * @param T - Temporal namespace.
+ * @param gridHasFocus - Whether the grid currently holds DOM focus.
+ */
 export function resolveFocusTarget(
   focusedDate: Temporal.PlainDate,
   selectedDate: Temporal.PlainDate | undefined,
@@ -223,6 +340,15 @@ export function resolveFocusTarget(
   return firstEnabled ?? allDays[0];
 }
 
+/**
+ * Determines whether a day cell should imperatively receive DOM focus.
+ *
+ * Only returns `true` when the cell is the focused date **and** the grid
+ * currently holds DOM focus (i.e. keyboard navigation is active).
+ *
+ * @param isFocused - Whether this cell is the logically focused date.
+ * @param gridHasFocus - Whether the grid currently holds DOM focus.
+ */
 export function shouldMoveDomFocus(
   isFocused: boolean,
   gridHasFocus: boolean,
@@ -230,6 +356,15 @@ export function shouldMoveDomFocus(
   return isFocused && gridHasFocus;
 }
 
+/**
+ * Checks whether a date falls within an inclusive range [rangeStart, rangeEnd].
+ *
+ * @param date - The date to test.
+ * @param rangeStart - Start of the range (inclusive). Returns `false` when `undefined`.
+ * @param rangeEnd - End of the range (inclusive). Returns `false` when `undefined`.
+ * @param T - Temporal namespace used for date comparison.
+ * @returns `true` if `rangeStart <= date <= rangeEnd`, `false` otherwise.
+ */
 export function isInRange(
   date: Temporal.PlainDate,
   rangeStart: Temporal.PlainDate | undefined,
@@ -238,11 +373,24 @@ export function isInRange(
 ): boolean {
   if (!rangeStart || !rangeEnd) return false;
   return (
-    T.PlainDate.compare(date, rangeStart) > 0 &&
-    T.PlainDate.compare(date, rangeEnd) < 0
+    T.PlainDate.compare(date, rangeStart) >= 0 &&
+    T.PlainDate.compare(date, rangeEnd) <= 0
   );
 }
 
+/**
+ * Computes how a date range intersects with a single calendar week row.
+ *
+ * Used to position and style the range highlight overlay within a week.
+ *
+ * @param weekDays - Array of 7 `PlainDate` values for the week (Sun–Sat).
+ * @param rangeStart - Start of the selected range, or `undefined`.
+ * @param rangeEnd - End of the selected range, or `undefined`.
+ * @param T - Temporal namespace.
+ * @returns An object with `active` (whether the range overlaps this week),
+ *   `startIndex` / `endIndex` (0-based column positions), and
+ *   `extendsBefore` / `extendsAfter` (whether the range continues beyond the week).
+ */
 export function computeWeekRangeInfo(
   weekDays: Temporal.PlainDate[],
   rangeStart: Temporal.PlainDate | undefined,
@@ -296,6 +444,13 @@ export function computeWeekRangeInfo(
   return { active: true, startIndex, endIndex, extendsBefore, extendsAfter };
 }
 
+/**
+ * Generates localized weekday names starting from Sunday.
+ *
+ * @param locale - BCP 47 locale string (e.g. `"en-US"`).
+ * @param T - Temporal namespace.
+ * @returns An array of 7 objects with `long`, `short`, and `narrow` name variants.
+ */
 export function getWeekdayNames(locale: string, T: TemporalNamespace) {
   const refSunday = getReferenceSunday(T);
   const names: { long: string; short: string; narrow: string }[] = [];

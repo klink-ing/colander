@@ -266,7 +266,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
         "data-[today]:bg-accent data-[today]:text-accent-foreground",
         "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        "isolate select-none data-[in-range]:data-[outside-month]:text-white data-[in-range]:text-white data-[in-range]:data-[outside-month]:opacity-70",
+        "isolate select-none data-[in-range]:data-[outside-month]:text-primary-foreground data-[in-range]:text-primary-foreground data-[in-range]:data-[outside-month]:opacity-70",
         className,
       )}
       render={({ children, ...props }, state) => {
