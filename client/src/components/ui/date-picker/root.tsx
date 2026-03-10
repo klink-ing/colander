@@ -3,9 +3,13 @@ import { useRender } from "@base-ui/react/use-render";
 import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { DatePickerContext } from "./context";
+import {
+  DatePickerStableContext,
+  DatePickerStateContext,
+} from "./context";
 import type {
-  DatePickerContextValue,
+  DatePickerStableContextValue,
+  DatePickerStateContextValue,
   DateRange,
   DateValueObject,
   RawValueForFormat,
@@ -498,60 +502,67 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
     ],
   );
 
-  const ctx = useMemo<DatePickerContextValue>(
+  const stableCtx = useMemo<DatePickerStableContextValue>(
     () => ({
-      selected,
       onSelect,
       setRange,
-      selectionMode,
-      rangeStart,
-      rangeEnd,
-      currentDateTime,
+      setFocusedDate,
       goToNextMonth,
       goToPrevMonth,
-      weeks,
+      setGridHasFocus,
+      setGridLabelId,
+      selectionMode,
       disabled,
       isDateDisabled,
       minValue,
       maxValue,
-      focusedDate,
-      tabTargetDate,
-      setFocusedDate,
-      gridFocusedRef,
-      setGridHasFocus,
       timeZone,
       locale,
       temporal: T,
+      gridFocusedRef,
+    }),
+    [
+      onSelect,
+      setRange,
+      goToNextMonth,
+      goToPrevMonth,
+      selectionMode,
+      disabled,
+      isDateDisabled,
+      minValue,
+      maxValue,
+      timeZone,
+      locale,
+      T,
+    ],
+  );
+
+  const stateCtx = useMemo<DatePickerStateContextValue>(
+    () => ({
+      selected,
+      rangeStart,
+      rangeEnd,
+      focusedDate,
+      tabTargetDate,
+      currentDateTime,
+      weeks,
       gridLabelId,
-      setGridLabelId,
       rootState: state as unknown as RootState,
     }),
     [
       selected,
-      onSelect,
-      setRange,
-      selectionMode,
       rangeStart,
       rangeEnd,
-      currentDateTime,
-      goToNextMonth,
-      goToPrevMonth,
-      weeks,
-      disabled,
-      isDateDisabled,
-      minValue,
-      maxValue,
       focusedDate,
       tabTargetDate,
-      timeZone,
-      locale,
-      T,
+      currentDateTime,
+      weeks,
       gridLabelId,
       state,
     ],
   );
 
-  return { ctx, state };
+  return { stableCtx, stateCtx, state };
 }
 
 const rootStateAttributesMapping = {
@@ -598,7 +609,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
   const resolvedFormat: ValueFormat = formatProp ?? "PlainDate";
   const selectionMode = selectionModeProp ?? "single";
 
-  const { ctx, state } = useRootState<F>({
+  const { stableCtx, stateCtx, state } = useRootState<F>({
     format: resolvedFormat as F,
     selectionMode,
     value,
@@ -626,8 +637,10 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
   });
 
   return (
-    <DatePickerContext.Provider value={ctx}>
-      {rendered}
-    </DatePickerContext.Provider>
+    <DatePickerStableContext.Provider value={stableCtx}>
+      <DatePickerStateContext.Provider value={stateCtx}>
+        {rendered}
+      </DatePickerStateContext.Provider>
+    </DatePickerStableContext.Provider>
   );
 }

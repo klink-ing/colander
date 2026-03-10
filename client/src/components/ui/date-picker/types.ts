@@ -58,33 +58,43 @@ export type DateRange<F extends ValueFormat = ValueFormat> = {
   end: RawValueForFormat<F>;
 };
 
-export interface DatePickerContextValue {
-  selected: DateValueObject | undefined;
+/** Stable values (callbacks, config, refs) that don't change during interaction. */
+export interface DatePickerStableContextValue {
   onSelect: (date: Temporal.PlainDate) => void;
   setRange: (start: Temporal.PlainDate, end: Temporal.PlainDate) => void;
-  selectionMode: "single" | "range";
-  rangeStart: Temporal.PlainDate | undefined;
-  rangeEnd: Temporal.PlainDate | undefined;
-  currentDateTime: Temporal.PlainDateTime;
+  setFocusedDate: (date: Temporal.PlainDate) => void;
   goToNextMonth: () => void;
   goToPrevMonth: () => void;
-  weeks: Temporal.PlainDate[][];
+  setGridHasFocus: (v: boolean) => void;
+  setGridLabelId: (id: string | undefined) => void;
+  selectionMode: "single" | "range";
   disabled: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   minValue?: Temporal.PlainDate;
   maxValue?: Temporal.PlainDate;
-  focusedDate: Temporal.PlainDate;
-  tabTargetDate: Temporal.PlainDate;
-  setFocusedDate: (date: Temporal.PlainDate) => void;
-  gridFocusedRef: React.RefObject<boolean>;
-  setGridHasFocus: (v: boolean) => void;
   timeZone: string;
   locale: string;
   temporal: TemporalNamespace;
+  gridFocusedRef: React.RefObject<boolean>;
+}
+
+/** Volatile state that changes on interaction. */
+export interface DatePickerStateContextValue {
+  selected: DateValueObject | undefined;
+  rangeStart: Temporal.PlainDate | undefined;
+  rangeEnd: Temporal.PlainDate | undefined;
+  focusedDate: Temporal.PlainDate;
+  tabTargetDate: Temporal.PlainDate;
+  currentDateTime: Temporal.PlainDateTime;
+  weeks: Temporal.PlainDate[][];
   gridLabelId: string | undefined;
-  setGridLabelId: (id: string | undefined) => void;
   rootState: RootState;
 }
+
+/** Combined context value (backward compat). */
+export interface DatePickerContextValue
+  extends DatePickerStableContextValue,
+    DatePickerStateContextValue {}
 
 export type RootState<F extends ValueFormat = ValueFormat> = {
   hasSelection: boolean;

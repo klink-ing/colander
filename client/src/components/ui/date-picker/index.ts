@@ -17,7 +17,7 @@ export {
 export { SelectedRange } from "./selected-range";
 export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 export { createDatePicker, type Components } from "./factory";
-export { useDatePicker } from "./context";
+export { useDatePicker, useDatePickerStable, useDatePickerState } from "./context";
 
 export type {
   RootProps,
@@ -60,4 +60,7 @@ export type {
   TypedRootProps,
   TemporalNamespace,
   CreateDatePickerOptions,
+  DatePickerStableContextValue,
+  DatePickerStateContextValue,
+  DatePickerContextValue,
 } from "./types";

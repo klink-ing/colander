@@ -272,10 +272,6 @@ describe("Grid render profiling", () => {
   });
 
   it("measures per-week-row re-render cost on selection change", () => {
-    // Wrap each week row in its own Profiler to measure which rows re-render.
-    // Currently DayCellInstance is NOT wrapped in React.memo, so all rows
-    // re-render on every state change. This test documents that behavior
-    // and will detect improvements if memo is added later.
     const weekProfilers = Array.from({ length: 6 }, () => createProfiler());
 
     function ProfiledGrid() {
@@ -308,8 +304,6 @@ describe("Grid render profiling", () => {
       );
     }
 
-    // March 15 is in week index 3 (Sun Mar 15). March 20 is in week index 3 too.
-    // Changing from 15→16 keeps selection within the same week row.
     const march16 = Temporal.PlainDate.from("2026-03-16");
 
     const { rerender, unmount } = render(
@@ -339,24 +333,107 @@ describe("Grid render profiling", () => {
         : 0;
     });
 
-    // Log per-week durations for analysis
     const weekSummary = weekUpdateDurations
       .map((d, i) => `week${i}=${d.toFixed(2)}ms`)
       .join(" ");
     console.log(`[perf] per-week re-render: ${weekSummary}`);
 
-    // Count how many weeks actually re-rendered (actualDuration > 0.01ms)
     const rerenderedWeeks = weekUpdateDurations.filter(
       (d) => d > 0.01,
     ).length;
     console.log(
-      `[perf] weeks re-rendered: ${rerenderedWeeks}/${weekUpdateDurations.length} (ideal: 1-2 with React.memo)`,
+      `[perf] weeks re-rendered: ${rerenderedWeeks}/${weekUpdateDurations.length}`,
     );
 
-    // All updates should complete within threshold
     for (const d of weekUpdateDurations) {
       expect(d).toBeLessThan(UPDATE_THRESHOLD_MS);
     }
+
+    unmount();
+  });
+
+  it("selection change update is at least 40% cheaper than mount (memoization effect)", () => {
+    // This test measures the aggregate effect of context splitting + React.memo
+    // at the grid level. In jsdom, per-cell DOM savings are negligible, but
+    // the aggregate savings across 42 cells are clearly measurable.
+    const { entries, onRender } = createProfiler();
+
+    const { rerender, unmount } = render(
+      <Profiler id="grid-memo" onRender={onRender}>
+        <Root {...defaultProps} value={march15}>
+          <Grid />
+        </Root>
+      </Profiler>,
+    );
+
+    const mountDuration = entries.find((e) => e.phase === "mount")!
+      .actualDuration;
+
+    const march16 = Temporal.PlainDate.from("2026-03-16");
+    rerender(
+      <Profiler id="grid-memo" onRender={onRender}>
+        <Root {...defaultProps} value={march16}>
+          <Grid />
+        </Root>
+      </Profiler>,
+    );
+
+    const updates = entries.filter((e) => e.phase === "update");
+    const updateDuration = updates[updates.length - 1].actualDuration;
+    const ratio = updateDuration / mountDuration;
+
+    console.log(
+      `[perf] memo effect: mount=${mountDuration.toFixed(2)}ms update=${updateDuration.toFixed(2)}ms ratio=${ratio.toFixed(2)}`,
+    );
+
+    // Before context splitting + memo: ratio was ~0.43
+    // After: ratio should be ≤ 0.35 (update is at least 65% cheaper than mount)
+    expect(ratio).toBeLessThan(0.35);
+
+    unmount();
+  });
+
+  it("range expand update is cheaper than mount (memoization effect)", () => {
+    const { entries, onRender } = createProfiler();
+
+    const { rerender, unmount } = render(
+      <Profiler id="grid-range-memo" onRender={onRender}>
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march10, end: march15 }}
+        >
+          <Grid />
+        </Root>
+      </Profiler>,
+    );
+
+    const mountDuration = entries.find((e) => e.phase === "mount")!
+      .actualDuration;
+
+    rerender(
+      <Profiler id="grid-range-memo" onRender={onRender}>
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march10, end: march20 }}
+        >
+          <Grid />
+        </Root>
+      </Profiler>,
+    );
+
+    const updates = entries.filter((e) => e.phase === "update");
+    const updateDuration = updates[updates.length - 1].actualDuration;
+    const ratio = updateDuration / mountDuration;
+
+    console.log(
+      `[perf] range memo effect: mount=${mountDuration.toFixed(2)}ms update=${updateDuration.toFixed(2)}ms ratio=${ratio.toFixed(2)}`,
+    );
+
+    // Range updates should benefit from memo — most cells outside the
+    // affected range are skipped entirely.
+    expect(ratio).toBeLessThan(0.55);
 
     unmount();
   });

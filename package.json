@@ -11,6 +11,7 @@
     "lint": "biome check --formatter-enabled=false --write .",
     "format": "prettier --write .",
     "db:push": "drizzle-kit push",
+    "test": "vitest run --root client",
     "perf": "vitest run --root client 'date-picker/grid.perf.test'",
     "perf:bench": "vitest bench --root client 'date-picker/utils.bench'"
   },
