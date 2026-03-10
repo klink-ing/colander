@@ -247,6 +247,7 @@ export type WeekTemplateProps<F extends ValueFormat = ValueFormat> =
 
 export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
+  date: Temporal.PlainDate;
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -305,11 +306,15 @@ export type DragHandleState<F extends ValueFormat = ValueFormat> = {
   edge: "start" | "end";
 };
 
+export interface DragHandleOwnProps {
+  dragging?: boolean;
+}
+
 export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", DragHandleState<F>>;
+  useRender.ComponentProps<"span", DragHandleState<F>> & DragHandleOwnProps;
 
 export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", DragHandleState<F>>;
+  useRender.ComponentProps<"span", DragHandleState<F>> & DragHandleOwnProps;
 
 export type TypedRootProps<F extends ValueFormat> = Omit<
   RootProps<F>,

@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import { createDatePicker, type DateRange } from "@/components/ui/date-picker";
-import { StyledDatePicker } from "@/components/styled-date-picker";
-import { StyledDatePickerHorizontal } from "@/components/styled-date-picker-horizontal";
-import { RenderPropDatePicker } from "@/components/render-prop-date-picker";
-import { AnchorDatePicker } from "@/components/anchor-date-picker";
+import { StyledDatePicker } from "@/examples/styled-date-picker";
+import { StyledDatePickerHorizontal } from "@/examples/styled-date-picker-horizontal";
+import { RenderPropDatePicker } from "@/examples/render-prop-date-picker";
+import { AnchorDatePicker } from "@/examples/anchor-date-picker";
 
 const ZonedDatePicker = createDatePicker("ZonedDateTime", {
   temporal: Temporal,

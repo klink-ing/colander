@@ -18,7 +18,7 @@ import {
   StyledSelectedRange,
   StyledRangeStartDragHandle,
   StyledRangeEndDragHandle,
-} from "@/components/ui/date-picker/styled";
+} from "@/examples/date-picker-styled";
 import { cn } from "@/lib/utils";
 import type { Components } from "@/components/ui/date-picker";
 
@@ -84,11 +84,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
           <StyledGridBody>
             <StyledWeekTemplate>
               <StyledSelectedRange />
-              <StyledDayCellTemplate>
-                <StyledDayButton />
-                <StyledRangeStartDragHandle />
-                <StyledRangeEndDragHandle />
-              </StyledDayCellTemplate>
+              <StyledDayCellTemplate />
             </StyledWeekTemplate>
           </StyledGridBody>
         </StyledGrid>

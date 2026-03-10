@@ -6,7 +6,6 @@ import {
   useRef,
   type KeyboardEvent,
 } from "react";
-import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import type { Temporal } from "@js-temporal/polyfill";
 import { computeNextFocusDate } from "./keyboard";
 import type {
@@ -672,6 +671,7 @@ function useDayDerivedState(date: Temporal.PlainDate) {
 
 const dayStateAttributesMapping = {
   root: () => null,
+  date: () => null,
   selected: (v: boolean) => (v ? { "data-selected": "" } : null),
   today: (v: boolean) => (v ? { "data-today": "" } : null),
   disabled: (v: boolean) => (v ? { "data-disabled": "" } : null),
@@ -692,6 +692,7 @@ export function useDayCellState<F extends ValueFormat = ValueFormat>(
   const state = useMemo<DayCellTemplateState<F>>(
     () => ({
       root: rootState,
+      date,
       selected: isSelected,
       today: isToday,
       disabled: isDisabled,
@@ -701,7 +702,7 @@ export function useDayCellState<F extends ValueFormat = ValueFormat>(
       rangeEnd: isRangeEnd,
       inRange: isInRangeDay,
     }),
-    [rootState, isSelected, isToday, isDisabled, isCurrentMonth, isFocused, isRangeStart, isRangeEnd, isInRangeDay],
+    [rootState, date, isSelected, isToday, isDisabled, isCurrentMonth, isFocused, isRangeStart, isRangeEnd, isInRangeDay],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -739,17 +740,6 @@ export function useDayButtonState<F extends ValueFormat = ValueFormat>(
       internalRef.current.focus();
     }
   }, [isFocused, gridFocusedRef]);
-
-  useEffect(() => {
-    const el = internalRef.current;
-    if (!el) return;
-    return dropTargetForElements({
-      element: el,
-      getData: () => ({ date: date.toString() }),
-      canDrop: ({ source }) => source.data.type === "date-range-handle",
-      getIsSticky: () => true,
-    });
-  }, [date]);
 
   const state = useMemo<DayButtonState<F>>(
     () => ({

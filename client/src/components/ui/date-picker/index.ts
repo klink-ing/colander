@@ -38,6 +38,7 @@ export type {
   DayButtonState,
   SelectedRangeProps,
   SelectedRangeState,
+  DragHandleOwnProps,
   DragHandleState,
   RangeStartDragHandleProps,
   RangeEndDragHandleProps,

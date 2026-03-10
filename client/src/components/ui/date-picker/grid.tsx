@@ -204,18 +204,10 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping,
     defaultProps: cellDefaults,
   } = useDayCellState<F>(date);
-  const orientation = useContext(GridOrientationContext);
-
-  const gridStyle =
-    columnIndex != null
-      ? orientation === "horizontal"
-        ? { gridRow: columnIndex + 1, gridColumn: 1 }
-        : { gridColumn: columnIndex + 1, gridRow: 1 }
-      : undefined;
 
   const defaultProps: Record<string, unknown> = {
     ...cellDefaults,
-    style: gridStyle,
+    ...(columnIndex != null ? { "data-column-index": columnIndex } : {}),
     children: children ?? <DayButton />,
   };
 

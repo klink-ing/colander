@@ -1,4 +1,10 @@
+import { useContext, useEffect, useRef, useState } from "react";
+import { flushSync } from "react-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { disableNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview";
+import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
+import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { cn } from "@/lib/utils";
 import {
   Grid,
@@ -16,7 +22,10 @@ import {
   SelectedRange,
   RangeStartDragHandle,
   RangeEndDragHandle,
-} from "./index";
+  useDatePicker,
+} from "@/components/ui/date-picker";
+import { DayCellDataContext, GridOrientationContext } from "@/components/ui/date-picker/context";
+import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   GridProps,
@@ -34,7 +43,8 @@ import type {
   SelectedRangeProps,
   RangeStartDragHandleProps,
   RangeEndDragHandleProps,
-} from "./types";
+  TemporalNamespace,
+} from "@/components/ui/date-picker";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,
@@ -201,17 +211,53 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
   return (
     <DayCellTemplate
       {...(props as DayCellTemplateProps)}
-      className={cn("relative text-center", className)}
+      render={(renderProps, state) => {
+        const orientation = useContext(GridOrientationContext);
+        const columnIndex = Number((renderProps as any)["data-column-index"] ?? -1);
+        const gridStyle =
+          columnIndex >= 0
+            ? orientation === "horizontal"
+              ? { gridRow: columnIndex + 1, gridColumn: 1 }
+              : { gridColumn: columnIndex + 1, gridRow: 1 }
+            : undefined;
+        return (
+          <td
+            {...renderProps}
+            style={gridStyle}
+            className={cn("relative text-center", className)}
+          >
+            <StyledDayButton date={state.date} />
+            <StyledRangeStartDragHandle />
+            <StyledRangeEndDragHandle />
+          </td>
+        );
+      }}
     />
   );
 }
 
 export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   className,
+  date,
   ...props
 }: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
+  const dropRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const el = dropRef.current;
+    if (!el || !date) return;
+    return dropTargetForElements({
+      element: el,
+      getData: () => ({ date: date.toString() }),
+      canDrop: ({ source }) => source.data.type === "date-range-handle",
+      getIsSticky: () => true,
+    });
+  }, [date]);
+
   return (
     <DayButton
+      ref={dropRef}
+      date={date}
       {...(props as DayButtonProps)}
       className={cn(
         "relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-end rounded-md px-2 py-1 text-sm font-normal tabular-nums transition-colors",
@@ -240,7 +286,7 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
   buttonClassName?: string;
   cellRef?: React.Ref<HTMLTableCellElement>;
   buttonRef?: React.Ref<HTMLButtonElement>;
-  date?: import("@js-temporal/polyfill").Temporal.PlainDate;
+  date?: Temporal.PlainDate;
 }) {
   const Cell = StyledDayCellTemplate<F>;
   const Button = StyledDayButton<F>;
@@ -251,20 +297,172 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
   );
 }
 
+// --- DnD wiring for drag handles ---
+
+function useDragHandleDnD(edge: "start" | "end", handleRef: React.RefObject<HTMLSpanElement | null>) {
+  const { rangeStart, rangeEnd, setRange, temporal: T } = useDatePicker();
+  const cellData = useContext(DayCellDataContext);
+  const date = cellData?.date;
+
+  const isActive =
+    edge === "start"
+      ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
+      : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
+
+  const [dragging, setDragging] = useState(false);
+  const draggingRef = useRef(false);
+  const vtRef = useRef<ViewTransition | null>(null);
+  const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
+  rangeRef.current = { start: rangeStart, end: rangeEnd };
+
+  const TRef = useRef<TemporalNamespace>(T);
+  TRef.current = T;
+
+  const setRangeRef = useRef(setRange);
+  setRangeRef.current = setRange;
+
+  const edgeRef = useRef(edge);
+  edgeRef.current = edge;
+
+  useEffect(() => {
+    const el = handleRef.current;
+    if (!el || !isActive) return;
+    const cleanup = draggable({
+      element: el,
+      getInitialData: () => ({ type: "date-range-handle", edge }),
+      onGenerateDragPreview: ({ nativeSetDragImage }) => {
+        disableNativeDragPreview({ nativeSetDragImage });
+      },
+      onDragStart: () => {
+        draggingRef.current = true;
+        setDragging(true);
+        document.body.style.cursor = "grabbing";
+      },
+      onDrop: () => {
+        draggingRef.current = false;
+        setDragging(false);
+        document.body.style.cursor = "";
+      },
+    });
+    return () => {
+      cleanup();
+      if (draggingRef.current) {
+        document.body.style.cursor = "";
+      }
+    };
+  }, [isActive, edge]);
+
+  useEffect(() => {
+    if (!dragging) return;
+    return monitorForElements({
+      canMonitor: ({ source }) =>
+        source.data.type === "date-range-handle" && source.data.edge === edgeRef.current,
+      onDrag: ({ location }) => {
+        const dropTarget = location.current.dropTargets[0];
+        if (!dropTarget) return;
+        applyDropTarget(dropTarget.data.date as string);
+      },
+      onDropTargetChange: ({ location }) => {
+        const dropTarget = location.current.dropTargets[0];
+        if (!dropTarget) return;
+        applyDropTarget(dropTarget.data.date as string);
+      },
+      onDrop: () => {
+        draggingRef.current = false;
+        setDragging(false);
+        document.body.style.cursor = "";
+      },
+    });
+
+    function applyDropTarget(dateStr: string) {
+      const { start, end } = rangeRef.current;
+      if (!start || !end) return;
+
+      const Tp = TRef.current;
+      let target: Temporal.PlainDate;
+      try {
+        target = Tp.PlainDate.from(dateStr);
+      } catch {
+        return;
+      }
+
+      let newStart: Temporal.PlainDate;
+      let newEnd: Temporal.PlainDate;
+
+      if (edgeRef.current === "start") {
+        if (Tp.PlainDate.compare(target, end) <= 0) {
+          newStart = target;
+          newEnd = end;
+        } else {
+          newStart = end;
+          newEnd = end;
+        }
+      } else {
+        if (Tp.PlainDate.compare(target, start) >= 0) {
+          newStart = start;
+          newEnd = target;
+        } else {
+          newStart = start;
+          newEnd = start;
+        }
+      }
+
+      if (
+        Tp.PlainDate.compare(newStart, start) !== 0 ||
+        Tp.PlainDate.compare(newEnd, end) !== 0
+      ) {
+        const update = () => setRangeRef.current(newStart, newEnd);
+        if (document.startViewTransition && !vtRef.current) {
+          const vt = document.startViewTransition(() => {
+            flushSync(update);
+          });
+          vtRef.current = vt;
+          vt.finished.then(() => { vtRef.current = null; }).catch(() => { vtRef.current = null; });
+        } else {
+          update();
+        }
+      }
+    }
+  }, [dragging]);
+
+  return { dragging };
+}
+
 export function StyledRangeStartDragHandle<
   F extends ValueFormat = ValueFormat,
 >({
   className,
   ...props
 }: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
+  const handleRef = useRef<HTMLSpanElement>(null);
+  const { dragging } = useDragHandleDnD("start", handleRef);
+
   return (
     <RangeStartDragHandle
+      ref={handleRef}
+      dragging={dragging}
       {...(props as RangeStartDragHandleProps)}
       className={cn(
         "absolute left-0 top-1/2 z-20 -translate-x-1/2 -translate-y-1/2",
         "flex items-center justify-center px-1 py-2",
         "before:block before:h-4 before:w-1.5 before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
         className,
+      )}
+      style={{
+        touchAction: "none",
+        cursor: dragging ? "grabbing" : "grab",
+        display: undefined,
+        viewTransitionName: "drag-handle-start",
+      }}
+      render={(renderProps, state) => (
+        <span
+          {...renderProps}
+          style={{
+            ...renderProps.style as React.CSSProperties,
+            display: state.active ? undefined : "none",
+            viewTransitionName: state.active ? "drag-handle-start" : "none",
+          }}
+        />
       )}
     />
   );
@@ -274,14 +472,35 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
   className,
   ...props
 }: RangeEndDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
+  const handleRef = useRef<HTMLSpanElement>(null);
+  const { dragging } = useDragHandleDnD("end", handleRef);
+
   return (
     <RangeEndDragHandle
+      ref={handleRef}
+      dragging={dragging}
       {...(props as RangeEndDragHandleProps)}
       className={cn(
         "absolute right-0 top-1/2 z-20 -translate-y-1/2 translate-x-1/2",
         "flex items-center justify-center px-1 py-2",
         "before:block before:h-4 before:w-1.5 before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
         className,
+      )}
+      style={{
+        touchAction: "none",
+        cursor: dragging ? "grabbing" : "grab",
+        display: undefined,
+        viewTransitionName: "drag-handle-end",
+      }}
+      render={(renderProps, state) => (
+        <span
+          {...renderProps}
+          style={{
+            ...renderProps.style as React.CSSProperties,
+            display: state.active ? undefined : "none",
+            viewTransitionName: state.active ? "drag-handle-end" : "none",
+          }}
+        />
       )}
     />
   );
@@ -295,11 +514,32 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
     <SelectedRange
       {...(props as SelectedRangeProps)}
       data-range-selection
-      className={cn(
-        "rounded-md bg-primary/80",
-        "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none",
-        className,
-      )}
+      render={(renderProps, state) => {
+        if (!state.active) {
+          return (
+            <td
+              {...renderProps}
+              hidden
+              style={{ display: "none" }}
+            />
+          );
+        }
+        return (
+          <td
+            {...renderProps}
+            data-testid="selected-range"
+            style={{
+              gridColumn: `${state.startIndex + 1} / ${state.endIndex + 2}`,
+              gridRow: 1,
+            }}
+            className={cn(
+              "rounded-md bg-primary/80",
+              "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none",
+              className,
+            )}
+          />
+        );
+      }}
     />
   );
 }

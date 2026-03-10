@@ -41,9 +41,9 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
   const stateAttributesMapping = useMemo(
     () => ({
       root: () => null,
-      active: () => null,
-      startIndex: () => null,
-      endIndex: () => null,
+      active: (v: boolean) => (v ? { "data-active": "" } : null),
+      startIndex: (v: number) => ({ "data-start-index": String(v) }),
+      endIndex: (v: number) => ({ "data-end-index": String(v) }),
       startDayId: () => null,
       endDayId: () => null,
       extendsBefore: (v: boolean) => (v ? { "data-extends-before": "" } : null),
@@ -52,26 +52,10 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     [],
   );
 
-  const interiorStart = info.startIndex;
-  const interiorEnd = info.endIndex;
-  const hasInterior = info.active && interiorStart <= interiorEnd;
-
-  const defaultProps: Record<string, unknown> = hasInterior
-    ? {
-        role: "presentation",
-        "aria-hidden": true,
-        "data-testid": "selected-range",
-        style: {
-          gridColumn: `${interiorStart + 1} / ${interiorEnd + 2}`,
-          gridRow: 1,
-        },
-      }
-    : {
-        role: "presentation",
-        "aria-hidden": true,
-        hidden: true,
-        style: { display: "none" },
-      };
+  const defaultProps: Record<string, unknown> = {
+    role: "presentation",
+    "aria-hidden": true,
+  };
 
   return useRender({
     defaultTagName: "td",

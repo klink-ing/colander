@@ -13,7 +13,7 @@ import {
   StyledGridBody,
   StyledWeekTemplate,
   StyledDayTemplate,
-} from "@/components/ui/date-picker/styled";
+} from "@/examples/date-picker-styled";
 import { cn } from "@/lib/utils";
 import type { Components } from "@/components/ui/date-picker";
 

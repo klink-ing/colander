@@ -20,7 +20,7 @@ import {
   StyledGridBody,
   StyledWeekTemplate,
   StyledDayTemplate,
-} from "@/components/ui/date-picker/styled";
+} from "@/examples/date-picker-styled";
 
 interface RenderPropDatePickerProps<F extends ValueFormat> {
   value?: RawValueForFormat<F>;
