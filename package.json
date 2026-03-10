@@ -10,7 +10,9 @@
     "check": "tsc",
     "lint": "biome check --formatter-enabled=false --write .",
     "format": "prettier --write .",
-    "db:push": "drizzle-kit push"
+    "db:push": "drizzle-kit push",
+    "perf": "vitest run --root client 'date-picker/grid.perf.test'",
+    "perf:bench": "vitest bench --root client 'date-picker/utils.bench'"
   },
   "dependencies": {
     "@atlaskit/pragmatic-drag-and-drop": "^1.7.9",
@@ -88,6 +90,8 @@
     "@replit/vite-plugin-runtime-error-modal": "^0.0.3",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.18",
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.2",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.0",
@@ -101,6 +105,7 @@
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.31.8",
     "esbuild": "^0.25.0",
+    "jsdom": "^28.1.0",
     "postcss": "^8.4.47",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
