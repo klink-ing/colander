@@ -182,7 +182,7 @@ export function StyledGridBody<F extends ValueFormat = ValueFormat>({
     <GridBody
       {...(props as GridBodyProps)}
       className={cn(
-        "col-span-full grid [grid-template-columns:subgrid]",
+        "col-span-full grid gap-y-1 [grid-template-columns:subgrid]",
         className,
       )}
     />
@@ -237,6 +237,7 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
 export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   className,
   date,
+  children,
   ...props
 }: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
   const dropRef = useRef<HTMLButtonElement>(null);
@@ -258,18 +259,29 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       date={date}
       {...(props as DayButtonProps)}
       className={cn(
-        "relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-end rounded-md px-2 py-1 text-sm font-normal tabular-nums transition-colors",
+        "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
         "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-foreground hover:bg-accent hover:text-accent-foreground",
         "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
         "data-[today]:bg-accent data-[today]:text-accent-foreground",
         "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
-        "data-[range-start]:rounded-full data-[range-start]:bg-primary data-[range-start]:text-primary-foreground data-[range-start]:hover:bg-primary data-[range-start]:hover:text-primary-foreground",
-        "data-[range-end]:rounded-full data-[range-end]:bg-primary data-[range-end]:text-primary-foreground data-[range-end]:hover:bg-primary data-[range-end]:hover:text-primary-foreground",
         "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+        "isolate select-none data-[in-range]:data-[outside-month]:text-white data-[in-range]:text-white data-[in-range]:data-[outside-month]:opacity-70",
         className,
       )}
-    />
+      render={({ children, ...props }, state) => {
+        return (
+          <button {...props}>
+            <div
+              className={cn(
+                "absolute -z-0 hidden aspect-square size-[1.5em] rounded-full bg-red-500 group-data-[range-boundary]:block",
+              )}
+            />
+            <div className="isolate">{children}</div>
+          </button>
+        );
+      }}
+    ></DayButton>
   );
 }
 

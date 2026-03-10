@@ -1,40 +1,35 @@
+import type { Temporal } from "@js-temporal/polyfill";
 import {
-  useState,
+  useCallback,
   useEffect,
   useMemo,
-  useCallback,
   useRef,
+  useState,
   type KeyboardEvent,
 } from "react";
-import type { Temporal } from "@js-temporal/polyfill";
+import { useDatePicker } from "./context";
 import { computeNextFocusDate } from "./keyboard";
 import type {
-  TemporalNamespace,
-  DateValueObject,
-  ValueFormat,
-  RawValueForFormat,
-  DateRange,
   DatePickerContextValue,
-  RootState,
-  NavButtonState,
-  DayCellTemplateState,
-  DayButtonState,
+  DateRange,
+  DateValueObject,
   GridHeaderCellState,
+  NavButtonState,
+  RawValueForFormat,
+  RootState,
+  TemporalNamespace,
+  ValueFormat,
 } from "./types";
-import { useDatePicker } from "./context";
 import {
   calendarForLocale,
-  toZonedDateTime,
-  fromZonedDateTime,
-  selectedToZdt,
-  getMonthWeeks,
-  sameCalendarDay,
-  getWeekdayNames,
   computeAdjacentMonth,
   focusedDateForMonth,
+  fromZonedDateTime,
+  getMonthWeeks,
+  getWeekdayNames,
   resolveFocusTarget,
-  shouldMoveDomFocus,
-  isInRange as isInRangeUtil,
+  selectedToZdt,
+  toZonedDateTime,
 } from "./utils";
 
 interface UseRootStateParams<F extends ValueFormat> {
@@ -689,194 +684,6 @@ export function useGridKeyboard() {
       T,
     ],
   );
-}
-
-function useDayDerivedState(date: Temporal.PlainDate) {
-  const {
-    selected,
-    currentDateTime,
-    disabled,
-    isDateDisabled,
-    focusedDate,
-    rangeStart,
-    rangeEnd,
-    timeZone,
-    temporal: T,
-  } = useDatePicker();
-
-  const today = useMemo(() => T.Now.plainDateISO(), [T]);
-  const selZdt = selectedToZdt(selected, timeZone, T);
-  const isSelected = selZdt ? sameCalendarDay(selZdt, date) : false;
-  const isCurrentMonth =
-    date.year === currentDateTime.year && date.month === currentDateTime.month;
-  const isToday = T.PlainDate.compare(date, today) === 0;
-  const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
-  const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
-
-  const isRangeStart = rangeStart
-    ? T.PlainDate.compare(date, rangeStart) === 0
-    : false;
-  const isRangeEnd = rangeEnd
-    ? T.PlainDate.compare(date, rangeEnd) === 0
-    : false;
-  const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
-
-  return {
-    isSelected,
-    isCurrentMonth,
-    isToday,
-    isDisabled,
-    isFocused,
-    isRangeStart,
-    isRangeEnd,
-    isInRangeDay,
-  };
-}
-
-export function useDayCellState<F extends ValueFormat = ValueFormat>(
-  date: Temporal.PlainDate,
-  columnIndex: number = -1,
-  orientation: "horizontal" | "vertical" = "vertical",
-) {
-  const { rootState } = useDatePicker<F>();
-  const {
-    isSelected,
-    isCurrentMonth,
-    isToday,
-    isDisabled,
-    isFocused,
-    isRangeStart,
-    isRangeEnd,
-    isInRangeDay,
-  } = useDayDerivedState(date);
-
-  const state = useMemo<DayCellTemplateState<F>>(
-    () => ({
-      root: rootState,
-      date,
-      columnIndex,
-      orientation,
-      selected: isSelected,
-      today: isToday,
-      disabled: isDisabled,
-      outsideMonth: !isCurrentMonth,
-      focused: isFocused,
-      rangeStart: isRangeStart,
-      rangeEnd: isRangeEnd,
-      inRange: isInRangeDay,
-    }),
-    [
-      rootState,
-      date,
-      columnIndex,
-      orientation,
-      isSelected,
-      isToday,
-      isDisabled,
-      isCurrentMonth,
-      isFocused,
-      isRangeStart,
-      isRangeEnd,
-      isInRangeDay,
-    ],
-  );
-
-  const defaultProps: Record<string, unknown> = {
-    role: "gridcell",
-    "aria-selected": isSelected || undefined,
-    "aria-disabled": isDisabled || undefined,
-  };
-
-  return { state, defaultProps };
-}
-
-export function useDayButtonState<F extends ValueFormat = ValueFormat>(
-  date: Temporal.PlainDate,
-  columnIndex: number = -1,
-  orientation: "horizontal" | "vertical" = "vertical",
-) {
-  const {
-    onSelect,
-    setFocusedDate,
-    locale,
-    rootState,
-    tabTargetDate,
-    gridFocusedRef,
-    temporal: T,
-  } = useDatePicker<F>();
-  const {
-    isSelected,
-    isCurrentMonth,
-    isToday,
-    isDisabled,
-    isFocused,
-    isRangeStart,
-    isRangeEnd,
-    isInRangeDay,
-  } = useDayDerivedState(date);
-  const internalRef = useRef<HTMLButtonElement>(null);
-  const isTabTarget = T.PlainDate.compare(date, tabTargetDate) === 0;
-
-  useEffect(() => {
-    if (
-      shouldMoveDomFocus(isFocused, gridFocusedRef.current) &&
-      internalRef.current
-    ) {
-      internalRef.current.focus();
-    }
-  }, [isFocused, gridFocusedRef]);
-
-  const state = useMemo<DayButtonState<F>>(
-    () => ({
-      root: rootState,
-      date,
-      columnIndex,
-      orientation,
-      selected: isSelected,
-      today: isToday,
-      disabled: isDisabled,
-      outsideMonth: !isCurrentMonth,
-      focused: isFocused,
-      rangeStart: isRangeStart,
-      rangeEnd: isRangeEnd,
-      inRange: isInRangeDay,
-    }),
-    [
-      rootState,
-      isSelected,
-      isToday,
-      isDisabled,
-      isCurrentMonth,
-      isFocused,
-      isRangeStart,
-      isRangeEnd,
-      isInRangeDay,
-      date,
-      orientation,
-      columnIndex,
-    ],
-  );
-
-  const defaultProps: Record<string, unknown> = {
-    type: "button",
-    tabIndex: isTabTarget ? 0 : -1,
-    disabled: isDisabled,
-    "aria-label": date.toLocaleString(locale, {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }),
-    id: `day-${date.toString()}`,
-    "data-testid": `button-day-${date.toString()}`,
-    onClick: () => {
-      setFocusedDate(date);
-      onSelect(date);
-    },
-    children: date.day,
-  };
-
-  return { state, defaultProps, internalRef };
 }
 
 export function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(

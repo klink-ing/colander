@@ -7,6 +7,7 @@ import type {
   DragHandleState,
   RangeStartDragHandleProps,
   RangeEndDragHandleProps,
+  RangeDragHandleProps,
 } from "./types";
 
 const dragHandleStateAttributesMapping = {
@@ -55,12 +56,14 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   };
 }
 
-export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(
-  props: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
+export function RangeDragHandle<F extends ValueFormat = ValueFormat>(
+  props: RangeDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, dragging, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
-    useDragHandle<F>("start", { dragging });
+    useDragHandle<F>(props.edge, { dragging });
+
+  console.log("ref", ref);
 
   return useRender({
     defaultTagName: "span",
@@ -72,19 +75,14 @@ export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(
   });
 }
 
+export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(
+  props: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
+) {
+  return <RangeDragHandle edge="start" {...props} />;
+}
+
 export function RangeEndDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeEndDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
-  const { ref, render, dragging, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, handleRef } =
-    useDragHandle<F>("end", { dragging });
-
-  return useRender({
-    defaultTagName: "span",
-    render,
-    ref: ref ? [ref, handleRef] : [handleRef],
-    state,
-    stateAttributesMapping,
-    props: mergeProps<"span">(defaultProps, otherProps),
-  });
+  return <RangeDragHandle edge="end" {...props} />;
 }

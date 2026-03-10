@@ -258,6 +258,7 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   focused: boolean;
   rangeStart: boolean;
   rangeEnd: boolean;
+  rangeBoundary: boolean;
   inRange: boolean;
 };
 
@@ -294,22 +295,30 @@ export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
 export type SelectedRangeProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"td", SelectedRangeState<F>>;
 
+export type DragHandleEdge = "start" | "end";
+
 export type DragHandleState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   active: boolean;
   dragging: boolean;
-  edge: "start" | "end";
+  edge: DragHandleEdge;
 };
 
 export interface DragHandleOwnProps {
   dragging?: boolean;
+  edge: DragHandleEdge;
 }
 
-export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> =
+export type RangeDragHandleProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"span", DragHandleState<F>> & DragHandleOwnProps;
 
-export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", DragHandleState<F>> & DragHandleOwnProps;
+export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> =
+  Omit<RangeDragHandleProps<F>, "edge">;
+
+export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> = Omit<
+  RangeDragHandleProps<F>,
+  "edge"
+>;
 
 export type TypedRootProps<F extends ValueFormat> = Omit<
   RootProps<F>,

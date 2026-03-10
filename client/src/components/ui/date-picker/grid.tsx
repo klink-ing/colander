@@ -35,7 +35,9 @@ import type {
   DayCellTemplateProps,
   DayButtonProps,
   DayCellTemplateState,
+  RootState,
 } from "./types";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 export { GridHeader, GridHeaderCell } from "./grid-header";
 
 function useGridKeyboard() {
@@ -114,6 +116,8 @@ function useDayDerivedState(date: TemporalPoly.PlainDate) {
     : false;
   const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
 
+  const columnIndex = date.dayOfWeek;
+
   return {
     isSelected,
     isCurrentMonth,
@@ -123,12 +127,12 @@ function useDayDerivedState(date: TemporalPoly.PlainDate) {
     isRangeStart,
     isRangeEnd,
     isInRangeDay,
+    columnIndex,
   };
 }
 
-function useDayState<F extends ValueFormat = ValueFormat>(
+export function useDayState<F extends ValueFormat = ValueFormat>(
   date: TemporalPoly.PlainDate,
-  columnIndex: number = -1,
   orientation: GridOrientation = "vertical",
 ) {
   const { rootState } = useDatePicker<F>();
@@ -141,6 +145,7 @@ function useDayState<F extends ValueFormat = ValueFormat>(
     isRangeStart,
     isRangeEnd,
     isInRangeDay,
+    columnIndex,
   } = useDayDerivedState(date);
 
   const state = useMemo<DayCellTemplateState<F>>(
@@ -156,6 +161,7 @@ function useDayState<F extends ValueFormat = ValueFormat>(
       focused: isFocused,
       rangeStart: isRangeStart,
       rangeEnd: isRangeEnd,
+      rangeBoundary: isRangeStart || isRangeEnd,
       inRange: isInRangeDay,
     }),
     [
@@ -174,19 +180,11 @@ function useDayState<F extends ValueFormat = ValueFormat>(
     ],
   );
 
-  const defaultProps: Record<string, unknown> = {
-    role: "gridcell",
-    date: date.toString(),
-    "aria-selected": isSelected || undefined,
-    "aria-disabled": isDisabled || undefined,
-  };
-
-  return { state, defaultProps };
+  return state;
 }
 
 function useDayButtonState<F extends ValueFormat = ValueFormat>(
   date: TemporalPoly.PlainDate,
-  columnIndex: number = -1,
   orientation: GridOrientation = "vertical",
 ) {
   const {
@@ -210,7 +208,7 @@ function useDayButtonState<F extends ValueFormat = ValueFormat>(
     }
   }, [isFocused, gridFocusedRef]);
 
-  const { state } = useDayState<F>(date, columnIndex, orientation);
+  const state = useDayState<F>(date, orientation);
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
@@ -338,7 +336,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
 
 const gridBodyStateAttributesMapping = {
   root: () => null,
-};
+} as const satisfies StateAttributesMapping<{ root: RootState }>;
 
 export function GridBody<F extends ValueFormat = ValueFormat>(
   props: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
@@ -425,16 +423,17 @@ const dayStateAttributesMapping = {
   date: (v: TemporalPoly.PlainDate) =>
     v ? { "data-date": v.toString() } : null,
   columnIndex: () => null,
-  orientation: () => null,
-  selected: (v: boolean) => (v ? { "data-selected": "" } : null),
-  today: (v: boolean) => (v ? { "data-today": "" } : null),
-  disabled: (v: boolean) => (v ? { "data-disabled": "" } : null),
-  outsideMonth: (v: boolean) => (v ? { "data-outside-month": "" } : null),
-  focused: (v: boolean) => (v ? { "data-focused": "" } : null),
-  rangeStart: (v: boolean) => (v ? { "data-range-start": "" } : null),
-  rangeEnd: (v: boolean) => (v ? { "data-range-end": "" } : null),
-  inRange: (v: boolean) => (v ? { "data-in-range": "" } : null),
-} as const;
+  orientation: (v) => (v ? { "data-orientation": "" } : null),
+  selected: (v) => (v ? { "data-selected": "" } : null),
+  today: (v) => (v ? { "data-today": "" } : null),
+  disabled: (v) => (v ? { "data-disabled": "" } : null),
+  outsideMonth: (v) => (v ? { "data-outside-month": "" } : null),
+  focused: (v) => (v ? { "data-focused": "" } : null),
+  rangeStart: (v) => (v ? { "data-range-start": "" } : null),
+  rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
+  rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
+  inRange: (v) => (v ? { "data-in-range": "" } : null),
+} as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 function DayCellInstance<F extends ValueFormat = ValueFormat>(
   props: Omit<DayCellTemplateProps<F>, "date"> & {
@@ -445,14 +444,14 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
 ) {
   const { ref, render, date, columnIndex, children, ...otherProps } = props;
   const { orientation } = useContext(GridContext);
-  const { state, defaultProps: cellDefaults } = useDayState<F>(
-    date,
-    columnIndex ?? -1,
-    orientation,
-  );
+  const state = useDayState<F>(date, orientation);
 
   const defaultProps: Record<string, unknown> = {
-    ...cellDefaults,
+    role: "gridcell",
+    "aria-selected": state.selected || undefined,
+    "aria-disabled": state.disabled || undefined,
+    "data-range-boundary": true,
+    "data-bummertown": true,
     children: children ?? <DayButton />,
   };
 
@@ -511,7 +510,6 @@ function DayButtonInstance<F extends ValueFormat = ValueFormat>(
   const { orientation } = useContext(GridContext);
   const { state, defaultProps, internalRef } = useDayButtonState<F>(
     date,
-    date.dayOfWeek,
     orientation,
   );
 
