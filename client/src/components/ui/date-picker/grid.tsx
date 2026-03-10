@@ -210,7 +210,7 @@ function useDayButtonState<F extends ValueFormat = ValueFormat>(
     }
   }, [isFocused, gridFocusedRef]);
 
-  const state = useDayState({ date, orientation, columnIndex });
+  const { state } = useDayState<F>(date, columnIndex, orientation);
 
   const defaultProps: Record<string, unknown> = {
     type: "button",
