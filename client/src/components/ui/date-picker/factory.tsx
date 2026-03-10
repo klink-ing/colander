@@ -27,7 +27,9 @@ export function createDatePicker<F extends ValueFormat>(
   const TypedRoot = (
     props: Omit<ComponentProps<typeof Root<F>>, "format" | "temporal">,
   ) => {
-    return <Root {...(props as any)} format={format} temporal={options?.temporal} />;
+    return (
+      <Root {...(props as any)} format={format} temporal={options?.temporal} />
+    );
   };
 
   return {

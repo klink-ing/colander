@@ -58,8 +58,7 @@ function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
   },
 ) {
   const { ref, render, index, ...otherProps } = props;
-  const { state, defaultProps } =
-    useGridHeaderCellState<F>(index);
+  const { state, defaultProps } = useGridHeaderCellState<F>(index);
 
   return useRender({
     defaultTagName: "th",

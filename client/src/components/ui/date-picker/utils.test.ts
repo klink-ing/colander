@@ -382,12 +382,22 @@ describe("computeWeekRangeInfo", () => {
   const week1 = marchWeeks[1];
 
   it("returns inactive when rangeStart is undefined", () => {
-    const result = computeWeekRangeInfo(week1, undefined, date("2026-03-15"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      undefined,
+      date("2026-03-15"),
+      T,
+    );
     expect(result.active).toBe(false);
   });
 
   it("returns inactive when rangeEnd is undefined", () => {
-    const result = computeWeekRangeInfo(week1, date("2026-03-08"), undefined, T);
+    const result = computeWeekRangeInfo(
+      week1,
+      date("2026-03-08"),
+      undefined,
+      T,
+    );
     expect(result.active).toBe(false);
   });
 

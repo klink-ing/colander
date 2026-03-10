@@ -47,14 +47,20 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
     "data-testid": `drag-handle-${edge}`,
   };
 
-  return { state, stateAttributesMapping: dragHandleStateAttributesMapping, defaultProps, handleRef };
+  return {
+    state,
+    stateAttributesMapping: dragHandleStateAttributesMapping,
+    defaultProps,
+    handleRef,
+  };
 }
 
 export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeStartDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, dragging, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, handleRef } = useDragHandle<F>("start", { dragging });
+  const { state, stateAttributesMapping, defaultProps, handleRef } =
+    useDragHandle<F>("start", { dragging });
 
   return useRender({
     defaultTagName: "span",
@@ -70,7 +76,8 @@ export function RangeEndDragHandle<F extends ValueFormat = ValueFormat>(
   props: RangeEndDragHandleProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, dragging, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, handleRef } = useDragHandle<F>("end", { dragging });
+  const { state, stateAttributesMapping, defaultProps, handleRef } =
+    useDragHandle<F>("end", { dragging });
 
   return useRender({
     defaultTagName: "span",

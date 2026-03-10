@@ -266,8 +266,7 @@ export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
   props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, defaultProps } =
-    useNavButton<F>("prev");
+  const { state, defaultProps } = useNavButton<F>("prev");
 
   return useRender({
     defaultTagName: "button",
@@ -283,8 +282,7 @@ export function NextMonthButton<F extends ValueFormat = ValueFormat>(
   props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, defaultProps } =
-    useNavButton<F>("next");
+  const { state, defaultProps } = useNavButton<F>("next");
 
   return useRender({
     defaultTagName: "button",

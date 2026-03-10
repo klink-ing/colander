@@ -1,5 +1,5 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { flushSync } from "react-dom";
+
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { disableNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview";
@@ -297,7 +297,10 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
 
 // --- DnD wiring for drag handles ---
 
-function useDragHandleDnD(edge: "start" | "end", handleRef: React.RefObject<HTMLSpanElement | null>) {
+function useDragHandleDnD(
+  edge: "start" | "end",
+  handleRef: React.RefObject<HTMLSpanElement | null>,
+) {
   const { rangeStart, rangeEnd, setRange, temporal: T } = useDatePicker();
   const cellData = useContext(DayCellDataContext);
   const date = cellData?.date;
@@ -309,7 +312,6 @@ function useDragHandleDnD(edge: "start" | "end", handleRef: React.RefObject<HTML
 
   const [dragging, setDragging] = useState(false);
   const draggingRef = useRef(false);
-  const vtRef = useRef<ViewTransition | null>(null);
   const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
   rangeRef.current = { start: rangeStart, end: rangeEnd };
 
@@ -348,13 +350,14 @@ function useDragHandleDnD(edge: "start" | "end", handleRef: React.RefObject<HTML
         document.body.style.cursor = "";
       }
     };
-  }, [isActive, edge]);
+  }, [isActive, edge, handleRef]);
 
   useEffect(() => {
     if (!dragging) return;
     return monitorForElements({
       canMonitor: ({ source }) =>
-        source.data.type === "date-range-handle" && source.data.edge === edgeRef.current,
+        source.data.type === "date-range-handle" &&
+        source.data.edge === edgeRef.current,
       onDrag: ({ location }) => {
         const dropTarget = location.current.dropTargets[0];
         if (!dropTarget) return;
@@ -409,16 +412,7 @@ function useDragHandleDnD(edge: "start" | "end", handleRef: React.RefObject<HTML
         Tp.PlainDate.compare(newStart, start) !== 0 ||
         Tp.PlainDate.compare(newEnd, end) !== 0
       ) {
-        const update = () => setRangeRef.current(newStart, newEnd);
-        if (document.startViewTransition && !vtRef.current) {
-          const vt = document.startViewTransition(() => {
-            flushSync(update);
-          });
-          vtRef.current = vt;
-          vt.finished.then(() => { vtRef.current = null; }).catch(() => { vtRef.current = null; });
-        } else {
-          update();
-        }
+        setRangeRef.current(newStart, newEnd);
       }
     }
   }, [dragging]);
@@ -454,7 +448,7 @@ export function StyledRangeStartDragHandle<
         <span
           {...renderProps}
           style={{
-            ...renderProps.style as React.CSSProperties,
+            ...(renderProps.style as React.CSSProperties),
             display: state.active ? undefined : "none",
           }}
         />
@@ -489,7 +483,7 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
         <span
           {...renderProps}
           style={{
-            ...renderProps.style as React.CSSProperties,
+            ...(renderProps.style as React.CSSProperties),
             display: state.active ? undefined : "none",
           }}
         />
@@ -508,13 +502,7 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
       data-range-selection
       render={(renderProps, state) => {
         if (!state.active) {
-          return (
-            <td
-              {...renderProps}
-              hidden
-              style={{ display: "none" }}
-            />
-          );
+          return <td {...renderProps} hidden style={{ display: "none" }} />;
         }
         return (
           <td
@@ -523,7 +511,6 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
             style={{
               gridColumn: `${state.startIndex + 1} / ${state.endIndex + 2}`,
               gridRow: 1,
-              viewTransitionName: `selected-range-${state.weekIndex}`,
             }}
             className={cn(
               "rounded-md bg-primary/80",

@@ -89,30 +89,18 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
               "[&>tr]:col-span-full [&>tr]:grid [&>tr]:[grid-template-columns:subgrid]",
             )}
           >
-            <DP.GridHeaderCell
-              className="flex justify-end p-1 text-center text-[0.8rem] font-normal text-muted-foreground"
-            />
+            <DP.GridHeaderCell className="flex justify-end p-1 text-center text-[0.8rem] font-normal text-muted-foreground" />
           </DP.GridHeader>
-          <DP.GridBody
-            className="col-span-full grid [grid-template-columns:subgrid]"
-          >
-            <DP.WeekTemplate
-              className="col-span-full relative grid [grid-template-columns:subgrid]"
-            >
+          <DP.GridBody className="col-span-full grid [grid-template-columns:subgrid]">
+            <DP.WeekTemplate className="relative col-span-full grid [grid-template-columns:subgrid]">
               <DP.SelectedRange
                 render={(props, state) => {
                   if (!state.active) {
-                    return (
-                      <td
-                        {...props}
-                        hidden
-                        style={{ display: "none" }}
-                      />
-                    );
+                    return <td {...props} hidden style={{ display: "none" }} />;
                   }
 
-                  const startAnchor = `--${state.startDayId}`;
-                  const endAnchor = `--${state.endDayId}`;
+                  const startAnchor = `--day-${state.startDate}`;
+                  const endAnchor = `--day-${state.endDate}`;
 
                   return (
                     <td
@@ -134,28 +122,31 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
                   );
                 }}
               />
-              <DP.DayCellTemplate
-                className="text-center"
-              >
+              <DP.DayCellTemplate className="text-center">
                 <DP.DayButton
-                  render={(props, state) => (
-                    <button
-                      {...props}
-                      style={{
-                        ...((props as any).style ?? {}),
-                        anchorName: `--${(props as any).id}`,
-                      }}
-                      className={cn(
-                        "relative inline-flex min-w-[calc(2ch+(2*var(--spacing)))] items-center justify-end rounded-md p-1 text-sm font-normal tabular-nums transition-colors",
-                        "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                        "text-foreground hover:bg-accent hover:text-accent-foreground",
-                        state.outsideMonth && "text-muted-foreground opacity-40",
-                        state.today && "bg-accent text-accent-foreground",
-                        state.selected && "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
-                        state.disabled && "pointer-events-none opacity-50",
-                      )}
-                    />
-                  )}
+                  render={(props, state) => {
+                    const anchorName = `day-${state.date.toString()}`;
+                    return (
+                      <button
+                        {...props}
+                        style={{
+                          ...((props as any).style ?? {}),
+                          anchorName: `--${anchorName}`,
+                        }}
+                        className={cn(
+                          "relative inline-flex min-w-[calc(2ch+(2*var(--spacing)))] items-center justify-end rounded-md p-1 text-sm font-normal tabular-nums transition-colors",
+                          "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                          "text-foreground hover:bg-accent hover:text-accent-foreground",
+                          state.outsideMonth &&
+                            "text-muted-foreground opacity-40",
+                          state.today && "bg-accent text-accent-foreground",
+                          state.selected &&
+                            "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
+                          state.disabled && "pointer-events-none opacity-50",
+                        )}
+                      />
+                    );
+                  }}
                 />
               </DP.DayCellTemplate>
             </DP.WeekTemplate>

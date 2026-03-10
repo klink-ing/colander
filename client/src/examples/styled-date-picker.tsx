@@ -14,10 +14,7 @@ import {
   StyledGridBody,
   StyledWeekTemplate,
   StyledDayCellTemplate,
-  StyledDayButton,
   StyledSelectedRange,
-  StyledRangeStartDragHandle,
-  StyledRangeEndDragHandle,
 } from "@/examples/date-picker-styled";
 import { cn } from "@/lib/utils";
 import type { Components } from "@/components/ui/date-picker";

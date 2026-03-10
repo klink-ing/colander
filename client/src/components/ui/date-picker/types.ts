@@ -1,5 +1,6 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { useRender } from "@base-ui/react/use-render";
+import { GridOrientation } from "./context";
 
 export type TemporalNamespace = {
   Now: {
@@ -122,8 +123,7 @@ interface RangeSelectionProps<F extends ValueFormat = ValueFormat> {
 }
 
 export type RootOwnProps<F extends ValueFormat = ValueFormat> =
-  RootOwnPropsBase<F> &
-    (SingleSelectionProps<F> | RangeSelectionProps<F>);
+  RootOwnPropsBase<F> & (SingleSelectionProps<F> | RangeSelectionProps<F>);
 
 type AllRootOwnPropKeys =
   | keyof RootOwnPropsBase
@@ -227,11 +227,12 @@ export type GridState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   month: number;
   year: number;
+  orientation: GridOrientation;
 };
 
 export interface GridOwnProps {
   mode?: "grid";
-  orientation?: "horizontal" | "vertical";
+  orientation?: GridOrientation;
 }
 
 export type GridProps<F extends ValueFormat = ValueFormat> =
@@ -249,7 +250,7 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   date: Temporal.PlainDate;
   columnIndex: number;
-  orientation: "horizontal" | "vertical";
+  orientation: GridOrientation;
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -259,6 +260,9 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   rangeEnd: boolean;
   inRange: boolean;
 };
+
+export type DayButtonState<F extends ValueFormat = ValueFormat> =
+  DayCellTemplateState<F>;
 
 export interface DayCellTemplateOwnProps {
   date?: Temporal.PlainDate;
@@ -267,18 +271,6 @@ export interface DayCellTemplateOwnProps {
 export type DayCellTemplateProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"td", DayCellTemplateState<F>> &
     DayCellTemplateOwnProps;
-
-export type DayButtonState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
-  selected: boolean;
-  today: boolean;
-  disabled: boolean;
-  outsideMonth: boolean;
-  focused: boolean;
-  rangeStart: boolean;
-  rangeEnd: boolean;
-  inRange: boolean;
-};
 
 export interface DayButtonOwnProps {
   date?: Temporal.PlainDate;
@@ -293,8 +285,8 @@ export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
   weekIndex: number;
   startIndex: number;
   endIndex: number;
-  startDayId: string;
-  endDayId: string;
+  startDate: string;
+  endDate: string;
   extendsBefore: boolean;
   extendsAfter: boolean;
 };
