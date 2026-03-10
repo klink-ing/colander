@@ -24,7 +24,7 @@ import {
   RangeEndDragHandle,
   useDatePicker,
 } from "@/components/ui/date-picker";
-import { DayCellDataContext, GridOrientationContext } from "@/components/ui/date-picker/context";
+import { DayCellDataContext } from "@/components/ui/date-picker/context";
 import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
@@ -212,13 +212,11 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
     <DayCellTemplate
       {...(props as DayCellTemplateProps)}
       render={(renderProps, state) => {
-        const orientation = useContext(GridOrientationContext);
-        const columnIndex = Number((renderProps as any)["data-column-index"] ?? -1);
         const gridStyle =
-          columnIndex >= 0
-            ? orientation === "horizontal"
-              ? { gridRow: columnIndex + 1, gridColumn: 1 }
-              : { gridColumn: columnIndex + 1, gridRow: 1 }
+          state.columnIndex >= 0
+            ? state.orientation === "horizontal"
+              ? { gridRow: state.columnIndex + 1, gridColumn: 1 }
+              : { gridColumn: state.columnIndex + 1, gridRow: 1 }
             : undefined;
         return (
           <td
@@ -451,8 +449,6 @@ export function StyledRangeStartDragHandle<
       style={{
         touchAction: "none",
         cursor: dragging ? "grabbing" : "grab",
-        display: undefined,
-        viewTransitionName: "drag-handle-start",
       }}
       render={(renderProps, state) => (
         <span
@@ -460,7 +456,6 @@ export function StyledRangeStartDragHandle<
           style={{
             ...renderProps.style as React.CSSProperties,
             display: state.active ? undefined : "none",
-            viewTransitionName: state.active ? "drag-handle-start" : "none",
           }}
         />
       )}
@@ -489,8 +484,6 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
       style={{
         touchAction: "none",
         cursor: dragging ? "grabbing" : "grab",
-        display: undefined,
-        viewTransitionName: "drag-handle-end",
       }}
       render={(renderProps, state) => (
         <span
@@ -498,7 +491,6 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
           style={{
             ...renderProps.style as React.CSSProperties,
             display: state.active ? undefined : "none",
-            viewTransitionName: state.active ? "drag-handle-end" : "none",
           }}
         />
       )}
@@ -531,6 +523,7 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
             style={{
               gridColumn: `${state.startIndex + 1} / ${state.endIndex + 2}`,
               gridRow: 1,
+              viewTransitionName: `selected-range-${state.weekIndex}`,
             }}
             className={cn(
               "rounded-md bg-primary/80",

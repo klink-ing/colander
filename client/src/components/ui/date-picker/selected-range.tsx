@@ -5,6 +5,18 @@ import { useDatePicker, WeekDataContext } from "./context";
 import { computeWeekRangeInfo } from "./utils";
 import type { ValueFormat, SelectedRangeState, SelectedRangeProps } from "./types";
 
+const selectedRangeStateAttributesMapping = {
+  root: () => null,
+  active: (v: boolean) => (v ? { "data-active": "" } : null),
+  weekIndex: (v: number) => ({ "data-week-index": String(v) }),
+  startIndex: (v: number) => ({ "data-start-index": String(v) }),
+  endIndex: (v: number) => ({ "data-end-index": String(v) }),
+  startDayId: () => null,
+  endDayId: () => null,
+  extendsBefore: (v: boolean) => (v ? { "data-extends-before": "" } : null),
+  extendsAfter: (v: boolean) => (v ? { "data-extends-after": "" } : null),
+};
+
 export function SelectedRange<F extends ValueFormat = ValueFormat>(
   props: SelectedRangeProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
@@ -24,10 +36,13 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     : "";
   const endDayId = info.active ? `day-${days[info.endIndex].toString()}` : "";
 
+  const weekIndex = weekData?.weekIndex ?? 0;
+
   const state = useMemo<SelectedRangeState<F>>(
     () => ({
       root: rootState,
       active: info.active,
+      weekIndex,
       startIndex: info.startIndex,
       endIndex: info.endIndex,
       startDayId,
@@ -35,21 +50,7 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
       extendsBefore: info.extendsBefore,
       extendsAfter: info.extendsAfter,
     }),
-    [rootState, info, startDayId, endDayId],
-  );
-
-  const stateAttributesMapping = useMemo(
-    () => ({
-      root: () => null,
-      active: (v: boolean) => (v ? { "data-active": "" } : null),
-      startIndex: (v: number) => ({ "data-start-index": String(v) }),
-      endIndex: (v: number) => ({ "data-end-index": String(v) }),
-      startDayId: () => null,
-      endDayId: () => null,
-      extendsBefore: (v: boolean) => (v ? { "data-extends-before": "" } : null),
-      extendsAfter: (v: boolean) => (v ? { "data-extends-after": "" } : null),
-    }),
-    [],
+    [rootState, info, weekIndex, startDayId, endDayId],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -62,7 +63,7 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: selectedRangeStateAttributesMapping,
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 }

@@ -248,6 +248,8 @@ export type WeekTemplateProps<F extends ValueFormat = ValueFormat> =
 export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   date: Temporal.PlainDate;
+  columnIndex: number;
+  orientation: "horizontal" | "vertical";
   selected: boolean;
   today: boolean;
   disabled: boolean;
@@ -288,6 +290,7 @@ export type DayButtonProps<F extends ValueFormat = ValueFormat> =
 export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   active: boolean;
+  weekIndex: number;
   startIndex: number;
   endIndex: number;
   startDayId: string;

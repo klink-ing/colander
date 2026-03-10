@@ -1,8 +1,15 @@
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useCallback, useEffect, useRef, type KeyboardEvent } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import type { Temporal } from "@js-temporal/polyfill";
 import { useDatePicker, WeekDataContext, DayCellDataContext, GridOrientationContext } from "./context";
-import { useGridKeyboard, useDayCellState, useDayButtonState } from "./hooks";
+import { computeNextFocusDate } from "./keyboard";
+import {
+  selectedToZdt,
+  sameCalendarDay,
+  shouldMoveDomFocus,
+  isInRange as isInRangeUtil,
+} from "./utils";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import type {
   ValueFormat,
@@ -14,8 +21,191 @@ import type {
   WeekTemplateProps,
   DayCellTemplateProps,
   DayButtonProps,
+  DayCellTemplateState,
+  DayButtonState,
 } from "./types";
 export { GridHeader, GridHeaderCell } from "./grid-header";
+
+function useGridKeyboard() {
+  const {
+    focusedDate,
+    setFocusedDate,
+    onSelect,
+    disabled,
+    isDateDisabled,
+    minValue,
+    maxValue,
+    temporal: T,
+  } = useDatePicker();
+
+  return useCallback(
+    (e: KeyboardEvent<HTMLDivElement>) => {
+      const result = computeNextFocusDate({
+        key: e.key,
+        shiftKey: e.shiftKey,
+        focusedDate,
+        minValue,
+        maxValue,
+        disabled,
+        isDateDisabled,
+        T,
+      });
+
+      if (result.action === "move") {
+        e.preventDefault();
+        setFocusedDate(result.date);
+      } else if (result.action === "select") {
+        e.preventDefault();
+        onSelect(focusedDate);
+      }
+    },
+    [
+      focusedDate,
+      setFocusedDate,
+      onSelect,
+      disabled,
+      isDateDisabled,
+      minValue,
+      maxValue,
+      T,
+    ],
+  );
+}
+
+function useDayDerivedState(date: Temporal.PlainDate) {
+  const {
+    selected,
+    currentDateTime,
+    disabled,
+    isDateDisabled,
+    focusedDate,
+    rangeStart,
+    rangeEnd,
+    timeZone,
+    temporal: T,
+  } = useDatePicker();
+
+  const today = useMemo(() => T.Now.plainDateISO(), [T]);
+  const selZdt = selectedToZdt(selected, timeZone, T);
+  const isSelected = selZdt ? sameCalendarDay(selZdt, date) : false;
+  const isCurrentMonth =
+    date.year === currentDateTime.year && date.month === currentDateTime.month;
+  const isToday = T.PlainDate.compare(date, today) === 0;
+  const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
+  const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
+
+  const isRangeStart = rangeStart
+    ? T.PlainDate.compare(date, rangeStart) === 0
+    : false;
+  const isRangeEnd = rangeEnd
+    ? T.PlainDate.compare(date, rangeEnd) === 0
+    : false;
+  const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
+
+  return { isSelected, isCurrentMonth, isToday, isDisabled, isFocused, isRangeStart, isRangeEnd, isInRangeDay };
+}
+
+function useDayCellState<F extends ValueFormat = ValueFormat>(
+  date: Temporal.PlainDate,
+  columnIndex: number = -1,
+  orientation: "horizontal" | "vertical" = "vertical",
+) {
+  const { rootState } = useDatePicker<F>();
+  const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused, isRangeStart, isRangeEnd, isInRangeDay } =
+    useDayDerivedState(date);
+
+  const state = useMemo<DayCellTemplateState<F>>(
+    () => ({
+      root: rootState,
+      date,
+      columnIndex,
+      orientation,
+      selected: isSelected,
+      today: isToday,
+      disabled: isDisabled,
+      outsideMonth: !isCurrentMonth,
+      focused: isFocused,
+      rangeStart: isRangeStart,
+      rangeEnd: isRangeEnd,
+      inRange: isInRangeDay,
+    }),
+    [rootState, date, columnIndex, orientation, isSelected, isToday, isDisabled, isCurrentMonth, isFocused, isRangeStart, isRangeEnd, isInRangeDay],
+  );
+
+  const defaultProps: Record<string, unknown> = {
+    role: "gridcell",
+    "aria-selected": isSelected || undefined,
+    "aria-disabled": isDisabled || undefined,
+  };
+
+  return { state, defaultProps };
+}
+
+function useDayButtonState<F extends ValueFormat = ValueFormat>(
+  date: Temporal.PlainDate,
+) {
+  const {
+    onSelect,
+    setFocusedDate,
+    locale,
+    rootState,
+    tabTargetDate,
+    gridFocusedRef,
+    temporal: T,
+  } = useDatePicker<F>();
+  const { isSelected, isCurrentMonth, isToday, isDisabled, isFocused, isRangeStart, isRangeEnd, isInRangeDay } =
+    useDayDerivedState(date);
+  const internalRef = useRef<HTMLButtonElement>(null);
+  const isTabTarget = T.PlainDate.compare(date, tabTargetDate) === 0;
+
+  useEffect(() => {
+    if (shouldMoveDomFocus(isFocused, gridFocusedRef.current) && internalRef.current) {
+      internalRef.current.focus();
+    }
+  }, [isFocused, gridFocusedRef]);
+
+  const state = useMemo<DayButtonState<F>>(
+    () => ({
+      root: rootState,
+      selected: isSelected,
+      today: isToday,
+      disabled: isDisabled,
+      outsideMonth: !isCurrentMonth,
+      focused: isFocused,
+      rangeStart: isRangeStart,
+      rangeEnd: isRangeEnd,
+      inRange: isInRangeDay,
+    }),
+    [rootState, isSelected, isToday, isDisabled, isCurrentMonth, isFocused, isRangeStart, isRangeEnd, isInRangeDay],
+  );
+
+  const defaultProps: Record<string, unknown> = {
+    type: "button",
+    tabIndex: isTabTarget ? 0 : -1,
+    disabled: isDisabled,
+    "aria-label": date.toLocaleString(locale, {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }),
+    id: `day-${date.toString()}`,
+    "data-testid": `button-day-${date.toString()}`,
+    onClick: () => {
+      setFocusedDate(date);
+      onSelect(date);
+    },
+    children: date.day,
+  };
+
+  return { state, defaultProps, internalRef };
+}
+
+const gridStateAttributesMapping = {
+  root: () => null,
+  month: () => null,
+  year: () => null,
+};
 
 export function Grid<F extends ValueFormat = ValueFormat>(
   props: GridProps<F> & { ref?: React.Ref<HTMLTableElement> },
@@ -35,15 +225,6 @@ export function Grid<F extends ValueFormat = ValueFormat>(
       year: currentDateTime.year,
     }),
     [rootState, currentDateTime.month, currentDateTime.year],
-  );
-
-  const stateAttributesMapping = useMemo(
-    () => ({
-      root: () => null,
-      month: () => null,
-      year: () => null,
-    }),
-    [],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -86,7 +267,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: gridStateAttributesMapping,
     props: mergeProps<"table">(defaultProps, otherProps),
   });
 
@@ -101,6 +282,10 @@ export function Grid<F extends ValueFormat = ValueFormat>(
   return el;
 }
 
+const gridBodyStateAttributesMapping = {
+  root: () => null,
+};
+
 export function GridBody<F extends ValueFormat = ValueFormat>(
   props: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
@@ -110,13 +295,6 @@ export function GridBody<F extends ValueFormat = ValueFormat>(
   const state = useMemo<GridBodyState<F>>(
     () => ({ root: rootState }),
     [rootState],
-  );
-
-  const stateAttributesMapping = useMemo(
-    () => ({
-      root: () => null,
-    }),
-    [],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -136,10 +314,15 @@ export function GridBody<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: gridBodyStateAttributesMapping,
     props: mergeProps<"tbody">(defaultProps, restOtherProps),
   });
 }
+
+const weekInstanceStateAttributesMapping = {
+  root: () => null,
+  weekIndex: () => null,
+};
 
 function WeekInstance<F extends ValueFormat = ValueFormat>(
   props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
@@ -153,20 +336,12 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(
     [rootState, weekData.weekIndex],
   );
 
-  const stateAttributesMapping = useMemo(
-    () => ({
-      root: () => null,
-      weekIndex: () => null,
-    }),
-    [],
-  );
-
   return useRender({
     defaultTagName: "tr",
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: weekInstanceStateAttributesMapping,
     props: mergeProps<"tr">({}, otherProps),
   });
 }
@@ -191,6 +366,21 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
   );
 }
 
+const dayStateAttributesMapping = {
+  root: () => null,
+  date: () => null,
+  columnIndex: () => null,
+  orientation: () => null,
+  selected: (v: boolean) => (v ? { "data-selected": "" } : null),
+  today: (v: boolean) => (v ? { "data-today": "" } : null),
+  disabled: (v: boolean) => (v ? { "data-disabled": "" } : null),
+  outsideMonth: (v: boolean) => (v ? { "data-outside-month": "" } : null),
+  focused: (v: boolean) => (v ? { "data-focused": "" } : null),
+  rangeStart: (v: boolean) => (v ? { "data-range-start": "" } : null),
+  rangeEnd: (v: boolean) => (v ? { "data-range-end": "" } : null),
+  inRange: (v: boolean) => (v ? { "data-in-range": "" } : null),
+};
+
 function DayCellInstance<F extends ValueFormat = ValueFormat>(
   props: Omit<DayCellTemplateProps<F>, "date"> & {
     date: import("@js-temporal/polyfill").Temporal.PlainDate;
@@ -199,15 +389,14 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
   },
 ) {
   const { ref, render, date, columnIndex, children, ...otherProps } = props;
+  const orientation = useContext(GridOrientationContext);
   const {
     state,
-    stateAttributesMapping,
     defaultProps: cellDefaults,
-  } = useDayCellState<F>(date);
+  } = useDayCellState<F>(date, columnIndex ?? -1, orientation);
 
   const defaultProps: Record<string, unknown> = {
     ...cellDefaults,
-    ...(columnIndex != null ? { "data-column-index": columnIndex } : {}),
     children: children ?? <DayButton />,
   };
 
@@ -216,7 +405,7 @@ function DayCellInstance<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: dayStateAttributesMapping,
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 
@@ -263,7 +452,7 @@ function DayButtonInstance<F extends ValueFormat = ValueFormat>(
   },
 ) {
   const { ref, render, date, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, internalRef } =
+  const { state, defaultProps, internalRef } =
     useDayButtonState<F>(date);
 
   return useRender({
@@ -271,7 +460,7 @@ function DayButtonInstance<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref, internalRef] : [internalRef],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: dayStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }

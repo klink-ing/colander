@@ -2,8 +2,7 @@ import { useId, useMemo, useEffect } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker } from "./context";
-import { useNavButton } from "./hooks";
-import { selectedToZdt, zdtToNativeDate } from "./utils";
+import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
 import type {
   ValueFormat,
   DateStringState,
@@ -14,6 +13,7 @@ import type {
   MonthYearStringProps,
   PrevMonthButtonProps,
   NextMonthButtonProps,
+  NavButtonState,
 } from "./types";
 
 const rootNullMapping = { root: () => null };
@@ -176,11 +176,97 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
   });
 }
 
+function useNavButton<F extends ValueFormat = ValueFormat>(
+  direction: "prev" | "next",
+) {
+  const {
+    goToPrevMonth,
+    goToNextMonth,
+    currentDateTime,
+    disabled: globalDisabled,
+    minValue,
+    maxValue,
+    locale,
+    temporal: T,
+    rootState,
+  } = useDatePicker<F>();
+
+  const destMonth =
+    direction === "prev"
+      ? currentDateTime.month === 1
+        ? 12
+        : currentDateTime.month - 1
+      : currentDateTime.month === 12
+        ? 1
+        : currentDateTime.month + 1;
+
+  const destYear =
+    direction === "prev"
+      ? currentDateTime.month === 1
+        ? currentDateTime.year - 1
+        : currentDateTime.year
+      : currentDateTime.month === 12
+        ? currentDateTime.year + 1
+        : currentDateTime.year;
+
+  const boundValue = direction === "prev" ? minValue : maxValue;
+
+  const isDisabled = useMemo(() => {
+    if (globalDisabled) return true;
+    if (!boundValue) return false;
+    if (direction === "prev") {
+      return (
+        destYear < boundValue.year ||
+        (destYear === boundValue.year && destMonth < boundValue.month)
+      );
+    }
+    return (
+      destYear > boundValue.year ||
+      (destYear === boundValue.year && destMonth > boundValue.month)
+    );
+  }, [globalDisabled, destYear, destMonth, boundValue, direction]);
+
+  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
+
+  const target = useMemo(
+    () =>
+      T.PlainYearMonth.from({
+        year: destYear,
+        month: destMonth,
+        calendar: localeCalendar,
+      }),
+    [destYear, destMonth, T, localeCalendar],
+  );
+
+  const state = useMemo<NavButtonState<F>>(
+    () => ({ root: rootState, direction, disabled: isDisabled, target }),
+    [rootState, direction, isDisabled, target],
+  );
+
+  const goFn = direction === "prev" ? goToPrevMonth : goToNextMonth;
+
+  const defaultProps: Record<string, unknown> = {
+    type: "button",
+    "aria-label": `Go to ${direction === "prev" ? "previous" : "next"} month`,
+    disabled: isDisabled,
+    onClick: isDisabled ? undefined : goFn,
+  };
+
+  return { state, defaultProps };
+}
+
+const navButtonStateAttributesMapping = {
+  root: () => null,
+  direction: (v: string) => ({ "data-direction": v }),
+  disabled: () => null,
+  target: () => null,
+};
+
 export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
   props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } =
+  const { state, defaultProps } =
     useNavButton<F>("prev");
 
   return useRender({
@@ -188,7 +274,7 @@ export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: navButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }
@@ -197,7 +283,7 @@ export function NextMonthButton<F extends ValueFormat = ValueFormat>(
   props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } =
+  const { state, defaultProps } =
     useNavButton<F>("next");
 
   return useRender({
@@ -205,7 +291,7 @@ export function NextMonthButton<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: navButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
 }

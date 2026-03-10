@@ -9,6 +9,13 @@ import type {
   RangeEndDragHandleProps,
 } from "./types";
 
+const dragHandleStateAttributesMapping = {
+  root: () => null,
+  active: (v: boolean) => (v ? { "data-active": "" } : null),
+  dragging: (v: boolean) => (v ? { "data-dragging": "" } : null),
+  edge: (v: string) => ({ "data-edge": v }),
+};
+
 function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
   { dragging: draggingProp }: { dragging?: boolean },
@@ -36,21 +43,11 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
     [rootState, isActive, isDragging, edge],
   );
 
-  const stateAttributesMapping = useMemo(
-    () => ({
-      root: () => null,
-      active: (v: boolean) => (v ? { "data-active": "" } : null),
-      dragging: (v: boolean) => (v ? { "data-dragging": "" } : null),
-      edge: (v: string) => ({ "data-edge": v }),
-    }),
-    [],
-  );
-
   const defaultProps: Record<string, unknown> = {
     "data-testid": `drag-handle-${edge}`,
   };
 
-  return { state, stateAttributesMapping, defaultProps, handleRef };
+  return { state, stateAttributesMapping: dragHandleStateAttributesMapping, defaultProps, handleRef };
 }
 
 export function RangeStartDragHandle<F extends ValueFormat = ValueFormat>(

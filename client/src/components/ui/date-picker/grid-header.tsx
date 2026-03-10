@@ -2,13 +2,54 @@ import { useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useDatePicker } from "./context";
-import { useGridHeaderCellState } from "./hooks";
+import { getWeekdayNames } from "./utils";
 import type {
   ValueFormat,
   GridHeaderCellProps,
   GridHeaderState,
   GridHeaderProps,
+  GridHeaderCellState,
 } from "./types";
+
+function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
+  index: number,
+) {
+  const { locale, temporal: T, rootState } = useDatePicker<F>();
+
+  const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
+
+  const state = useMemo<GridHeaderCellState<F>>(
+    () => ({
+      root: rootState,
+      dayOfWeek: index,
+      long: weekdayNames[index].long,
+      short: weekdayNames[index].short,
+      narrow: weekdayNames[index].narrow,
+    }),
+    [rootState, index, weekdayNames],
+  );
+
+  const defaultProps: Record<string, unknown> = {
+    scope: "col",
+    abbr: state.long,
+    "aria-label": state.long,
+    children: state.narrow,
+  };
+
+  return { state, defaultProps };
+}
+
+const gridHeaderStateAttributesMapping = {
+  root: () => null,
+};
+
+const gridHeaderCellStateAttributesMapping = {
+  root: () => null,
+  dayOfWeek: () => null,
+  long: () => null,
+  short: () => null,
+  narrow: () => null,
+};
 
 function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
   props: Omit<GridHeaderCellProps<F>, "index"> & {
@@ -17,7 +58,7 @@ function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
   },
 ) {
   const { ref, render, index, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps } =
+  const { state, defaultProps } =
     useGridHeaderCellState<F>(index);
 
   return useRender({
@@ -25,7 +66,7 @@ function GridHeaderCellInstance<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: gridHeaderCellStateAttributesMapping,
     props: mergeProps<"th">(defaultProps, otherProps),
   });
 }
@@ -60,13 +101,6 @@ export function GridHeader<F extends ValueFormat = ValueFormat>(
     [rootState],
   );
 
-  const stateAttributesMapping = useMemo(
-    () => ({
-      root: () => null,
-    }),
-    [],
-  );
-
   const defaultProps: Record<string, unknown> = {
     children: <tr>{children ?? <GridHeaderCell />}</tr>,
   };
@@ -76,7 +110,7 @@ export function GridHeader<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping,
+    stateAttributesMapping: gridHeaderStateAttributesMapping,
     props: mergeProps<"thead">(defaultProps, otherProps),
   });
 }
