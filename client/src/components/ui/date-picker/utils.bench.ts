@@ -3,11 +3,13 @@ import { Temporal } from "@js-temporal/polyfill";
 import type { TemporalNamespace } from "./types";
 import {
   getMonthWeeks,
+  getWeekdayNames,
   computeWeekRangeInfo,
   computeAdjacentMonth,
   isInRange,
   toZonedDateTime,
   fromZonedDateTime,
+  resolveFocusTarget,
 } from "./utils";
 
 const T: TemporalNamespace = {
@@ -144,5 +146,38 @@ describe("toZonedDateTime / fromZonedDateTime", () => {
       T,
     );
     fromZonedDateTime(zdt, "PlainDate", T);
+  });
+});
+
+describe("getWeekdayNames", () => {
+  bench("en-US locale (7× toLocaleString)", () => {
+    getWeekdayNames("en-US", T);
+  });
+
+  bench("de-DE locale", () => {
+    getWeekdayNames("de-DE", T);
+  });
+});
+
+describe("resolveFocusTarget", () => {
+  const selectedDate = Temporal.PlainDate.from("2026-03-15");
+  const focusedDate = Temporal.PlainDate.from("2026-03-10");
+  const currentMonth = { year: 2026, month: 3 };
+  const noDisabled = () => false;
+
+  bench("focused date in grid (fast path)", () => {
+    resolveFocusTarget(focusedDate, selectedDate, marchWeeks, currentMonth, noDisabled, T, true);
+  });
+
+  bench("selected date fallback", () => {
+    // Focus a date outside the grid to force fallback to selectedDate
+    const outsideFocus = Temporal.PlainDate.from("2026-05-01");
+    resolveFocusTarget(outsideFocus, selectedDate, marchWeeks, currentMonth, noDisabled, T, true);
+  });
+
+  bench("no match — linear scan to first enabled", () => {
+    const outsideFocus = Temporal.PlainDate.from("2026-05-01");
+    const outsideSelected = Temporal.PlainDate.from("2026-05-15");
+    resolveFocusTarget(outsideFocus, outsideSelected, marchWeeks, currentMonth, noDisabled, T, true);
   });
 });

@@ -1,10 +1,18 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from "vitest";
-import { Profiler, type ProfilerOnRenderCallback, act } from "react";
+import { Profiler, type ProfilerOnRenderCallback } from "react";
 import { render } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
 import { Root } from "./root";
-import { Grid } from "./grid";
+import { useDatePicker, WeekDataContext } from "./context";
+import {
+  Grid,
+  GridBody,
+  GridHeader,
+  GridHeaderCell,
+  DayCellTemplate,
+  DayButton,
+} from "./grid";
 
 type RenderEntry = {
   id: string;
@@ -53,8 +61,8 @@ const march20 = Temporal.PlainDate.from("2026-03-20");
 // Generous thresholds — these exist to catch regressions, not enforce tight budgets.
 // Actual durations in dev mode with the Temporal polyfill will be much slower than
 // production. Adjust downward once baseline numbers are established.
-const MOUNT_THRESHOLD_MS = 200;
-const UPDATE_THRESHOLD_MS = 100;
+const MOUNT_THRESHOLD_MS = 100;
+const UPDATE_THRESHOLD_MS = 60;
 
 describe("Grid render profiling", () => {
   // Warm up the Temporal polyfill so first-run JIT cost doesn't skew mount timings
@@ -121,8 +129,13 @@ describe("Grid render profiling", () => {
     const updateDuration = updates[updates.length - 1].actualDuration;
     expect(updateDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
+    // Updates should be significantly cheaper than mount (memoization working)
+    if (mountDuration) {
+      expect(updateDuration).toBeLessThan(mountDuration * 0.6);
+    }
+
     console.log(
-      `[perf] selection change: mount=${mountDuration?.toFixed(2)}ms update=${updateDuration.toFixed(2)}ms`,
+      `[perf] selection change: mount=${mountDuration?.toFixed(2)}ms update=${updateDuration.toFixed(2)}ms ratio=${mountDuration ? (updateDuration / mountDuration).toFixed(2) : "N/A"}`,
     );
 
     unmount();
@@ -254,6 +267,96 @@ describe("Grid render profiling", () => {
     console.log(
       `[perf] rapid drag (${durations.length} updates): avg=${avgDuration.toFixed(2)}ms max=${maxDuration.toFixed(2)}ms`,
     );
+
+    unmount();
+  });
+
+  it("measures per-week-row re-render cost on selection change", () => {
+    // Wrap each week row in its own Profiler to measure which rows re-render.
+    // Currently DayCellInstance is NOT wrapped in React.memo, so all rows
+    // re-render on every state change. This test documents that behavior
+    // and will detect improvements if memo is added later.
+    const weekProfilers = Array.from({ length: 6 }, () => createProfiler());
+
+    function ProfiledGrid() {
+      const { weeks } = useDatePicker();
+      return (
+        <>
+          <GridHeader>
+            <GridHeaderCell />
+          </GridHeader>
+          <GridBody>
+            {weeks.map((weekDays, i) => (
+              <Profiler
+                key={weekDays[0].toString()}
+                id={`week-${i}`}
+                onRender={weekProfilers[i].onRender}
+              >
+                <WeekDataContext.Provider
+                  value={{ days: weekDays, weekIndex: i }}
+                >
+                  <tr>
+                    <DayCellTemplate>
+                      <DayButton />
+                    </DayCellTemplate>
+                  </tr>
+                </WeekDataContext.Provider>
+              </Profiler>
+            ))}
+          </GridBody>
+        </>
+      );
+    }
+
+    // March 15 is in week index 3 (Sun Mar 15). March 20 is in week index 3 too.
+    // Changing from 15→16 keeps selection within the same week row.
+    const march16 = Temporal.PlainDate.from("2026-03-16");
+
+    const { rerender, unmount } = render(
+      <Root {...defaultProps} value={march15}>
+        <Grid>
+          <ProfiledGrid />
+        </Grid>
+      </Root>,
+    );
+
+    // Clear mount entries
+    for (const p of weekProfilers) p.entries.length = 0;
+
+    // Change selection within the same week
+    rerender(
+      <Root {...defaultProps} value={march16}>
+        <Grid>
+          <ProfiledGrid />
+        </Grid>
+      </Root>,
+    );
+
+    const weekUpdateDurations = weekProfilers.map((p) => {
+      const updates = p.entries.filter((e) => e.phase === "update");
+      return updates.length > 0
+        ? updates[updates.length - 1].actualDuration
+        : 0;
+    });
+
+    // Log per-week durations for analysis
+    const weekSummary = weekUpdateDurations
+      .map((d, i) => `week${i}=${d.toFixed(2)}ms`)
+      .join(" ");
+    console.log(`[perf] per-week re-render: ${weekSummary}`);
+
+    // Count how many weeks actually re-rendered (actualDuration > 0.01ms)
+    const rerenderedWeeks = weekUpdateDurations.filter(
+      (d) => d > 0.01,
+    ).length;
+    console.log(
+      `[perf] weeks re-rendered: ${rerenderedWeeks}/${weekUpdateDurations.length} (ideal: 1-2 with React.memo)`,
+    );
+
+    // All updates should complete within threshold
+    for (const d of weekUpdateDurations) {
+      expect(d).toBeLessThan(UPDATE_THRESHOLD_MS);
+    }
 
     unmount();
   });
