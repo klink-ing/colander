@@ -15,8 +15,10 @@ export interface KeyboardNavInput {
   minValue: Temporal.PlainDate | undefined;
   maxValue: Temporal.PlainDate | undefined;
   disabled: boolean;
+  readOnly?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   T: TemporalNamespace;
+  weekStartDay?: number;
 }
 
 /**
@@ -72,12 +74,15 @@ export function computeNextFocusDate(
     minValue,
     maxValue,
     disabled,
+    readOnly,
     isDateDisabled,
     T,
+    weekStartDay = 0,
   } = input;
 
   if (disabled) return { action: "none" };
 
+  const daysInWeek = focusedDate.daysInWeek;
   let nextDate: Temporal.PlainDate | null = null;
 
   switch (key) {
@@ -94,13 +99,17 @@ export function computeNextFocusDate(
       nextDate = focusedDate.subtract({ weeks: 1 });
       break;
     case "Home": {
-      const sundayDow = focusedDate.dayOfWeek % 7;
-      nextDate = focusedDate.subtract({ days: sundayDow });
+      const adjustedDow =
+        ((focusedDate.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+        daysInWeek;
+      nextDate = focusedDate.subtract({ days: adjustedDow });
       break;
     }
     case "End": {
-      const sundayDow = focusedDate.dayOfWeek % 7;
-      nextDate = focusedDate.add({ days: 6 - sundayDow });
+      const adjustedDow =
+        ((focusedDate.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+        daysInWeek;
+      nextDate = focusedDate.add({ days: daysInWeek - 1 - adjustedDow });
       break;
     }
     case "PageUp": {
@@ -117,6 +126,7 @@ export function computeNextFocusDate(
     }
     case "Enter":
     case " ":
+      if (readOnly) return { action: "none" };
       if (!isDateDisabled?.(focusedDate)) {
         return { action: "select" };
       }

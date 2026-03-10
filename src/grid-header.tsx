@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 import { useDatePicker } from "./context";
-import { getWeekdayNames } from "./utils";
+import { getWeekdayNames, getReferenceWeekStart } from "./utils";
 import type {
   ValueFormat,
   GridHeaderCellProps,
@@ -15,9 +15,12 @@ import type {
 function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
   index: number,
 ) {
-  const { locale, temporal: T, rootState } = useDatePicker<F>();
+  const { locale, temporal: T, rootState, weekStartDay } = useDatePicker<F>();
 
-  const weekdayNames = useMemo(() => getWeekdayNames(locale, T), [locale, T]);
+  const weekdayNames = useMemo(
+    () => getWeekdayNames(locale, T, weekStartDay),
+    [locale, T, weekStartDay],
+  );
 
   const state = useMemo<GridHeaderCellState<F>>(
     () => ({
@@ -80,14 +83,18 @@ export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
   props: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
+  const { temporal: T } = useDatePicker<F>();
   const Instance = GridHeaderCellInstance<F>;
 
   if (indexProp != null) {
     return <Instance {...restProps} index={indexProp} />;
   }
+
+  const daysInWeek = getReferenceWeekStart(T).daysInWeek;
+
   return (
     <>
-      {Array.from({ length: 7 }, (_, i) => (
+      {Array.from({ length: daysInWeek }, (_, i) => (
         // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length weekday headers never reorder
         <Instance key={i} {...restProps} index={i} />
       ))}

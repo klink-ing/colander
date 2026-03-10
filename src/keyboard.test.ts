@@ -448,6 +448,112 @@ describe("computeNextFocusDate", () => {
       );
     });
   });
+
+  describe("readOnly suppresses select but allows move", () => {
+    it.each(["Enter", " "] as const)(
+      "%s returns none when readOnly",
+      (key) => {
+        expectNone(nav({ key, readOnly: true }));
+      },
+    );
+
+    it.each([
+      "ArrowRight",
+      "ArrowLeft",
+      "ArrowUp",
+      "ArrowDown",
+      "PageUp",
+      "PageDown",
+    ] as const)("%s still works when readOnly", (key) => {
+      const result = computeNextFocusDate(nav({ key, readOnly: true }));
+      expect(result.action).toBe("move");
+    });
+
+    it("Home still works when readOnly (from mid-week)", () => {
+      const result = computeNextFocusDate(
+        nav({ key: "Home", readOnly: true, focusedDate: date("2026-03-18") }),
+      );
+      expect(result.action).toBe("move");
+    });
+
+    it("End still works when readOnly (from mid-week)", () => {
+      const result = computeNextFocusDate(
+        nav({ key: "End", readOnly: true, focusedDate: date("2026-03-18") }),
+      );
+      expect(result.action).toBe("move");
+    });
+  });
+
+  describe("Home/End with weekStartDay=1 (Monday start)", () => {
+    it.each([
+      ["2026-03-17", "2026-03-16"],
+      ["2026-03-18", "2026-03-16"],
+      ["2026-03-21", "2026-03-16"],
+      ["2026-03-22", "2026-03-16"],
+    ] as const)(
+      "Home from %s → %s (Monday start of week)",
+      (focused, expected) => {
+        expectMove(
+          nav({ key: "Home", focusedDate: date(focused), weekStartDay: 1 }),
+          expected,
+        );
+      },
+    );
+
+    it("Home from Monday (already at start) → none", () => {
+      expectNone(
+        nav({ key: "Home", focusedDate: date("2026-03-16"), weekStartDay: 1 }),
+      );
+    });
+
+    it.each([
+      ["2026-03-16", "2026-03-22"],
+      ["2026-03-17", "2026-03-22"],
+      ["2026-03-21", "2026-03-22"],
+    ] as const)(
+      "End from %s → %s (Sunday end of week)",
+      (focused, expected) => {
+        expectMove(
+          nav({ key: "End", focusedDate: date(focused), weekStartDay: 1 }),
+          expected,
+        );
+      },
+    );
+
+    it("End from Sunday (already at end) → none", () => {
+      expectNone(
+        nav({ key: "End", focusedDate: date("2026-03-22"), weekStartDay: 1 }),
+      );
+    });
+  });
+
+  describe("Home/End with weekStartDay=6 (Saturday start)", () => {
+    it("Home from Sunday (2026-03-15) → Saturday (2026-03-14)", () => {
+      expectMove(
+        nav({ key: "Home", focusedDate: date("2026-03-15"), weekStartDay: 6 }),
+        "2026-03-14",
+      );
+    });
+
+    it("Home from Saturday (already at start) → none", () => {
+      expectNone(
+        nav({ key: "Home", focusedDate: date("2026-03-14"), weekStartDay: 6 }),
+      );
+    });
+
+    it("End from Saturday (2026-03-14) → Friday (2026-03-20)", () => {
+      expectMove(
+        nav({ key: "End", focusedDate: date("2026-03-14"), weekStartDay: 6 }),
+        "2026-03-20",
+      );
+    });
+
+    it("End from Friday (already at end) → none", () => {
+      expectNone(
+        nav({ key: "End", focusedDate: date("2026-03-20"), weekStartDay: 6 }),
+      );
+    });
+  });
 });
 
 describe("computeMonthJumpTarget", () => {

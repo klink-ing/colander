@@ -175,42 +175,62 @@ export function selectedToZdt(
 /**
  * Builds a 2D array of calendar weeks for a given month.
  *
- * Each inner array has exactly 7 entries (Sunday–Saturday). The grid is padded
+ * Each inner array has exactly `daysInWeek` entries. The grid is padded
  * with days from adjacent months so every week is complete.
  *
  * @param year - Calendar year.
  * @param month - Calendar month (1–12).
  * @param T - Temporal namespace.
- * @returns An array of 4–6 weeks, each containing 7 `PlainDate` values.
+ * @param opts - Optional settings for week start day and fixed weeks.
+ * @returns An array of 4–6 weeks, each containing `daysInWeek` `PlainDate` values.
  */
 export function getMonthWeeks(
   year: number,
   month: number,
   T: TemporalNamespace,
+  opts?: { weekStartDay?: number; fixedWeeks?: boolean },
 ): Temporal.PlainDate[][] {
+  const weekStartDay = opts?.weekStartDay ?? 0;
+  const fixedWeeks = opts?.fixedWeeks ?? false;
+
   const firstOfMonth = T.PlainDate.from({ year, month, day: 1 });
+  const daysInWeek = firstOfMonth.daysInWeek;
   const daysInMonth = firstOfMonth.daysInMonth;
   const lastOfMonth = T.PlainDate.from({ year, month, day: daysInMonth });
 
-  const isoDow = firstOfMonth.dayOfWeek;
-  const sundayDow = isoDow % 7;
-  const gridStart = firstOfMonth.subtract({ days: sundayDow });
+  const adjustedFirst =
+    ((firstOfMonth.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+    daysInWeek;
+  const gridStart = firstOfMonth.subtract({ days: adjustedFirst });
 
-  const isoLast = lastOfMonth.dayOfWeek;
-  const sundayLast = isoLast % 7;
-  const daysAfter = 6 - sundayLast;
+  const adjustedLast =
+    ((lastOfMonth.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+    daysInWeek;
+  const daysAfter = daysInWeek - 1 - adjustedLast;
   const gridEnd = lastOfMonth.add({ days: daysAfter });
 
   const weeks: Temporal.PlainDate[][] = [];
   let current = gridStart;
   while (T.PlainDate.compare(current, gridEnd) <= 0) {
     const week: Temporal.PlainDate[] = [];
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i < daysInWeek; i++) {
       week.push(current);
       current = current.add({ days: 1 });
     }
     weeks.push(week);
   }
+
+  if (fixedWeeks) {
+    while (weeks.length < 6) {
+      const week: Temporal.PlainDate[] = [];
+      for (let i = 0; i < daysInWeek; i++) {
+        week.push(current);
+        current = current.add({ days: 1 });
+      }
+      weeks.push(week);
+    }
+  }
+
   return weeks;
 }
 
@@ -238,13 +258,18 @@ export function sameCalendarDay(
 }
 
 /**
- * Returns a known Sunday (`2024-01-07`) used as an anchor for generating
- * weekday name lists starting from Sunday.
+ * Returns a date falling on the configured week start day, used as an anchor
+ * for generating weekday name lists.
  *
  * @param T - Temporal namespace.
+ * @param weekStartDay - 0=Sunday (default), 1=Monday, etc.
  */
-export function getReferenceSunday(T: TemporalNamespace): Temporal.PlainDate {
-  return T.PlainDate.from("2024-01-07");
+export function getReferenceWeekStart(
+  T: TemporalNamespace,
+  weekStartDay = 0,
+): Temporal.PlainDate {
+  const refSunday = T.PlainDate.from("2024-01-07");
+  return refSunday.add({ days: weekStartDay });
 }
 
 /**
@@ -445,17 +470,23 @@ export function computeWeekRangeInfo(
 }
 
 /**
- * Generates localized weekday names starting from Sunday.
+ * Generates localized weekday names starting from the configured week start day.
  *
  * @param locale - BCP 47 locale string (e.g. `"en-US"`).
  * @param T - Temporal namespace.
+ * @param weekStartDay - 0=Sunday (default), 1=Monday, etc.
  * @returns An array of 7 objects with `long`, `short`, and `narrow` name variants.
  */
-export function getWeekdayNames(locale: string, T: TemporalNamespace) {
-  const refSunday = getReferenceSunday(T);
+export function getWeekdayNames(
+  locale: string,
+  T: TemporalNamespace,
+  weekStartDay = 0,
+) {
+  const refStart = getReferenceWeekStart(T, weekStartDay);
+  const daysInWeek = refStart.daysInWeek;
   const names: { long: string; short: string; narrow: string }[] = [];
-  for (let i = 0; i < 7; i++) {
-    const date = refSunday.add({ days: i });
+  for (let i = 0; i < daysInWeek; i++) {
+    const date = refStart.add({ days: i });
     names.push({
       long: date.toLocaleString(locale, { weekday: "long" }),
       short: date.toLocaleString(locale, { weekday: "short" }),
@@ -463,4 +494,26 @@ export function getWeekdayNames(locale: string, T: TemporalNamespace) {
     });
   }
   return names;
+}
+
+/**
+ * Computes the ISO 8601 week number for a given date.
+ *
+ * The ISO week number is determined by the Thursday of the date's ISO week.
+ *
+ * @param date - The date to compute the week number for.
+ * @param T - Temporal namespace.
+ */
+export function getISOWeekNumber(
+  date: Temporal.PlainDate,
+  T: TemporalNamespace,
+): number {
+  // ISO dayOfWeek: 1=Mon...7=Sun
+  // Find the Thursday of this ISO week
+  const thursday = date.add({ days: 4 - date.dayOfWeek });
+  // Jan 4 is always in ISO week 1
+  const jan4 = T.PlainDate.from({ year: thursday.year, month: 1, day: 4 });
+  const jan4Thursday = jan4.add({ days: 4 - jan4.dayOfWeek });
+  const daysDiff = thursday.since(jan4Thursday, { largestUnit: "days" }).days;
+  return Math.round(daysDiff / 7) + 1;
 }

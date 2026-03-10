@@ -15,11 +15,16 @@ interface AnchorDatePickerProps<F extends ValueFormat> {
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;
+  readOnly?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   className?: string;
   components: Components<F>;
+  fixedWeeks?: boolean;
+  weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  autoFocus?: boolean;
+  onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
 export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
@@ -29,11 +34,16 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
   min,
   max,
   disabled,
+  readOnly,
   isDateDisabled,
   timeZone,
   locale,
   className,
   components: DP,
+  fixedWeeks,
+  weekStartDay,
+  autoFocus,
+  onMonthChange,
 }: AnchorDatePickerProps<F>) {
   return (
     <DP.Root
@@ -44,9 +54,13 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
       min={min}
       max={max}
       disabled={disabled}
+      readOnly={readOnly}
       isDateDisabled={isDateDisabled}
       timeZone={timeZone}
       locale={locale}
+      fixedWeeks={fixedWeeks}
+      weekStartDay={weekStartDay}
+      onMonthChange={onMonthChange}
     >
       <div className={cn("p-3", className)} data-testid="anchor-datepicker">
         <div className="flex items-center justify-between gap-1 px-1 pb-3">
@@ -82,6 +96,7 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
 
         <DP.Grid
           mode="grid"
+          autoFocus={autoFocus}
           className="grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]"
         >
           <DP.GridHeader
@@ -140,7 +155,9 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
                           "text-foreground hover:bg-accent hover:text-accent-foreground",
                           state.outsideMonth &&
                             "text-muted-foreground opacity-40",
-                          state.today && "bg-accent text-accent-foreground",
+                          state.today &&
+                            !state.selected &&
+                            "bg-accent text-accent-foreground",
                           state.selected &&
                             "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground",
                           state.disabled && "pointer-events-none opacity-50",

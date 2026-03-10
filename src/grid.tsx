@@ -21,8 +21,6 @@ import {
 } from "./context";
 import { computeNextFocusDate } from "./keyboard";
 import {
-  selectedToZdt,
-  sameCalendarDay,
   shouldMoveDomFocus,
   isInRange as isInRangeUtil,
 } from "./utils";
@@ -38,7 +36,6 @@ import type {
   DayCellTemplateProps,
   DayButtonProps,
   DayCellTemplateState,
-  DateValueObject,
   TemporalNamespace,
 } from "./types";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
@@ -50,10 +47,12 @@ function useGridKeyboard() {
     setFocusedDate,
     onSelect,
     disabled,
+    readOnly,
     isDateDisabled,
     minValue,
     maxValue,
     temporal: T,
+    weekStartDay,
   } = useDatePicker();
 
   return useCallback(
@@ -65,8 +64,10 @@ function useGridKeyboard() {
         minValue,
         maxValue,
         disabled,
+        readOnly,
         isDateDisabled,
         T,
+        weekStartDay,
       });
 
       if (result.action === "move") {
@@ -82,10 +83,12 @@ function useGridKeyboard() {
       setFocusedDate,
       onSelect,
       disabled,
+      readOnly,
       isDateDisabled,
       minValue,
       maxValue,
       T,
+      weekStartDay,
     ],
   );
 }
@@ -96,7 +99,7 @@ function computeDayCellState(
   orientation: GridOrientation,
   columnIndex: number,
   rootState: DayCellTemplateState["root"],
-  selected: DateValueObject | undefined,
+  selectedDates: TemporalPoly.PlainDate[],
   currentDateTime: { year: number; month: number },
   disabled: boolean,
   isDateDisabled: ((date: TemporalPoly.PlainDate) => boolean) | undefined,
@@ -104,14 +107,14 @@ function computeDayCellState(
   rangeStart: TemporalPoly.PlainDate | undefined,
   rangeEnd: TemporalPoly.PlainDate | undefined,
   tabTargetDate: TemporalPoly.PlainDate,
-  timeZone: string,
   T: TemporalNamespace,
-  selectionMode: "single" | "range",
+  selectionMode: "single" | "range" | "multiple",
 ): DayCellTemplateState & { isTabTarget: boolean } {
   const today = T.Now.plainDateISO();
-  const selZdt = selectedToZdt(selected, timeZone, T);
   const isSelected =
-    selectionMode === "single" && selZdt ? sameCalendarDay(selZdt, date) : false;
+    selectionMode !== "range"
+      ? selectedDates.some((d) => T.PlainDate.compare(d, date) === 0)
+      : false;
   const isCurrentMonth =
     date.year === currentDateTime.year && date.month === currentDateTime.month;
   const isToday = T.PlainDate.compare(date, today) === 0;
@@ -168,6 +171,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     render,
     mode: _mode,
     orientation,
+    autoFocus,
     children,
     ...otherProps
   } = props;
@@ -180,6 +184,20 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     setGridHasFocus,
   } = useDatePicker<F>();
   const handleKeyDown = useGridKeyboard();
+  const gridRef = useRef<HTMLTableElement>(null);
+
+  useEffect(() => {
+    if (autoFocus && gridRef.current) {
+      const target = gridRef.current.querySelector<HTMLElement>(
+        '[tabindex="0"]',
+      );
+      if (target) {
+        target.focus();
+        gridFocusedRef.current = true;
+        setGridHasFocus(true);
+      }
+    }
+  }, [autoFocus, gridFocusedRef, setGridHasFocus]);
 
   const resolvedOrientation = orientation ?? "vertical";
   const daysPerWeek = weeks[0]?.length ?? 7;
@@ -238,7 +256,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
   const el = useRender({
     defaultTagName: "table",
     render,
-    ref: ref ? [ref] : [],
+    ref: ref ? [ref, gridRef] : [gridRef],
     state,
     stateAttributesMapping: gridStateAttributesMapping,
     props: mergeProps<"table">(defaultProps, otherProps),
@@ -456,7 +474,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
   const weekData = useContext(WeekDataContext);
 
   const {
-    selected,
+    selectedDates,
     currentDateTime,
     focusedDate,
     rangeStart,
@@ -470,20 +488,23 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
     disabled,
     isDateDisabled,
     selectionMode,
-    timeZone,
     temporal: T,
+    weekStartDay,
   } = useDatePickerStable();
 
   const { orientation } = useContext(GridContext);
 
   if (dateProp) {
-    const colIdx = dateProp.dayOfWeek % 7;
+    const daysInWeek = dateProp.daysInWeek;
+    const colIdx =
+      ((dateProp.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+      daysInWeek;
     const derived = computeDayCellState(
       dateProp,
       orientation,
       colIdx,
       rootState,
-      selected,
+      selectedDates,
       currentDateTime,
       disabled,
       isDateDisabled,
@@ -491,7 +512,6 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       rangeStart,
       rangeEnd,
       tabTargetDate,
-      timeZone,
       T,
       selectionMode,
     );
@@ -510,13 +530,17 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
   return (
     <>
       {days.map((day, i) => {
-        const colIdx = perWeek ? i : day.dayOfWeek % 7;
+        const daysInWeek = day.daysInWeek;
+        const colIdx = perWeek
+          ? i
+          : ((day.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+            daysInWeek;
         const derived = computeDayCellState(
           day,
           orientation,
           colIdx,
           rootState,
-          selected,
+          selectedDates,
           currentDateTime,
           disabled,
           isDateDisabled,
@@ -524,7 +548,6 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           rangeStart,
           rangeEnd,
           tabTargetDate,
-          timeZone,
           T,
           selectionMode,
         );
@@ -560,6 +583,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
     setFocusedDate,
     locale,
     gridFocusedRef,
+    readOnly,
   } = useDatePickerStable();
 
   const internalRef = useRef<HTMLButtonElement>(null);
@@ -583,6 +607,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
     type: "button",
     tabIndex: isTabTarget ? 0 : -1,
     disabled: isDisabled,
+    "aria-readonly": readOnly || undefined,
     "aria-label": date.toLocaleString(locale, {
       weekday: "long",
       month: "long",
@@ -678,7 +703,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
   const { date, ...restProps } = props;
   const { orientation } = useContext(GridContext);
   const {
-    selected,
+    selectedDates,
     currentDateTime,
     focusedDate,
     rangeStart,
@@ -690,17 +715,19 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     disabled,
     isDateDisabled,
     selectionMode,
-    timeZone,
     temporal: T,
+    weekStartDay,
   } = useDatePickerStable();
 
-  const colIdx = date.dayOfWeek % 7;
+  const daysInWeek = date.daysInWeek;
+  const colIdx =
+    ((date.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
   const derived = computeDayCellState(
     date,
     orientation,
     colIdx,
     rootState,
-    selected,
+    selectedDates,
     currentDateTime,
     disabled,
     isDateDisabled,
@@ -708,7 +735,6 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     rangeStart,
     rangeEnd,
     tabTargetDate,
-    timeZone,
     T,
     selectionMode,
   );

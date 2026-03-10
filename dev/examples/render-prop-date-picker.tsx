@@ -23,11 +23,16 @@ interface RenderPropDatePickerProps<F extends ValueFormat> {
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;
+  readOnly?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   className?: string;
   components: Components<F>;
+  fixedWeeks?: boolean;
+  weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  autoFocus?: boolean;
+  onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
 export function RenderPropDatePicker<F extends ValueFormat>({
@@ -37,11 +42,16 @@ export function RenderPropDatePicker<F extends ValueFormat>({
   min,
   max,
   disabled,
+  readOnly,
   isDateDisabled,
   timeZone,
   locale,
   className,
   components: DP,
+  fixedWeeks,
+  weekStartDay,
+  autoFocus,
+  onMonthChange,
 }: RenderPropDatePickerProps<F>) {
   return (
     <DP.Root
@@ -51,9 +61,13 @@ export function RenderPropDatePicker<F extends ValueFormat>({
       min={min}
       max={max}
       disabled={disabled}
+      readOnly={readOnly}
       isDateDisabled={isDateDisabled}
       timeZone={timeZone}
       locale={locale}
+      fixedWeeks={fixedWeeks}
+      weekStartDay={weekStartDay}
+      onMonthChange={onMonthChange}
       render={(props, state) => (
         <div
           {...props}
@@ -124,6 +138,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
 
       <DP.Grid
         mode="grid"
+        autoFocus={autoFocus}
         className="grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]"
         data-testid="monthgrid"
       >

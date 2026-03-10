@@ -10,6 +10,15 @@ const ZonedDatePicker = createDatePicker("ZonedDateTime", {
   temporal: Temporal,
 });
 
+type ExampleId = "styled" | "horizontal" | "render-prop" | "anchor";
+
+const EXAMPLES: { value: ExampleId; label: string }[] = [
+  { value: "styled", label: "Styled DatePicker" },
+  { value: "horizontal", label: "Horizontal DatePicker" },
+  { value: "render-prop", label: "Render Prop DatePicker" },
+  { value: "anchor", label: "Anchor-Positioned DatePicker" },
+];
+
 const TIMEZONES = [
   "America/New_York",
   "America/Chicago",
@@ -61,6 +70,16 @@ const LOCALES = [
   { value: "sv-SE", label: "Svenska" },
 ];
 
+const WEEK_START_DAYS = [
+  { value: 0, label: "Sunday" },
+  { value: 1, label: "Monday" },
+  { value: 2, label: "Tuesday" },
+  { value: 3, label: "Wednesday" },
+  { value: 4, label: "Thursday" },
+  { value: 5, label: "Friday" },
+  { value: 6, label: "Saturday" },
+] as const;
+
 function formatTzLabel(tz: string): string {
   try {
     const now = Temporal.Now.zonedDateTimeISO(tz);
@@ -74,28 +93,34 @@ function formatTzLabel(tz: string): string {
 
 export default function App() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
+
+  // Example selector
+  const [example, setExample] = useState<ExampleId>("styled");
+
+  // Root props
+  const [selectionMode, setSelectionMode] = useState<
+    "single" | "range" | "multiple"
+  >("range");
   const [timeZone, setTimeZone] = useState(systemTz);
   const [locale, setLocale] = useState("en-US");
-  const [selectionMode, setSelectionMode] = useState<"single" | "range">(
-    "range",
+  const [disabled, setDisabled] = useState(false);
+  const [readOnly, setReadOnly] = useState(false);
+  const [fixedWeeks, setFixedWeeks] = useState(false);
+  const [weekStartDay, setWeekStartDay] = useState<0 | 1 | 2 | 3 | 4 | 5 | 6>(
+    0,
   );
+  const [autoFocus, setAutoFocus] = useState(false);
+
+  // Value state
   const [singleDate, setSingleDate] = useState<
     Temporal.ZonedDateTime | undefined
   >();
   const [range, setRange] = useState<DateRange<"ZonedDateTime"> | undefined>();
-  const [anchorRange, setAnchorRange] = useState<
-    DateRange<"ZonedDateTime"> | undefined
-  >();
-  const [selectedDate2, setSelectedDate2] = useState<
-    Temporal.ZonedDateTime | undefined
-  >();
-  const [selectedDate3, setSelectedDate3] = useState<
-    Temporal.ZonedDateTime | undefined
-  >();
-  const [horizontalRange, setHorizontalRange] = useState<
-    DateRange<"ZonedDateTime"> | undefined
+  const [multipleDates, setMultipleDates] = useState<
+    Temporal.ZonedDateTime[] | undefined
   >();
 
+  // Min/max
   const defaultMin = useMemo(
     () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ months: 7 }),
     [systemTz],
@@ -104,9 +129,11 @@ export default function App() {
     () => Temporal.Now.zonedDateTimeISO(systemTz).add({ months: 7 }),
     [systemTz],
   );
-
   const [minDate, setMinDate] = useState<Temporal.ZonedDateTime>(defaultMin);
   const [maxDate, setMaxDate] = useState<Temporal.ZonedDateTime>(defaultMax);
+
+  // Month change tracking
+  const [lastMonthChange, setLastMonthChange] = useState<string>("");
 
   const toInputValue = (zdt: Temporal.ZonedDateTime) =>
     zdt.toPlainDate().toString();
@@ -139,49 +166,31 @@ export default function App() {
     [timeZone],
   );
 
-  const rezoneDateValue = useCallback(
-    (
-      val: Temporal.ZonedDateTime | undefined,
-      newTz: string,
-    ): Temporal.ZonedDateTime | undefined => {
-      if (!val) return undefined;
-      return val.withTimeZone(newTz);
-    },
-    [],
-  );
+  const handleTimeZoneChange = useCallback((newTz: string) => {
+    setTimeZone(newTz);
+    setSingleDate((prev) => (prev ? prev.withTimeZone(newTz) : undefined));
+    setRange((prev) =>
+      prev
+        ? {
+            start: prev.start.withTimeZone(newTz),
+            end: prev.end.withTimeZone(newTz),
+          }
+        : undefined,
+    );
+    setMultipleDates((prev) =>
+      prev ? prev.map((d) => d.withTimeZone(newTz)) : undefined,
+    );
+  }, []);
 
-  const handleTimeZoneChange = useCallback(
-    (newTz: string) => {
-      setTimeZone(newTz);
-      setRange((prev) =>
-        prev
-          ? {
-              start: prev.start.withTimeZone(newTz),
-              end: prev.end.withTimeZone(newTz),
-            }
-          : undefined,
-      );
-      setAnchorRange((prev) =>
-        prev
-          ? {
-              start: prev.start.withTimeZone(newTz),
-              end: prev.end.withTimeZone(newTz),
-            }
-          : undefined,
-      );
-      setSingleDate((prev) => rezoneDateValue(prev, newTz));
-      setSelectedDate2((prev) => rezoneDateValue(prev, newTz));
-      setSelectedDate3((prev) => rezoneDateValue(prev, newTz));
-      setHorizontalRange((prev) =>
-        prev
-          ? {
-              start: prev.start.withTimeZone(newTz),
-              end: prev.end.withTimeZone(newTz),
-            }
-          : undefined,
-      );
+  const handleMonthChange = useCallback(
+    (month: Temporal.PlainYearMonth) => {
+      const formatted = month.toLocaleString(locale, {
+        month: "long",
+        year: "numeric",
+      });
+      setLastMonthChange(formatted);
     },
-    [rezoneDateValue],
+    [locale],
   );
 
   const tzOptions = useMemo(() => {
@@ -193,217 +202,312 @@ export default function App() {
 
   const formatDisplay = (val: Temporal.ZonedDateTime | undefined) =>
     val
-      ? `Selected: ${new Date(val.epochMilliseconds).toLocaleDateString(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" })} (${timeZone})`
-      : "Pick a date below";
+      ? new Date(val.epochMilliseconds).toLocaleDateString(locale, {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })
+      : "No selection";
 
   const formatRangeDisplay = (val: DateRange<"ZonedDateTime"> | undefined) =>
     val
-      ? `Range: ${new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" })} \u2013 ${new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
-      : "Pick a range below";
+      ? `${new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" })} \u2013 ${new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
+      : "No selection";
+
+  const formatMultipleDisplay = (val: Temporal.ZonedDateTime[] | undefined) =>
+    val && val.length > 0
+      ? val
+          .map((d) =>
+            new Date(d.epochMilliseconds).toLocaleDateString(locale, {
+              month: "short",
+              day: "numeric",
+            }),
+          )
+          .join(", ")
+      : "No selection";
+
+  const selectionDisplay =
+    selectionMode === "range"
+      ? formatRangeDisplay(range)
+      : selectionMode === "multiple"
+        ? formatMultipleDisplay(multipleDates)
+        : formatDisplay(singleDate);
 
   const selectClassName =
     "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
+  const labelClassName = "mb-1.5 block text-sm font-medium text-foreground";
+
+  const checkboxClassName =
+    "flex items-center gap-2 text-sm text-foreground cursor-pointer select-none";
+
+  // Common props shared by all examples
+  const commonProps = {
+    components: ZonedDatePicker,
+    min: minDate,
+    max: maxDate,
+    locale,
+    timeZone,
+    disabled,
+    readOnly,
+    fixedWeeks,
+    weekStartDay,
+    autoFocus,
+    onMonthChange: handleMonthChange,
+  } as const;
+
+  function renderExample() {
+    // Anchor example is always range mode
+    if (example === "anchor") {
+      return (
+        <AnchorDatePicker
+          {...commonProps}
+          value={range}
+          onValueChange={setRange}
+        />
+      );
+    }
+
+    // Render prop example is always single mode
+    if (example === "render-prop") {
+      return (
+        <RenderPropDatePicker
+          {...commonProps}
+          value={singleDate}
+          onValueChange={setSingleDate}
+        />
+      );
+    }
+
+    const Component =
+      example === "horizontal" ? StyledDatePickerHorizontal : StyledDatePicker;
+
+    if (selectionMode === "range") {
+      return (
+        <Component
+          {...commonProps}
+          selectionMode="range"
+          value={range}
+          onValueChange={setRange}
+        />
+      );
+    }
+    if (selectionMode === "multiple") {
+      return (
+        <Component
+          {...commonProps}
+          selectionMode="multiple"
+          value={multipleDates as any}
+          onValueChange={setMultipleDates as any}
+        />
+      );
+    }
+    return (
+      <Component
+        {...commonProps}
+        selectionMode="single"
+        value={singleDate}
+        onValueChange={setSingleDate}
+      />
+    );
+  }
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-6">
-      <div className="flex w-full max-w-2xl gap-4">
-        <div className="flex-1">
-          <label
-            htmlFor="timezone-select"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Timezone
-          </label>
-          <select
-            id="timezone-select"
-            data-testid="select-timezone"
-            value={timeZone}
-            onChange={(e) => handleTimeZoneChange(e.target.value)}
-            className={selectClassName}
-          >
-            {tzOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
+    <div className="flex min-h-screen flex-col items-center bg-background p-6">
+      <div className="flex w-full max-w-4xl gap-8">
+        {/* Controls panel */}
+        <div className="flex w-64 shrink-0 flex-col gap-4">
+          <h2 className="text-lg font-semibold text-foreground">Controls</h2>
+
+          {/* Example selector */}
+          <div>
+            <label htmlFor="example-select" className={labelClassName}>
+              Example
+            </label>
+            <select
+              id="example-select"
+              value={example}
+              onChange={(e) => setExample(e.target.value as ExampleId)}
+              className={selectClassName}
+            >
+              {EXAMPLES.map((ex) => (
+                <option key={ex.value} value={ex.value}>
+                  {ex.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Selection mode */}
+          <div>
+            <label htmlFor="selection-mode" className={labelClassName}>
+              Selection Mode
+            </label>
+            <select
+              id="selection-mode"
+              value={selectionMode}
+              onChange={(e) =>
+                setSelectionMode(
+                  e.target.value as "single" | "range" | "multiple",
+                )
+              }
+              className={selectClassName}
+            >
+              <option value="single">Single</option>
+              <option value="range">Range</option>
+              <option value="multiple">Multiple</option>
+            </select>
+          </div>
+
+          {/* Timezone */}
+          <div>
+            <label htmlFor="timezone-select" className={labelClassName}>
+              Timezone
+            </label>
+            <select
+              id="timezone-select"
+              value={timeZone}
+              onChange={(e) => handleTimeZoneChange(e.target.value)}
+              className={selectClassName}
+            >
+              {tzOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Locale */}
+          <div>
+            <label htmlFor="locale-select" className={labelClassName}>
+              Locale
+            </label>
+            <select
+              id="locale-select"
+              value={locale}
+              onChange={(e) => setLocale(e.target.value)}
+              className={selectClassName}
+            >
+              {LOCALES.map((loc) => (
+                <option key={loc.value} value={loc.value}>
+                  {loc.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Week start day */}
+          <div>
+            <label htmlFor="week-start-day" className={labelClassName}>
+              Week Start Day
+            </label>
+            <select
+              id="week-start-day"
+              value={weekStartDay}
+              onChange={(e) =>
+                setWeekStartDay(
+                  Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+                )
+              }
+              className={selectClassName}
+            >
+              {WEEK_START_DAYS.map((d) => (
+                <option key={d.value} value={d.value}>
+                  {d.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Min/Max dates */}
+          <div className="flex gap-2">
+            <div className="flex-1">
+              <label htmlFor="min-date" className={labelClassName}>
+                Min
+              </label>
+              <input
+                id="min-date"
+                type="date"
+                value={toInputValue(minDate)}
+                onChange={(e) => handleMinChange(e.target.value)}
+                className={selectClassName}
+              />
+            </div>
+            <div className="flex-1">
+              <label htmlFor="max-date" className={labelClassName}>
+                Max
+              </label>
+              <input
+                id="max-date"
+                type="date"
+                value={toInputValue(maxDate)}
+                onChange={(e) => handleMaxChange(e.target.value)}
+                className={selectClassName}
+              />
+            </div>
+          </div>
+
+          {/* Boolean toggles */}
+          <div className="flex flex-col gap-2 border-t border-input pt-3">
+            <label className={checkboxClassName}>
+              <input
+                type="checkbox"
+                checked={disabled}
+                onChange={(e) => setDisabled(e.target.checked)}
+              />
+              Disabled
+            </label>
+            <label className={checkboxClassName}>
+              <input
+                type="checkbox"
+                checked={readOnly}
+                onChange={(e) => setReadOnly(e.target.checked)}
+              />
+              Read Only
+            </label>
+            <label className={checkboxClassName}>
+              <input
+                type="checkbox"
+                checked={fixedWeeks}
+                onChange={(e) => setFixedWeeks(e.target.checked)}
+              />
+              Fixed Weeks (6 rows)
+            </label>
+            <label className={checkboxClassName}>
+              <input
+                type="checkbox"
+                checked={autoFocus}
+                onChange={(e) => setAutoFocus(e.target.checked)}
+              />
+              Auto Focus
+            </label>
+          </div>
+
+          {/* State readout */}
+          <div className="border-t border-input pt-3">
+            <h3 className="mb-2 text-sm font-semibold text-foreground">
+              State
+            </h3>
+            <div className="text-xs text-muted-foreground">
+              <div className="mb-1">
+                <span className="font-medium">Selection:</span>{" "}
+                {selectionDisplay}
+              </div>
+              {lastMonthChange && (
+                <div>
+                  <span className="font-medium">Last month change:</span>{" "}
+                  {lastMonthChange}
+                </div>
+              )}
+            </div>
+          </div>
         </div>
 
-        <div className="flex-1">
-          <label
-            htmlFor="locale-select"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Locale
-          </label>
-          <select
-            id="locale-select"
-            data-testid="select-locale"
-            value={locale}
-            onChange={(e) => setLocale(e.target.value)}
-            className={selectClassName}
-          >
-            {LOCALES.map((loc) => (
-              <option key={loc.value} value={loc.value}>
-                {loc.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="flex w-full max-w-2xl gap-4">
-        <div className="flex-1">
-          <label
-            htmlFor="min-date"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Min Date
-          </label>
-          <input
-            id="min-date"
-            type="date"
-            data-testid="input-min-date"
-            value={toInputValue(minDate)}
-            onChange={(e) => handleMinChange(e.target.value)}
-            className={selectClassName}
-          />
-        </div>
-
-        <div className="flex-1">
-          <label
-            htmlFor="max-date"
-            className="mb-1.5 block text-sm font-medium text-foreground"
-          >
-            Max Date
-          </label>
-          <input
-            id="max-date"
-            type="date"
-            data-testid="input-max-date"
-            value={toInputValue(maxDate)}
-            onChange={(e) => handleMaxChange(e.target.value)}
-            className={selectClassName}
-          />
-        </div>
-      </div>
-
-      <div className="flex w-full max-w-2xl items-center gap-3">
-        <span className="text-sm font-medium text-foreground">
-          Selection Mode:
-        </span>
-        <button
-          type="button"
-          data-testid="toggle-selection-mode"
-          onClick={() =>
-            setSelectionMode((m) => (m === "single" ? "range" : "single"))
-          }
-          className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors ${selectionMode === "range" ? "bg-primary" : "bg-input"}`}
-          role="switch"
-          aria-checked={selectionMode === "range"}
-          aria-label="Toggle range selection"
-        >
-          <span
-            className={`pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform ${selectionMode === "range" ? "translate-x-5" : "translate-x-0"}`}
-          />
-        </button>
-        <span
-          className="text-sm text-muted-foreground"
-          data-testid="text-selection-mode"
-        >
-          {selectionMode === "range" ? "Range" : "Single"}
-        </span>
-      </div>
-
-      <div className="flex flex-wrap items-start justify-center gap-4">
-        <div className="w-min">
-          Styled DatePicker
-          {selectionMode === "range"
-            ? formatRangeDisplay(range)
-            : formatDisplay(singleDate)}
-          {selectionMode === "range" ? (
-            <StyledDatePicker
-              components={ZonedDatePicker}
-              selectionMode="range"
-              value={range}
-              onValueChange={setRange}
-              min={minDate}
-              max={maxDate}
-              locale={locale}
-              timeZone={timeZone}
-            />
-          ) : (
-            <StyledDatePicker
-              components={ZonedDatePicker}
-              selectionMode="single"
-              value={singleDate}
-              onValueChange={setSingleDate}
-              min={minDate}
-              max={maxDate}
-              locale={locale}
-              timeZone={timeZone}
-            />
-          )}
-        </div>
-
-        <div className="w-min">
-          Anchor-Positioned DatePicker
-          {formatRangeDisplay(anchorRange)}
-          <AnchorDatePicker
-            components={ZonedDatePicker}
-            value={anchorRange}
-            onValueChange={setAnchorRange}
-            min={minDate}
-            max={maxDate}
-            locale={locale}
-            timeZone={timeZone}
-          />
-        </div>
-
-        <div className="w-min">
-          Render Prop DatePicker
-          {formatDisplay(selectedDate2)}
-          <RenderPropDatePicker
-            components={ZonedDatePicker}
-            value={selectedDate2}
-            onValueChange={setSelectedDate2}
-            min={minDate}
-            max={maxDate}
-            locale={locale}
-            timeZone={timeZone}
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-wrap items-start justify-center gap-4">
-        <div>
-          Horizontal DatePicker
-          {selectionMode === "range"
-            ? formatRangeDisplay(horizontalRange)
-            : formatDisplay(selectedDate3)}
-          {selectionMode === "range" ? (
-            <StyledDatePickerHorizontal
-              components={ZonedDatePicker}
-              selectionMode="range"
-              value={horizontalRange}
-              onValueChange={setHorizontalRange}
-              min={minDate}
-              max={maxDate}
-              locale={locale}
-              timeZone={timeZone}
-            />
-          ) : (
-            <StyledDatePickerHorizontal
-              components={ZonedDatePicker}
-              selectionMode="single"
-              value={selectedDate3}
-              onValueChange={setSelectedDate3}
-              min={minDate}
-              max={maxDate}
-              locale={locale}
-              timeZone={timeZone}
-            />
-          )}
+        {/* Calendar area */}
+        <div className="flex flex-1 flex-col items-center pt-8">
+          {renderExample()}
         </div>
       </div>
     </div>

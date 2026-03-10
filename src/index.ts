@@ -16,12 +16,14 @@ export {
 } from "./navigation";
 export { SelectedRange } from "./selected-range";
 export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
+export { WeekNumberCell, WeekNumberHeader } from "./week-number";
 export { createDatePicker, type Components } from "./factory";
 export {
   useDatePicker,
   useDatePickerStable,
   useDatePickerState,
   DayCellDataContext,
+  WeekDataContext,
 } from "./context";
 
 export type {
@@ -65,6 +67,10 @@ export type {
   TypedRootProps,
   TemporalNamespace,
   CreateDatePickerOptions,
+  WeekNumberCellProps,
+  WeekNumberCellState,
+  WeekNumberHeaderProps,
+  WeekNumberHeaderState,
   DatePickerStableContextValue,
   DatePickerStateContextValue,
   DatePickerContextValue,

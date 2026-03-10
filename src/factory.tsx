@@ -18,6 +18,7 @@ import {
 } from "./navigation";
 import { SelectedRange } from "./selected-range";
 import { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
+import { WeekNumberCell, WeekNumberHeader } from "./week-number";
 import type { ValueFormat, CreateDatePickerOptions } from "./types";
 
 /**
@@ -54,6 +55,8 @@ export function createDatePicker<F extends ValueFormat>(
     MonthYearString: MonthYearString<F>,
     PrevMonthButton: PrevMonthButton<F>,
     NextMonthButton: NextMonthButton<F>,
+    WeekNumberCell: WeekNumberCell<F>,
+    WeekNumberHeader: WeekNumberHeader<F>,
   };
 }
 

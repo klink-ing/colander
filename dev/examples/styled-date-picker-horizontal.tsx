@@ -1,4 +1,4 @@
-import { Temporal } from "@js-temporal/polyfill";
+import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   RawValueForFormat,
@@ -23,11 +23,16 @@ type StyledDatePickerHorizontalProps<F extends ValueFormat> = {
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;
+  readOnly?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   className?: string;
   components: Components<F>;
+  fixedWeeks?: boolean;
+  weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  autoFocus?: boolean;
+  onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 } & (
   | {
       selectionMode?: "single";
@@ -41,6 +46,12 @@ type StyledDatePickerHorizontalProps<F extends ValueFormat> = {
       defaultValue?: DateRange<F>;
       onValueChange?: (value: DateRange<F> | undefined) => void;
     }
+  | {
+      selectionMode: "multiple";
+      value?: RawValueForFormat<F>[];
+      defaultValue?: RawValueForFormat<F>[];
+      onValueChange?: (value: RawValueForFormat<F>[]) => void;
+    }
 );
 
 export function StyledDatePickerHorizontal<
@@ -50,11 +61,16 @@ export function StyledDatePickerHorizontal<
     min,
     max,
     disabled,
+    readOnly,
     isDateDisabled,
     timeZone,
     locale,
     className,
     components: DP,
+    fixedWeeks,
+    weekStartDay,
+    autoFocus,
+    onMonthChange,
     ...selectionProps
   } = props;
   return (
@@ -63,9 +79,13 @@ export function StyledDatePickerHorizontal<
       min={min}
       max={max}
       disabled={disabled}
+      readOnly={readOnly}
       isDateDisabled={isDateDisabled}
       timeZone={timeZone}
       locale={locale}
+      fixedWeeks={fixedWeeks}
+      weekStartDay={weekStartDay}
+      onMonthChange={onMonthChange}
     >
       <div
         className={cn("w-fit p-3", className)}
@@ -79,6 +99,7 @@ export function StyledDatePickerHorizontal<
 
         <StyledGrid
           orientation="horizontal"
+          autoFocus={autoFocus}
           className="w-fit auto-cols-auto gap-x-1 grid-flow-col grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)]"
         >
           <StyledGridHeader

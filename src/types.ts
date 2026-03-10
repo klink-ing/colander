@@ -67,8 +67,9 @@ export interface DatePickerStableContextValue {
   goToPrevMonth: () => void;
   setGridHasFocus: (v: boolean) => void;
   setGridLabelId: (id: string | undefined) => void;
-  selectionMode: "single" | "range";
+  selectionMode: "single" | "range" | "multiple";
   disabled: boolean;
+  readOnly: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   minValue?: Temporal.PlainDate;
   maxValue?: Temporal.PlainDate;
@@ -76,11 +77,13 @@ export interface DatePickerStableContextValue {
   locale: string;
   temporal: TemporalNamespace;
   gridFocusedRef: React.RefObject<boolean>;
+  weekStartDay: number;
 }
 
 /** Volatile state that changes on interaction. */
 export interface DatePickerStateContextValue {
   selected: DateValueObject | undefined;
+  selectedDates: Temporal.PlainDate[];
   rangeStart: Temporal.PlainDate | undefined;
   rangeEnd: Temporal.PlainDate | undefined;
   focusedDate: Temporal.PlainDate;
@@ -99,12 +102,14 @@ export interface DatePickerContextValue
 export type RootState<F extends ValueFormat = ValueFormat> = {
   hasSelection: boolean;
   selected: RawValueForFormat<F> | undefined;
+  selectedDates: RawValueForFormat<F>[];
   rangeStart: RawValueForFormat<F> | undefined;
   rangeEnd: RawValueForFormat<F> | undefined;
   focused: Temporal.PlainDate;
   viewing: Temporal.PlainYearMonth;
   timeZone: string;
   locale: string;
+  readOnly: boolean;
 };
 
 interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
@@ -112,10 +117,14 @@ interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;
+  readOnly?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   timeZone?: string;
   locale?: string;
   temporal?: TemporalNamespace;
+  weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  fixedWeeks?: boolean;
+  onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
 interface SingleSelectionProps<F extends ValueFormat = ValueFormat> {
@@ -132,13 +141,26 @@ interface RangeSelectionProps<F extends ValueFormat = ValueFormat> {
   onValueChange?: (value: DateRange<F> | undefined) => void;
 }
 
+interface MultipleSelectionProps<F extends ValueFormat = ValueFormat> {
+  selectionMode: "multiple";
+  value?: RawValueForFormat<F>[];
+  defaultValue?: RawValueForFormat<F>[];
+  onValueChange?: (value: RawValueForFormat<F>[]) => void;
+}
+
 export type RootOwnProps<F extends ValueFormat = ValueFormat> =
-  RootOwnPropsBase<F> & (SingleSelectionProps<F> | RangeSelectionProps<F>);
+  RootOwnPropsBase<F> &
+    (
+      | SingleSelectionProps<F>
+      | RangeSelectionProps<F>
+      | MultipleSelectionProps<F>
+    );
 
 type AllRootOwnPropKeys =
   | keyof RootOwnPropsBase
   | keyof SingleSelectionProps
-  | keyof RangeSelectionProps;
+  | keyof RangeSelectionProps
+  | keyof MultipleSelectionProps;
 
 export type RootProps<F extends ValueFormat = ValueFormat> = Omit<
   useRender.ComponentProps<"div", RootState<F>>,
@@ -243,6 +265,7 @@ export type GridState<F extends ValueFormat = ValueFormat> = {
 export interface GridOwnProps {
   mode?: "grid";
   orientation?: GridOrientation;
+  autoFocus?: boolean;
 }
 
 export type GridProps<F extends ValueFormat = ValueFormat> =
@@ -331,6 +354,21 @@ export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> = Omit<
   RangeDragHandleProps<F>,
   "edge"
 >;
+
+export type WeekNumberCellState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
+  weekNumber: number;
+};
+
+export type WeekNumberCellProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", WeekNumberCellState<F>>;
+
+export type WeekNumberHeaderState<F extends ValueFormat = ValueFormat> = {
+  root: RootState<F>;
+};
+
+export type WeekNumberHeaderProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"th", WeekNumberHeaderState<F>>;
 
 export type TypedRootProps<F extends ValueFormat> = Omit<
   RootProps<F>,

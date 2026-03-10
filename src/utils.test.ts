@@ -10,7 +10,7 @@ import {
   getMonthWeeks,
   zdtToNativeDate,
   sameCalendarDay,
-  getReferenceSunday,
+  getReferenceWeekStart,
   computeAdjacentMonth,
   focusedDateForMonth,
   resolveFocusTarget,
@@ -18,6 +18,7 @@ import {
   isInRange,
   computeWeekRangeInfo,
   getWeekdayNames,
+  getISOWeekNumber,
 } from "./utils";
 import type { TemporalNamespace } from "./types";
 
@@ -329,13 +330,25 @@ describe("sameCalendarDay", () => {
   });
 });
 
-describe("getReferenceSunday", () => {
-  it("returns 2024-01-07", () => {
-    expect(getReferenceSunday(T).toString()).toBe("2024-01-07");
+describe("getReferenceWeekStart", () => {
+  it("returns 2024-01-07 (Sunday) with default weekStartDay", () => {
+    expect(getReferenceWeekStart(T).toString()).toBe("2024-01-07");
   });
 
-  it("is actually a Sunday (ISO dayOfWeek 7)", () => {
-    expect(getReferenceSunday(T).dayOfWeek).toBe(7);
+  it("default is actually a Sunday (ISO dayOfWeek 7)", () => {
+    expect(getReferenceWeekStart(T).dayOfWeek).toBe(7);
+  });
+
+  it("returns Monday when weekStartDay=1", () => {
+    const ref = getReferenceWeekStart(T, 1);
+    expect(ref.dayOfWeek).toBe(1);
+    expect(ref.toString()).toBe("2024-01-08");
+  });
+
+  it("returns Saturday when weekStartDay=6", () => {
+    const ref = getReferenceWeekStart(T, 6);
+    expect(ref.dayOfWeek).toBe(6);
+    expect(ref.toString()).toBe("2024-01-13");
   });
 });
 
@@ -377,6 +390,18 @@ describe("getWeekdayNames", () => {
   it("produces localized names for a non-English locale", () => {
     const names = getWeekdayNames("de-DE", T);
     expect(names[0].long).toBe("Sonntag");
+  });
+
+  it("starts with Monday when weekStartDay=1", () => {
+    const names = getWeekdayNames("en-US", T, 1);
+    expect(names[0].long).toBe("Monday");
+    expect(names[6].long).toBe("Sunday");
+  });
+
+  it("starts with Saturday when weekStartDay=6", () => {
+    const names = getWeekdayNames("en-US", T, 6);
+    expect(names[0].long).toBe("Saturday");
+    expect(names[1].long).toBe("Sunday");
   });
 });
 
@@ -470,6 +495,59 @@ describe("getMonthWeeks", () => {
   it("February 2026 has exactly 4 weeks (starts on Sunday)", () => {
     const weeks = getMonthWeeks(2026, 2, T);
     expect(weeks.length).toBe(4);
+  });
+
+  it("Monday-start: starts each week on Monday (dayOfWeek === 1 in ISO)", () => {
+    const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 1 });
+    for (const week of weeks) {
+      expect(week[0].dayOfWeek).toBe(1);
+    }
+  });
+
+  it("Monday-start: ends each week on Sunday (dayOfWeek === 7 in ISO)", () => {
+    const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 1 });
+    for (const week of weeks) {
+      expect(week[6].dayOfWeek).toBe(7);
+    }
+  });
+
+  it("Saturday-start: starts each week on Saturday (dayOfWeek === 6 in ISO)", () => {
+    const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 6 });
+    for (const week of weeks) {
+      expect(week[0].dayOfWeek).toBe(6);
+    }
+  });
+
+  it("Saturday-start: ends each week on Friday (dayOfWeek === 5 in ISO)", () => {
+    const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 6 });
+    for (const week of weeks) {
+      expect(week[6].dayOfWeek).toBe(5);
+    }
+  });
+
+  it("fixedWeeks: always returns 6 weeks", () => {
+    for (let month = 1; month <= 12; month++) {
+      const weeks = getMonthWeeks(2026, month, T, { fixedWeeks: true });
+      expect(weeks.length).toBe(6);
+    }
+  });
+
+  it("fixedWeeks: February 2026 (4 weeks normally) returns 6 weeks", () => {
+    const weeks = getMonthWeeks(2026, 2, T, { fixedWeeks: true });
+    expect(weeks.length).toBe(6);
+  });
+
+  it("fixedWeeks + Monday-start: always returns 6 weeks with Monday starts", () => {
+    for (let month = 1; month <= 12; month++) {
+      const weeks = getMonthWeeks(2026, month, T, {
+        weekStartDay: 1,
+        fixedWeeks: true,
+      });
+      expect(weeks.length).toBe(6);
+      for (const week of weeks) {
+        expect(week[0].dayOfWeek).toBe(1);
+      }
+    }
   });
 
   it("month navigation + focus: simulates prev/next and verifies a focusable day exists", () => {
@@ -808,5 +886,24 @@ describe("computeWeekRangeInfo", () => {
       T,
     );
     expect(result.active).toBe(false);
+  });
+});
+
+describe("getISOWeekNumber", () => {
+  it.each<{
+    description: string;
+    d: string;
+    expected: number;
+  }>([
+    { description: "Jan 1, 2026 (Thursday) → week 1", d: "2026-01-01", expected: 1 },
+    { description: "Jan 4, 2026 (Sunday) → week 1", d: "2026-01-04", expected: 1 },
+    { description: "Jan 5, 2026 (Monday) → week 2", d: "2026-01-05", expected: 2 },
+    { description: "Dec 31, 2026 (Thursday) → week 53", d: "2026-12-31", expected: 53 },
+    { description: "Dec 28, 2025 (Sunday) → week 52 of 2025", d: "2025-12-28", expected: 52 },
+    { description: "Dec 29, 2025 (Monday) → week 1 of 2026", d: "2025-12-29", expected: 1 },
+    { description: "Mar 15, 2026 (Sunday) → week 11", d: "2026-03-15", expected: 11 },
+    { description: "Jun 1, 2026 (Monday) → week 23", d: "2026-06-01", expected: 23 },
+  ])("$description", ({ d, expected }) => {
+    expect(getISOWeekNumber(date(d), T)).toBe(expected);
   });
 });
