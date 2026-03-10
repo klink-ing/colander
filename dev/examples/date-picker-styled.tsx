@@ -261,12 +261,12 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       className={cn(
         "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
         "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        "text-foreground hover:bg-accent hover:text-accent-foreground",
-        "data-[outside-month]:text-muted-foreground data-[outside-month]:opacity-40",
-        "data-[today]:bg-accent data-[today]:text-accent-foreground",
-        "data-[selected]:bg-primary data-[selected]:text-primary-foreground data-[selected]:hover:bg-primary data-[selected]:hover:text-primary-foreground",
-        "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-        "isolate select-none data-[in-range]:data-[outside-month]:text-primary-foreground data-[in-range]:text-primary-foreground data-[in-range]:data-[outside-month]:opacity-70",
+        "text-foreground hover:bg-accent hover:text-accent-foreground hover:data-in-range:bg-white/20",
+        "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
+        "data-today:bg-accent  data-today:data-in-range:bg-white/10",
+        "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground",
+        "data-disabled:pointer-events-none data-disabled:opacity-50",
+        "isolate select-none data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground data-in-range:data-outside-month:opacity-70",
         className,
       )}
       render={({ children, ...props }, state) => {
@@ -274,7 +274,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
           <button {...props}>
             <div
               className={cn(
-                "absolute -z-0 hidden aspect-square size-[1.5em] rounded-full bg-red-500 group-data-[range-boundary]:block",
+                "absolute z-0 hidden aspect-square size-[1.5em] rounded-full bg-red-500 group-data-range-boundary:block",
               )}
             />
             <div className="isolate">{children}</div>
@@ -323,6 +323,7 @@ function useDragHandleDnD(
       : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
 
   const [dragging, setDragging] = useState(false);
+  const [anyHandleDragging, setAnyHandleDragging] = useState(false);
   const draggingRef = useRef(false);
   const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
   rangeRef.current = { start: rangeStart, end: rangeEnd };
@@ -363,6 +364,14 @@ function useDragHandleDnD(
       }
     };
   }, [isActive, edge, handleRef]);
+
+  useEffect(() => {
+    return monitorForElements({
+      canMonitor: ({ source }) => source.data.type === "date-range-handle",
+      onDragStart: () => setAnyHandleDragging(true),
+      onDrop: () => setAnyHandleDragging(false),
+    });
+  }, []);
 
   useEffect(() => {
     if (!dragging) return;
@@ -429,7 +438,7 @@ function useDragHandleDnD(
     }
   }, [dragging]);
 
-  return { dragging };
+  return { dragging, anyHandleDragging };
 }
 
 export function StyledRangeStartDragHandle<
@@ -441,7 +450,7 @@ export function StyledRangeStartDragHandle<
   ref?: React.Ref<HTMLSpanElement>;
 }) {
   const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging } = useDragHandleDnD("start", handleRef);
+  const { dragging, anyHandleDragging } = useDragHandleDnD("start", handleRef);
   const {
     onSelect,
     setFocusedDate,
@@ -481,8 +490,11 @@ export function StyledRangeStartDragHandle<
       style={{
         touchAction: "none",
         cursor: dragging ? "grabbing" : "grab",
+        pointerEvents: anyHandleDragging ? "none" : undefined,
       }}
       render={(renderProps, state) => (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: drag handle, not a button
+        // biome-ignore lint/a11y/noStaticElementInteractions: drag handle hit area
         <span
           {...renderProps}
           tabIndex={-1}
@@ -509,7 +521,7 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
   ref?: React.Ref<HTMLSpanElement>;
 }) {
   const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging } = useDragHandleDnD("end", handleRef);
+  const { dragging, anyHandleDragging } = useDragHandleDnD("end", handleRef);
   const {
     onSelect,
     setFocusedDate,
@@ -549,8 +561,11 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
       style={{
         touchAction: "none",
         cursor: dragging ? "grabbing" : "grab",
+        pointerEvents: anyHandleDragging ? "none" : undefined,
       }}
       render={(renderProps, state) => (
+        // biome-ignore lint/a11y/useKeyWithClickEvents: drag handle, not a button
+        // biome-ignore lint/a11y/noStaticElementInteractions: drag handle hit area
         <span
           {...renderProps}
           tabIndex={-1}

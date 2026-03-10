@@ -106,10 +106,12 @@ function computeDayCellState(
   tabTargetDate: TemporalPoly.PlainDate,
   timeZone: string,
   T: TemporalNamespace,
+  selectionMode: "single" | "range",
 ): DayCellTemplateState & { isTabTarget: boolean } {
   const today = T.Now.plainDateISO();
   const selZdt = selectedToZdt(selected, timeZone, T);
-  const isSelected = selZdt ? sameCalendarDay(selZdt, date) : false;
+  const isSelected =
+    selectionMode === "single" && selZdt ? sameCalendarDay(selZdt, date) : false;
   const isCurrentMonth =
     date.year === currentDateTime.year && date.month === currentDateTime.month;
   const isToday = T.PlainDate.compare(date, today) === 0;
@@ -467,6 +469,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
   const {
     disabled,
     isDateDisabled,
+    selectionMode,
     timeZone,
     temporal: T,
   } = useDatePickerStable();
@@ -490,6 +493,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       tabTargetDate,
       timeZone,
       T,
+      selectionMode,
     );
     return (
       <DayCellInstanceInner<F>
@@ -522,6 +526,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           tabTargetDate,
           timeZone,
           T,
+          selectionMode,
         );
         return (
           <DayCellInstanceInner<F>
@@ -684,6 +689,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
   const {
     disabled,
     isDateDisabled,
+    selectionMode,
     timeZone,
     temporal: T,
   } = useDatePickerStable();
@@ -704,6 +710,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     tabTargetDate,
     timeZone,
     T,
+    selectionMode,
   );
 
   return (
