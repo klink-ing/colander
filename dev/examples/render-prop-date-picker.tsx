@@ -17,9 +17,9 @@ import {
 } from "./date-picker-styled";
 
 interface RenderPropDatePickerProps<F extends ValueFormat> {
-  value?: RawValueForFormat<F>;
+  value?: RawValueForFormat<F> | null;
   defaultValue?: RawValueForFormat<F>;
-  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+  onValueChange?: (value: RawValueForFormat<F> | null) => void;
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;

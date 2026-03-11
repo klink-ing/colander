@@ -53,26 +53,26 @@ type UseRootStateParams<F extends ValueFormat> = UseRootStateParamsBase<F> &
   (
     | {
         selectionMode: "single";
-        value?: RawValueForFormat<F>;
+        value?: RawValueForFormat<F> | null;
         defaultValue?: RawValueForFormat<F>;
         onValueChange?: (
-          value: RawValueForFormat<F> | undefined,
-          meta: ValueChangeMeta<RawValueForFormat<F> | undefined>,
+          value: RawValueForFormat<F> | null,
+          meta: ValueChangeMeta<RawValueForFormat<F> | null>,
         ) => void;
       }
     | {
         selectionMode: "range";
-        value?: DateRange<F>;
+        value?: DateRange<F> | null;
         defaultValue?: DateRange<F>;
         onValueChange?: (
-          value: DateRange<F> | undefined,
-          meta: ValueChangeMeta<DateRange<F> | undefined>,
+          value: DateRange<F> | null,
+          meta: ValueChangeMeta<DateRange<F> | null>,
         ) => void;
         insideRangeAction?: InsideRangeAction;
       }
     | {
         selectionMode: "multiple";
-        value?: RawValueForFormat<F>[];
+        value?: RawValueForFormat<F>[] | null;
         defaultValue?: RawValueForFormat<F>[];
         onValueChange?: (
           value: RawValueForFormat<F>[],
@@ -144,31 +144,40 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
   const isRange = selectionMode === "range";
   const isMultiple = selectionMode === "multiple";
 
-  const singleValue: RawValueForFormat<F> | undefined =
+  // Extract mode-specific value/default, preserving `null` for controlled-empty.
+  const singleValue: RawValueForFormat<F> | null | undefined =
     !isRange && !isMultiple
-      ? (valueProp as RawValueForFormat<F> | undefined)
+      ? (valueProp as RawValueForFormat<F> | null | undefined)
       : undefined;
   const singleDefault: RawValueForFormat<F> | undefined =
     !isRange && !isMultiple
       ? (defaultValueProp as RawValueForFormat<F> | undefined)
       : undefined;
 
-  const rangeValue: DateRange<F> | undefined =
-    isRange && valueProp != null && isDateRange<F>(valueProp as any)
-      ? (valueProp as DateRange<F>)
-      : undefined;
+  const rangeValue: DateRange<F> | null | undefined = isRange
+    ? valueProp === null
+      ? null
+      : valueProp != null && isDateRange<F>(valueProp as any)
+        ? (valueProp as DateRange<F>)
+        : undefined
+    : undefined;
   const rangeDefault: DateRange<F> | undefined =
     isRange && defaultValueProp != null && isDateRange<F>(defaultValueProp as any)
       ? (defaultValueProp as DateRange<F>)
       : undefined;
 
-  const multipleValue: RawValueForFormat<F>[] | undefined =
-    isMultiple && Array.isArray(valueProp) ? valueProp : undefined;
+  const multipleValue: RawValueForFormat<F>[] | null | undefined = isMultiple
+    ? valueProp === null
+      ? null
+      : Array.isArray(valueProp)
+        ? valueProp
+        : undefined
+    : undefined;
   const multipleDefault: RawValueForFormat<F>[] | undefined =
     isMultiple && Array.isArray(defaultValueProp) ? defaultValueProp : undefined;
 
   const taggedValue = useMemo(
-    () => tagRaw(singleValue, resolvedFormat),
+    () => tagRaw(singleValue ?? undefined, resolvedFormat),
     [singleValue, resolvedFormat],
   );
 
@@ -222,16 +231,22 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
 
   const controlledDates = useMemo<Temporal.PlainDate[] | undefined>(() => {
     if (isMultiple) {
-      if (multipleValue)
-        return sortDates(multipleValue.map(rawToPlain));
+      if (multipleValue === null) return [];
+      if (multipleValue) return sortDates(multipleValue.map(rawToPlain));
       return undefined;
     }
-    if (rangeValue)
-      return [rawToPlain(rangeValue.start), rawToPlain(rangeValue.end)];
-    if (singleValue != null) return [rawToPlain(singleValue)];
+    if (isRange) {
+      if (rangeValue === null) return [];
+      if (rangeValue)
+        return [rawToPlain(rangeValue.start), rawToPlain(rangeValue.end)];
+      return undefined;
+    }
+    if (singleValue === null) return [];
+    if (singleValue !== undefined) return [rawToPlain(singleValue)];
     return undefined;
   }, [
     isMultiple,
+    isRange,
     multipleValue,
     rangeValue,
     singleValue,
@@ -253,14 +268,10 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
   const [internalDates, setInternalDates] =
     useState<Temporal.PlainDate[]>(defaultDates);
 
-  const isControlled = isMultiple
-    ? multipleValue != null
-    : isRange
-      ? rangeValue != null
-      : singleValue != null;
-  const committedDates = isControlled
-    ? (controlledDates ?? [])
-    : internalDates;
+  // `controlledDates === undefined` means the value prop was not provided (uncontrolled).
+  // `controlledDates` being an array (even empty) means controlled mode — `null` maps to `[]`.
+  const isControlled = controlledDates !== undefined;
+  const committedDates = isControlled ? controlledDates : internalDates;
 
   const rangeStart =
     !isMultiple && committedDates.length > 0
@@ -289,22 +300,22 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
 
   /** Build the current formatted single value (for "previous" in meta). */
   const currentSingleFormatted = useCallback(
-    (): RawValueForFormat<F> | undefined =>
+    (): RawValueForFormat<F> | null =>
       committedDates.length > 0
         ? plainToFormatValue(committedDates[0])
-        : undefined,
+        : null,
     [committedDates, plainToFormatValue],
   );
 
   /** Build the current formatted range (for "previous" in meta). */
   const currentRangeFormatted = useCallback(
-    (): DateRange<F> | undefined =>
+    (): DateRange<F> | null =>
       committedStart && committedEnd
         ? {
             start: plainToFormatValue(committedStart),
             end: plainToFormatValue(committedEnd),
           }
-        : undefined,
+        : null,
     [committedStart, committedEnd, plainToFormatValue],
   );
 
@@ -330,26 +341,26 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       // Fire callback with truncated value
       if (selectionMode === "single") {
         const prevVal =
-          prev.length > 0 ? plainToFormatValue(prev[0]) : undefined;
+          prev.length > 0 ? plainToFormatValue(prev[0]) : null;
         const newVal =
-          clamped.length > 0 ? plainToFormatValue(clamped[0]) : undefined;
+          clamped.length > 0 ? plainToFormatValue(clamped[0]) : null;
         (
           onValueChange as
             | ((
-                v: RawValueForFormat<F> | undefined,
-                m: ValueChangeMeta<RawValueForFormat<F> | undefined>,
+                v: RawValueForFormat<F> | null,
+                m: ValueChangeMeta<RawValueForFormat<F> | null>,
               ) => void)
             | undefined
         )?.(newVal, { ...noDate, previous: prevVal });
       } else if (selectionMode === "range") {
-        const prevRange: DateRange<F> | undefined =
+        const prevRange: DateRange<F> | null =
           prev.length >= 2
             ? {
                 start: plainToFormatValue(prev[0]),
                 end: plainToFormatValue(prev[1]),
               }
-            : undefined;
-        let newRange: DateRange<F> | undefined;
+            : null;
+        let newRange: DateRange<F> | null = null;
         if (clamped.length >= 2) {
           newRange = {
             start: plainToFormatValue(clamped[0]),
@@ -364,8 +375,8 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
         (
           onValueChange as
             | ((
-                v: DateRange<F> | undefined,
-                m: ValueChangeMeta<DateRange<F> | undefined>,
+                v: DateRange<F> | null,
+                m: ValueChangeMeta<DateRange<F> | null>,
               ) => void)
             | undefined
         )?.(newRange, { ...noDate, previous: prevRange });
@@ -481,23 +492,20 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       (maxValue && T.PlainDate.compare(start, maxValue) > 0);
     if (outOfBounds) {
       const prev = currentSingleFormatted();
-      if (!isControlled) {
-        setInternalDates([]);
-      }
+      setInternalDates([]);
       (
         onValueChange as
           | ((
-              v: RawValueForFormat<F> | undefined,
-              m: ValueChangeMeta<RawValueForFormat<F> | undefined>,
+              v: RawValueForFormat<F> | null,
+              m: ValueChangeMeta<RawValueForFormat<F> | null>,
             ) => void)
           | undefined
-      )?.(undefined, { date: undefined, previous: prev });
+      )?.(null, { date: undefined, previous: prev });
     }
   }, [
     minValue,
     maxValue,
     committedStart,
-    isControlled,
     onValueChange,
     currentSingleFormatted,
     T,
@@ -524,7 +532,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
         } else {
           newDates = sortDates([...committedDates, date]);
         }
-        if (!isControlled) setInternalDates(newDates);
+        setInternalDates(newDates);
         (
           onValueChange as
             | ((
@@ -547,16 +555,18 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
           T.PlainDate.compare(committedStart, committedEnd) === 0;
 
         if (isSingleDay && T.PlainDate.compare(date, committedStart) === 0) {
-          // Clicking the single selected date clears the range
-          if (!isControlled) setInternalDates([]);
+          // Clicking the single selected date clears the range.
+          // Always clear internalDates so stale state doesn't resurface
+          // if the component drops from controlled to uncontrolled.
+          setInternalDates([]);
           (
             onValueChange as
               | ((
-                  v: DateRange<F> | undefined,
-                  m: ValueChangeMeta<DateRange<F> | undefined>,
+                  v: DateRange<F> | null,
+                  m: ValueChangeMeta<DateRange<F> | null>,
                 ) => void)
               | undefined
-          )?.(undefined, { date, previous: prevRange });
+          )?.(null, { date, previous: prevRange });
           return;
         }
 
@@ -584,15 +594,13 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
           }
         }
 
-        if (!isControlled) {
-          setInternalDates(newDates);
-        }
+        setInternalDates(newDates);
         setCurrentMonth({ year: date.year, month: date.month });
         (
           onValueChange as
             | ((
-                v: DateRange<F> | undefined,
-                m: ValueChangeMeta<DateRange<F> | undefined>,
+                v: DateRange<F> | null,
+                m: ValueChangeMeta<DateRange<F> | null>,
               ) => void)
             | undefined
         )?.({
@@ -605,13 +613,13 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       if (isRange) {
         const prevRange = currentRangeFormatted();
         newDates = [date, date];
-        if (!isControlled) setInternalDates(newDates);
+        setInternalDates(newDates);
         setCurrentMonth({ year: date.year, month: date.month });
         (
           onValueChange as
             | ((
-                v: DateRange<F> | undefined,
-                m: ValueChangeMeta<DateRange<F> | undefined>,
+                v: DateRange<F> | null,
+                m: ValueChangeMeta<DateRange<F> | null>,
               ) => void)
             | undefined
         )?.({
@@ -624,10 +632,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       // Single mode
       const prevSingle = currentSingleFormatted();
       newDates = [date];
-
-      if (!isControlled) {
-        setInternalDates(newDates);
-      }
+      setInternalDates(newDates);
       setCurrentMonth({ year: date.year, month: date.month });
 
       const prevTime = selectedZdt
@@ -643,14 +648,13 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
         onValueChange as
           | ((
               v: DateValueObject["value"],
-              m: ValueChangeMeta<RawValueForFormat<F> | undefined>,
+              m: ValueChangeMeta<RawValueForFormat<F> | null>,
             ) => void)
           | undefined
       )?.(newTagged.value, { date, previous: prevSingle });
     },
     [
       readOnly,
-      isControlled,
       isMultiple,
       committedDates,
       selectedZdt,
@@ -680,18 +684,16 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
           ? [start, end]
           : [end, start];
       const effectiveEnd = isRange ? hi : lo;
-      if (!isControlled) {
-        setInternalDates(
-          isRange ? [lo, effectiveEnd] : [lo],
-        );
-      }
+      setInternalDates(
+        isRange ? [lo, effectiveEnd] : [lo],
+      );
       if (isRange) {
         const prevRange = currentRangeFormatted();
         (
           onValueChange as
             | ((
-                v: DateRange<F> | undefined,
-                m: ValueChangeMeta<DateRange<F> | undefined>,
+                v: DateRange<F> | null,
+                m: ValueChangeMeta<DateRange<F> | null>,
               ) => void)
             | undefined
         )?.({
@@ -708,7 +710,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
           onValueChange as
             | ((
                 v: DateValueObject["value"],
-                m: ValueChangeMeta<RawValueForFormat<F> | undefined>,
+                m: ValueChangeMeta<RawValueForFormat<F> | null>,
               ) => void)
             | undefined
         )?.(tagged.value, { date: undefined, previous: prevSingle });
@@ -717,7 +719,6 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
     [
       readOnly,
       isMultiple,
-      isControlled,
       isRange,
       onValueChange,
       plainToFormatValue,

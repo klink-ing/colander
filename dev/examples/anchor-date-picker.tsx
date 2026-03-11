@@ -9,9 +9,9 @@ import type {
 import { cn } from "../lib/utils";
 
 interface AnchorDatePickerProps<F extends ValueFormat> {
-  value?: DateRange<F>;
+  value?: DateRange<F> | null;
   defaultValue?: DateRange<F>;
-  onValueChange?: (value: DateRange<F> | undefined) => void;
+  onValueChange?: (value: DateRange<F> | null) => void;
   min?: RawValueForFormat<F>;
   max?: RawValueForFormat<F>;
   disabled?: boolean;

@@ -9,15 +9,25 @@ export type KeyboardNavResult =
 
 /** Input parameters for keyboard navigation computation. */
 export interface KeyboardNavInput {
+  /** The `KeyboardEvent.key` value. */
   key: string;
+  /** Whether the Shift modifier was held. */
   shiftKey: boolean;
+  /** The currently focused date in the grid. */
   focusedDate: Temporal.PlainDate;
+  /** Minimum selectable date bound. */
   minValue: Temporal.PlainDate | undefined;
+  /** Maximum selectable date bound. */
   maxValue: Temporal.PlainDate | undefined;
+  /** Whether the entire calendar is disabled. */
   disabled: boolean;
+  /** Whether the calendar is read-only (navigation allowed, selection blocked). */
   readOnly?: boolean;
+  /** Predicate for individually disabled dates. */
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
+  /** Temporal namespace. */
   T: TemporalNamespace;
+  /** Day the week starts on (`0` = Sunday). */
   weekStartDay?: WeekStartDay;
 }
 

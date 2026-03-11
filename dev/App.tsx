@@ -121,12 +121,12 @@ export default function App() {
 
   // Value state
   const [singleDate, setSingleDate] = useState<
-    Temporal.ZonedDateTime | undefined
-  >();
-  const [range, setRange] = useState<DateRange<"ZonedDateTime"> | undefined>();
+    Temporal.ZonedDateTime | null
+  >(null);
+  const [range, setRange] = useState<DateRange<"ZonedDateTime"> | null>(null);
   const [multipleDates, setMultipleDates] = useState<
-    Temporal.ZonedDateTime[] | undefined
-  >();
+    Temporal.ZonedDateTime[]
+  >([]);
 
   // Min/max
   const defaultMin = useMemo(
@@ -176,17 +176,17 @@ export default function App() {
 
   const handleTimeZoneChange = useCallback((newTz: string) => {
     setTimeZone(newTz);
-    setSingleDate((prev) => (prev ? prev.withTimeZone(newTz) : undefined));
+    setSingleDate((prev) => (prev ? prev.withTimeZone(newTz) : null));
     setRange((prev) =>
       prev
         ? {
             start: prev.start.withTimeZone(newTz),
             end: prev.end.withTimeZone(newTz),
           }
-        : undefined,
+        : null,
     );
     setMultipleDates((prev) =>
-      prev ? prev.map((d) => d.withTimeZone(newTz)) : undefined,
+      prev.map((d) => d.withTimeZone(newTz)),
     );
   }, []);
 
@@ -208,7 +208,7 @@ export default function App() {
     return all.map((tz) => ({ value: tz, label: formatTzLabel(tz) }));
   }, [systemTz]);
 
-  const formatDisplay = (val: Temporal.ZonedDateTime | undefined) =>
+  const formatDisplay = (val: Temporal.ZonedDateTime | null) =>
     val
       ? new Date(val.epochMilliseconds).toLocaleDateString(locale, {
           weekday: "long",
@@ -218,13 +218,13 @@ export default function App() {
         })
       : "No selection";
 
-  const formatRangeDisplay = (val: DateRange<"ZonedDateTime"> | undefined) =>
+  const formatRangeDisplay = (val: DateRange<"ZonedDateTime"> | null) =>
     val
       ? `${new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" })} \u2013 ${new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
       : "No selection";
 
-  const formatMultipleDisplay = (val: Temporal.ZonedDateTime[] | undefined) =>
-    val && val.length > 0
+  const formatMultipleDisplay = (val: Temporal.ZonedDateTime[]) =>
+    val.length > 0
       ? val
           .map((d) =>
             new Date(d.epochMilliseconds).toLocaleDateString(locale, {

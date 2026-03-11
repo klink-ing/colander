@@ -382,18 +382,15 @@ export function shouldMoveDomFocus(
 }
 
 /**
- * Checks whether a date falls within an inclusive range [rangeStart, rangeEnd].
+ * Returns the normalized position of `date` within the inclusive range
+ * `[rangeStart, rangeEnd]` as a number from `0` (start) to `1` (end),
+ * or `false` if the date is outside the range.
+ * A single-day range returns `0` for that date.
  *
  * @param date - The date to test.
  * @param rangeStart - Start of the range (inclusive). Returns `false` when `undefined`.
  * @param rangeEnd - End of the range (inclusive). Returns `false` when `undefined`.
  * @param T - Temporal namespace used for date comparison.
- * @returns `true` if `rangeStart <= date <= rangeEnd`, `false` otherwise.
- */
-/**
- * Returns the normalized position of `date` within the range `[rangeStart, rangeEnd]`
- * as a number from `0` (start) to `1` (end), or `false` if the date is outside.
- * A single-day range returns `0` for that date.
  */
 export function isInRange(
   date: Temporal.PlainDate,

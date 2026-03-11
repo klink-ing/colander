@@ -38,15 +38,15 @@ type StyledDatePickerHorizontalProps<F extends ValueFormat> = {
 } & (
   | {
       selectionMode?: "single";
-      value?: RawValueForFormat<F>;
+      value?: RawValueForFormat<F> | null;
       defaultValue?: RawValueForFormat<F>;
-      onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+      onValueChange?: (value: RawValueForFormat<F> | null) => void;
     }
   | {
       selectionMode: "range";
-      value?: DateRange<F>;
+      value?: DateRange<F> | null;
       defaultValue?: DateRange<F>;
-      onValueChange?: (value: DateRange<F> | undefined) => void;
+      onValueChange?: (value: DateRange<F> | null) => void;
       insideRangeAction?: InsideRangeAction;
     }
   | {
