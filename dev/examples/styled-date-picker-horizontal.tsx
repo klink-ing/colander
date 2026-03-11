@@ -35,6 +35,7 @@ type StyledDatePickerHorizontalProps<F extends ValueFormat> = {
   autoFocus?: boolean;
   showWeekNumbers?: boolean;
   numberOfMonths?: number;
+  outsideDays?: "enabled" | "readonly" | "disabled" | "hidden";
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 } & (
   | {
@@ -76,6 +77,7 @@ export function StyledDatePickerHorizontal<
     autoFocus,
     showWeekNumbers: _showWeekNumbers,
     numberOfMonths,
+    outsideDays,
     onMonthChange,
     ...selectionProps
   } = props;
@@ -92,6 +94,7 @@ export function StyledDatePickerHorizontal<
       fixedWeeks={fixedWeeks}
       weekStartDay={weekStartDay}
       numberOfMonths={numberOfMonths}
+      outsideDays={outsideDays}
       onMonthChange={onMonthChange}
     >
       <div

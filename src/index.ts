@@ -69,6 +69,7 @@ export type {
   CreateDatePickerOptions,
   WeekStartDay,
   InsideRangeAction,
+  OutsideDays,
   ValueChangeMeta,
   WeekNumberCellProps,
   WeekNumberCellState,

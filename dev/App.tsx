@@ -4,6 +4,7 @@ import {
   createDatePicker,
   type DateRange,
   type InsideRangeAction,
+  type OutsideDays,
 } from "base-ui-cal";
 import { StyledDatePicker } from "./examples/styled-date-picker";
 import { StyledDatePickerHorizontal } from "./examples/styled-date-picker-horizontal";
@@ -119,6 +120,7 @@ export default function App() {
     useState<InsideRangeAction>("nearest-end");
   const [allowRangeReversal, setAllowRangeReversal] = useState(false);
   const [numberOfMonths, setNumberOfMonths] = useState(1);
+  const [outsideDays, setOutsideDays] = useState<OutsideDays>("enabled");
 
   // Value state
   const [singleDate, setSingleDate] = useState<
@@ -266,6 +268,7 @@ export default function App() {
     onMonthChange: handleMonthChange,
     showWeekNumbers,
     numberOfMonths,
+    outsideDays,
   } as const;
 
   function renderExample() {
@@ -527,6 +530,22 @@ export default function App() {
               />
               Week Numbers
             </label>
+            <div>
+              <label htmlFor="outside-days" className={labelClassName}>
+                Outside Days
+              </label>
+              <select
+                id="outside-days"
+                value={outsideDays}
+                onChange={(e) => setOutsideDays(e.target.value as OutsideDays)}
+                className={selectClassName}
+              >
+                <option value="enabled">Enabled</option>
+                <option value="readonly">Read-only</option>
+                <option value="disabled">Disabled</option>
+                <option value="hidden">Hidden</option>
+              </select>
+            </div>
             {selectionMode === "range" && (
               <label className={checkboxClassName}>
                 <input

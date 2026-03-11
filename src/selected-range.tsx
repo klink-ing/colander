@@ -2,12 +2,15 @@ import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useDatePicker, WeekDataContext, GridContext } from "./context";
+import { useDatePicker, useDatePickerStable, WeekDataContext, GridContext } from "./context";
 import { computeWeekRangeInfo } from "./utils";
+import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   SelectedRangeState,
   SelectedRangeProps,
+  OutsideDays,
+  TemporalNamespace,
 } from "./types";
 
 const selectedRangeStateAttributesMapping = {
@@ -23,6 +26,60 @@ const selectedRangeStateAttributesMapping = {
   orientation: (v) => ({ "data-orientation": v }),
 } as const satisfies StateAttributesMapping<SelectedRangeState>;
 
+type RangeInfo = {
+  active: boolean;
+  startIndex: number;
+  endIndex: number;
+  extendsBefore: boolean;
+  extendsAfter: boolean;
+};
+
+function computeClippedRangeInfo(
+  days: Temporal.PlainDate[],
+  rangeStart: Temporal.PlainDate | undefined,
+  rangeEnd: Temporal.PlainDate | undefined,
+  T: TemporalNamespace,
+  outsideDays: OutsideDays,
+  gridMonth: { year: number; month: number } | undefined,
+): RangeInfo {
+  const raw = computeWeekRangeInfo(days, rangeStart, rangeEnd, T);
+  if (
+    (outsideDays === "disabled" || outsideDays === "hidden") &&
+    raw.active &&
+    gridMonth
+  ) {
+    let { startIndex, endIndex, extendsBefore, extendsAfter } = raw;
+    // Clip range to only in-month cells
+    while (
+      startIndex <= endIndex &&
+      (days[startIndex].year !== gridMonth.year ||
+        days[startIndex].month !== gridMonth.month)
+    ) {
+      startIndex++;
+      extendsBefore = true;
+    }
+    while (
+      endIndex >= startIndex &&
+      (days[endIndex].year !== gridMonth.year ||
+        days[endIndex].month !== gridMonth.month)
+    ) {
+      endIndex--;
+      extendsAfter = true;
+    }
+    if (startIndex > endIndex) {
+      return {
+        active: false,
+        startIndex: 0,
+        endIndex: 0,
+        extendsBefore: false,
+        extendsAfter: false,
+      };
+    }
+    return { active: true, startIndex, endIndex, extendsBefore, extendsAfter };
+  }
+  return raw;
+}
+
 /**
  * Visual overlay (`<td role="presentation">`) that highlights the selected
  * date range within a single week row. Exposes data-attributes for
@@ -36,12 +93,22 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
   const weekData = useContext(WeekDataContext);
   const { orientation } = useContext(GridContext);
   const { rangeStart, rangeEnd, temporal: T, rootState } = useDatePicker<F>();
+  const { outsideDays } = useDatePickerStable();
 
   const days = weekData?.days ?? [];
+  const gridMonth = weekData?.gridMonth;
 
   const info = useMemo(
-    () => computeWeekRangeInfo(days, rangeStart, rangeEnd, T),
-    [days, rangeStart, rangeEnd, T],
+    () =>
+      computeClippedRangeInfo(
+        days,
+        rangeStart,
+        rangeEnd,
+        T,
+        outsideDays,
+        gridMonth,
+      ),
+    [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
   );
 
   const startDate = info.active ? days[info.startIndex].toString() : "";

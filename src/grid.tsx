@@ -38,6 +38,7 @@ import type {
   DayButtonProps,
   DayCellTemplateState,
   TemporalNamespace,
+  OutsideDays,
 } from "./types";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
 export { GridHeader, GridHeaderCell } from "./grid-header";
@@ -110,17 +111,34 @@ function computeDayCellState(
   tabTargetDate: TemporalPoly.PlainDate,
   T: TemporalNamespace,
   selectionMode: "single" | "range" | "multiple",
+  outsideDays: OutsideDays,
 ): DayCellTemplateState & { isTabTarget: boolean } {
-  const today = T.Now.plainDateISO();
-  const isSelected =
-    selectionMode !== "range"
-      ? selectedDates.some((d) => T.PlainDate.compare(d, date) === 0)
-      : false;
   const isCurrentMonth =
     date.year === currentDateTime.year && date.month === currentDateTime.month;
+  const hidden = !isCurrentMonth && outsideDays === "hidden";
+
+  if (hidden) {
+    return {
+      root: rootState,
+      date,
+      columnIndex,
+      orientation,
+      outsideMonth: true,
+      hidden: true,
+      selected: false,
+      today: false,
+      disabled: true,
+      focused: false,
+      rangeStart: false,
+      rangeEnd: false,
+      rangeBoundary: false,
+      inRange: false,
+      isTabTarget: false,
+    };
+  }
+
+  const today = T.Now.plainDateISO();
   const isToday = T.PlainDate.compare(date, today) === 0;
-  const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
-  const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
 
   const isRangeStart = rangeStart
     ? T.PlainDate.compare(date, rangeStart) === 0
@@ -129,6 +147,36 @@ function computeDayCellState(
     ? T.PlainDate.compare(date, rangeEnd) === 0
     : false;
   const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
+
+  const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
+  const suppressRange = !isCurrentMonth && (outsideDays === "disabled" || outsideDays === "hidden");
+
+  if (outsideNonInteractive) {
+    return {
+      root: rootState,
+      date,
+      columnIndex,
+      orientation,
+      outsideMonth: true,
+      hidden: false,
+      selected: false,
+      today: isToday,
+      disabled: true,
+      focused: false,
+      rangeStart: suppressRange ? false : isRangeStart,
+      rangeEnd: suppressRange ? false : isRangeEnd,
+      rangeBoundary: suppressRange ? false : (isRangeStart || isRangeEnd),
+      inRange: suppressRange ? false : isInRangeDay,
+      isTabTarget: false,
+    };
+  }
+
+  const isSelected =
+    selectionMode !== "range"
+      ? selectedDates.some((d) => T.PlainDate.compare(d, date) === 0)
+      : false;
+  const isDisabled = disabled || (isDateDisabled?.(date) ?? false);
+  const isFocused = T.PlainDate.compare(date, focusedDate) === 0;
   const isTabTarget = T.PlainDate.compare(date, tabTargetDate) === 0;
 
   return {
@@ -140,6 +188,7 @@ function computeDayCellState(
     today: isToday,
     disabled: isDisabled,
     outsideMonth: !isCurrentMonth,
+    hidden: false,
     focused: isFocused,
     rangeStart: isRangeStart,
     rangeEnd: isRangeEnd,
@@ -400,6 +449,7 @@ const dayStateAttributesMapping = {
   today: (v) => (v ? { "data-today": "" } : null),
   disabled: (v) => (v ? { "data-disabled": "" } : null),
   outsideMonth: (v) => (v ? { "data-outside-month": "" } : null),
+  hidden: (v) => (v ? { "data-hidden": "" } : null),
   focused: (v) => (v ? { "data-focused": "" } : null),
   rangeStart: (v) => (v ? { "data-range-start": "" } : null),
   rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
@@ -434,16 +484,22 @@ function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
 
   const state = _derivedState as unknown as DayCellTemplateState<F>;
 
-  const defaultProps: Record<string, unknown> = {
-    role: "gridcell",
-    "aria-selected": state.selected || undefined,
-    "aria-disabled": state.disabled || undefined,
-    children: children ?? (
-      <DayButton
-        _derivedState={_derivedState}
-      />
-    ),
-  };
+  const defaultProps: Record<string, unknown> = state.hidden
+    ? {
+        role: "gridcell",
+        "aria-hidden": true,
+        children: null,
+      }
+    : {
+        role: "gridcell",
+        "aria-selected": state.selected || undefined,
+        "aria-disabled": state.disabled || undefined,
+        children: children ?? (
+          <DayButton
+            _derivedState={_derivedState}
+          />
+        ),
+      };
 
   const cell = useRender({
     defaultTagName: "td",
@@ -454,8 +510,10 @@ function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 
+  const outsideDisabled = state.hidden || (state.outsideMonth && state.disabled);
+
   return (
-    <DayCellDataContext.Provider value={{ date, columnIndex }}>
+    <DayCellDataContext.Provider value={{ date, columnIndex, outsideDisabled }}>
       {cell}
     </DayCellDataContext.Provider>
   );
@@ -477,6 +535,7 @@ function dayCellPropsAreEqual(
     a.today === b.today &&
     a.disabled === b.disabled &&
     a.outsideMonth === b.outsideMonth &&
+    a.hidden === b.hidden &&
     a.focused === b.focused &&
     a.rangeStart === b.rangeStart &&
     a.rangeEnd === b.rangeEnd &&
@@ -522,6 +581,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
     selectionMode,
     temporal: T,
     weekStartDay,
+    outsideDays,
   } = useDatePickerStable();
 
   const { orientation } = useContext(GridContext);
@@ -546,6 +606,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       tabTargetDate,
       T,
       selectionMode,
+      outsideDays,
     );
     return (
       <DayCellInstanceInner<F>
@@ -582,6 +643,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           tabTargetDate,
           T,
           selectionMode,
+          outsideDays,
         );
         return (
           <DayCellInstanceInner<F>
@@ -620,6 +682,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
 
   const internalRef = useRef<HTMLButtonElement>(null);
 
+  const isHidden = _derivedState?.hidden ?? false;
   const isFocused = _derivedState?.focused ?? false;
   const isTabTarget = _derivedState?.isTabTarget ?? false;
   const isDisabled = _derivedState?.disabled ?? false;
@@ -632,6 +695,8 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
       internalRef.current.focus();
     }
   }, [isFocused, gridFocusedRef]);
+
+  if (isHidden) return null;
 
   const state = _derivedState as unknown as DayCellTemplateState<F>;
 
@@ -678,6 +743,7 @@ function dayButtonPropsAreEqual(
     a.today === b.today &&
     a.disabled === b.disabled &&
     a.outsideMonth === b.outsideMonth &&
+    a.hidden === b.hidden &&
     a.focused === b.focused &&
     a.rangeStart === b.rangeStart &&
     a.rangeEnd === b.rangeEnd &&
@@ -750,6 +816,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     selectionMode,
     temporal: T,
     weekStartDay,
+    outsideDays,
   } = useDatePickerStable();
 
   const cellMonth = weekData?.gridMonth ?? currentDateTime;
@@ -771,6 +838,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     tabTargetDate,
     T,
     selectionMode,
+    outsideDays,
   );
 
   return (

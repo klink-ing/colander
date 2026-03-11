@@ -6,6 +6,15 @@ import { GridOrientation } from "./context";
 export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 /**
+ * Controls how days from adjacent months are displayed in the calendar grid.
+ * - `"enabled"` — outside days are fully interactive (default).
+ * - `"readonly"` — outside days are visible but disabled; range highlighting still paints through.
+ * - `"disabled"` — outside days are visible but disabled; no range highlighting or drag handles.
+ * - `"hidden"` — outside day cells are empty (`<td>` with `data-hidden` + `aria-hidden`).
+ */
+export type OutsideDays = "enabled" | "readonly" | "disabled" | "hidden";
+
+/**
  * Controls what happens when clicking a date inside an existing range.
  * - `"end"` — moves the range end to the clicked date.
  * - `"start"` — moves the range start to the clicked date.
@@ -134,6 +143,8 @@ export interface DatePickerStableContextValue {
   weekStartDay: WeekStartDay;
   /** Number of simultaneously visible months. */
   numberOfMonths: number;
+  /** How outside-month days are displayed. */
+  outsideDays: OutsideDays;
 }
 
 /** Pre-computed data for a single visible month. */
@@ -273,6 +284,15 @@ interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
    * @default 1
    */
   numberOfMonths?: number;
+  /**
+   * Controls how days from adjacent months are displayed.
+   * - `"enabled"` — fully interactive (default).
+   * - `"readonly"` — visible but disabled; range highlighting paints through.
+   * - `"disabled"` — visible but disabled; no range highlighting or drag handles.
+   * - `"hidden"` — empty cells with `data-hidden` + `aria-hidden`.
+   * @default "enabled"
+   */
+  outsideDays?: OutsideDays;
 }
 
 /**
@@ -576,6 +596,7 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   today: boolean;
   disabled: boolean;
   outsideMonth: boolean;
+  hidden: boolean;
   focused: boolean;
   rangeStart: boolean;
   rangeEnd: boolean;

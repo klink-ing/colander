@@ -37,6 +37,7 @@ type StyledDatePickerProps<F extends ValueFormat> = {
   showWeekNumbers?: boolean;
   allowRangeReversal?: boolean;
   numberOfMonths?: number;
+  outsideDays?: "enabled" | "readonly" | "disabled" | "hidden";
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 } & (
   | {
@@ -79,6 +80,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
     showWeekNumbers,
     allowRangeReversal,
     numberOfMonths: numberOfMonthsProp,
+    outsideDays,
     onMonthChange,
     ...selectionProps
   } = props;
@@ -137,6 +139,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
       fixedWeeks={fixedWeeks}
       weekStartDay={weekStartDay}
       numberOfMonths={numberOfMonths}
+      outsideDays={outsideDays}
       onMonthChange={onMonthChange}
     >
       <div className={cn("p-3", className)}>

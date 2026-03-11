@@ -992,3 +992,362 @@ describe("numberOfMonths", () => {
     });
   });
 });
+
+describe("outsideDays", () => {
+  const march15 = Temporal.PlainDate.from("2026-03-15");
+
+  describe('outsideDays="enabled" (default)', () => {
+    it("outside-month cells are visible and interactive", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15}>
+          <Grid />
+        </Root>,
+      );
+
+      const outsideCells = Array.from(
+        container.querySelectorAll("td[data-outside-month]"),
+      );
+      expect(outsideCells.length).toBeGreaterThan(0);
+
+      // None should have data-hidden
+      for (const cell of outsideCells) {
+        expect(cell.getAttribute("data-hidden")).toBeNull();
+      }
+
+      // All outside-month td cells should contain a button
+      for (const cell of outsideCells) {
+        expect(cell.querySelector("button")).not.toBeNull();
+      }
+
+      // Buttons should not be disabled
+      for (const cell of outsideCells) {
+        const btn = cell.querySelector("button");
+        expect(btn?.disabled).toBe(false);
+      }
+
+      unmount();
+    });
+  });
+
+  describe('outsideDays="readonly"', () => {
+    it("outside-month buttons render but are disabled", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} outsideDays="readonly">
+          <Grid />
+        </Root>,
+      );
+
+      const outsideCells = Array.from(
+        container.querySelectorAll("td[data-outside-month]"),
+      );
+      expect(outsideCells.length).toBeGreaterThan(0);
+
+      for (const cell of outsideCells) {
+        expect(cell.getAttribute("data-hidden")).toBeNull();
+        expect(cell.getAttribute("data-disabled")).not.toBeNull();
+        const btn = cell.querySelector("button");
+        expect(btn).not.toBeNull();
+        expect(btn?.disabled).toBe(true);
+      }
+
+      unmount();
+    });
+
+    it("range attributes still paint through outside-month cells", () => {
+      // March 2026 starts on Sunday — so the grid has no leading padding.
+      // But it ends on Tuesday Mar 31, so April 1–4 are outside-month padding.
+      // Use a range that extends into April to verify range attrs paint through.
+      const march25 = Temporal.PlainDate.from("2026-03-25");
+      const april3 = Temporal.PlainDate.from("2026-04-03");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march25, end: april3 }}
+          outsideDays="readonly"
+        >
+          <Grid />
+        </Root>,
+      );
+
+      // April 1 in the March grid is outside-month
+      const april1Cell = container.querySelector('[data-date="2026-04-01"]');
+      expect(april1Cell).not.toBeNull();
+      expect(april1Cell!.getAttribute("data-outside-month")).not.toBeNull();
+      expect(april1Cell!.getAttribute("data-in-range")).not.toBeNull();
+
+      unmount();
+    });
+  });
+
+  describe('outsideDays="disabled"', () => {
+    it("outside-month buttons render but are disabled, no range attrs", () => {
+      // March 2026 ends on Tue Mar 31, so April 1–4 appear as outside-month padding.
+      const march25 = Temporal.PlainDate.from("2026-03-25");
+      const april3 = Temporal.PlainDate.from("2026-04-03");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march25, end: april3 }}
+          outsideDays="disabled"
+        >
+          <Grid />
+        </Root>,
+      );
+
+      const outsideCells = Array.from(
+        container.querySelectorAll("td[data-outside-month]"),
+      );
+      expect(outsideCells.length).toBeGreaterThan(0);
+
+      for (const cell of outsideCells) {
+        expect(cell.getAttribute("data-hidden")).toBeNull();
+        expect(cell.getAttribute("data-disabled")).not.toBeNull();
+        expect(cell.querySelector("button")).not.toBeNull();
+        // No range attributes
+        expect(cell.getAttribute("data-in-range")).toBeNull();
+        expect(cell.getAttribute("data-range-start")).toBeNull();
+        expect(cell.getAttribute("data-range-end")).toBeNull();
+        expect(cell.getAttribute("data-range-boundary")).toBeNull();
+      }
+
+      unmount();
+    });
+  });
+
+  describe('outsideDays="hidden"', () => {
+    it("outside-month cells are empty with data-hidden and aria-hidden", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} outsideDays="hidden">
+          <Grid />
+        </Root>,
+      );
+
+      const hiddenCells = Array.from(
+        container.querySelectorAll("[data-hidden]"),
+      );
+      expect(hiddenCells.length).toBeGreaterThan(0);
+
+      for (const cell of hiddenCells) {
+        expect(cell.getAttribute("data-outside-month")).not.toBeNull();
+        expect(cell.querySelector("button")).toBeNull();
+        expect(cell.getAttribute("aria-hidden")).toBe("true");
+      }
+
+      unmount();
+    });
+
+    it("hidden cells have no range attributes", () => {
+      const march5 = Temporal.PlainDate.from("2026-03-05");
+      const march25 = Temporal.PlainDate.from("2026-03-25");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march5, end: march25 }}
+          outsideDays="hidden"
+        >
+          <Grid />
+        </Root>,
+      );
+
+      const hiddenCells = Array.from(
+        container.querySelectorAll("[data-hidden]"),
+      );
+      expect(hiddenCells.length).toBeGreaterThan(0);
+
+      for (const cell of hiddenCells) {
+        expect(cell.getAttribute("data-in-range")).toBeNull();
+        expect(cell.getAttribute("data-range-start")).toBeNull();
+        expect(cell.getAttribute("data-range-end")).toBeNull();
+        expect(cell.getAttribute("data-range-boundary")).toBeNull();
+        expect(cell.getAttribute("data-selected")).toBeNull();
+      }
+
+      unmount();
+    });
+
+    it("in-month cells still show range attributes", () => {
+      const march5 = Temporal.PlainDate.from("2026-03-05");
+      const march25 = Temporal.PlainDate.from("2026-03-25");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march5, end: march25 }}
+          outsideDays="hidden"
+        >
+          <Grid />
+        </Root>,
+      );
+
+      const rangeStart = container.querySelector("[data-range-start]");
+      expect(rangeStart).not.toBeNull();
+      expect(rangeStart!.getAttribute("data-date")).toBe("2026-03-05");
+
+      const rangeEnd = container.querySelector("[data-range-end]");
+      expect(rangeEnd).not.toBeNull();
+      expect(rangeEnd!.getAttribute("data-date")).toBe("2026-03-25");
+
+      const inRangeCells = Array.from(
+        container.querySelectorAll("[data-in-range]"),
+      );
+      expect(inRangeCells.length).toBeGreaterThan(0);
+
+      for (const cell of inRangeCells) {
+        expect(cell.getAttribute("data-hidden")).toBeNull();
+      }
+
+      unmount();
+    });
+
+    it("works with multi-month: each grid hides its own outside-month cells", () => {
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          outsideDays="hidden"
+        >
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids = Array.from(container.querySelectorAll("[role='grid']"));
+      expect(grids.length).toBe(2);
+
+      for (const grid of grids) {
+        const hiddenInGrid = grid.querySelectorAll("[data-hidden]");
+        Array.from(hiddenInGrid).forEach((cell) => {
+          expect(cell.querySelector("button")).toBeNull();
+        });
+      }
+
+      unmount();
+    });
+
+    it("range spanning months clips per grid", () => {
+      const march25 = Temporal.PlainDate.from("2026-03-25");
+      const april5 = Temporal.PlainDate.from("2026-04-05");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march25, end: april5 }}
+          numberOfMonths={2}
+          outsideDays="hidden"
+        >
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids = Array.from(container.querySelectorAll("[role='grid']"));
+
+      const grid0Hidden = Array.from(grids[0].querySelectorAll("[data-hidden]"));
+      for (const cell of grid0Hidden) {
+        expect(cell.getAttribute("data-in-range")).toBeNull();
+      }
+
+      const grid1Hidden = Array.from(grids[1].querySelectorAll("[data-hidden]"));
+      for (const cell of grid1Hidden) {
+        expect(cell.getAttribute("data-in-range")).toBeNull();
+      }
+
+      const rangeStartInGrid0 = grids[0].querySelector("[data-range-start]");
+      expect(rangeStartInGrid0).not.toBeNull();
+      expect(rangeStartInGrid0!.getAttribute("data-date")).toBe("2026-03-25");
+
+      const rangeEndInGrid1 = grids[1].querySelector("[data-range-end]");
+      expect(rangeEndInGrid1).not.toBeNull();
+      expect(rangeEndInGrid1!.getAttribute("data-date")).toBe("2026-04-05");
+
+      unmount();
+    });
+
+    it("fixedWeeks + hidden renders empty rows for padding weeks", () => {
+      const feb15 = Temporal.PlainDate.from("2026-02-15");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          defaultValue={feb15}
+          fixedWeeks
+          outsideDays="hidden"
+        >
+          <Grid />
+        </Root>,
+      );
+
+      const rows = container.querySelectorAll("tbody tr");
+      expect(rows.length).toBe(6);
+
+      const lastRow = rows[rows.length - 1];
+      const cells = lastRow.querySelectorAll("td");
+      const allHidden = Array.from(cells).every(
+        (cell) => cell.getAttribute("data-hidden") !== null,
+      );
+      expect(allHidden).toBe(true);
+
+      unmount();
+    });
+  });
+
+  describe("range clipping per grid", () => {
+    it("disabled clips range in SelectedRange but readonly does not", () => {
+      const march25 = Temporal.PlainDate.from("2026-03-25");
+      const april5 = Temporal.PlainDate.from("2026-04-05");
+
+      // "disabled" — outside-month cells should NOT have range attrs
+      const { container: c1, unmount: u1 } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march25, end: april5 }}
+          numberOfMonths={2}
+          outsideDays="disabled"
+        >
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids1 = Array.from(c1.querySelectorAll("[role='grid']"));
+      // Grid 0 (March): April dates should have no range attrs
+      const outsideInGrid0 = Array.from(grids1[0].querySelectorAll("[data-outside-month]"));
+      for (const cell of outsideInGrid0) {
+        expect(cell.getAttribute("data-in-range")).toBeNull();
+      }
+
+      u1();
+
+      // "readonly" — outside-month cells SHOULD have range attrs
+      const { container: c2, unmount: u2 } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march25, end: april5 }}
+          numberOfMonths={2}
+          outsideDays="readonly"
+        >
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids2 = Array.from(c2.querySelectorAll("[role='grid']"));
+      // Grid 0 (March): April dates should still have range attrs with readonly
+      const outsideInGrid0Readonly = Array.from(grids2[0].querySelectorAll("[data-outside-month][data-in-range]"));
+      expect(outsideInGrid0Readonly.length).toBeGreaterThan(0);
+
+      u2();
+    });
+  });
+});

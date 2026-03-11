@@ -70,6 +70,7 @@ export const GridContext = createContext<{ orientation: GridOrientation }>({
 export const DayCellDataContext = createContext<{
   date: Temporal.PlainDate;
   columnIndex?: number;
+  outsideDisabled?: boolean;
 } | null>(null);
 
 /** @internal Provides per-grid month data to WeekTemplate and DayCellTemplate. */

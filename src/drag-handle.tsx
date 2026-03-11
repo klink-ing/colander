@@ -27,9 +27,11 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   const cellData = useContext(DayCellDataContext);
   const { orientation } = useContext(GridContext);
   const date = cellData?.date;
+  const outsideDisabled = cellData?.outsideDisabled ?? false;
 
-  const isActive =
-    edge === "start"
+  const isActive = outsideDisabled
+    ? false
+    : edge === "start"
       ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
       : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
 

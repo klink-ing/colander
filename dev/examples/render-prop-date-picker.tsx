@@ -34,6 +34,7 @@ interface RenderPropDatePickerProps<F extends ValueFormat> {
   autoFocus?: boolean;
   showWeekNumbers?: boolean;
   numberOfMonths?: number;
+  outsideDays?: "enabled" | "readonly" | "disabled" | "hidden";
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
@@ -55,6 +56,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
   autoFocus,
   showWeekNumbers: _showWeekNumbers,
   numberOfMonths,
+  outsideDays,
   onMonthChange,
 }: RenderPropDatePickerProps<F>) {
   return (
@@ -72,6 +74,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
       fixedWeeks={fixedWeeks}
       weekStartDay={weekStartDay}
       numberOfMonths={numberOfMonths}
+      outsideDays={outsideDays}
       onMonthChange={onMonthChange}
       render={(props, state) => (
         <div

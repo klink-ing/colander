@@ -21,6 +21,7 @@ import type {
   ValueChangeMeta,
   WeekStartDay,
   InsideRangeAction,
+  OutsideDays,
 } from "./types";
 import {
   calendarForLocale,
@@ -48,6 +49,7 @@ interface UseRootStateParamsBase<F extends ValueFormat> {
   weekStartDay: WeekStartDay;
   fixedWeeks: boolean;
   numberOfMonths: number;
+  outsideDays: OutsideDays;
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
@@ -939,6 +941,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       gridFocusedRef,
       weekStartDay: params.weekStartDay,
       numberOfMonths: params.numberOfMonths,
+      outsideDays: params.outsideDays,
     }),
     [
       onSelect,
@@ -957,6 +960,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       T,
       params.weekStartDay,
       params.numberOfMonths,
+      params.outsideDays,
     ],
   );
 
@@ -1036,6 +1040,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     weekStartDay: weekStartDayProp,
     fixedWeeks: fixedWeeksProp,
     numberOfMonths: numberOfMonthsProp,
+    outsideDays: outsideDaysProp,
     onMonthChange,
     insideRangeAction,
     ...otherProps
@@ -1069,6 +1074,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     weekStartDay: weekStartDayProp ?? 0,
     fixedWeeks: fixedWeeksProp ?? false,
     numberOfMonths: Math.max(1, Math.min(numberOfMonthsProp ?? 1, 12)),
+    outsideDays: outsideDaysProp ?? "enabled",
     onMonthChange,
     ...(selectionMode === "range" ? { insideRangeAction } : {}),
   } as UseRootStateParams<F>);

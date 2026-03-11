@@ -211,7 +211,12 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
     allowRangeReversal?: boolean;
   },
 ) {
-  const { className, columnOffset = 0, allowRangeReversal, ...props } = allProps;
+  const {
+    className,
+    columnOffset = 0,
+    allowRangeReversal,
+    ...props
+  } = allProps;
   return (
     <DayCellTemplate
       {...(props as DayCellTemplateProps)}
@@ -232,7 +237,9 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
             className={cn("relative text-center", className)}
           >
             <StyledDayButton date={state.date} />
-            <StyledRangeStartDragHandle allowRangeReversal={allowRangeReversal} />
+            <StyledRangeStartDragHandle
+              allowRangeReversal={allowRangeReversal}
+            />
             <StyledRangeEndDragHandle allowRangeReversal={allowRangeReversal} />
           </td>
         );
@@ -386,8 +393,7 @@ function useDragHandleDnD(
   useEffect(() => {
     if (!dragging) return;
     return monitorForElements({
-      canMonitor: ({ source }) =>
-        source.data.type === "date-range-handle",
+      canMonitor: ({ source }) => source.data.type === "date-range-handle",
       onDrag: ({ location }) => {
         const dropTarget = location.current.dropTargets[0];
         if (!dropTarget) return;
@@ -458,14 +464,12 @@ function useDragHandleDnD(
         setRangeRef.current(newStart, newEnd);
       }
     }
-  }, [dragging]);
+  }, [dragging, allowRangeReversal]);
 
   return { dragging, anyHandleDragging };
 }
 
-export function StyledRangeStartDragHandle<
-  F extends ValueFormat = ValueFormat,
->(
+export function StyledRangeStartDragHandle<F extends ValueFormat = ValueFormat>(
   allProps: RangeStartDragHandleProps<F> & {
     ref?: React.Ref<HTMLSpanElement>;
     allowRangeReversal?: boolean;
@@ -473,7 +477,11 @@ export function StyledRangeStartDragHandle<
 ) {
   const { className, allowRangeReversal, ...props } = allProps;
   const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging, anyHandleDragging } = useDragHandleDnD("start", handleRef, allowRangeReversal);
+  const { dragging, anyHandleDragging } = useDragHandleDnD(
+    "start",
+    handleRef,
+    allowRangeReversal,
+  );
   const {
     onSelect,
     setFocusedDate,
@@ -545,7 +553,11 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>(
 ) {
   const { className, allowRangeReversal, ...props } = allProps;
   const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging, anyHandleDragging } = useDragHandleDnD("end", handleRef, allowRangeReversal);
+  const { dragging, anyHandleDragging } = useDragHandleDnD(
+    "end",
+    handleRef,
+    allowRangeReversal,
+  );
   const {
     onSelect,
     setFocusedDate,
