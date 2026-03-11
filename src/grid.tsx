@@ -189,6 +189,11 @@ export function Grid<F extends ValueFormat = ValueFormat>(
   } = useDatePicker<F>();
 
   const monthData = allMonths[monthIndex];
+  if (monthIndex >= allMonths.length) {
+    console.warn(
+      `[DatePicker] Grid monthIndex={${monthIndex}} is out of bounds (numberOfMonths=${allMonths.length}). Falling back to the first month.`,
+    );
+  }
   const gridWeeks = monthData?.weeks ?? defaultWeeks;
 
   const handleKeyDown = useGridKeyboard();
@@ -362,9 +367,13 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
   const gridMonthCtx = useContext(GridMonthContext);
   const { weeks: defaultWeeks } = useDatePickerState();
   const weeks = gridMonthCtx?.weeks ?? defaultWeeks;
-  const gridMonth = gridMonthCtx
-    ? { year: gridMonthCtx.year, month: gridMonthCtx.month }
-    : undefined;
+  const gridMonth = useMemo(
+    () =>
+      gridMonthCtx
+        ? { year: gridMonthCtx.year, month: gridMonthCtx.month }
+        : undefined,
+    [gridMonthCtx],
+  );
   const Instance = WeekInstance<F>;
 
   return (

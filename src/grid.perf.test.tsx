@@ -393,6 +393,50 @@ describe("Grid render profiling", () => {
     unmount();
   });
 
+  it("multi-month mount and update stay within threshold", () => {
+    const { entries, onRender } = createProfiler();
+
+    const { rerender, unmount } = render(
+      <Profiler id="grid-multi" onRender={onRender}>
+        <Root {...defaultProps} value={march15} numberOfMonths={3}>
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+          <Grid monthIndex={2} />
+        </Root>
+      </Profiler>,
+    );
+
+    const mountDuration = entries.find((e) => e.phase === "mount")!
+      .actualDuration;
+
+    // 3 grids worth of cells — mount threshold scales linearly
+    expect(mountDuration).toBeLessThan(MOUNT_THRESHOLD_MS * 3);
+
+    const march16 = Temporal.PlainDate.from("2026-03-16");
+    rerender(
+      <Profiler id="grid-multi" onRender={onRender}>
+        <Root {...defaultProps} value={march16} numberOfMonths={3}>
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+          <Grid monthIndex={2} />
+        </Root>
+      </Profiler>,
+    );
+
+    const updates = entries.filter((e) => e.phase === "update");
+    const updateDuration = updates[updates.length - 1].actualDuration;
+    const ratio = updateDuration / mountDuration;
+
+    // Memoization should still help even with 3 grids
+    expect(ratio).toBeLessThan(0.6);
+
+    console.log(
+      `[perf] multi-month (3): mount=${mountDuration.toFixed(2)}ms update=${updateDuration.toFixed(2)}ms ratio=${ratio.toFixed(2)}`,
+    );
+
+    unmount();
+  });
+
   it("range expand update is cheaper than mount (memoization effect)", () => {
     const { entries, onRender } = createProfiler();
 

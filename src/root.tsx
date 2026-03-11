@@ -1046,6 +1046,12 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
   const resolvedFormat: ValueFormat = formatProp ?? "PlainDate";
   const selectionMode = selectionModeProp ?? "single";
 
+  if (numberOfMonthsProp != null && (numberOfMonthsProp < 1 || numberOfMonthsProp > 12)) {
+    console.warn(
+      `[DatePicker] numberOfMonths={${numberOfMonthsProp}} is out of the supported range (1–12). The value will be clamped.`,
+    );
+  }
+
   const { stableCtx, stateCtx, state } = useRootState<F>({
     format: resolvedFormat as F,
     selectionMode,
@@ -1062,7 +1068,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     temporal: T,
     weekStartDay: weekStartDayProp ?? 0,
     fixedWeeks: fixedWeeksProp ?? false,
-    numberOfMonths: numberOfMonthsProp ?? 1,
+    numberOfMonths: Math.max(1, Math.min(numberOfMonthsProp ?? 1, 12)),
     onMonthChange,
     ...(selectionMode === "range" ? { insideRangeAction } : {}),
   } as UseRootStateParams<F>);

@@ -109,7 +109,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
           options={{ month: "short", year: "numeric" }}
           render={({ children, ...props }, state) => (
             <span {...props} className="text-sm font-medium">
-              Hi! {children}
+              {children}
             </span>
           )}
         />

@@ -4,8 +4,12 @@ import { render, act } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
 import { Root } from "./root";
 import { useDatePicker } from "./context";
-import { Grid, DayCellTemplate, DayButton } from "./grid";
-import { MonthYearString } from "./navigation";
+import { Grid } from "./grid";
+import {
+  MonthYearString,
+  PrevMonthButton,
+  NextMonthButton,
+} from "./navigation";
 import type { DateRange, ValueChangeMeta, MonthData } from "./types";
 
 const temporal = {
@@ -274,19 +278,21 @@ describe("setRange normalization", () => {
   });
 });
 
-/** Helper that captures allMonths and currentDateTime from context. */
+/** Helper that captures allMonths, currentMonth, and focusedDate from context. */
 function MonthDataCapture({
   onCapture,
 }: {
   onCapture: (data: {
     allMonths: MonthData[];
     currentMonth: { year: number; month: number };
+    focusedDate: string;
   }) => void;
 }) {
-  const { allMonths, currentDateTime } = useDatePicker();
+  const { allMonths, currentDateTime, focusedDate } = useDatePicker();
   onCapture({
     allMonths,
     currentMonth: { year: currentDateTime.year, month: currentDateTime.month },
+    focusedDate: focusedDate.toString(),
   });
   return null;
 }
@@ -463,6 +469,115 @@ describe("numberOfMonths", () => {
     unmount();
   });
 
+  it("updates allMonths when numberOfMonths prop changes", () => {
+    let captured: { allMonths: MonthData[] } | undefined;
+
+    const { rerender, unmount } = render(
+      <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+      </Root>,
+    );
+
+    expect(captured!.allMonths).toHaveLength(1);
+
+    rerender(
+      <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+      </Root>,
+    );
+
+    expect(captured!.allMonths).toHaveLength(3);
+    expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
+      "2026-3",
+      "2026-4",
+      "2026-5",
+    ]);
+
+    unmount();
+  });
+
+  it("clamps numberOfMonths to 1–12 range", () => {
+    let captured: { allMonths: MonthData[] } | undefined;
+
+    const { unmount } = render(
+      <Root {...defaultProps} defaultValue={march15} numberOfMonths={0}>
+        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+      </Root>,
+    );
+
+    // 0 should be clamped to 1
+    expect(captured!.allMonths).toHaveLength(1);
+
+    unmount();
+  });
+
+  it("keyboard PageDown from last visible month shifts view", () => {
+    let captured: { currentMonth: { year: number; month: number }; focusedDate: string } | undefined;
+
+    const { container, unmount } = render(
+      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <Grid monthIndex={0} />
+        <Grid monthIndex={1} />
+      </Root>,
+    );
+
+    // Initially March+April, focused on March 15
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+    expect(captured!.focusedDate).toBe("2026-03-15");
+
+    // Press PageDown to move focus to April 15 — still within visible range
+    const grid = container.querySelector('[role="grid"]')!;
+    act(() => {
+      grid.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }),
+      );
+    });
+
+    expect(captured!.focusedDate).toBe("2026-04-15");
+    // April is the second visible month, so currentMonth stays at March
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+
+    // Press PageDown again — May is outside the visible range, should shift
+    act(() => {
+      grid.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }),
+      );
+    });
+
+    expect(captured!.focusedDate).toBe("2026-05-15");
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 5 });
+
+    unmount();
+  });
+
+  it("keyboard PageUp from first visible month shifts view", () => {
+    let captured: { currentMonth: { year: number; month: number }; focusedDate: string } | undefined;
+
+    const { container, unmount } = render(
+      <Root {...defaultProps} defaultValue={april15} numberOfMonths={2}>
+        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <Grid monthIndex={0} />
+      </Root>,
+    );
+
+    // Initially April+May, focused on April 15
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 4 });
+
+    // Press PageUp to move focus to March 15 — outside visible range
+    const grid = container.querySelector('[role="grid"]')!;
+    act(() => {
+      grid.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageUp", bubbles: true }),
+      );
+    });
+
+    expect(captured!.focusedDate).toBe("2026-03-15");
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+
+    unmount();
+  });
+
   it("outsideMonth is relative to each grid's month", () => {
     const { container, unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
@@ -488,5 +603,392 @@ describe("numberOfMonths", () => {
     }
 
     unmount();
+  });
+
+  describe("navigation buttons with multi-month", () => {
+    it("next button computes destination from last visible month", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+          <NextMonthButton data-testid="next" />
+        </Root>,
+      );
+
+      // With numberOfMonths=3 viewing March, the last visible month is May.
+      // "Next" should point to June 2026.
+      const btn = container.querySelector('[data-testid="next"]')!;
+      expect(btn.getAttribute("disabled")).toBeNull();
+
+      unmount();
+    });
+
+    it("prev button computes destination from first visible month", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+          <PrevMonthButton data-testid="prev" />
+        </Root>,
+      );
+
+      // "Prev" should point to February 2026 (one before first visible).
+      const btn = container.querySelector('[data-testid="prev"]')!;
+      expect(btn.getAttribute("disabled")).toBeNull();
+
+      unmount();
+    });
+
+    it("next button disabled when last visible month reaches max", () => {
+      const maxDate = Temporal.PlainDate.from("2026-05-31");
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3} max={maxDate}>
+          <NextMonthButton data-testid="next" />
+        </Root>,
+      );
+
+      // Last visible month is May, max is May 31 → next (June) is beyond max
+      const btn = container.querySelector('[data-testid="next"]')!;
+      expect(btn.getAttribute("disabled")).toBe("");
+
+      unmount();
+    });
+
+    it("prev button disabled when first visible month reaches min", () => {
+      const minDate = Temporal.PlainDate.from("2026-03-01");
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2} min={minDate}>
+          <PrevMonthButton data-testid="prev" />
+        </Root>,
+      );
+
+      // First visible month is March, min is March 1 → prev (Feb) is before min
+      const btn = container.querySelector('[data-testid="prev"]')!;
+      expect(btn.getAttribute("disabled")).toBe("");
+
+      unmount();
+    });
+
+    it("clicking next shifts view by one month", () => {
+      let captured: { currentMonth: { year: number; month: number } } | undefined;
+
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <NextMonthButton data-testid="next" />
+        </Root>,
+      );
+
+      expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+
+      act(() => {
+        container.querySelector('[data-testid="next"]')!.dispatchEvent(
+          new MouseEvent("click", { bubbles: true }),
+        );
+      });
+
+      // Shifts by 1 month, not by numberOfMonths
+      expect(captured!.currentMonth).toEqual({ year: 2026, month: 4 });
+
+      unmount();
+    });
+
+    it("clicking prev shifts view by one month", () => {
+      let captured: { currentMonth: { year: number; month: number } } | undefined;
+
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <PrevMonthButton data-testid="prev" />
+        </Root>,
+      );
+
+      act(() => {
+        container.querySelector('[data-testid="prev"]')!.dispatchEvent(
+          new MouseEvent("click", { bubbles: true }),
+        );
+      });
+
+      expect(captured!.currentMonth).toEqual({ year: 2026, month: 2 });
+
+      unmount();
+    });
+  });
+
+  describe("range selection across months", () => {
+    it("range spanning two visible months shows inRange on intermediate dates", () => {
+      const rangeStart = Temporal.PlainDate.from("2026-03-25");
+      const rangeEnd = Temporal.PlainDate.from("2026-04-05");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: rangeStart, end: rangeEnd }}
+          numberOfMonths={2}
+        >
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids = container.querySelectorAll('[role="grid"]');
+
+      // Grid 0 (March): March 25-31 should be in range
+      const grid0InRange = Array.from(grids[0].querySelectorAll('[data-in-range]'));
+      const grid0InRangeDates = grid0InRange.map((el) => el.getAttribute("data-date"));
+      expect(grid0InRangeDates).toContain("2026-03-25");
+      expect(grid0InRangeDates).toContain("2026-03-31");
+
+      // Grid 1 (April): April 1-5 should be in range
+      const grid1InRange = Array.from(grids[1].querySelectorAll('[data-in-range]'));
+      const grid1InRangeDates = grid1InRange.map((el) => el.getAttribute("data-date"));
+      expect(grid1InRangeDates).toContain("2026-04-01");
+      expect(grid1InRangeDates).toContain("2026-04-05");
+
+      unmount();
+    });
+
+    it("range-start and range-end markers appear in correct grids", () => {
+      const rangeStart = Temporal.PlainDate.from("2026-03-20");
+      const rangeEnd = Temporal.PlainDate.from("2026-04-10");
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: rangeStart, end: rangeEnd }}
+          numberOfMonths={2}
+        >
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids = container.querySelectorAll('[role="grid"]');
+
+      // range-start should be in grid 0 (March 20)
+      const grid0RangeStart = grids[0].querySelector('[data-range-start][data-date="2026-03-20"]');
+      expect(grid0RangeStart).toBeTruthy();
+
+      // range-end should be in grid 1 (April 10)
+      const grid1RangeEnd = grids[1].querySelector('[data-range-end][data-date="2026-04-10"]');
+      expect(grid1RangeEnd).toBeTruthy();
+
+      unmount();
+    });
+  });
+
+  describe("grid state attributes", () => {
+    it("each grid exposes correct month and year in state", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids = container.querySelectorAll('[role="grid"]');
+
+      // Grid state attributes reflect each grid's month
+      expect(grids[0].getAttribute("data-calendar-weeks-in-month")).toBeTruthy();
+      expect(grids[0].getAttribute("data-calendar-days-per-week")).toBe("7");
+      expect(grids[1].getAttribute("data-calendar-weeks-in-month")).toBeTruthy();
+      expect(grids[1].getAttribute("data-calendar-days-per-week")).toBe("7");
+
+      unmount();
+    });
+
+    it("CSS custom properties set per grid", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+          <Grid monthIndex={0} />
+          <Grid monthIndex={1} />
+        </Root>,
+      );
+
+      const grids = container.querySelectorAll('[role="grid"]');
+
+      // Each grid should have its own CSS custom properties
+      const style0 = (grids[0] as HTMLElement).style;
+      const style1 = (grids[1] as HTMLElement).style;
+      expect(style0.getPropertyValue("--calendar-days-per-week")).toBe("7");
+      expect(style1.getPropertyValue("--calendar-days-per-week")).toBe("7");
+      expect(style0.getPropertyValue("--calendar-weeks-in-month")).toBeTruthy();
+      expect(style1.getPropertyValue("--calendar-weeks-in-month")).toBeTruthy();
+
+      unmount();
+    });
+  });
+
+  describe("backward compatibility", () => {
+    it("single-month without monthIndex works unchanged", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15}>
+          <MonthYearString />
+          <Grid />
+        </Root>,
+      );
+
+      const grids = container.querySelectorAll('[role="grid"]');
+      expect(grids).toHaveLength(1);
+
+      // Grid should have aria-labelledby pointing to the MonthYearString
+      const labelledBy = grids[0].getAttribute("aria-labelledby");
+      expect(labelledBy).toBeTruthy();
+      const label = document.getElementById(labelledBy!);
+      expect(label?.textContent).toContain("March");
+
+      unmount();
+    });
+
+    it("explicit monthIndex={0} on single-month setup works", () => {
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+          <MonthYearString monthIndex={0} />
+          <Grid monthIndex={0} />
+        </Root>,
+      );
+
+      const grids = container.querySelectorAll('[role="grid"]');
+      expect(grids).toHaveLength(1);
+
+      const dates = Array.from(grids[0].querySelectorAll("[data-date]"));
+      const hasMarch = dates.some(
+        (el) => el.getAttribute("data-date")?.startsWith("2026-03"),
+      );
+      expect(hasMarch).toBe(true);
+
+      unmount();
+    });
+  });
+
+  describe("onMonthChange with multi-month", () => {
+    it("fires when navigation shifts visible months", () => {
+      const onMonthChange = vi.fn();
+
+      const { container, unmount } = render(
+        <Root
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          onMonthChange={onMonthChange}
+        >
+          <NextMonthButton data-testid="next" />
+        </Root>,
+      );
+
+      // Should not fire on mount
+      expect(onMonthChange).not.toHaveBeenCalled();
+
+      act(() => {
+        container.querySelector('[data-testid="next"]')!.dispatchEvent(
+          new MouseEvent("click", { bubbles: true }),
+        );
+      });
+
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      const arg = onMonthChange.mock.calls[0][0];
+      // Should report the new first visible month (April)
+      expect(arg.month).toBe(4);
+      expect(arg.year).toBe(2026);
+
+      unmount();
+    });
+
+    it("does not fire when selection stays within visible months", () => {
+      const onMonthChange = vi.fn();
+      let selectFn: (date: Temporal.PlainDate) => void = () => {};
+
+      const { unmount } = render(
+        <Root
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          onMonthChange={onMonthChange}
+        >
+          <SelectTrigger onCapture={(fn) => { selectFn = fn; }} />
+        </Root>,
+      );
+
+      // Select within April (second visible month) — shouldn't trigger month change
+      act(() => { selectFn(april15); });
+
+      expect(onMonthChange).not.toHaveBeenCalled();
+
+      unmount();
+    });
+  });
+
+  describe("focusedDate across months", () => {
+    it("preserves focusedDate when numberOfMonths increases", () => {
+      let captured: { focusedDate: string } | undefined;
+
+      const { rerender, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        </Root>,
+      );
+
+      expect(captured!.focusedDate).toBe("2026-03-15");
+
+      rerender(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        </Root>,
+      );
+
+      // focusedDate should not change when numberOfMonths grows
+      expect(captured!.focusedDate).toBe("2026-03-15");
+
+      unmount();
+    });
+
+    it("preserves focusedDate when numberOfMonths decreases", () => {
+      let captured: { focusedDate: string } | undefined;
+
+      const { rerender, unmount } = render(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        </Root>,
+      );
+
+      expect(captured!.focusedDate).toBe("2026-03-15");
+
+      rerender(
+        <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        </Root>,
+      );
+
+      expect(captured!.focusedDate).toBe("2026-03-15");
+
+      unmount();
+    });
+
+    it("arrow key within visible months does not shift view", () => {
+      let captured: { currentMonth: { year: number; month: number }; focusedDate: string } | undefined;
+
+      // Focus on March 31, with April also visible
+      const march31 = Temporal.PlainDate.from("2026-03-31");
+      const { container, unmount } = render(
+        <Root {...defaultProps} defaultValue={march31} numberOfMonths={2}>
+          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <Grid monthIndex={0} />
+        </Root>,
+      );
+
+      expect(captured!.focusedDate).toBe("2026-03-31");
+      expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+
+      // ArrowRight → April 1, still within visible range
+      const grid = container.querySelector('[role="grid"]')!;
+      act(() => {
+        grid.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+        );
+      });
+
+      expect(captured!.focusedDate).toBe("2026-04-01");
+      expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+
+      unmount();
+    });
   });
 });
