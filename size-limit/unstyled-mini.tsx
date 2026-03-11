@@ -1,7 +1,8 @@
-// Minimal unstyled date picker component for realistic tree-shaking measurement.
-// Represents what a consumer would actually import and render.
-import { Temporal } from "@js-temporal/polyfill";
+// Minimal unstyled date picker using the built-in mini Temporal polyfill.
+// Measures the bundle cost without the full @js-temporal/polyfill.
+import React from "react";
 import {
+  Temporal,
   Root,
   Grid,
   GridBody,
@@ -17,7 +18,7 @@ import {
   SelectedRange,
   RangeStartDragHandle,
   RangeEndDragHandle,
-} from "./dist/index.js";
+} from "../dist/index.js";
 
 export function DatePicker() {
   return (

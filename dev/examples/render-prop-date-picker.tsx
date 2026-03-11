@@ -6,8 +6,6 @@ import type {
 } from "base-ui-cal";
 import { cn } from "../lib/utils";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-
 import {
   StyledGridHeader,
   StyledGridHeaderCell,
@@ -102,7 +100,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
                 state.disabled && "pointer-events-none opacity-50",
               )}
             >
-              <ChevronLeft className="h-4 w-4" />
+              ←
             </button>
           )}
         />
@@ -138,7 +136,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
                 state.disabled && "pointer-events-none opacity-50",
               )}
             >
-              <ChevronRight className="h-4 w-4" />
+              →
             </button>
           )}
         />

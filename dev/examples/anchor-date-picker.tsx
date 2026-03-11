@@ -1,4 +1,3 @@
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
@@ -82,7 +81,7 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
               "disabled:pointer-events-none disabled:opacity-50",
             )}
           >
-            <ChevronLeft className="h-4 w-4" />
+            ←
           </DP.PrevMonthButton>
           <DP.MonthYearString
             data-testid="text-current-month"
@@ -98,7 +97,7 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
               "disabled:pointer-events-none disabled:opacity-50",
             )}
           >
-            <ChevronRight className="h-4 w-4" />
+            →
           </DP.NextMonthButton>
         </div>
 

@@ -108,7 +108,7 @@ export function StyledDatePickerHorizontal<
         </div>
 
         <StyledGrid
-          orientation="horizontal"
+          orientation="vertical"
           autoFocus={autoFocus}
           className="w-fit auto-cols-auto gap-x-1 grid-flow-col grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)]"
         >

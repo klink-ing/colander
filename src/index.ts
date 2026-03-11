@@ -25,6 +25,7 @@ export {
   useDatePickerState,
   DayCellDataContext,
   WeekDataContext,
+  GridContext,
 } from "./context";
 
 export type {

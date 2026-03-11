@@ -1,7 +1,8 @@
-// Minimal unstyled date picker using the built-in mini Temporal polyfill.
-// Measures the bundle cost without the full @js-temporal/polyfill.
+// Minimal unstyled date picker with drag-and-drop range handles.
+// Measures the bundle cost of @atlaskit/pragmatic-drag-and-drop without styling overhead.
+import React from "react";
+import { Temporal } from "@js-temporal/polyfill";
 import {
-  Temporal,
   Root,
   Grid,
   GridBody,
@@ -9,15 +10,13 @@ import {
   GridHeaderCell,
   WeekTemplate,
   DayCellTemplate,
-  DayButton,
   MonthYearString,
   DateString,
   PrevMonthButton,
   NextMonthButton,
   SelectedRange,
-  RangeStartDragHandle,
-  RangeEndDragHandle,
-} from "./dist/index.js";
+} from "../dist/index.js";
+import { DragHandleStart, DragHandleEnd, DragDayButton } from "../dev/lib/drag-components";
 
 export function DatePicker() {
   return (
@@ -36,9 +35,9 @@ export function DatePicker() {
           <WeekTemplate>
             <SelectedRange />
             <DayCellTemplate>
-              <DayButton />
-              <RangeStartDragHandle edge="start" />
-              <RangeEndDragHandle edge="end" />
+              <DragDayButton />
+              <DragHandleStart />
+              <DragHandleEnd />
             </DayCellTemplate>
           </WeekTemplate>
         </GridBody>

@@ -63,7 +63,7 @@ export type GridOrientation = "horizontal" | "vertical";
 
 /** @internal Provides the resolved grid orientation to descendant cells. */
 export const GridContext = createContext<{ orientation: GridOrientation }>({
-  orientation: "vertical",
+  orientation: "horizontal",
 });
 
 /** @internal Provides the date and column index from a `DayCellTemplate` to its child `DayButton`. */

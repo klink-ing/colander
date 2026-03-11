@@ -1,17 +1,12 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext } from "react";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { draggable } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { disableNativeDragPreview } from "@atlaskit/pragmatic-drag-and-drop/element/disable-native-drag-preview";
-import { monitorForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
-import { dropTargetForElements } from "@atlaskit/pragmatic-drag-and-drop/element/adapter";
 import { cn } from "../lib/utils";
+import { DragHandle, DragDayButton } from "../lib/drag-components";
 import {
   Grid,
   GridBody,
   WeekTemplate,
   DayCellTemplate,
-  DayButton,
   GridHeader,
   GridHeaderCell,
   MonthYearString,
@@ -20,10 +15,9 @@ import {
   PrevMonthButton,
   NextMonthButton,
   SelectedRange,
-  RangeStartDragHandle,
-  RangeEndDragHandle,
   useDatePicker,
   DayCellDataContext,
+  GridContext,
 } from "base-ui-cal";
 import type { Temporal } from "@js-temporal/polyfill";
 import type {
@@ -41,9 +35,6 @@ import type {
   PrevMonthButtonProps,
   NextMonthButtonProps,
   SelectedRangeProps,
-  RangeStartDragHandleProps,
-  RangeEndDragHandleProps,
-  TemporalNamespace,
 } from "base-ui-cal";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
@@ -63,7 +54,7 @@ export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
         className,
       )}
     >
-      <ChevronLeft className="h-4 w-4" />
+      ←
     </PrevMonthButton>
   );
 }
@@ -85,7 +76,7 @@ export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
         className,
       )}
     >
-      <ChevronRight className="h-4 w-4" />
+      →
     </NextMonthButton>
   );
 }
@@ -224,10 +215,10 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
         const gridStyle =
           state.columnIndex >= 0
             ? state.orientation === "horizontal"
-              ? { gridRow: state.columnIndex + 1 + columnOffset, gridColumn: 1 }
+              ? { gridColumn: state.columnIndex + 1 + columnOffset, gridRow: 1 }
               : {
-                  gridColumn: state.columnIndex + 1 + columnOffset,
-                  gridRow: 1,
+                  gridRow: state.columnIndex + 1 + columnOffset,
+                  gridColumn: 1,
                 }
             : undefined;
         return (
@@ -237,10 +228,14 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
             className={cn("relative text-center", className)}
           >
             <StyledDayButton date={state.date} />
-            <StyledRangeStartDragHandle
+            <StyledDragHandle
+              edge="start"
               allowRangeReversal={allowRangeReversal}
             />
-            <StyledRangeEndDragHandle allowRangeReversal={allowRangeReversal} />
+            <StyledDragHandle
+              edge="end"
+              allowRangeReversal={allowRangeReversal}
+            />
           </td>
         );
       }}
@@ -254,22 +249,8 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   children,
   ...props
 }: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
-  const dropRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const el = dropRef.current;
-    if (!el || !date) return;
-    return dropTargetForElements({
-      element: el,
-      getData: () => ({ date: date.toString() }),
-      canDrop: ({ source }) => source.data.type === "date-range-handle",
-      getIsSticky: () => true,
-    });
-  }, [date]);
-
   return (
-    <DayButton
-      ref={dropRef}
+    <DragDayButton
       date={date}
       {...(props as DayButtonProps)}
       className={cn(
@@ -277,25 +258,26 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
         "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
         "text-foreground hover:bg-accent hover:text-accent-foreground hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
-        "data-today:bg-accent data-today:text-accent-foreground data-today:data-in-range:bg-white/10",
-        "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground data-selected:data-today:bg-primary data-selected:data-today:text-primary-foreground",
+        "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         "isolate select-none data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground data-in-range:data-outside-month:opacity-70",
         className,
       )}
-      render={({ children, ...props }, state) => {
+      render={({ children, ...props }) => {
         return (
           <button {...props}>
-            <div
-              className={cn(
-                "absolute z-0 hidden aspect-square size-[1.5em] rounded-full bg-red-500 group-data-range-boundary:block",
-              )}
-            />
+            {
+              <div
+                className={cn(
+                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-neutral-200 group-data-today:block group-data-selected:bg-white/50 group-data-in-range:bg-white/20",
+                )}
+              />
+            }
             <div className="isolate">{children}</div>
           </button>
         );
       }}
-    ></DayButton>
+    ></DragDayButton>
   );
 }
 
@@ -321,302 +303,60 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
   );
 }
 
-// --- DnD wiring for drag handles ---
-
-function useDragHandleDnD(
-  edge: "start" | "end",
-  handleRef: React.RefObject<HTMLSpanElement | null>,
-  allowRangeReversal = false,
-) {
-  const { rangeStart, rangeEnd, setRange, temporal: T } = useDatePicker();
+export function StyledDragHandle({
+  edge,
+  allowRangeReversal,
+  className,
+}: {
+  edge: "start" | "end";
+  allowRangeReversal?: boolean;
+  className?: string;
+}) {
+  const { rangeStart, rangeEnd, temporal: T, selectionMode } = useDatePicker();
+  const { orientation } = useContext(GridContext);
   const cellData = useContext(DayCellDataContext);
+
   const date = cellData?.date;
 
-  const isActive =
-    edge === "start"
-      ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
-      : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
+  const bothActive =
+    date &&
+    rangeStart &&
+    rangeEnd &&
+    T.PlainDate.compare(date, rangeStart) === 0 &&
+    T.PlainDate.compare(date, rangeEnd) === 0;
 
-  const [dragging, setDragging] = useState(false);
-  const [anyHandleDragging, setAnyHandleDragging] = useState(false);
-  const draggingRef = useRef(false);
-  const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
-  rangeRef.current = { start: rangeStart, end: rangeEnd };
-
-  const TRef = useRef<TemporalNamespace>(T);
-  TRef.current = T;
-
-  const setRangeRef = useRef(setRange);
-  setRangeRef.current = setRange;
-
-  const edgeRef = useRef(edge);
-  if (!draggingRef.current) {
-    edgeRef.current = edge;
+  const isStart = edge === "start";
+  const classNames: string[] = [
+    "absolute inset-0 z-20 flex outline-none",
+    "before:block  before:bg-white/80 before:transition-colors hover:before:bg-white  ",
+  ];
+  if (orientation === "horizontal") {
+    classNames.push("items-center before:h-3 before:w-1.5");
+    classNames.push(
+      isStart
+        ? "justify-start before:rounded-r-full"
+        : "justify-end before:rounded-l-full",
+    );
+    if (bothActive) {
+      classNames.push(isStart ? "right-1/2" : "left-1/2");
+    }
+  } else {
+    classNames.push("justify-center before:h-1.5 before:w-4");
+    classNames.push(
+      isStart
+        ? "items-start before:rounded-b-full"
+        : "items-end before:rounded-t-full",
+    );
+    if (bothActive) {
+      classNames.push(isStart ? "bottom-1/2" : "top-1/2");
+    }
   }
 
-  useEffect(() => {
-    const el = handleRef.current;
-    if (!el || !isActive) return;
-    const cleanup = draggable({
-      element: el,
-      getInitialData: () => ({ type: "date-range-handle", edge }),
-      onGenerateDragPreview: ({ nativeSetDragImage }) => {
-        disableNativeDragPreview({ nativeSetDragImage });
-      },
-      onDragStart: () => {
-        draggingRef.current = true;
-        setDragging(true);
-        document.body.style.cursor = "grabbing";
-      },
-      onDrop: () => {
-        draggingRef.current = false;
-        setDragging(false);
-        document.body.style.cursor = "";
-      },
-    });
-    return () => {
-      cleanup();
-      if (draggingRef.current) {
-        document.body.style.cursor = "";
-      }
-    };
-  }, [isActive, edge, handleRef]);
-
-  useEffect(() => {
-    return monitorForElements({
-      canMonitor: ({ source }) => source.data.type === "date-range-handle",
-      onDragStart: () => setAnyHandleDragging(true),
-      onDrop: () => setAnyHandleDragging(false),
-    });
-  }, []);
-
-  useEffect(() => {
-    if (!dragging) return;
-    return monitorForElements({
-      canMonitor: ({ source }) => source.data.type === "date-range-handle",
-      onDrag: ({ location }) => {
-        const dropTarget = location.current.dropTargets[0];
-        if (!dropTarget) return;
-        applyDropTarget(dropTarget.data.date as string);
-      },
-      onDropTargetChange: ({ location }) => {
-        const dropTarget = location.current.dropTargets[0];
-        if (!dropTarget) return;
-        applyDropTarget(dropTarget.data.date as string);
-      },
-      onDrop: () => {
-        draggingRef.current = false;
-        setDragging(false);
-        document.body.style.cursor = "";
-      },
-    });
-
-    function applyDropTarget(dateStr: string) {
-      const { start, end } = rangeRef.current;
-      if (!start || !end) return;
-
-      const Tp = TRef.current;
-      let target: Temporal.PlainDate;
-      try {
-        target = Tp.PlainDate.from(dateStr);
-      } catch {
-        return;
-      }
-
-      let newStart: Temporal.PlainDate;
-      let newEnd: Temporal.PlainDate;
-
-      if (edgeRef.current === "start") {
-        if (Tp.PlainDate.compare(target, end) <= 0) {
-          newStart = target;
-          newEnd = end;
-        } else if (allowRangeReversal) {
-          // Dragged start past end — swap: old end becomes new start
-          newStart = end;
-          newEnd = target;
-          edgeRef.current = "end";
-        } else {
-          newStart = end;
-          newEnd = end;
-        }
-      } else {
-        if (Tp.PlainDate.compare(target, start) >= 0) {
-          newStart = start;
-          newEnd = target;
-        } else if (allowRangeReversal) {
-          // Dragged end past start — swap: old start becomes new end
-          newStart = target;
-          newEnd = start;
-          edgeRef.current = "start";
-        } else {
-          newStart = start;
-          newEnd = start;
-        }
-      }
-
-      if (
-        Tp.PlainDate.compare(newStart, start) !== 0 ||
-        Tp.PlainDate.compare(newEnd, end) !== 0
-      ) {
-        // Eagerly update the ref so the next drag event (which may fire
-        // before React re-renders) sees the correct boundaries.
-        rangeRef.current = { start: newStart, end: newEnd };
-        setRangeRef.current(newStart, newEnd);
-      }
-    }
-  }, [dragging, allowRangeReversal]);
-
-  return { dragging, anyHandleDragging };
-}
-
-export function StyledRangeStartDragHandle<F extends ValueFormat = ValueFormat>(
-  allProps: RangeStartDragHandleProps<F> & {
-    ref?: React.Ref<HTMLSpanElement>;
-    allowRangeReversal?: boolean;
-  },
-) {
-  const { className, allowRangeReversal, ...props } = allProps;
-  const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging, anyHandleDragging } = useDragHandleDnD(
-    "start",
-    handleRef,
-    allowRangeReversal,
-  );
-  const {
-    onSelect,
-    setFocusedDate,
-    rangeStart,
-    rangeEnd,
-    temporal: T,
-  } = useDatePicker();
-  const cellData = useContext(DayCellDataContext);
-  const date = cellData?.date;
-
-  const bothActive =
-    date &&
-    rangeStart &&
-    rangeEnd &&
-    T.PlainDate.compare(date, rangeStart) === 0 &&
-    T.PlainDate.compare(date, rangeEnd) === 0;
-
   return (
-    <RangeStartDragHandle
-      ref={handleRef}
-      dragging={dragging}
-      {...(props as RangeStartDragHandleProps)}
-      className={cn(
-        "absolute inset-0 z-20 flex outline-none",
-        // Vertical: pill at left edge
-        "data-[orientation=vertical]:items-center data-[orientation=vertical]:justify-start",
-        "data-[orientation=vertical]:before:h-4 data-[orientation=vertical]:before:w-1.5",
-        // Horizontal: pill at top edge
-        "data-[orientation=horizontal]:items-start data-[orientation=horizontal]:justify-center",
-        "data-[orientation=horizontal]:before:h-1.5 data-[orientation=horizontal]:before:w-4",
-        // Half-cell when both handles on same cell
-        bothActive && "data-[orientation=vertical]:right-1/2",
-        bothActive && "data-[orientation=horizontal]:bottom-1/2",
-        "before:block before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
-        className,
-      )}
-      style={{
-        touchAction: "none",
-        cursor: dragging ? "grabbing" : "grab",
-        pointerEvents: anyHandleDragging ? "none" : undefined,
-      }}
-      render={(renderProps, state) => (
-        // biome-ignore lint/a11y/useKeyWithClickEvents: drag handle, not a button
-        // biome-ignore lint/a11y/noStaticElementInteractions: drag handle hit area
-        <span
-          {...renderProps}
-          tabIndex={-1}
-          onClick={() => {
-            if (date) {
-              onSelect(date);
-              setFocusedDate(date);
-            }
-          }}
-          style={{
-            ...(renderProps.style as React.CSSProperties),
-            display: state.active ? undefined : "none",
-          }}
-        />
-      )}
-    />
-  );
-}
-
-export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>(
-  allProps: RangeEndDragHandleProps<F> & {
-    ref?: React.Ref<HTMLSpanElement>;
-    allowRangeReversal?: boolean;
-  },
-) {
-  const { className, allowRangeReversal, ...props } = allProps;
-  const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging, anyHandleDragging } = useDragHandleDnD(
-    "end",
-    handleRef,
-    allowRangeReversal,
-  );
-  const {
-    onSelect,
-    setFocusedDate,
-    rangeStart,
-    rangeEnd,
-    temporal: T,
-  } = useDatePicker();
-  const cellData = useContext(DayCellDataContext);
-  const date = cellData?.date;
-
-  const bothActive =
-    date &&
-    rangeStart &&
-    rangeEnd &&
-    T.PlainDate.compare(date, rangeStart) === 0 &&
-    T.PlainDate.compare(date, rangeEnd) === 0;
-
-  return (
-    <RangeEndDragHandle
-      ref={handleRef}
-      dragging={dragging}
-      {...(props as RangeEndDragHandleProps)}
-      className={cn(
-        "absolute inset-0 z-20 flex outline-none",
-        // Vertical: pill at right edge
-        "data-[orientation=vertical]:items-center data-[orientation=vertical]:justify-end",
-        "data-[orientation=vertical]:before:h-4 data-[orientation=vertical]:before:w-1.5",
-        // Horizontal: pill at bottom edge
-        "data-[orientation=horizontal]:items-end data-[orientation=horizontal]:justify-center",
-        "data-[orientation=horizontal]:before:h-1.5 data-[orientation=horizontal]:before:w-4",
-        // Half-cell when both handles on same cell
-        bothActive && "data-[orientation=vertical]:left-1/2",
-        bothActive && "data-[orientation=horizontal]:top-1/2",
-        "before:block before:rounded-full before:bg-primary before:transition-colors hover:before:bg-primary/80",
-        className,
-      )}
-      style={{
-        touchAction: "none",
-        cursor: dragging ? "grabbing" : "grab",
-        pointerEvents: anyHandleDragging ? "none" : undefined,
-      }}
-      render={(renderProps, state) => (
-        // biome-ignore lint/a11y/useKeyWithClickEvents: drag handle, not a button
-        // biome-ignore lint/a11y/noStaticElementInteractions: drag handle hit area
-        <span
-          {...renderProps}
-          tabIndex={-1}
-          onClick={() => {
-            if (date) {
-              onSelect(date);
-              setFocusedDate(date);
-            }
-          }}
-          style={{
-            ...(renderProps.style as React.CSSProperties),
-            display: state.active ? undefined : "none",
-          }}
-        />
-      )}
+    <DragHandle
+      edge={edge}
+      allowRangeReversal={allowRangeReversal}
+      className={cn(classNames, className)}
     />
   );
 }
@@ -644,14 +384,14 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>(
             data-testid="selected-range"
             style={
               horizontal
-                ? { gridRow: span, gridColumn: 1 }
-                : { gridColumn: span, gridRow: 1 }
+                ? { gridColumn: span, gridRow: 1 }
+                : { gridRow: span, gridColumn: 1 }
             }
             className={cn(
               "rounded-md bg-primary/80",
               horizontal
-                ? "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none"
-                : "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none",
+                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none"
+                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none",
               className,
             )}
           />

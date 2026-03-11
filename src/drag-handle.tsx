@@ -51,6 +51,12 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   );
 
   const defaultProps: Record<string, unknown> = {
+    role: "slider",
+    "aria-roledescription": "drag handle",
+    "aria-label": edge === "start" ? "Range start date" : "Range end date",
+    "aria-valuetext": date?.toString(),
+    "aria-grabbed": isActive ? isDragging : undefined,
+    "aria-hidden": isActive ? undefined : true,
     "data-testid": `drag-handle-${edge}`,
   };
 
@@ -72,15 +78,20 @@ export function RangeDragHandle<F extends ValueFormat = ValueFormat>(
   const { ref, render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
     useDragHandle<F>(edge, { dragging });
+  const { selectionMode } = useDatePicker();
 
-  return useRender({
-    defaultTagName: "span",
-    render,
-    ref: ref ? [ref, handleRef] : [handleRef],
-    state,
-    stateAttributesMapping,
-    props: mergeProps<"span">(defaultProps, otherProps),
-  });
+  return useRender(
+    selectionMode !== "range"
+      ? {}
+      : {
+          defaultTagName: "span",
+          render,
+          ref: ref ? [ref, handleRef] : [handleRef],
+          state,
+          stateAttributesMapping,
+          props: mergeProps<"span">(defaultProps, otherProps),
+        },
+  );
 }
 
 /** Convenience wrapper for {@link RangeDragHandle} with `edge="start"`. */

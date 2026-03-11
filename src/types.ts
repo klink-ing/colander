@@ -564,7 +564,7 @@ export type GridState<F extends ValueFormat = ValueFormat> = {
 export interface GridOwnProps {
   /** Interaction mode. Currently only `"grid"` is supported. */
   mode?: "grid";
-  /** Layout direction for keyboard navigation. @default "vertical" */
+  /** Layout direction for keyboard navigation. @default "horizontal" */
   orientation?: GridOrientation;
   /** When `true`, the grid auto-focuses the tab-target cell on mount. */
   autoFocus?: boolean;

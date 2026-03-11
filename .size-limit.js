@@ -1,7 +1,5 @@
 import path from "node:path";
 
-const IGNORE_REACT = ["react", "react-dom", "react/jsx-runtime"];
-
 /** Resolve `base-ui-cal` → `./dist/index.js` so esbuild can find the built output. */
 function withAlias(config) {
   config.alias = { "base-ui-cal": path.resolve("dist/index.js") };
@@ -10,32 +8,29 @@ function withAlias(config) {
 
 export default [
   {
+    name: "library only",
     path: "dist/index.js",
     limit: "12 kB",
   },
   {
     name: "unstyled (full polyfill)",
-    path: "size-limit-unstyled.tsx",
+    path: "size-limit/unstyled.tsx",
     import: "{ DatePicker }",
     limit: "56 kB",
   },
   {
-    name: "unstyled (full polyfill, no react)",
-    path: "size-limit-unstyled.tsx",
+    name: "unstyled (mini polyfill)",
+    path: "size-limit/unstyled-mini.tsx",
+    import: "{ DatePicker }",
+    limit: "16 kB",
+  },
+  {
+    name: "unstyled + drag ranges",
+    path: "size-limit/unstyled-drag.tsx",
     import: "{ DatePicker }",
     limit: "60 kB",
     modifyEsbuildConfig(config) {
-      config.external = IGNORE_REACT;
-      return config;
-    },
-  },
-  {
-    name: "unstyled (mini polyfill)",
-    path: "size-limit-unstyled-mini.tsx",
-    import: "{ DatePicker }",
-    limit: "16 kB",
-    modifyEsbuildConfig(config) {
-      config.external = IGNORE_REACT;
+      withAlias(config);
       return config;
     },
   },
@@ -45,7 +40,6 @@ export default [
     import: "{ StyledDatePicker }",
     limit: "65 kB",
     modifyEsbuildConfig(config) {
-      config.external = [...IGNORE_REACT, "lucide-react"];
       withAlias(config);
       return config;
     },

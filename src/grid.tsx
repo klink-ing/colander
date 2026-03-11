@@ -261,7 +261,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     }
   }, [autoFocus, gridFocusedRef, setGridHasFocus]);
 
-  const resolvedOrientation = orientation ?? "vertical";
+  const resolvedOrientation = orientation ?? "horizontal";
   const daysPerWeek = gridWeeks[0]?.length ?? 7;
   const weeksInMonth = gridWeeks.length;
 
