@@ -1,9 +1,15 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { visualizer } from "rollup-plugin-visualizer";
 import path from "path";
 
 export default defineConfig({
-  plugins: [react({ jsxRuntime: "automatic" })],
+  plugins: [
+    react({ jsxRuntime: "automatic" }),
+    ...(process.env.VISUALIZE
+      ? [visualizer({ filename: "stats.html", gzipSize: true })]
+      : []),
+  ],
   build: {
     lib: {
       entry: path.resolve(import.meta.dirname, "src/index.ts"),
@@ -17,6 +23,7 @@ export default defineConfig({
         "react/jsx-runtime",
         "react/jsx-dev-runtime",
         /^@base-ui\/react/,
+        /@js-temporal\/polyfill/,
       ],
     },
     target: "es2020",

@@ -18,6 +18,7 @@ export { SelectedRange } from "./selected-range";
 export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 export { WeekNumberCell, WeekNumberHeader } from "./week-number";
 export { createDatePicker, type Components } from "./factory";
+export { Temporal } from "./temporal-polyfill";
 export {
   useDatePicker,
   useDatePickerStable,

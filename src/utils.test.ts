@@ -21,6 +21,7 @@ import {
   getISOWeekNumber,
 } from "./utils";
 import type { TemporalNamespace } from "./types";
+import { temporalVariants } from "./test-temporal";
 
 const T: TemporalNamespace = {
   Now: Temporal.Now,
@@ -62,7 +63,7 @@ describe("resolveTemporal", () => {
   });
 });
 
-describe("getSystemTimeZone", () => {
+describe.each(temporalVariants)("getSystemTimeZone ($name)", ({ T }) => {
   it("returns a non-empty IANA time zone string", () => {
     const tz = getSystemTimeZone(T);
     expect(typeof tz).toBe("string");
@@ -330,7 +331,7 @@ describe("sameCalendarDay", () => {
   });
 });
 
-describe("getReferenceWeekStart", () => {
+describe.each(temporalVariants)("getReferenceWeekStart ($name)", ({ T }) => {
   it("returns 2024-01-07 (Sunday) with default weekStartDay", () => {
     expect(getReferenceWeekStart(T).toString()).toBe("2024-01-07");
   });
@@ -352,7 +353,7 @@ describe("getReferenceWeekStart", () => {
   });
 });
 
-describe("getWeekdayNames", () => {
+describe.each(temporalVariants)("getWeekdayNames ($name)", ({ T }) => {
   it("returns exactly 7 entries", () => {
     expect(getWeekdayNames("en-US", T)).toHaveLength(7);
   });
@@ -405,7 +406,7 @@ describe("getWeekdayNames", () => {
   });
 });
 
-describe("computeAdjacentMonth", () => {
+describe.each(temporalVariants)("computeAdjacentMonth ($name)", ({ T }) => {
   it.each<{
     description: string;
     current: { year: number; month: number };
@@ -427,7 +428,9 @@ describe("computeAdjacentMonth", () => {
   );
 });
 
-describe("focusedDateForMonth", () => {
+describe.each(temporalVariants)("focusedDateForMonth ($name)", ({ T }) => {
+  const d = (iso: string) => T.PlainDate.from(iso);
+
   it.each<{
     description: string;
     focused: string;
@@ -444,16 +447,18 @@ describe("focusedDateForMonth", () => {
     "$description",
     ({ focused, targetMonth, firstDay, expected }) => {
       const result = focusedDateForMonth(
-        date(focused),
+        d(focused),
         targetMonth,
-        date(firstDay),
+        d(firstDay),
       );
       expect(result.toString()).toBe(expected);
     },
   );
 });
 
-describe("getMonthWeeks", () => {
+describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
+  const d = (iso: string) => T.PlainDate.from(iso);
+
   it("returns weeks with 7 days each", () => {
     const weeks = getMonthWeeks(2026, 3, T);
     for (const week of weeks) {
@@ -486,8 +491,8 @@ describe("getMonthWeeks", () => {
   it("includes the first and last day of the month", () => {
     const weeks = getMonthWeeks(2026, 3, T);
     const allDays = weeks.flat();
-    const hasFirst = allDays.some((d) => d.toString() === "2026-03-01");
-    const hasLast = allDays.some((d) => d.toString() === "2026-03-31");
+    const hasFirst = allDays.some((dd) => dd.toString() === "2026-03-01");
+    const hasLast = allDays.some((dd) => dd.toString() === "2026-03-31");
     expect(hasFirst).toBe(true);
     expect(hasLast).toBe(true);
   });
@@ -552,7 +557,7 @@ describe("getMonthWeeks", () => {
 
   it("month navigation + focus: simulates prev/next and verifies a focusable day exists", () => {
     const current = { year: 2026, month: 3 };
-    const focusedDate = date("2026-03-15");
+    const focusedDate = d("2026-03-15");
 
     const next = computeAdjacentMonth(current, "next", T);
     const newFocused = focusedDateForMonth(focusedDate, next, next.firstDay);
@@ -560,7 +565,7 @@ describe("getMonthWeeks", () => {
     const allNextDays = nextWeeks.flat();
 
     expect(
-      allNextDays.some((d) => Temporal.PlainDate.compare(d, newFocused) === 0),
+      allNextDays.some((dd) => T.PlainDate.compare(dd, newFocused) === 0),
     ).toBe(true);
 
     const prev = computeAdjacentMonth(current, "prev", T);
@@ -569,19 +574,20 @@ describe("getMonthWeeks", () => {
     const allPrevDays = prevWeeks.flat();
 
     expect(
-      allPrevDays.some((d) => Temporal.PlainDate.compare(d, prevFocused) === 0),
+      allPrevDays.some((dd) => T.PlainDate.compare(dd, prevFocused) === 0),
     ).toBe(true);
   });
 });
 
-describe("resolveFocusTarget", () => {
+describe.each(temporalVariants)("resolveFocusTarget ($name)", ({ T }) => {
+  const d = (iso: string) => T.PlainDate.from(iso);
   const noDisabled = () => false;
   const marchWeeks = getMonthWeeks(2026, 3, T);
   const march = { year: 2026, month: 3 };
 
   it("priority 1: returns focusedDate when it is in the grid", () => {
     const result = resolveFocusTarget(
-      date("2026-03-15"),
+      d("2026-03-15"),
       undefined,
       marchWeeks,
       march,
@@ -593,8 +599,8 @@ describe("resolveFocusTarget", () => {
 
   it("priority 1: returns focusedDate even if selectedDate differs", () => {
     const result = resolveFocusTarget(
-      date("2026-03-10"),
-      date("2026-03-20"),
+      d("2026-03-10"),
+      d("2026-03-20"),
       marchWeeks,
       march,
       noDisabled,
@@ -605,8 +611,8 @@ describe("resolveFocusTarget", () => {
 
   it("priority 2: falls back to selectedDate when focusedDate is not in grid", () => {
     const result = resolveFocusTarget(
-      date("2026-04-15"),
-      date("2026-03-20"),
+      d("2026-04-15"),
+      d("2026-03-20"),
       marchWeeks,
       march,
       noDisabled,
@@ -617,8 +623,8 @@ describe("resolveFocusTarget", () => {
 
   it("priority 3: falls back to first enabled day of the month when neither focused nor selected is in grid", () => {
     const result = resolveFocusTarget(
-      date("2026-04-15"),
-      date("2026-04-20"),
+      d("2026-04-15"),
+      d("2026-04-20"),
       marchWeeks,
       march,
       noDisabled,
@@ -628,10 +634,10 @@ describe("resolveFocusTarget", () => {
   });
 
   it("priority 3: skips disabled days at the start of the month", () => {
-    const disableFirst3 = (d: Temporal.PlainDate) =>
-      d.year === 2026 && d.month === 3 && d.day <= 3;
+    const disableFirst3 = (dd: Temporal.PlainDate) =>
+      dd.year === 2026 && dd.month === 3 && dd.day <= 3;
     const result = resolveFocusTarget(
-      date("2026-04-15"),
+      d("2026-04-15"),
       undefined,
       marchWeeks,
       march,
@@ -643,10 +649,10 @@ describe("resolveFocusTarget", () => {
 
   it("priority 2: selected outside-month day in grid is still valid", () => {
     const allDays = marchWeeks.flat();
-    const outsideDay = allDays.find((d) => d.month !== 3);
+    const outsideDay = allDays.find((dd) => dd.month !== 3);
     if (!outsideDay) return;
     const result = resolveFocusTarget(
-      date("2026-05-01"),
+      d("2026-05-01"),
       outsideDay,
       marchWeeks,
       march,
@@ -657,10 +663,10 @@ describe("resolveFocusTarget", () => {
   });
 
   it("falls back to first grid day when all current-month days are disabled", () => {
-    const allDisabled = (d: Temporal.PlainDate) =>
-      d.year === 2026 && d.month === 3;
+    const allDisabled = (dd: Temporal.PlainDate) =>
+      dd.year === 2026 && dd.month === 3;
     const result = resolveFocusTarget(
-      date("2026-05-01"),
+      d("2026-05-01"),
       undefined,
       marchWeeks,
       march,
@@ -673,8 +679,8 @@ describe("resolveFocusTarget", () => {
 
   it("gridHasFocus=false: selectedDate wins over focusedDate when tabbing into grid", () => {
     const result = resolveFocusTarget(
-      date("2026-03-01"),
-      date("2026-03-20"),
+      d("2026-03-01"),
+      d("2026-03-20"),
       marchWeeks,
       march,
       noDisabled,
@@ -686,7 +692,7 @@ describe("resolveFocusTarget", () => {
 
   it("gridHasFocus=false: focusedDate used as fallback when no selectedDate", () => {
     const result = resolveFocusTarget(
-      date("2026-03-10"),
+      d("2026-03-10"),
       undefined,
       marchWeeks,
       march,
@@ -699,8 +705,8 @@ describe("resolveFocusTarget", () => {
 
   it("gridHasFocus=true: focusedDate wins over selectedDate (keyboard nav)", () => {
     const result = resolveFocusTarget(
-      date("2026-03-01"),
-      date("2026-03-20"),
+      d("2026-03-01"),
+      d("2026-03-20"),
       marchWeeks,
       march,
       noDisabled,
@@ -730,9 +736,10 @@ describe("shouldMoveDomFocus", () => {
   );
 });
 
-describe("isInRange", () => {
-  const start = date("2026-03-10");
-  const end = date("2026-03-20");
+describe.each(temporalVariants)("isInRange ($name)", ({ T }) => {
+  const d = (iso: string) => T.PlainDate.from(iso);
+  const start = d("2026-03-10");
+  const end = d("2026-03-20");
 
   it.each<{
     description: string;
@@ -751,24 +758,25 @@ describe("isInRange", () => {
     { description: "two-day range start endpoint", d: "2026-03-10", s: "2026-03-10", e: "2026-03-11", expected: 0 },
     { description: "two-day range end endpoint", d: "2026-03-11", s: "2026-03-10", e: "2026-03-11", expected: 1 },
     { description: "single-day range (start = end = date)", d: "2026-03-15", s: "2026-03-15", e: "2026-03-15", expected: 0 },
-  ])("$description", ({ d, s, e, expected }) => {
-    expect(isInRange(date(d), date(s), date(e), T)).toBe(expected);
+  ])("$description", ({ d: dd, s, e, expected }) => {
+    expect(isInRange(d(dd), d(s), d(e), T)).toBe(expected);
   });
 
   it("returns false when rangeStart is undefined", () => {
-    expect(isInRange(date("2026-03-15"), undefined, end, T)).toBe(false);
+    expect(isInRange(d("2026-03-15"), undefined, end, T)).toBe(false);
   });
 
   it("returns false when rangeEnd is undefined", () => {
-    expect(isInRange(date("2026-03-15"), start, undefined, T)).toBe(false);
+    expect(isInRange(d("2026-03-15"), start, undefined, T)).toBe(false);
   });
 
   it("returns false when both are undefined", () => {
-    expect(isInRange(date("2026-03-15"), undefined, undefined, T)).toBe(false);
+    expect(isInRange(d("2026-03-15"), undefined, undefined, T)).toBe(false);
   });
 });
 
-describe("computeWeekRangeInfo", () => {
+describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
+  const d = (iso: string) => T.PlainDate.from(iso);
   const marchWeeks = getMonthWeeks(2026, 3, T);
   const week1 = marchWeeks[1];
 
@@ -776,7 +784,7 @@ describe("computeWeekRangeInfo", () => {
     const result = computeWeekRangeInfo(
       week1,
       undefined,
-      date("2026-03-15"),
+      d("2026-03-15"),
       T,
     );
     expect(result.active).toBe(false);
@@ -785,7 +793,7 @@ describe("computeWeekRangeInfo", () => {
   it("returns inactive when rangeEnd is undefined", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-03-08"),
+      d("2026-03-08"),
       undefined,
       T,
     );
@@ -795,8 +803,8 @@ describe("computeWeekRangeInfo", () => {
   it("returns inactive when range has no overlap with week", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-04-01"),
-      date("2026-04-10"),
+      d("2026-04-01"),
+      d("2026-04-10"),
       T,
     );
     expect(result.active).toBe(false);
@@ -805,8 +813,8 @@ describe("computeWeekRangeInfo", () => {
   it("range fully within week", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-03-09"),
-      date("2026-03-12"),
+      d("2026-03-09"),
+      d("2026-03-12"),
       T,
     );
     expect(result.active).toBe(true);
@@ -821,8 +829,8 @@ describe("computeWeekRangeInfo", () => {
   it("range starts before week", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-03-01"),
-      date("2026-03-12"),
+      d("2026-03-01"),
+      d("2026-03-12"),
       T,
     );
     expect(result.active).toBe(true);
@@ -834,8 +842,8 @@ describe("computeWeekRangeInfo", () => {
   it("range ends after week", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-03-09"),
-      date("2026-03-25"),
+      d("2026-03-09"),
+      d("2026-03-25"),
       T,
     );
     expect(result.active).toBe(true);
@@ -847,8 +855,8 @@ describe("computeWeekRangeInfo", () => {
   it("range spans entire week", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-03-01"),
-      date("2026-03-25"),
+      d("2026-03-01"),
+      d("2026-03-25"),
       T,
     );
     expect(result.active).toBe(true);
@@ -859,7 +867,7 @@ describe("computeWeekRangeInfo", () => {
   });
 
   it("single-day range within week", () => {
-    const singleDay = date("2026-03-10");
+    const singleDay = d("2026-03-10");
     const result = computeWeekRangeInfo(week1, singleDay, singleDay, T);
     expect(result.active).toBe(true);
     expect(result.startIndex).toBe(result.endIndex);
@@ -870,8 +878,8 @@ describe("computeWeekRangeInfo", () => {
   it("two-day range within week", () => {
     const result = computeWeekRangeInfo(
       week1,
-      date("2026-03-10"),
-      date("2026-03-11"),
+      d("2026-03-10"),
+      d("2026-03-11"),
       T,
     );
     expect(result.active).toBe(true);
@@ -881,15 +889,17 @@ describe("computeWeekRangeInfo", () => {
   it("returns inactive for empty weekDays array", () => {
     const result = computeWeekRangeInfo(
       [],
-      date("2026-03-10"),
-      date("2026-03-15"),
+      d("2026-03-10"),
+      d("2026-03-15"),
       T,
     );
     expect(result.active).toBe(false);
   });
 });
 
-describe("getISOWeekNumber", () => {
+describe.each(temporalVariants)("getISOWeekNumber ($name)", ({ T }) => {
+  const d = (iso: string) => T.PlainDate.from(iso);
+
   it.each<{
     description: string;
     d: string;
@@ -903,7 +913,7 @@ describe("getISOWeekNumber", () => {
     { description: "Dec 29, 2025 (Monday) → week 1 of 2026", d: "2025-12-29", expected: 1 },
     { description: "Mar 15, 2026 (Sunday) → week 11", d: "2026-03-15", expected: 11 },
     { description: "Jun 1, 2026 (Monday) → week 23", d: "2026-06-01", expected: 23 },
-  ])("$description", ({ d, expected }) => {
-    expect(getISOWeekNumber(date(d), T)).toBe(expected);
+  ])("$description", ({ d: dd, expected }) => {
+    expect(getISOWeekNumber(d(dd), T)).toBe(expected);
   });
 });

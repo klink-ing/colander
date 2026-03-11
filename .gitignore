@@ -6,3 +6,4 @@ vite.config.ts.*
 .cache
 .local
 /.playwright-mcp
+stats.html
