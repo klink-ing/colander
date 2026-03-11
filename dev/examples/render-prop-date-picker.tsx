@@ -32,6 +32,7 @@ interface RenderPropDatePickerProps<F extends ValueFormat> {
   fixedWeeks?: boolean;
   weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   autoFocus?: boolean;
+  showWeekNumbers?: boolean;
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
@@ -51,6 +52,7 @@ export function RenderPropDatePicker<F extends ValueFormat>({
   fixedWeeks,
   weekStartDay,
   autoFocus,
+  showWeekNumbers: _showWeekNumbers,
   onMonthChange,
 }: RenderPropDatePickerProps<F>) {
   return (

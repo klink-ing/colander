@@ -377,7 +377,8 @@ const dayStateAttributesMapping = {
   rangeStart: (v) => (v ? { "data-range-start": "" } : null),
   rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
   rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
-  inRange: (v) => (v ? { "data-in-range": "" } : null),
+  inRange: (v) =>
+    v !== false ? { "data-in-range": String(v) } : null,
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */

@@ -1,5 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import type { TemporalNamespace, DateValueObject, ValueFormat } from "./types";
+import type { TemporalNamespace, DateValueObject, ValueFormat, WeekStartDay } from "./types";
 
 /**
  * Returns the default calendar system for a given locale (e.g. `"gregory"` for `"en-US"`).
@@ -188,7 +188,7 @@ export function getMonthWeeks(
   year: number,
   month: number,
   T: TemporalNamespace,
-  opts?: { weekStartDay?: number; fixedWeeks?: boolean },
+  opts?: { weekStartDay?: WeekStartDay; fixedWeeks?: boolean },
 ): Temporal.PlainDate[][] {
   const weekStartDay = opts?.weekStartDay ?? 0;
   const fixedWeeks = opts?.fixedWeeks ?? false;
@@ -390,17 +390,27 @@ export function shouldMoveDomFocus(
  * @param T - Temporal namespace used for date comparison.
  * @returns `true` if `rangeStart <= date <= rangeEnd`, `false` otherwise.
  */
+/**
+ * Returns the normalized position of `date` within the range `[rangeStart, rangeEnd]`
+ * as a number from `0` (start) to `1` (end), or `false` if the date is outside.
+ * A single-day range returns `0` for that date.
+ */
 export function isInRange(
   date: Temporal.PlainDate,
   rangeStart: Temporal.PlainDate | undefined,
   rangeEnd: Temporal.PlainDate | undefined,
   T: TemporalNamespace,
-): boolean {
+): number | false {
   if (!rangeStart || !rangeEnd) return false;
-  return (
-    T.PlainDate.compare(date, rangeStart) >= 0 &&
-    T.PlainDate.compare(date, rangeEnd) <= 0
-  );
+  if (
+    T.PlainDate.compare(date, rangeStart) < 0 ||
+    T.PlainDate.compare(date, rangeEnd) > 0
+  )
+    return false;
+  const totalDays = rangeEnd.since(rangeStart).days;
+  if (totalDays === 0) return 0;
+  const offsetDays = date.since(rangeStart).days;
+  return offsetDays / totalDays;
 }
 
 /**

@@ -64,6 +64,7 @@ Check the following in the target files:
 
 **Documentation**
 - All exported functions, types, and components should have TSDoc
+- All component prop types and their individual properties should have TSDoc
 - TSDoc should be concise — describe what, not how
 - Don't add TSDoc to internal/private functions unless they're complex
 
@@ -71,15 +72,18 @@ Check the following in the target files:
 - Data attributes exposed to render functions should match what the `stateAttributesMapping` produces
 - State objects passed to `useRender` should include all fields from their State type
 
-### Step 4: Write Tests for Boundary Conditions
+### Step 4: Write Unit Tests for New Code
 
-When adding tests:
+Any new functions, hooks, or logic paths introduced during the audit (or that were added without tests) **must have unit tests written**. This is not optional — untested code is unfinished code.
+
+When writing tests:
 - Use `it.each` with named object parameters for cases that differ only by arguments
 - Include a `description` field that explains what's being tested
 - Group expected values into a single `expected` object when there are multiple
 - Focus on boundary/edge cases, not happy paths (unless coverage is missing)
 - Don't test CSS class names in the DOM
 - Do verify that data-attributes and states exposed to render functions are consistent
+- If you find existing code without test coverage, add tests for it
 
 Example test style:
 ```ts

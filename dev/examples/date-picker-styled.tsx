@@ -204,10 +204,14 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
-  className,
-  ...props
-}: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> }) {
+export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
+  allProps: DayCellTemplateProps<F> & {
+    ref?: React.Ref<HTMLTableCellElement>;
+    columnOffset?: number;
+    allowRangeReversal?: boolean;
+  },
+) {
+  const { className, columnOffset = 0, allowRangeReversal, ...props } = allProps;
   return (
     <DayCellTemplate
       {...(props as DayCellTemplateProps)}
@@ -215,8 +219,11 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
         const gridStyle =
           state.columnIndex >= 0
             ? state.orientation === "horizontal"
-              ? { gridRow: state.columnIndex + 1, gridColumn: 1 }
-              : { gridColumn: state.columnIndex + 1, gridRow: 1 }
+              ? { gridRow: state.columnIndex + 1 + columnOffset, gridColumn: 1 }
+              : {
+                  gridColumn: state.columnIndex + 1 + columnOffset,
+                  gridRow: 1,
+                }
             : undefined;
         return (
           <td
@@ -225,8 +232,8 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>({
             className={cn("relative text-center", className)}
           >
             <StyledDayButton date={state.date} />
-            <StyledRangeStartDragHandle />
-            <StyledRangeEndDragHandle />
+            <StyledRangeStartDragHandle allowRangeReversal={allowRangeReversal} />
+            <StyledRangeEndDragHandle allowRangeReversal={allowRangeReversal} />
           </td>
         );
       }}
@@ -312,6 +319,7 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
 function useDragHandleDnD(
   edge: "start" | "end",
   handleRef: React.RefObject<HTMLSpanElement | null>,
+  allowRangeReversal = false,
 ) {
   const { rangeStart, rangeEnd, setRange, temporal: T } = useDatePicker();
   const cellData = useContext(DayCellDataContext);
@@ -335,7 +343,9 @@ function useDragHandleDnD(
   setRangeRef.current = setRange;
 
   const edgeRef = useRef(edge);
-  edgeRef.current = edge;
+  if (!draggingRef.current) {
+    edgeRef.current = edge;
+  }
 
   useEffect(() => {
     const el = handleRef.current;
@@ -377,8 +387,7 @@ function useDragHandleDnD(
     if (!dragging) return;
     return monitorForElements({
       canMonitor: ({ source }) =>
-        source.data.type === "date-range-handle" &&
-        source.data.edge === edgeRef.current,
+        source.data.type === "date-range-handle",
       onDrag: ({ location }) => {
         const dropTarget = location.current.dropTargets[0];
         if (!dropTarget) return;
@@ -415,6 +424,11 @@ function useDragHandleDnD(
         if (Tp.PlainDate.compare(target, end) <= 0) {
           newStart = target;
           newEnd = end;
+        } else if (allowRangeReversal) {
+          // Dragged start past end — swap: old end becomes new start
+          newStart = end;
+          newEnd = target;
+          edgeRef.current = "end";
         } else {
           newStart = end;
           newEnd = end;
@@ -423,6 +437,11 @@ function useDragHandleDnD(
         if (Tp.PlainDate.compare(target, start) >= 0) {
           newStart = start;
           newEnd = target;
+        } else if (allowRangeReversal) {
+          // Dragged end past start — swap: old start becomes new end
+          newStart = target;
+          newEnd = start;
+          edgeRef.current = "start";
         } else {
           newStart = start;
           newEnd = start;
@@ -433,6 +452,9 @@ function useDragHandleDnD(
         Tp.PlainDate.compare(newStart, start) !== 0 ||
         Tp.PlainDate.compare(newEnd, end) !== 0
       ) {
+        // Eagerly update the ref so the next drag event (which may fire
+        // before React re-renders) sees the correct boundaries.
+        rangeRef.current = { start: newStart, end: newEnd };
         setRangeRef.current(newStart, newEnd);
       }
     }
@@ -443,14 +465,15 @@ function useDragHandleDnD(
 
 export function StyledRangeStartDragHandle<
   F extends ValueFormat = ValueFormat,
->({
-  className,
-  ...props
-}: RangeStartDragHandleProps<F> & {
-  ref?: React.Ref<HTMLSpanElement>;
-}) {
+>(
+  allProps: RangeStartDragHandleProps<F> & {
+    ref?: React.Ref<HTMLSpanElement>;
+    allowRangeReversal?: boolean;
+  },
+) {
+  const { className, allowRangeReversal, ...props } = allProps;
   const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging, anyHandleDragging } = useDragHandleDnD("start", handleRef);
+  const { dragging, anyHandleDragging } = useDragHandleDnD("start", handleRef, allowRangeReversal);
   const {
     onSelect,
     setFocusedDate,
@@ -514,14 +537,15 @@ export function StyledRangeStartDragHandle<
   );
 }
 
-export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
-  className,
-  ...props
-}: RangeEndDragHandleProps<F> & {
-  ref?: React.Ref<HTMLSpanElement>;
-}) {
+export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>(
+  allProps: RangeEndDragHandleProps<F> & {
+    ref?: React.Ref<HTMLSpanElement>;
+    allowRangeReversal?: boolean;
+  },
+) {
+  const { className, allowRangeReversal, ...props } = allProps;
   const handleRef = useRef<HTMLSpanElement>(null);
-  const { dragging, anyHandleDragging } = useDragHandleDnD("end", handleRef);
+  const { dragging, anyHandleDragging } = useDragHandleDnD("end", handleRef, allowRangeReversal);
   const {
     onSelect,
     setFocusedDate,
@@ -585,12 +609,13 @@ export function StyledRangeEndDragHandle<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
-  className,
-  ...props
-}: SelectedRangeProps<F> & {
-  ref?: React.Ref<HTMLTableCellElement>;
-}) {
+export function StyledSelectedRange<F extends ValueFormat = ValueFormat>(
+  allProps: SelectedRangeProps<F> & {
+    ref?: React.Ref<HTMLTableCellElement>;
+    columnOffset?: number;
+  },
+) {
+  const { className, columnOffset = 0, ...props } = allProps;
   return (
     <SelectedRange
       {...(props as SelectedRangeProps)}
@@ -600,7 +625,7 @@ export function StyledSelectedRange<F extends ValueFormat = ValueFormat>({
           return <td {...renderProps} hidden style={{ display: "none" }} />;
         }
         const horizontal = state.orientation === "horizontal";
-        const span = `${state.startIndex + 1} / ${state.endIndex + 2}`;
+        const span = `${state.startIndex + 1 + columnOffset} / ${state.endIndex + 2 + columnOffset}`;
         return (
           <td
             {...renderProps}

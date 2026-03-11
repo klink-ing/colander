@@ -739,18 +739,18 @@ describe("isInRange", () => {
     d: string;
     s: string;
     e: string;
-    expected: boolean;
+    expected: number | false;
   }>([
     { description: "before range", d: "2026-03-05", s: "2026-03-10", e: "2026-03-20", expected: false },
-    { description: "at range start (inclusive)", d: "2026-03-10", s: "2026-03-10", e: "2026-03-20", expected: true },
-    { description: "middle of range", d: "2026-03-15", s: "2026-03-10", e: "2026-03-20", expected: true },
-    { description: "at range end (inclusive)", d: "2026-03-20", s: "2026-03-10", e: "2026-03-20", expected: true },
+    { description: "at range start (inclusive)", d: "2026-03-10", s: "2026-03-10", e: "2026-03-20", expected: 0 },
+    { description: "middle of range", d: "2026-03-15", s: "2026-03-10", e: "2026-03-20", expected: 0.5 },
+    { description: "at range end (inclusive)", d: "2026-03-20", s: "2026-03-10", e: "2026-03-20", expected: 1 },
     { description: "after range", d: "2026-03-25", s: "2026-03-10", e: "2026-03-20", expected: false },
     { description: "one day before start", d: "2026-03-09", s: "2026-03-10", e: "2026-03-20", expected: false },
     { description: "one day after end", d: "2026-03-21", s: "2026-03-10", e: "2026-03-20", expected: false },
-    { description: "two-day range start endpoint", d: "2026-03-10", s: "2026-03-10", e: "2026-03-11", expected: true },
-    { description: "two-day range end endpoint", d: "2026-03-11", s: "2026-03-10", e: "2026-03-11", expected: true },
-    { description: "single-day range (start = end = date)", d: "2026-03-15", s: "2026-03-15", e: "2026-03-15", expected: true },
+    { description: "two-day range start endpoint", d: "2026-03-10", s: "2026-03-10", e: "2026-03-11", expected: 0 },
+    { description: "two-day range end endpoint", d: "2026-03-11", s: "2026-03-10", e: "2026-03-11", expected: 1 },
+    { description: "single-day range (start = end = date)", d: "2026-03-15", s: "2026-03-15", e: "2026-03-15", expected: 0 },
   ])("$description", ({ d, s, e, expected }) => {
     expect(isInRange(date(d), date(s), date(e), T)).toBe(expected);
   });

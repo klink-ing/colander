@@ -24,6 +24,7 @@ interface AnchorDatePickerProps<F extends ValueFormat> {
   fixedWeeks?: boolean;
   weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   autoFocus?: boolean;
+  showWeekNumbers?: boolean;
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
@@ -43,6 +44,7 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>({
   fixedWeeks,
   weekStartDay,
   autoFocus,
+  showWeekNumbers: _showWeekNumbers,
   onMonthChange,
 }: AnchorDatePickerProps<F>) {
   return (

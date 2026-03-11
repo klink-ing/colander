@@ -1,5 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import type { TemporalNamespace } from "./types";
+import type { TemporalNamespace, WeekStartDay } from "./types";
 
 /** Result of a keyboard navigation action. */
 export type KeyboardNavResult =
@@ -18,7 +18,7 @@ export interface KeyboardNavInput {
   readOnly?: boolean;
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
   T: TemporalNamespace;
-  weekStartDay?: number;
+  weekStartDay?: WeekStartDay;
 }
 
 /**

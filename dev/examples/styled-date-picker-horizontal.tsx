@@ -4,6 +4,7 @@ import type {
   RawValueForFormat,
   DateRange,
   Components,
+  InsideRangeAction,
 } from "base-ui-cal";
 import {
   StyledPrevMonthButton,
@@ -32,6 +33,7 @@ type StyledDatePickerHorizontalProps<F extends ValueFormat> = {
   fixedWeeks?: boolean;
   weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   autoFocus?: boolean;
+  showWeekNumbers?: boolean;
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 } & (
   | {
@@ -45,6 +47,7 @@ type StyledDatePickerHorizontalProps<F extends ValueFormat> = {
       value?: DateRange<F>;
       defaultValue?: DateRange<F>;
       onValueChange?: (value: DateRange<F> | undefined) => void;
+      insideRangeAction?: InsideRangeAction;
     }
   | {
       selectionMode: "multiple";
@@ -70,6 +73,7 @@ export function StyledDatePickerHorizontal<
     fixedWeeks,
     weekStartDay,
     autoFocus,
+    showWeekNumbers: _showWeekNumbers,
     onMonthChange,
     ...selectionProps
   } = props;

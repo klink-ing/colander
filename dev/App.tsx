@@ -1,6 +1,10 @@
 import { useState, useMemo, useCallback } from "react";
 import { Temporal } from "@js-temporal/polyfill";
-import { createDatePicker, type DateRange } from "base-ui-cal";
+import {
+  createDatePicker,
+  type DateRange,
+  type InsideRangeAction,
+} from "base-ui-cal";
 import { StyledDatePicker } from "./examples/styled-date-picker";
 import { StyledDatePickerHorizontal } from "./examples/styled-date-picker-horizontal";
 import { RenderPropDatePicker } from "./examples/render-prop-date-picker";
@@ -110,6 +114,10 @@ export default function App() {
     0,
   );
   const [autoFocus, setAutoFocus] = useState(false);
+  const [showWeekNumbers, setShowWeekNumbers] = useState(false);
+  const [insideRangeAction, setInsideRangeAction] =
+    useState<InsideRangeAction>("nearest-end");
+  const [allowRangeReversal, setAllowRangeReversal] = useState(false);
 
   // Value state
   const [singleDate, setSingleDate] = useState<
@@ -255,6 +263,7 @@ export default function App() {
     weekStartDay,
     autoFocus,
     onMonthChange: handleMonthChange,
+    showWeekNumbers,
   } as const;
 
   function renderExample() {
@@ -290,6 +299,8 @@ export default function App() {
           selectionMode="range"
           value={range}
           onValueChange={setRange}
+          insideRangeAction={insideRangeAction}
+          allowRangeReversal={allowRangeReversal}
         />
       );
     }
@@ -359,6 +370,29 @@ export default function App() {
               <option value="multiple">Multiple</option>
             </select>
           </div>
+
+          {/* Inside range action (range mode only) */}
+          {selectionMode === "range" && (
+            <div>
+              <label htmlFor="inside-range-action" className={labelClassName}>
+                Inside Range Click
+              </label>
+              <select
+                id="inside-range-action"
+                value={insideRangeAction}
+                onChange={(e) =>
+                  setInsideRangeAction(e.target.value as InsideRangeAction)
+                }
+                className={selectClassName}
+              >
+                <option value="end">Adjust End</option>
+                <option value="start">Adjust Start</option>
+                <option value="nearest-end">Nearest (tie: End)</option>
+                <option value="nearest-start">Nearest (tie: Start)</option>
+                <option value="reset">Reset to Single Day</option>
+              </select>
+            </div>
+          )}
 
           {/* Timezone */}
           <div>
@@ -483,6 +517,24 @@ export default function App() {
               />
               Auto Focus
             </label>
+            <label className={checkboxClassName}>
+              <input
+                type="checkbox"
+                checked={showWeekNumbers}
+                onChange={(e) => setShowWeekNumbers(e.target.checked)}
+              />
+              Week Numbers
+            </label>
+            {selectionMode === "range" && (
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={allowRangeReversal}
+                  onChange={(e) => setAllowRangeReversal(e.target.checked)}
+                />
+                Allow Range Reversal (drag)
+              </label>
+            )}
           </div>
 
           {/* State readout */}

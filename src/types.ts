@@ -2,6 +2,23 @@ import type { Temporal } from "@js-temporal/polyfill";
 import type { useRender } from "@base-ui/react/use-render";
 import { GridOrientation } from "./context";
 
+export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+/**
+ * Controls what happens when clicking a date inside an existing range.
+ * - `"end"` — moves the range end to the clicked date.
+ * - `"start"` — moves the range start to the clicked date.
+ * - `"nearest-end"` — adjusts whichever boundary is closer; ties go to end.
+ * - `"nearest-start"` — adjusts whichever boundary is closer; ties go to start.
+ * - `"reset"` — collapses the range to a single-day selection on the clicked date.
+ */
+export type InsideRangeAction =
+  | "end"
+  | "start"
+  | "nearest-end"
+  | "nearest-start"
+  | "reset";
+
 export type TemporalNamespace = {
   Now: {
     timeZoneId(): string;
@@ -58,6 +75,17 @@ export type DateRange<F extends ValueFormat = ValueFormat> = {
   end: RawValueForFormat<F>;
 };
 
+/**
+ * Metadata passed as the second argument to `onValueChange`.
+ * @typeParam Previous - The type of the previous selection value.
+ */
+export interface ValueChangeMeta<Previous> {
+  /** The specific date that was clicked, or `undefined` if the change was not triggered by a date selection (e.g. mode switch, out-of-bounds cleanup, drag). */
+  date?: Temporal.PlainDate;
+  /** The previous selection value before this change. */
+  previous: Previous;
+}
+
 /** Stable values (callbacks, config, refs) that don't change during interaction. */
 export interface DatePickerStableContextValue {
   onSelect: (date: Temporal.PlainDate) => void;
@@ -77,7 +105,7 @@ export interface DatePickerStableContextValue {
   locale: string;
   temporal: TemporalNamespace;
   gridFocusedRef: React.RefObject<boolean>;
-  weekStartDay: number;
+  weekStartDay: WeekStartDay;
 }
 
 /** Volatile state that changes on interaction. */
@@ -113,39 +141,119 @@ export type RootState<F extends ValueFormat = ValueFormat> = {
 };
 
 interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
+  /**
+   * The value format used for date serialization. Determines the type of
+   * `value`, `defaultValue`, `min`, `max`, and callback parameters.
+   * @default "PlainDate"
+   */
   format?: F;
+  /** Earliest selectable date. Dates before this are disabled. */
   min?: RawValueForFormat<F>;
+  /** Latest selectable date. Dates after this are disabled. */
   max?: RawValueForFormat<F>;
+  /**
+   * When `true`, the entire calendar is disabled. No dates can be selected
+   * or focused via keyboard.
+   * @default false
+   */
   disabled?: boolean;
+  /**
+   * When `true`, the calendar is read-only. Keyboard navigation still works
+   * but selection (click, Enter, Space) is prevented.
+   * @default false
+   */
   readOnly?: boolean;
+  /**
+   * Callback to disable individual dates. Return `true` to disable a date.
+   * Called in addition to `min`/`max` bounds checking.
+   */
   isDateDisabled?: (date: Temporal.PlainDate) => boolean;
+  /**
+   * IANA time zone identifier used for date/time conversions.
+   * @default The system's current time zone.
+   */
   timeZone?: string;
+  /**
+   * BCP 47 locale string used for formatting month names, weekday labels,
+   * and other locale-sensitive output.
+   * @default "en-US"
+   */
   locale?: string;
+  /**
+   * Custom Temporal namespace for environments without native Temporal support.
+   * Typically the `Temporal` export from `@js-temporal/polyfill`. When using
+   * `createDatePicker`, this is baked into the factory and need not be passed again.
+   */
   temporal?: TemporalNamespace;
-  weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  /**
+   * Day of the week the calendar grid starts on.
+   * `0` = Sunday, `1` = Monday, ..., `6` = Saturday.
+   * @default 0
+   */
+  weekStartDay?: WeekStartDay;
+  /**
+   * When `true`, the calendar always renders 6 week rows, padding with
+   * dates from adjacent months. Prevents layout shifts when navigating
+   * between months with different row counts.
+   * @default false
+   */
   fixedWeeks?: boolean;
+  /**
+   * Called when the visible month changes — via navigation buttons,
+   * keyboard (PageUp/PageDown), or when `focusedDate` crosses a month
+   * boundary. Not called on initial mount.
+   */
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
 interface SingleSelectionProps<F extends ValueFormat = ValueFormat> {
+  /**
+   * Selection mode. `"single"` allows selecting one date at a time.
+   * @default "single"
+   */
   selectionMode?: "single";
+  /** The controlled selected date. */
   value?: RawValueForFormat<F>;
+  /** The initial selected date (uncontrolled). */
   defaultValue?: RawValueForFormat<F>;
-  onValueChange?: (value: RawValueForFormat<F> | undefined) => void;
+  /** Called when the selected date changes. `undefined` means no selection. */
+  onValueChange?: (
+    value: RawValueForFormat<F> | undefined,
+    meta: ValueChangeMeta<RawValueForFormat<F> | undefined>,
+  ) => void;
 }
 
 interface RangeSelectionProps<F extends ValueFormat = ValueFormat> {
+  /** Selection mode. `"range"` allows selecting a start and end date. */
   selectionMode: "range";
+  /** The controlled selected range (`{ start, end }`). */
   value?: DateRange<F>;
+  /** The initial selected range (uncontrolled). */
   defaultValue?: DateRange<F>;
-  onValueChange?: (value: DateRange<F> | undefined) => void;
+  /** Called when the selected range changes. `undefined` means no selection. */
+  onValueChange?: (
+    value: DateRange<F> | undefined,
+    meta: ValueChangeMeta<DateRange<F> | undefined>,
+  ) => void;
+  /**
+   * What happens when clicking a date that falls inside the current range.
+   * @default "nearest-end"
+   */
+  insideRangeAction?: InsideRangeAction;
 }
 
 interface MultipleSelectionProps<F extends ValueFormat = ValueFormat> {
+  /** Selection mode. `"multiple"` allows selecting any number of individual dates. */
   selectionMode: "multiple";
+  /** The controlled array of selected dates, sorted oldest-first. */
   value?: RawValueForFormat<F>[];
+  /** The initial array of selected dates (uncontrolled). */
   defaultValue?: RawValueForFormat<F>[];
-  onValueChange?: (value: RawValueForFormat<F>[]) => void;
+  /** Called when the selected dates change. Clicking a selected date deselects it. */
+  onValueChange?: (
+    value: RawValueForFormat<F>[],
+    meta: ValueChangeMeta<RawValueForFormat<F>[]>,
+  ) => void;
 }
 
 export type RootOwnProps<F extends ValueFormat = ValueFormat> =
@@ -292,7 +400,8 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   rangeStart: boolean;
   rangeEnd: boolean;
   rangeBoundary: boolean;
-  inRange: boolean;
+  /** Position within the range as a fraction from `0` (range start) to `1` (range end), or `false` if not in range. */
+  inRange: number | false;
 };
 
 export type DayButtonState<F extends ValueFormat = ValueFormat> =
