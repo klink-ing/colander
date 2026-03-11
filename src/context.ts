@@ -54,6 +54,8 @@ export function useDatePicker<F extends ValueFormat = ValueFormat>() {
 export const WeekDataContext = createContext<{
   days: Temporal.PlainDate[];
   weekIndex: number;
+  /** The year/month this week belongs to (for outsideMonth checks in multi-month). */
+  gridMonth?: { year: number; month: number };
 } | null>(null);
 
 /** Layout direction for the calendar grid. */
@@ -68,4 +70,11 @@ export const GridContext = createContext<{ orientation: GridOrientation }>({
 export const DayCellDataContext = createContext<{
   date: Temporal.PlainDate;
   columnIndex?: number;
+} | null>(null);
+
+/** @internal Provides per-grid month data to WeekTemplate and DayCellTemplate. */
+export const GridMonthContext = createContext<{
+  weeks: Temporal.PlainDate[][];
+  year: number;
+  month: number;
 } | null>(null);

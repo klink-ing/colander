@@ -36,6 +36,7 @@ type StyledDatePickerProps<F extends ValueFormat> = {
   autoFocus?: boolean;
   showWeekNumbers?: boolean;
   allowRangeReversal?: boolean;
+  numberOfMonths?: number;
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 } & (
   | {
@@ -77,9 +78,52 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
     autoFocus,
     showWeekNumbers,
     allowRangeReversal,
+    numberOfMonths: numberOfMonthsProp,
     onMonthChange,
     ...selectionProps
   } = props;
+  const numberOfMonths = numberOfMonthsProp ?? 1;
+
+  const renderGrid = (monthIndex: number) => (
+    <div key={monthIndex}>
+      {numberOfMonths > 1 && (
+        <div className="flex items-center justify-center px-1 pb-3">
+          <StyledMonthYearString monthIndex={monthIndex} />
+        </div>
+      )}
+      <StyledGrid
+        monthIndex={monthIndex}
+        autoFocus={monthIndex === 0 ? autoFocus : undefined}
+        className={
+          showWeekNumbers
+            ? "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)]"
+            : undefined
+        }
+      >
+        <StyledGridHeader>
+          {showWeekNumbers && (
+            <WeekNumberHeader className="w-8 p-1 text-center text-[0.7rem] font-normal text-muted-foreground" />
+          )}
+          <StyledGridHeaderCell />
+        </StyledGridHeader>
+        <StyledGridBody>
+          <StyledWeekTemplate>
+            {showWeekNumbers && (
+              <WeekNumberCell className="w-8 p-1 text-center text-[0.7rem] tabular-nums text-muted-foreground" />
+            )}
+            <StyledSelectedRange
+              columnOffset={showWeekNumbers ? 1 : 0}
+            />
+            <StyledDayCellTemplate
+              columnOffset={showWeekNumbers ? 1 : 0}
+              allowRangeReversal={allowRangeReversal}
+            />
+          </StyledWeekTemplate>
+        </StyledGridBody>
+      </StyledGrid>
+    </div>
+  );
+
   return (
     <DP.Root
       {...(selectionProps as any)}
@@ -92,44 +136,27 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
       locale={locale}
       fixedWeeks={fixedWeeks}
       weekStartDay={weekStartDay}
+      numberOfMonths={numberOfMonths}
       onMonthChange={onMonthChange}
     >
       <div className={cn("p-3", className)}>
-        <div className="flex items-center justify-between gap-1 px-1 pb-3">
-          <StyledPrevMonthButton />
-          <StyledMonthYearString />
-          <StyledNextMonthButton />
+        {numberOfMonths === 1 && (
+          <div className="flex items-center justify-between gap-1 px-1 pb-3">
+            <StyledPrevMonthButton />
+            <StyledMonthYearString />
+            <StyledNextMonthButton />
+          </div>
+        )}
+        {numberOfMonths > 1 && (
+          <div className="flex items-center justify-between gap-1 px-1 pb-3">
+            <StyledPrevMonthButton />
+            <div />
+            <StyledNextMonthButton />
+          </div>
+        )}
+        <div className={numberOfMonths > 1 ? "flex gap-4" : undefined}>
+          {Array.from({ length: numberOfMonths }, (_, i) => renderGrid(i))}
         </div>
-
-        <StyledGrid
-          autoFocus={autoFocus}
-          className={
-            showWeekNumbers
-              ? "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)]"
-              : undefined
-          }
-        >
-          <StyledGridHeader>
-            {showWeekNumbers && (
-              <WeekNumberHeader className="w-8 p-1 text-center text-[0.7rem] font-normal text-muted-foreground" />
-            )}
-            <StyledGridHeaderCell />
-          </StyledGridHeader>
-          <StyledGridBody>
-            <StyledWeekTemplate>
-              {showWeekNumbers && (
-                <WeekNumberCell className="w-8 p-1 text-center text-[0.7rem] tabular-nums text-muted-foreground" />
-              )}
-              <StyledSelectedRange
-                columnOffset={showWeekNumbers ? 1 : 0}
-              />
-              <StyledDayCellTemplate
-                columnOffset={showWeekNumbers ? 1 : 0}
-                allowRangeReversal={allowRangeReversal}
-              />
-            </StyledWeekTemplate>
-          </StyledGridBody>
-        </StyledGrid>
       </div>
     </DP.Root>
   );

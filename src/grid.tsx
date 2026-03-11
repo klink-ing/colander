@@ -17,6 +17,7 @@ import {
   WeekDataContext,
   DayCellDataContext,
   GridContext,
+  GridMonthContext,
   GridOrientation,
 } from "./context";
 import { computeNextFocusDate } from "./keyboard";
@@ -172,17 +173,24 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     mode: _mode,
     orientation,
     autoFocus,
+    monthIndex: monthIndexProp,
     children,
     ...otherProps
   } = props;
+  const monthIndex = monthIndexProp ?? 0;
   const {
     currentDateTime,
-    gridLabelId,
+    gridLabelIds,
     rootState,
-    weeks,
+    weeks: defaultWeeks,
+    allMonths,
     gridFocusedRef,
     setGridHasFocus,
   } = useDatePicker<F>();
+
+  const monthData = allMonths[monthIndex];
+  const gridWeeks = monthData?.weeks ?? defaultWeeks;
+
   const handleKeyDown = useGridKeyboard();
   const gridRef = useRef<HTMLTableElement>(null);
 
@@ -200,28 +208,28 @@ export function Grid<F extends ValueFormat = ValueFormat>(
   }, [autoFocus, gridFocusedRef, setGridHasFocus]);
 
   const resolvedOrientation = orientation ?? "vertical";
-  const daysPerWeek = weeks[0]?.length ?? 7;
-  const weeksInMonth = weeks.length;
+  const daysPerWeek = gridWeeks[0]?.length ?? 7;
+  const weeksInMonth = gridWeeks.length;
+
+  const gridMonth = monthData ?? {
+    year: currentDateTime.year,
+    month: currentDateTime.month,
+  };
 
   const state = useMemo<GridState<F>>(
     () => ({
       root: rootState,
-      month: currentDateTime.month,
-      year: currentDateTime.year,
+      month: gridMonth.month,
+      year: gridMonth.year,
       orientation: resolvedOrientation,
     }),
-    [
-      rootState,
-      currentDateTime.month,
-      currentDateTime.year,
-      resolvedOrientation,
-    ],
+    [rootState, gridMonth.month, gridMonth.year, resolvedOrientation],
   );
 
   const defaultProps: Record<string, unknown> = {
     role: "grid",
-    "aria-labelledby": gridLabelId || undefined,
-    "aria-label": gridLabelId ? undefined : "Calendar",
+    "aria-labelledby": gridLabelIds[monthIndex] || undefined,
+    "aria-label": gridLabelIds[monthIndex] ? undefined : "Calendar",
     "data-calendar-days-per-week": daysPerWeek,
     "data-calendar-weeks-in-month": weeksInMonth,
     style: {
@@ -262,16 +270,21 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     props: mergeProps<"table">(defaultProps, otherProps),
   });
 
-  const ctx = useMemo(
+  const orientationCtx = useMemo(
     () => ({ orientation: resolvedOrientation }),
     [resolvedOrientation],
   );
 
-  if (resolvedOrientation) {
-    return <GridContext.Provider value={ctx}>{el}</GridContext.Provider>;
-  }
+  const monthCtx = useMemo(
+    () => ({ weeks: gridWeeks, year: gridMonth.year, month: gridMonth.month }),
+    [gridWeeks, gridMonth.year, gridMonth.month],
+  );
 
-  return el;
+  return (
+    <GridMonthContext.Provider value={monthCtx}>
+      <GridContext.Provider value={orientationCtx}>{el}</GridContext.Provider>
+    </GridMonthContext.Provider>
+  );
 }
 
 const gridBodyStateAttributesMapping = {
@@ -346,7 +359,12 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(
 export function WeekTemplate<F extends ValueFormat = ValueFormat>(
   props: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> },
 ) {
-  const { weeks } = useDatePickerState();
+  const gridMonthCtx = useContext(GridMonthContext);
+  const { weeks: defaultWeeks } = useDatePickerState();
+  const weeks = gridMonthCtx?.weeks ?? defaultWeeks;
+  const gridMonth = gridMonthCtx
+    ? { year: gridMonthCtx.year, month: gridMonthCtx.month }
+    : undefined;
   const Instance = WeekInstance<F>;
 
   return (
@@ -354,7 +372,7 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
       {weeks.map((weekDays, i) => (
         <WeekDataContext.Provider
           key={weekDays[0].toString()}
-          value={{ days: weekDays, weekIndex: i }}
+          value={{ days: weekDays, weekIndex: i, gridMonth }}
         >
           <Instance {...props} />
         </WeekDataContext.Provider>
@@ -485,6 +503,10 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
     weeks,
   } = useDatePickerState();
 
+  // Use the grid-specific month for outsideMonth checks, falling back to currentDateTime.
+  // In multi-month mode, gridMonth is set by WeekTemplate from GridMonthContext.
+  const cellMonth = weekData?.gridMonth ?? currentDateTime;
+
   const {
     disabled,
     isDateDisabled,
@@ -506,7 +528,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       colIdx,
       rootState,
       selectedDates,
-      currentDateTime,
+      cellMonth,
       disabled,
       isDateDisabled,
       focusedDate,
@@ -542,7 +564,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           colIdx,
           rootState,
           selectedDates,
-          currentDateTime,
+          cellMonth,
           disabled,
           isDateDisabled,
           focusedDate,
@@ -703,6 +725,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
 ) {
   const { date, ...restProps } = props;
   const { orientation } = useContext(GridContext);
+  const weekData = useContext(WeekDataContext);
   const {
     selectedDates,
     currentDateTime,
@@ -720,6 +743,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     weekStartDay,
   } = useDatePickerStable();
 
+  const cellMonth = weekData?.gridMonth ?? currentDateTime;
   const daysInWeek = date.daysInWeek;
   const colIdx =
     ((date.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
@@ -729,7 +753,7 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     colIdx,
     rootState,
     selectedDates,
-    currentDateTime,
+    cellMonth,
     disabled,
     isDateDisabled,
     focusedDate,

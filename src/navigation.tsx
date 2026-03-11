@@ -154,22 +154,23 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
 export function MonthYearString<F extends ValueFormat = ValueFormat>(
   props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
-  const { ref, render, locales, options, ...otherProps } = props;
-  const { currentDateTime, locale, setGridLabelId, rootState } =
+  const { ref, render, locales, options, monthIndex: monthIndexProp, ...otherProps } = props;
+  const monthIndex = monthIndexProp ?? 0;
+  const { currentDateTime, allMonths, locale, setGridLabelId, rootState } =
     useDatePicker<F>();
 
   const id = useId();
 
   useEffect(() => {
-    setGridLabelId(id);
-    return () => setGridLabelId(undefined);
-  }, [id, setGridLabelId]);
+    setGridLabelId(monthIndex, id);
+    return () => setGridLabelId(monthIndex, undefined);
+  }, [id, setGridLabelId, monthIndex]);
 
-  const displayDate = new Date(
-    currentDateTime.year,
-    currentDateTime.month - 1,
-    1,
-  );
+  const monthData = allMonths[monthIndex];
+  const displayYear = monthData?.year ?? currentDateTime.year;
+  const displayMonth = monthData?.month ?? currentDateTime.month;
+
+  const displayDate = new Date(displayYear, displayMonth - 1, 1);
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
     year: "numeric",
@@ -182,10 +183,10 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
   const state = useMemo<MonthYearStringState<F>>(
     () => ({
       root: rootState,
-      month: currentDateTime.month,
-      year: currentDateTime.year,
+      month: displayMonth,
+      year: displayYear,
     }),
-    [rootState, currentDateTime.month, currentDateTime.year],
+    [rootState, displayMonth, displayYear],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -211,6 +212,8 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     goToPrevMonth,
     goToNextMonth,
     currentDateTime,
+    allMonths,
+    numberOfMonths,
     disabled: globalDisabled,
     minValue,
     maxValue,
@@ -219,23 +222,30 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     rootState,
   } = useDatePicker<F>();
 
+  // For "next", compute destination from the last visible month
+  // For "prev", compute destination from the first visible month
+  const refMonth =
+    direction === "next"
+      ? allMonths[numberOfMonths - 1] ?? currentDateTime
+      : currentDateTime;
+
   const destMonth =
     direction === "prev"
-      ? currentDateTime.month === 1
+      ? refMonth.month === 1
         ? 12
-        : currentDateTime.month - 1
-      : currentDateTime.month === 12
+        : refMonth.month - 1
+      : refMonth.month === 12
         ? 1
-        : currentDateTime.month + 1;
+        : refMonth.month + 1;
 
   const destYear =
     direction === "prev"
-      ? currentDateTime.month === 1
-        ? currentDateTime.year - 1
-        : currentDateTime.year
-      : currentDateTime.month === 12
-        ? currentDateTime.year + 1
-        : currentDateTime.year;
+      ? refMonth.month === 1
+        ? refMonth.year - 1
+        : refMonth.year
+      : refMonth.month === 12
+        ? refMonth.year + 1
+        : refMonth.year;
 
   const boundValue = direction === "prev" ? minValue : maxValue;
 

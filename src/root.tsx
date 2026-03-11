@@ -12,6 +12,7 @@ import type {
   DatePickerStateContextValue,
   DateRange,
   DateValueObject,
+  MonthData,
   RawValueForFormat,
   RootProps,
   RootState,
@@ -46,6 +47,7 @@ interface UseRootStateParamsBase<F extends ValueFormat> {
   temporal: TemporalNamespace;
   weekStartDay: WeekStartDay;
   fixedWeeks: boolean;
+  numberOfMonths: number;
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 }
 
@@ -442,7 +444,22 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
     return { year: init.year, month: init.month };
   });
 
-  const [gridLabelId, setGridLabelId] = useState<string | undefined>(undefined);
+  const [gridLabelIds, setGridLabelIds] = useState<Record<number, string>>({});
+  const setGridLabelId = useCallback(
+    (monthIndex: number, id: string | undefined) => {
+      setGridLabelIds((prev) => {
+        if (id === undefined) {
+          if (!(monthIndex in prev)) return prev;
+          const next = { ...prev };
+          delete next[monthIndex];
+          return next;
+        }
+        if (prev[monthIndex] === id) return prev;
+        return { ...prev, [monthIndex]: id };
+      });
+    },
+    [],
+  );
   const gridFocusedRef = useRef(false);
   const [gridHasFocus, setGridHasFocus] = useState(false);
 
@@ -467,21 +484,35 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
     [selected, timeZone, T],
   );
 
+  /** Shift currentMonth only if the target month isn't already visible. */
+  const navigateToMonth = useCallback(
+    (targetYear: number, targetMonth: number) => {
+      setCurrentMonth((prev) => {
+        const n = params.numberOfMonths;
+        for (let i = 0; i < n; i++) {
+          const totalMonths = prev.year * 12 + (prev.month - 1) + i;
+          const y = Math.floor(totalMonths / 12);
+          const m = (totalMonths % 12) + 1;
+          if (targetYear === y && targetMonth === m) {
+            return prev; // Already visible
+          }
+        }
+        return { year: targetYear, month: targetMonth };
+      });
+    },
+    [params.numberOfMonths],
+  );
+
   useEffect(() => {
     if (taggedValue) {
       const zdt = toZonedDateTime(taggedValue, timeZone, T);
-      setCurrentMonth({ year: zdt.year, month: zdt.month });
+      navigateToMonth(zdt.year, zdt.month);
     }
-  }, [taggedValue, timeZone, T]);
+  }, [taggedValue, timeZone, T, navigateToMonth]);
 
   useEffect(() => {
-    setCurrentMonth((prev) => {
-      if (focusedDate.year !== prev.year || focusedDate.month !== prev.month) {
-        return { year: focusedDate.year, month: focusedDate.month };
-      }
-      return prev;
-    });
-  }, [focusedDate]);
+    navigateToMonth(focusedDate.year, focusedDate.month);
+  }, [focusedDate, navigateToMonth]);
 
   useEffect(() => {
     if (isRange || isMultiple) return;
@@ -595,7 +626,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
         }
 
         setInternalDates(newDates);
-        setCurrentMonth({ year: date.year, month: date.month });
+        navigateToMonth(date.year, date.month);
         (
           onValueChange as
             | ((
@@ -614,7 +645,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
         const prevRange = currentRangeFormatted();
         newDates = [date, date];
         setInternalDates(newDates);
-        setCurrentMonth({ year: date.year, month: date.month });
+        navigateToMonth(date.year, date.month);
         (
           onValueChange as
             | ((
@@ -633,7 +664,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       const prevSingle = currentSingleFormatted();
       newDates = [date];
       setInternalDates(newDates);
-      setCurrentMonth({ year: date.year, month: date.month });
+      navigateToMonth(date.year, date.month);
 
       const prevTime = selectedZdt
         ? {
@@ -672,6 +703,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       currentSingleFormatted,
       currentRangeFormatted,
       currentMultipleFormatted,
+      navigateToMonth,
     ],
   );
 
@@ -750,14 +782,30 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
     });
   }, [T]);
 
-  const weeks = useMemo(
-    () =>
-      getMonthWeeks(currentMonth.year, currentMonth.month, T, {
-        weekStartDay: params.weekStartDay,
-        fixedWeeks: params.fixedWeeks,
-      }),
-    [currentMonth.year, currentMonth.month, T, params.weekStartDay, params.fixedWeeks],
-  );
+  const allMonths = useMemo<MonthData[]>(() => {
+    const opts = {
+      weekStartDay: params.weekStartDay,
+      fixedWeeks: params.fixedWeeks,
+    };
+    const result: MonthData[] = [];
+    for (let i = 0; i < params.numberOfMonths; i++) {
+      const totalMonths =
+        currentMonth.year * 12 + (currentMonth.month - 1) + i;
+      const y = Math.floor(totalMonths / 12);
+      const m = (totalMonths % 12) + 1;
+      result.push({ year: y, month: m, weeks: getMonthWeeks(y, m, T, opts) });
+    }
+    return result;
+  }, [
+    currentMonth.year,
+    currentMonth.month,
+    T,
+    params.weekStartDay,
+    params.fixedWeeks,
+    params.numberOfMonths,
+  ]);
+
+  const weeks = allMonths[0].weeks;
 
   const currentDateTime = useMemo<Temporal.PlainDateTime>(
     () =>
@@ -890,10 +938,12 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       temporal: T,
       gridFocusedRef,
       weekStartDay: params.weekStartDay,
+      numberOfMonths: params.numberOfMonths,
     }),
     [
       onSelect,
       setRange,
+      setGridLabelId,
       goToNextMonth,
       goToPrevMonth,
       selectionMode,
@@ -906,6 +956,7 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       locale,
       T,
       params.weekStartDay,
+      params.numberOfMonths,
     ],
   );
 
@@ -919,7 +970,9 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       tabTargetDate,
       currentDateTime,
       weeks,
-      gridLabelId,
+      allMonths,
+      numberOfMonths: params.numberOfMonths,
+      gridLabelIds,
       rootState: state as unknown as RootState,
     }),
     [
@@ -931,7 +984,9 @@ function useRootState<F extends ValueFormat>(params: UseRootStateParams<F>) {
       tabTargetDate,
       currentDateTime,
       weeks,
-      gridLabelId,
+      allMonths,
+      params.numberOfMonths,
+      gridLabelIds,
       state,
     ],
   );
@@ -980,6 +1035,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     temporal: temporalProp,
     weekStartDay: weekStartDayProp,
     fixedWeeks: fixedWeeksProp,
+    numberOfMonths: numberOfMonthsProp,
     onMonthChange,
     insideRangeAction,
     ...otherProps
@@ -1006,6 +1062,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     temporal: T,
     weekStartDay: weekStartDayProp ?? 0,
     fixedWeeks: fixedWeeksProp ?? false,
+    numberOfMonths: numberOfMonthsProp ?? 1,
     onMonthChange,
     ...(selectionMode === "range" ? { insideRangeAction } : {}),
   } as UseRootStateParams<F>);

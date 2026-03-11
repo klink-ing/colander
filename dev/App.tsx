@@ -118,6 +118,7 @@ export default function App() {
   const [insideRangeAction, setInsideRangeAction] =
     useState<InsideRangeAction>("nearest-end");
   const [allowRangeReversal, setAllowRangeReversal] = useState(false);
+  const [numberOfMonths, setNumberOfMonths] = useState(1);
 
   // Value state
   const [singleDate, setSingleDate] = useState<
@@ -264,6 +265,7 @@ export default function App() {
     autoFocus,
     onMonthChange: handleMonthChange,
     showWeekNumbers,
+    numberOfMonths,
   } as const;
 
   function renderExample() {
@@ -535,6 +537,23 @@ export default function App() {
                 Allow Range Reversal (drag)
               </label>
             )}
+          </div>
+
+          {/* Number of months */}
+          <div>
+            <label htmlFor="number-of-months" className={labelClassName}>Number of Months</label>
+            <select
+              id="number-of-months"
+              className={selectClassName}
+              value={numberOfMonths}
+              onChange={(e) => setNumberOfMonths(Number(e.target.value))}
+            >
+              {[1, 2, 3].map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* State readout */}

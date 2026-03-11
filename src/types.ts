@@ -108,8 +108,8 @@ export interface DatePickerStableContextValue {
   goToPrevMonth: () => void;
   /** Tracks whether the grid currently holds DOM focus. */
   setGridHasFocus: (v: boolean) => void;
-  /** Registers (or clears) the id of the label element for `aria-labelledby`. */
-  setGridLabelId: (id: string | undefined) => void;
+  /** Registers (or clears) the id of a label element for `aria-labelledby`, keyed by month index. */
+  setGridLabelId: (monthIndex: number, id: string | undefined) => void;
   /** The active selection mode. */
   selectionMode: "single" | "range" | "multiple";
   /** Whether the entire calendar is disabled. */
@@ -132,6 +132,18 @@ export interface DatePickerStableContextValue {
   gridFocusedRef: React.RefObject<boolean>;
   /** Day the calendar week starts on. */
   weekStartDay: WeekStartDay;
+  /** Number of simultaneously visible months. */
+  numberOfMonths: number;
+}
+
+/** Pre-computed data for a single visible month. */
+export interface MonthData {
+  /** Calendar year. */
+  year: number;
+  /** Calendar month (1–12). */
+  month: number;
+  /** 2D array of weeks (each week is an array of `PlainDate`). */
+  weeks: Temporal.PlainDate[][];
 }
 
 /** Volatile state that changes on interaction. */
@@ -150,10 +162,14 @@ export interface DatePickerStateContextValue {
   tabTargetDate: Temporal.PlainDate;
   /** Date-time representing the viewed month with time from the selection. */
   currentDateTime: Temporal.PlainDateTime;
-  /** 2D array of weeks for the currently viewed month. */
+  /** 2D array of weeks for the currently viewed month (first visible month). */
   weeks: Temporal.PlainDate[][];
-  /** Id of the grid label element (for `aria-labelledby`). */
-  gridLabelId: string | undefined;
+  /** Pre-computed data for all visible months (length = `numberOfMonths`). */
+  allMonths: MonthData[];
+  /** Number of simultaneously visible months. */
+  numberOfMonths: number;
+  /** Map of month index → label element id (for per-grid `aria-labelledby`). */
+  gridLabelIds: Record<number, string>;
   /** The root component's state object for render functions. */
   rootState: RootState;
 }
@@ -251,6 +267,12 @@ interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
    * boundary. Not called on initial mount.
    */
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
+  /**
+   * Number of months to display simultaneously. Each month is rendered
+   * by a separate `Grid` component with a `monthIndex` prop.
+   * @default 1
+   */
+  numberOfMonths?: number;
 }
 
 /**
@@ -448,6 +470,8 @@ export interface MonthYearStringOwnProps {
   locales?: string | string[];
   /** `Intl.DateTimeFormat` options for customizing the output. */
   options?: Intl.DateTimeFormatOptions;
+  /** Which visible month to display (0-based). @default 0 */
+  monthIndex?: number;
 }
 
 /** Full props for the `MonthYearString` component. */
@@ -524,6 +548,8 @@ export interface GridOwnProps {
   orientation?: GridOrientation;
   /** When `true`, the grid auto-focuses the tab-target cell on mount. */
   autoFocus?: boolean;
+  /** Which visible month this grid displays (0-based). @default 0 */
+  monthIndex?: number;
 }
 
 /** Full props for the `Grid` component. */

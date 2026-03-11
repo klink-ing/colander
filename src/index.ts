@@ -77,4 +77,5 @@ export type {
   DatePickerStableContextValue,
   DatePickerStateContextValue,
   DatePickerContextValue,
+  MonthData,
 } from "./types";
