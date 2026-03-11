@@ -37,6 +37,7 @@ type StyledDatePickerProps<F extends ValueFormat> = {
   showWeekNumbers?: boolean;
   allowRangeReversal?: boolean;
   numberOfMonths?: number;
+  orientation?: "horizontal" | "vertical";
   outsideDays?: "enabled" | "readonly" | "disabled" | "hidden";
   onMonthChange?: (month: Temporal.PlainYearMonth) => void;
 } & (
@@ -80,11 +81,13 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
     showWeekNumbers,
     allowRangeReversal,
     numberOfMonths: numberOfMonthsProp,
+    orientation,
     outsideDays,
     onMonthChange,
     ...selectionProps
   } = props;
   const numberOfMonths = numberOfMonthsProp ?? 1;
+  const isVertical = orientation === "vertical";
 
   const renderGrid = (monthIndex: number) => (
     <div key={monthIndex}>
@@ -95,23 +98,79 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
       )}
       <StyledGrid
         monthIndex={monthIndex}
+        orientation={orientation}
         autoFocus={monthIndex === 0 ? autoFocus : undefined}
-        className={
-          showWeekNumbers
-            ? "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)]"
-            : undefined
-        }
+        className={cn(
+          !isVertical &&
+            showWeekNumbers &&
+            "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)]",
+          isVertical &&
+            showWeekNumbers &&
+            "w-fit auto-cols-auto grid-flow-col grid-cols-none grid-rows-[auto_repeat(var(--calendar-days-per-week),1fr)]",
+          isVertical &&
+            !showWeekNumbers &&
+            "w-fit auto-cols-auto grid-flow-col grid-cols-none grid-rows-[repeat(var(--calendar-days-per-week),1fr)]",
+        )}
       >
-        <StyledGridHeader>
+        <StyledGridHeader
+          className={
+            isVertical
+              ? cn(
+                  "contents",
+                  "[&>tr]:col-auto [&>tr]:row-span-full [&>tr]:grid [&>tr]:[grid-template-columns:unset] [&>tr]:grid-rows-subgrid",
+                )
+              : undefined
+          }
+        >
           {showWeekNumbers && (
-            <WeekNumberHeader className="w-8 p-1 text-center text-[0.7rem] font-normal text-muted-foreground" />
+            <WeekNumberHeader
+              className={cn(
+                "p-1 text-center text-[0.7rem] font-normal text-muted-foreground",
+                !isVertical && "w-8",
+                isVertical && "flex items-center",
+              )}
+              render={({ children, ...props }) => (
+                <th {...props}>
+                  <span className="inline-block w-[2ch] text-right">{children}</span>
+                </th>
+              )}
+            />
           )}
-          <StyledGridHeaderCell />
+          <StyledGridHeaderCell
+            className={
+              isVertical
+                ? "flex w-fit items-center text-right"
+                : undefined
+            }
+          />
         </StyledGridHeader>
-        <StyledGridBody>
-          <StyledWeekTemplate>
+        <StyledGridBody
+          className={
+            isVertical
+              ? "col-auto row-span-full auto-cols-fr gap-x-1 gap-y-0 grid-flow-col [grid-template-columns:unset] [grid-template-rows:subgrid]"
+              : undefined
+          }
+        >
+          <StyledWeekTemplate
+            className={
+              isVertical
+                ? "col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid]"
+                : undefined
+            }
+          >
             {showWeekNumbers && (
-              <WeekNumberCell className="w-8 p-1 text-center text-[0.7rem] tabular-nums text-muted-foreground" />
+              <WeekNumberCell
+                className={cn(
+                  "p-1 text-center text-[0.7rem] tabular-nums text-muted-foreground",
+                  !isVertical && "w-8",
+                  isVertical && "flex items-center justify-center",
+                )}
+                render={({ children, ...props }) => (
+                  <td {...props}>
+                    <span className="inline-block w-[2ch] text-right">{children}</span>
+                  </td>
+                )}
+              />
             )}
             <StyledSelectedRange
               columnOffset={showWeekNumbers ? 1 : 0}

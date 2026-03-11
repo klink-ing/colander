@@ -273,7 +273,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
                 )}
               />
             }
-            <div className="isolate">{children}</div>
+            <div className="isolate inline-block w-[2ch] text-right">{children}</div>
           </button>
         );
       }}

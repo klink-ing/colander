@@ -7,7 +7,6 @@ import {
   type OutsideDays,
 } from "base-ui-cal";
 import { StyledDatePicker } from "./examples/styled-date-picker";
-import { StyledDatePickerHorizontal } from "./examples/styled-date-picker-horizontal";
 import { RenderPropDatePicker } from "./examples/render-prop-date-picker";
 import { AnchorDatePicker } from "./examples/anchor-date-picker";
 
@@ -15,11 +14,10 @@ const ZonedDatePicker = createDatePicker("ZonedDateTime", {
   temporal: Temporal,
 });
 
-type ExampleId = "styled" | "horizontal" | "render-prop" | "anchor";
+type ExampleId = "styled" | "render-prop" | "anchor";
 
 const EXAMPLES: { value: ExampleId; label: string }[] = [
   { value: "styled", label: "Styled DatePicker" },
-  { value: "horizontal", label: "Horizontal DatePicker" },
   { value: "render-prop", label: "Render Prop DatePicker" },
   { value: "anchor", label: "Anchor-Positioned DatePicker" },
 ];
@@ -121,6 +119,9 @@ export default function App() {
   const [allowRangeReversal, setAllowRangeReversal] = useState(false);
   const [numberOfMonths, setNumberOfMonths] = useState(1);
   const [outsideDays, setOutsideDays] = useState<OutsideDays>("enabled");
+  const [orientation, setOrientation] = useState<"horizontal" | "vertical">(
+    "horizontal",
+  );
 
   // Value state
   const [singleDate, setSingleDate] = useState<
@@ -268,6 +269,7 @@ export default function App() {
     onMonthChange: handleMonthChange,
     showWeekNumbers,
     numberOfMonths,
+    orientation,
     outsideDays,
   } as const;
 
@@ -294,12 +296,9 @@ export default function App() {
       );
     }
 
-    const Component =
-      example === "horizontal" ? StyledDatePickerHorizontal : StyledDatePicker;
-
     if (selectionMode === "range") {
       return (
-        <Component
+        <StyledDatePicker
           {...commonProps}
           selectionMode="range"
           value={range}
@@ -311,7 +310,7 @@ export default function App() {
     }
     if (selectionMode === "multiple") {
       return (
-        <Component
+        <StyledDatePicker
           {...commonProps}
           selectionMode="multiple"
           value={multipleDates as any}
@@ -320,7 +319,7 @@ export default function App() {
       );
     }
     return (
-      <Component
+      <StyledDatePicker
         {...commonProps}
         selectionMode="single"
         value={singleDate}
@@ -354,6 +353,28 @@ export default function App() {
               ))}
             </select>
           </div>
+
+          {/* Orientation */}
+          {example === "styled" && (
+            <div>
+              <label htmlFor="orientation-select" className={labelClassName}>
+                Orientation
+              </label>
+              <select
+                id="orientation-select"
+                value={orientation}
+                onChange={(e) =>
+                  setOrientation(
+                    e.target.value as "horizontal" | "vertical",
+                  )
+                }
+                className={selectClassName}
+              >
+                <option value="horizontal">Horizontal (weeks as rows)</option>
+                <option value="vertical">Vertical (weeks as columns)</option>
+              </select>
+            </div>
+          )}
 
           {/* Selection mode */}
           <div>

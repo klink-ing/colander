@@ -21,10 +21,7 @@ import {
   GridOrientation,
 } from "./context";
 import { computeNextFocusDate } from "./keyboard";
-import {
-  shouldMoveDomFocus,
-  isInRange as isInRangeUtil,
-} from "./utils";
+import { shouldMoveDomFocus, isInRange as isInRangeUtil } from "./utils";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import type {
   ValueFormat,
@@ -149,7 +146,8 @@ function computeDayCellState(
   const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
 
   const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
-  const suppressRange = !isCurrentMonth && (outsideDays === "disabled" || outsideDays === "hidden");
+  const suppressRange =
+    !isCurrentMonth && (outsideDays === "disabled" || outsideDays === "hidden");
 
   if (outsideNonInteractive) {
     return {
@@ -165,7 +163,7 @@ function computeDayCellState(
       focused: false,
       rangeStart: suppressRange ? false : isRangeStart,
       rangeEnd: suppressRange ? false : isRangeEnd,
-      rangeBoundary: suppressRange ? false : (isRangeStart || isRangeEnd),
+      rangeBoundary: suppressRange ? false : isRangeStart || isRangeEnd,
       inRange: suppressRange ? false : isInRangeDay,
       isTabTarget: false,
     };
@@ -250,9 +248,8 @@ export function Grid<F extends ValueFormat = ValueFormat>(
 
   useEffect(() => {
     if (autoFocus && gridRef.current) {
-      const target = gridRef.current.querySelector<HTMLElement>(
-        '[tabindex="0"]',
-      );
+      const target =
+        gridRef.current.querySelector<HTMLElement>('[tabindex="0"]');
       if (target) {
         target.focus();
         gridFocusedRef.current = true;
@@ -392,7 +389,10 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(
   const { rootState } = useDatePickerState();
 
   const state = useMemo<WeekTemplateState<F>>(
-    () => ({ root: rootState as unknown as WeekTemplateState<F>["root"], weekIndex: weekData.weekIndex }),
+    () => ({
+      root: rootState as unknown as WeekTemplateState<F>["root"],
+      weekIndex: weekData.weekIndex,
+    }),
     [rootState, weekData.weekIndex],
   );
 
@@ -454,8 +454,7 @@ const dayStateAttributesMapping = {
   rangeStart: (v) => (v ? { "data-range-start": "" } : null),
   rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
   rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
-  inRange: (v) =>
-    v !== false ? { "data-in-range": String(v) } : null,
+  inRange: (v) => (v !== false ? { "data-in-range": String(v) } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */
@@ -494,11 +493,7 @@ function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
         role: "gridcell",
         "aria-selected": state.selected || undefined,
         "aria-disabled": state.disabled || undefined,
-        children: children ?? (
-          <DayButton
-            _derivedState={_derivedState}
-          />
-        ),
+        children: children ?? <DayButton _derivedState={_derivedState} />,
       };
 
   const cell = useRender({
@@ -510,7 +505,8 @@ function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 
-  const outsideDisabled = state.hidden || (state.outsideMonth && state.disabled);
+  const outsideDisabled =
+    state.hidden || (state.outsideMonth && state.disabled);
 
   return (
     <DayCellDataContext.Provider value={{ date, columnIndex, outsideDisabled }}>
@@ -527,7 +523,12 @@ function dayCellPropsAreEqual(
   // that subscribe to context (e.g. DayButton fallback) get their own
   // re-render via context; the optimised internal DayButton reads only
   // stable context and is separately memo'd.
-  if (prev.date !== next.date || prev.render !== next.render || prev.columnIndex !== next.columnIndex) return false;
+  if (
+    prev.date !== next.date ||
+    prev.render !== next.render ||
+    prev.columnIndex !== next.columnIndex
+  )
+    return false;
   const a = prev._derivedState;
   const b = next._derivedState;
   return (
@@ -544,7 +545,10 @@ function dayCellPropsAreEqual(
   );
 }
 
-const DayCellInstanceInner = memo(DayCellInstanceInnerFn, dayCellPropsAreEqual) as typeof DayCellInstanceInnerFn;
+const DayCellInstanceInner = memo(
+  DayCellInstanceInnerFn,
+  dayCellPropsAreEqual,
+) as typeof DayCellInstanceInnerFn;
 
 /**
  * Renders one `<td role="gridcell">` per day. Exposes data-attributes for
@@ -672,13 +676,8 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   props: DayButtonInstanceProps<F>,
 ) {
   const { ref, render, date, _derivedState, ...otherProps } = props;
-  const {
-    onSelect,
-    setFocusedDate,
-    locale,
-    gridFocusedRef,
-    readOnly,
-  } = useDatePickerStable();
+  const { onSelect, setFocusedDate, locale, gridFocusedRef, readOnly } =
+    useDatePickerStable();
 
   const internalRef = useRef<HTMLButtonElement>(null);
 
@@ -696,38 +695,42 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
     }
   }, [isFocused, gridFocusedRef]);
 
-  if (isHidden) return null;
-
   const state = _derivedState as unknown as DayCellTemplateState<F>;
 
-  const defaultProps: Record<string, unknown> = {
-    type: "button",
-    tabIndex: isTabTarget ? 0 : -1,
-    disabled: isDisabled,
-    "aria-readonly": readOnly || undefined,
-    "aria-label": date.toLocaleString(locale, {
-      weekday: "long",
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }),
-    date: date.toString(),
-    "data-testid": `button-day-${date.toString()}`,
-    onClick: () => {
-      setFocusedDate(date);
-      onSelect(date);
-    },
-    children: date.day,
-  };
+  const defaultProps: Record<string, unknown> = isHidden
+    ? {}
+    : {
+        type: "button",
+        tabIndex: isTabTarget ? 0 : -1,
+        disabled: isDisabled,
+        "aria-readonly": readOnly || undefined,
+        "aria-label": date.toLocaleString(locale, {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }),
+        date: date.toString(),
+        "data-testid": `button-day-${date.toString()}`,
+        onClick: () => {
+          setFocusedDate(date);
+          onSelect(date);
+        },
+        children: date.day,
+      };
 
-  return useRender({
-    defaultTagName: "button",
-    render,
-    ref: ref ? [ref, internalRef] : [internalRef],
-    state,
-    stateAttributesMapping: dayStateAttributesMapping,
-    props: mergeProps<"button">(defaultProps, otherProps),
-  });
+  return useRender(
+    isHidden
+      ? {}
+      : {
+          defaultTagName: "button",
+          render,
+          ref: ref ? [ref, internalRef] : [internalRef],
+          state,
+          stateAttributesMapping: dayStateAttributesMapping,
+          props: mergeProps<"button">(defaultProps, otherProps),
+        },
+  );
 }
 
 function dayButtonPropsAreEqual(
@@ -752,7 +755,10 @@ function dayButtonPropsAreEqual(
   );
 }
 
-const DayButtonInstanceInner = memo(DayButtonInstanceInnerFn, dayButtonPropsAreEqual) as typeof DayButtonInstanceInnerFn;
+const DayButtonInstanceInner = memo(
+  DayButtonInstanceInnerFn,
+  dayButtonPropsAreEqual,
+) as typeof DayButtonInstanceInnerFn;
 
 /**
  * Interactive `<button>` inside a day cell. Handles click-to-select,
