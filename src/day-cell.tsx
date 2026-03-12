@@ -66,7 +66,14 @@ export function computeDayCellState(
       rangeEnd: false,
       rangeBoundary: false,
       inRange: false,
-      rangePreview: false,
+      rangeIndex: false,
+      rangeLength: false,
+      rangeStartPreview: false,
+      rangeEndPreview: false,
+      rangeBoundaryPreview: false,
+      inRangePreview: false,
+      rangeIndexPreview: false,
+      rangeLengthPreview: false,
       isTabTarget: false,
     };
   }
@@ -74,22 +81,27 @@ export function computeDayCellState(
   const today = T.Now.plainDateISO();
   const isToday = T.PlainDate.compare(date, today) === 0;
 
-  // Use preview range if available, otherwise committed range
-  const effectiveStart = previewStart ?? rangeStart;
-  const effectiveEnd = previewEnd ?? rangeEnd;
-
-  const isRangeStart = effectiveStart
-    ? T.PlainDate.compare(date, effectiveStart) === 0
+  const isRangeStart = rangeStart
+    ? T.PlainDate.compare(date, rangeStart) === 0
     : false;
-  const isRangeEnd = effectiveEnd
-    ? T.PlainDate.compare(date, effectiveEnd) === 0
+  const isRangeEnd = rangeEnd
+    ? T.PlainDate.compare(date, rangeEnd) === 0
     : false;
-  const isInRangeDay = isInRangeUtil(date, effectiveStart, effectiveEnd, T);
+  const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
+  const rangeIdx = isInRangeDay && rangeStart ? date.since(rangeStart).days : false;
+  const rangeLen = isInRangeDay && rangeStart && rangeEnd ? rangeEnd.since(rangeStart).days + 1 : false;
 
-  // rangePreview: cell is within the preview range (not the committed range)
-  const isInPreview = previewStart && previewEnd
+  const isPreviewRangeStart = previewStart
+    ? T.PlainDate.compare(date, previewStart) === 0
+    : false;
+  const isPreviewRangeEnd = previewEnd
+    ? T.PlainDate.compare(date, previewEnd) === 0
+    : false;
+  const isInPreviewRange = previewStart && previewEnd
     ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
     : false;
+  const previewIdx = isInPreviewRange && previewStart ? date.since(previewStart).days : false;
+  const previewLen = isInPreviewRange && previewStart && previewEnd ? previewEnd.since(previewStart).days + 1 : false;
 
   const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
   const suppressRange =
@@ -111,7 +123,14 @@ export function computeDayCellState(
       rangeEnd: suppressRange ? false : isRangeEnd,
       rangeBoundary: suppressRange ? false : isRangeStart || isRangeEnd,
       inRange: suppressRange ? false : isInRangeDay,
-      rangePreview: suppressRange ? false : isInPreview,
+      rangeIndex: suppressRange ? false : rangeIdx,
+      rangeLength: suppressRange ? false : rangeLen,
+      rangeStartPreview: suppressRange ? false : isPreviewRangeStart,
+      rangeEndPreview: suppressRange ? false : isPreviewRangeEnd,
+      rangeBoundaryPreview: suppressRange ? false : isPreviewRangeStart || isPreviewRangeEnd,
+      inRangePreview: suppressRange ? false : isInPreviewRange,
+      rangeIndexPreview: suppressRange ? false : previewIdx,
+      rangeLengthPreview: suppressRange ? false : previewLen,
       isTabTarget: false,
     };
   }
@@ -139,7 +158,14 @@ export function computeDayCellState(
     rangeEnd: isRangeEnd,
     rangeBoundary: isRangeStart || isRangeEnd,
     inRange: isInRangeDay,
-    rangePreview: isInPreview,
+    rangeIndex: rangeIdx,
+    rangeLength: rangeLen,
+    rangeStartPreview: isPreviewRangeStart,
+    rangeEndPreview: isPreviewRangeEnd,
+    rangeBoundaryPreview: isPreviewRangeStart || isPreviewRangeEnd,
+    inRangePreview: isInPreviewRange,
+    rangeIndexPreview: previewIdx,
+    rangeLengthPreview: previewLen,
     isTabTarget,
   };
 }
@@ -159,8 +185,15 @@ export const dayStateAttributesMapping = {
   rangeStart: (v) => (v ? { "data-range-start": "" } : null),
   rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
   rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
-  inRange: (v) => (v !== false ? { "data-in-range": String(v) } : null),
-  rangePreview: (v) => (v ? { "data-range-preview": "" } : null),
+  inRange: (v) => (v ? { "data-in-range": "" } : null),
+  rangeIndex: (v) => (v !== false ? { "data-range-index": String(v) } : null),
+  rangeLength: (v) => (v !== false ? { "data-range-length": String(v) } : null),
+  rangeStartPreview: (v) => (v ? { "data-range-start-preview": "" } : null),
+  rangeEndPreview: (v) => (v ? { "data-range-end-preview": "" } : null),
+  rangeBoundaryPreview: (v) => (v ? { "data-range-boundary-preview": "" } : null),
+  inRangePreview: (v) => (v ? { "data-in-range-preview": "" } : null),
+  rangeIndexPreview: (v) => (v !== false ? { "data-range-index-preview": String(v) } : null),
+  rangeLengthPreview: (v) => (v !== false ? { "data-range-length-preview": String(v) } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */
@@ -247,7 +280,14 @@ function dayCellPropsAreEqual(
     a.rangeStart === b.rangeStart &&
     a.rangeEnd === b.rangeEnd &&
     a.inRange === b.inRange &&
-    a.rangePreview === b.rangePreview &&
+    a.rangeIndex === b.rangeIndex &&
+    a.rangeLength === b.rangeLength &&
+    a.rangeStartPreview === b.rangeStartPreview &&
+    a.rangeEndPreview === b.rangeEndPreview &&
+    a.rangeBoundaryPreview === b.rangeBoundaryPreview &&
+    a.inRangePreview === b.inRangePreview &&
+    a.rangeIndexPreview === b.rangeIndexPreview &&
+    a.rangeLengthPreview === b.rangeLengthPreview &&
     a.isTabTarget === b.isTabTarget
   );
 }
@@ -467,7 +507,14 @@ function dayButtonPropsAreEqual(
     a.rangeStart === b.rangeStart &&
     a.rangeEnd === b.rangeEnd &&
     a.inRange === b.inRange &&
-    a.rangePreview === b.rangePreview &&
+    a.rangeIndex === b.rangeIndex &&
+    a.rangeLength === b.rangeLength &&
+    a.rangeStartPreview === b.rangeStartPreview &&
+    a.rangeEndPreview === b.rangeEndPreview &&
+    a.rangeBoundaryPreview === b.rangeBoundaryPreview &&
+    a.inRangePreview === b.inRangePreview &&
+    a.rangeIndexPreview === b.rangeIndexPreview &&
+    a.rangeLengthPreview === b.rangeLengthPreview &&
     a.isTabTarget === b.isTabTarget
   );
 }

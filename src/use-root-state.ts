@@ -192,7 +192,17 @@ export function useRootState<F extends ValueFormat>(
   // `controlledDates === undefined` means the value prop was not provided (uncontrolled).
   // `controlledDates` being an array (even empty) means controlled mode — `null` maps to `[]`.
   const isControlled = controlledDates !== undefined;
-  const committedDates = isControlled ? controlledDates : internalDates;
+
+  // In start-end mode, a pending start (1 date, no end) fires onValueChange(null).
+  // In controlled mode this sets controlledDates to [], but the pending start lives
+  // in internalDates. Fall through to internalDates when the controlled value is
+  // empty and internalDates has the pending start.
+  const committedDates =
+    isControlled
+      ? (rangeMode === "start-end" && controlledDates.length === 0 && internalDates.length === 1
+          ? internalDates
+          : controlledDates)
+      : internalDates;
 
   const rangeStart =
     !isMultiple && committedDates.length > 0

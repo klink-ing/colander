@@ -18,6 +18,7 @@ import {
   StyledWeekTemplate,
   StyledDayCellTemplate,
   StyledSelectedRange,
+  StyledRangePreview,
 } from "./date-picker-styled";
 import { cn } from "../lib/utils";
 
@@ -173,6 +174,9 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
               />
             )}
             <StyledSelectedRange
+              columnOffset={showWeekNumbers ? 1 : 0}
+            />
+            <StyledRangePreview
               columnOffset={showWeekNumbers ? 1 : 0}
             />
             <StyledDayCellTemplate

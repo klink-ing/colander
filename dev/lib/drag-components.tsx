@@ -34,11 +34,18 @@ export function DragHandle({
   style,
 }: DragHandleProps) {
   const handleRef = useRef<HTMLSpanElement>(null);
+  const didDragRef = useRef(false);
   const { dragging, anyHandleDragging } = useDragHandleDnD({
     edge,
     handleRef,
     allowRangeReversal,
   });
+  const prevDragging = useRef(false);
+  if (dragging && !prevDragging.current) {
+    didDragRef.current = true;
+  }
+  prevDragging.current = dragging;
+
   const { onSelect, setFocusedDate } = useDatePicker();
   const cellData = useContext(DayCellDataContext);
   const date = cellData?.date;
@@ -63,6 +70,10 @@ export function DragHandle({
           {...renderProps}
           tabIndex={-1}
           onClick={() => {
+            if (didDragRef.current) {
+              didDragRef.current = false;
+              return;
+            }
             if (date) {
               onSelect(date);
               setFocusedDate(date);

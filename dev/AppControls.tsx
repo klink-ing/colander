@@ -239,24 +239,25 @@ export function AppControls(props: AppControlsProps) {
         </select>
       </div>
 
-      {/* Inside range action (range mode only) */}
+      {/* Range mode (range selection only) */}
       {selectionMode === "range" && (
         <div>
-          <label htmlFor="inside-range-action" className={labelClassName}>
-            Inside Range Click
+          <label htmlFor="range-mode" className={labelClassName}>
+            Range Mode
           </label>
           <select
-            id="inside-range-action"
+            id="range-mode"
             value={rangeMode}
             onChange={(e) =>
               setRangeMode(e.target.value as RangeMode)
             }
             className={selectClassName}
           >
-            <option value="adjust-end">Adjust End</option>
-            <option value="adjust-start">Adjust Start</option>
+            <option value="start-end">Start → End</option>
             <option value="nearest-end">Nearest (tie: End)</option>
             <option value="nearest-start">Nearest (tie: Start)</option>
+            <option value="adjust-end">Adjust End</option>
+            <option value="adjust-start">Adjust Start</option>
             <option value="reset">Reset to Single Day</option>
           </select>
         </div>

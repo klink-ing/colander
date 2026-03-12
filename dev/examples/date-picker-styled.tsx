@@ -15,6 +15,7 @@ import {
   PrevMonthButton,
   NextMonthButton,
   SelectedRange,
+  RangePreview,
   useDatePicker,
   DayCellDataContext,
   GridContext,
@@ -35,6 +36,7 @@ import type {
   PrevMonthButtonProps,
   NextMonthButtonProps,
   SelectedRangeProps,
+  RangePreviewProps,
 } from "base-ui-cal";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
@@ -357,6 +359,55 @@ export function StyledDragHandle({
       edge={edge}
       allowRangeReversal={allowRangeReversal}
       className={cn(classNames, className)}
+    />
+  );
+}
+
+export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
+  allProps: RangePreviewProps<F> & {
+    ref?: React.Ref<HTMLTableCellElement>;
+    columnOffset?: number;
+  },
+) {
+  const { className, columnOffset = 0, ...props } = allProps;
+  return (
+    <RangePreview
+      {...(props as RangePreviewProps)}
+      render={(renderProps, state) => {
+        if (!state.active) {
+          return <td {...renderProps} hidden style={{ display: "none" }} />;
+        }
+        const horizontal = state.orientation === "horizontal";
+        const span = `${state.startIndex + 1 + columnOffset} / ${state.endIndex + 2 + columnOffset}`;
+        const gridStyle = horizontal
+          ? { gridColumn: span, gridRow: 1 }
+          : { gridRow: span, gridColumn: 1 };
+        return (
+          <td
+            {...renderProps}
+            style={gridStyle}
+            className={cn(
+              "z-10 pointer-events-none relative",
+              className,
+            )}
+          >
+            {/* White solid line */}
+            <div className={cn(
+              "absolute inset-0 rounded-md border border-white",
+              horizontal
+                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
+                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+            )} data-extends-before={state.extendsBefore || undefined} data-extends-after={state.extendsAfter || undefined} />
+            {/* Blue dashed line on top */}
+            <div className={cn(
+              "absolute inset-0 rounded-md border border-dashed border-primary/80",
+              horizontal
+                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
+                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+            )} data-extends-before={state.extendsBefore || undefined} data-extends-after={state.extendsAfter || undefined} />
+          </td>
+        );
+      }}
     />
   );
 }

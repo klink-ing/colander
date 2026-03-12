@@ -2,7 +2,7 @@ import { useContext, useMemo, useRef } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useDatePicker, DayCellDataContext, GridContext } from "./context";
+import { useDatePicker, useDatePickerStable, DayCellDataContext, GridContext } from "./context";
 import type {
   ValueFormat,
   DragHandleState,
@@ -24,6 +24,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   { dragging: draggingProp }: { dragging?: boolean },
 ) {
   const { rangeStart, rangeEnd, temporal: T, rootState } = useDatePicker<F>();
+  const { setHoveredDate } = useDatePickerStable();
   const cellData = useContext(DayCellDataContext);
   const { orientation } = useContext(GridContext);
   const date = cellData?.date;
@@ -58,6 +59,9 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
     "aria-grabbed": isActive ? isDragging : undefined,
     "aria-hidden": isActive ? undefined : true,
     "data-testid": `drag-handle-${edge}`,
+    onPointerEnter: () => {
+      if (date && !outsideDisabled) setHoveredDate(date);
+    },
   };
 
   return {

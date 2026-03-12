@@ -641,10 +641,24 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   rangeStart: boolean;
   rangeEnd: boolean;
   rangeBoundary: boolean;
-  /** Position within the range as a fraction from `0` (range start) to `1` (range end), or `false` if not in range. */
-  inRange: number | false;
-  /** `true` when this cell is within the hover preview range (not the committed range). */
-  rangePreview: boolean;
+  /** Whether this cell is within the committed range. */
+  inRange: boolean;
+  /** 0-based index of this cell within the committed range, or `false` if not in range. */
+  rangeIndex: number | false;
+  /** Total number of days in the committed range, or `false` if not in range. */
+  rangeLength: number | false;
+  /** Whether this cell is the start of the hover preview range. */
+  rangeStartPreview: boolean;
+  /** Whether this cell is the end of the hover preview range. */
+  rangeEndPreview: boolean;
+  /** Whether this cell is a boundary of the hover preview range. */
+  rangeBoundaryPreview: boolean;
+  /** Whether this cell is within the hover preview range. */
+  inRangePreview: boolean;
+  /** 0-based index of this cell within the preview range, or `false` if not in preview range. */
+  rangeIndexPreview: number | false;
+  /** Total number of days in the preview range, or `false` if not in preview range. */
+  rangeLengthPreview: number | false;
 };
 
 /** State exposed by the `DayButton` component (same as `DayCellTemplateState`). */
