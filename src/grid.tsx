@@ -122,6 +122,9 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     gridFocusedRef,
     setGridHasFocus,
     setHoveredDate,
+    onSelect,
+    setFocusedDate,
+    temporal: T,
   } = useDatePicker<F>();
 
   const monthData = allMonths[monthIndex];
@@ -134,6 +137,46 @@ export function Grid<F extends ValueFormat = ValueFormat>(
 
   const handleKeyDown = useGridKeyboard();
   const gridRef = useRef<HTMLTableElement>(null);
+  const lastHoveredDateRef = useRef<string | undefined>(undefined);
+
+  // Delegated click: single handler on <table> replaces 42 per-button onClick closures
+  const handleClick = useCallback(
+    (e: React.MouseEvent<HTMLTableElement>) => {
+      const td = (e.target as HTMLElement).closest<HTMLElement>("[data-date]");
+      if (
+        !td ||
+        td.hasAttribute("data-hidden") ||
+        td.hasAttribute("data-disabled")
+      )
+        return;
+      const dateStr = td.getAttribute("data-date")!;
+      const date = T.PlainDate.from(dateStr);
+      setFocusedDate(date);
+      onSelect(date);
+    },
+    [T, setFocusedDate, onSelect],
+  );
+
+  // Delegated hover: single pointerover on <table> replaces 42 per-button onPointerEnter closures.
+  // pointerenter doesn't bubble, so we use pointerover + dedup via lastHoveredDateRef.
+  const handlePointerOver = useCallback(
+    (e: React.PointerEvent<HTMLTableElement>) => {
+      const td = (e.target as HTMLElement).closest<HTMLElement>("[data-date]");
+      if (
+        !td ||
+        td.hasAttribute("data-hidden") ||
+        td.hasAttribute("data-disabled")
+      ) {
+        return;
+      }
+      const dateStr = td.getAttribute("data-date")!;
+      if (dateStr === lastHoveredDateRef.current) return;
+      lastHoveredDateRef.current = dateStr;
+      const date = T.PlainDate.from(dateStr);
+      setHoveredDate(date);
+    },
+    [T, setHoveredDate],
+  );
 
   useEffect(() => {
     if (autoFocus && gridRef.current) {
@@ -177,6 +220,8 @@ export function Grid<F extends ValueFormat = ValueFormat>(
       "--calendar-weeks-in-month": weeksInMonth,
     } as React.CSSProperties,
     onKeyDown: handleKeyDown,
+    onClick: handleClick,
+    onPointerOver: handlePointerOver,
     onFocus: () => {
       gridFocusedRef.current = true;
       setGridHasFocus(true);
@@ -186,6 +231,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
       setGridHasFocus(false);
     },
     onPointerLeave: () => {
+      lastHoveredDateRef.current = undefined;
       setHoveredDate(undefined);
     },
     children: children ?? (

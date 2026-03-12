@@ -389,7 +389,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   props: DayButtonInstanceProps<F>,
 ) {
   const { ref, render, date, _derivedState, ...otherProps } = props;
-  const { onSelect, setFocusedDate, locale, gridFocusedRef, readOnly, setHoveredDate } =
+  const { locale, gridFocusedRef, readOnly } =
     useDatePickerStable();
 
   const internalRef = useRef<HTMLButtonElement>(null);
@@ -425,13 +425,6 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
         }),
         date: date.toString(),
         "data-testid": `button-day-${date.toString()}`,
-        onClick: () => {
-          setFocusedDate(date);
-          onSelect(date);
-        },
-        onPointerEnter: () => {
-          if (!isHidden && !isDisabled) setHoveredDate(date);
-        },
         children: date.day,
       };
 
