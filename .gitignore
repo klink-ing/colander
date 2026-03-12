@@ -7,3 +7,4 @@ vite.config.ts.*
 .local
 /.playwright-mcp
 stats.html
+.claude/worktrees
