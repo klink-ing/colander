@@ -44,6 +44,14 @@ export function DragHandle({
   if (dragging && !prevDragging.current) {
     didDragRef.current = true;
   }
+  // When drag ends, reset the flag after a tick so the browser's
+  // click-from-mouseup is still suppressed, but the next intentional
+  // click is not.
+  if (!dragging && prevDragging.current) {
+    requestAnimationFrame(() => {
+      didDragRef.current = false;
+    });
+  }
   prevDragging.current = dragging;
 
   const { onSelect, setFocusedDate } = useDatePicker();
@@ -70,10 +78,7 @@ export function DragHandle({
           {...renderProps}
           tabIndex={-1}
           onClick={() => {
-            if (didDragRef.current) {
-              didDragRef.current = false;
-              return;
-            }
+            if (didDragRef.current) return;
             if (date) {
               onSelect(date);
               setFocusedDate(date);
