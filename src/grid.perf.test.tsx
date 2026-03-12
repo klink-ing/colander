@@ -437,6 +437,54 @@ describe("Grid render profiling", () => {
     unmount();
   });
 
+  it("hover preview re-render stays within threshold", () => {
+    const { entries, onRender } = createProfiler();
+
+    const { rerender, unmount } = render(
+      <Profiler id="grid-preview" onRender={onRender}>
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march10, end: march20 }}
+        >
+          <Grid />
+        </Root>
+      </Profiler>,
+    );
+
+    const mountDuration = entries.find((e) => e.phase === "mount")!
+      .actualDuration;
+
+    // Approximate hover preview render cost by shifting the range end
+    const march22 = Temporal.PlainDate.from("2026-03-22");
+    rerender(
+      <Profiler id="grid-preview" onRender={onRender}>
+        <Root
+          {...defaultProps}
+          selectionMode="range"
+          value={{ start: march10, end: march22 }}
+        >
+          <Grid />
+        </Root>
+      </Profiler>,
+    );
+
+    const updates = entries.filter((e) => e.phase === "update");
+    expect(updates.length).toBeGreaterThan(0);
+
+    const previewDuration = updates[updates.length - 1].actualDuration;
+    expect(previewDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
+
+    const ratio = previewDuration / mountDuration;
+    expect(ratio).toBeLessThan(0.75);
+
+    console.log(
+      `[perf] hover preview: mount=${mountDuration.toFixed(2)}ms update=${previewDuration.toFixed(2)}ms ratio=${ratio.toFixed(2)}`,
+    );
+
+    unmount();
+  });
+
   it("range expand update is cheaper than mount (memoization effect)", () => {
     const { entries, onRender } = createProfiler();
 
