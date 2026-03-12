@@ -14,10 +14,12 @@ export {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-export { SelectedRange } from "./selected-range";
+export { RangeSelected, SelectedRange } from "./selected-range";
+export { RangePreview } from "./range-preview";
 export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 export { WeekNumberCell, WeekNumberHeader } from "./week-number";
 export { createDatePicker, type Components } from "./factory";
+export { computePreviewRange } from "./root-selection";
 export { Temporal } from "./temporal-polyfill";
 export {
   useDatePicker,
@@ -45,8 +47,12 @@ export type {
   DayCellTemplateState,
   DayButtonProps,
   DayButtonState,
+  RangeSelectedProps,
+  RangeSelectedState,
   SelectedRangeProps,
   SelectedRangeState,
+  RangePreviewProps,
+  RangePreviewState,
   DragHandleOwnProps,
   DragHandleState,
   RangeStartDragHandleProps,
@@ -70,7 +76,7 @@ export type {
   TemporalNamespace,
   CreateDatePickerOptions,
   WeekStartDay,
-  InsideRangeAction,
+  RangeMode,
   OutsideDays,
   ValueChangeMeta,
   WeekNumberCellProps,

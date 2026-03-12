@@ -121,6 +121,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     allMonths,
     gridFocusedRef,
     setGridHasFocus,
+    setHoveredDate,
   } = useDatePicker<F>();
 
   const monthData = allMonths[monthIndex];
@@ -183,6 +184,9 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     onBlur: () => {
       gridFocusedRef.current = false;
       setGridHasFocus(false);
+    },
+    onPointerLeave: () => {
+      setHoveredDate(undefined);
     },
     children: children ?? (
       <>

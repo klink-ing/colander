@@ -62,7 +62,10 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     numberOfMonths: numberOfMonthsProp,
     outsideDays: outsideDaysProp,
     onMonthChange,
-    insideRangeAction,
+    rangeMode,
+    allowRangeReversal,
+    previewRange,
+    onHoveredDateChange,
     ...otherProps
   } = props as any;
   const T = useMemo(() => resolveTemporal(temporalProp), [temporalProp]);
@@ -96,7 +99,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     numberOfMonths: Math.max(1, Math.min(numberOfMonthsProp ?? 1, 12)),
     outsideDays: outsideDaysProp ?? "enabled",
     onMonthChange,
-    ...(selectionMode === "range" ? { insideRangeAction } : {}),
+    ...(selectionMode === "range" ? { rangeMode, allowRangeReversal, previewRange, onHoveredDateChange } : {}),
   } as UseRootStateParams<F>);
 
   const rendered = useRender({

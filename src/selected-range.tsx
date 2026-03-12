@@ -7,13 +7,13 @@ import { computeWeekRangeInfo } from "./utils";
 import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
-  SelectedRangeState,
-  SelectedRangeProps,
+  RangeSelectedState,
+  RangeSelectedProps,
   OutsideDays,
   TemporalNamespace,
 } from "./types";
 
-const selectedRangeStateAttributesMapping = {
+export const rangeOverlayStateAttributesMapping = {
   root: () => null,
   active: (v) => (v ? { "data-active": "" } : null),
   weekIndex: (v) => ({ "data-week-index": String(v) }),
@@ -24,7 +24,7 @@ const selectedRangeStateAttributesMapping = {
   extendsBefore: (v) => (v ? { "data-extends-before": "" } : null),
   extendsAfter: (v) => (v ? { "data-extends-after": "" } : null),
   orientation: (v) => ({ "data-orientation": v }),
-} as const satisfies StateAttributesMapping<SelectedRangeState>;
+} as const satisfies StateAttributesMapping<RangeSelectedState>;
 
 type RangeInfo = {
   active: boolean;
@@ -34,7 +34,7 @@ type RangeInfo = {
   extendsAfter: boolean;
 };
 
-function computeClippedRangeInfo(
+export function computeClippedRangeInfo(
   days: Temporal.PlainDate[],
   rangeStart: Temporal.PlainDate | undefined,
   rangeEnd: Temporal.PlainDate | undefined,
@@ -86,8 +86,8 @@ function computeClippedRangeInfo(
  * `active`, `week-index`, `start-index`, `end-index`, `start-date`,
  * `end-date`, `extends-before`, and `extends-after`.
  */
-export function SelectedRange<F extends ValueFormat = ValueFormat>(
-  props: SelectedRangeProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
+export function RangeSelected<F extends ValueFormat = ValueFormat>(
+  props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
@@ -116,7 +116,7 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
 
   const weekIndex = weekData?.weekIndex ?? 0;
 
-  const state = useMemo<SelectedRangeState<F>>(
+  const state = useMemo<RangeSelectedState<F>>(
     () => ({
       root: rootState,
       active: info.active,
@@ -142,7 +142,10 @@ export function SelectedRange<F extends ValueFormat = ValueFormat>(
     render,
     ref: ref ? [ref] : [],
     state,
-    stateAttributesMapping: selectedRangeStateAttributesMapping,
+    stateAttributesMapping: rangeOverlayStateAttributesMapping,
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 }
+
+/** @deprecated Use {@link RangeSelected} instead. */
+export const SelectedRange = RangeSelected;

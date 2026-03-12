@@ -15,18 +15,20 @@ export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 export type OutsideDays = "enabled" | "readonly" | "disabled" | "hidden";
 
 /**
- * Controls what happens when clicking a date inside an existing range.
- * - `"end"` — moves the range end to the clicked date.
- * - `"start"` — moves the range start to the clicked date.
- * - `"nearest-end"` — adjusts whichever boundary is closer; ties go to end.
- * - `"nearest-start"` — adjusts whichever boundary is closer; ties go to start.
- * - `"reset"` — collapses the range to a single-day selection on the clicked date.
+ * Controls how clicking inside an existing range behaves.
+ * - `"start-end"` — Two-step: click sets start, second click sets end. Re-click resets.
+ * - `"nearest-end"` — Adjusts whichever boundary is closer; ties go to end (default).
+ * - `"nearest-start"` — Adjusts whichever boundary is closer; ties go to start.
+ * - `"adjust-end"` — Always moves the range end to the clicked date.
+ * - `"adjust-start"` — Always moves the range start to the clicked date.
+ * - `"reset"` — Collapses the range to a single-day selection on the clicked date.
  */
-export type InsideRangeAction =
-  | "end"
-  | "start"
+export type RangeMode =
+  | "start-end"
   | "nearest-end"
   | "nearest-start"
+  | "adjust-end"
+  | "adjust-start"
   | "reset";
 
 /** Subset of the Temporal API surface consumed by the DatePicker. */
@@ -145,6 +147,12 @@ export interface DatePickerStableContextValue {
   numberOfMonths: number;
   /** How outside-month days are displayed. */
   outsideDays: OutsideDays;
+  /** Active range selection mode. */
+  rangeMode: RangeMode;
+  /** Whether reversed ranges are auto-sorted instead of collapsed. */
+  allowRangeReversal: boolean;
+  /** Sets the hovered date for range preview. */
+  setHoveredDate: (date: Temporal.PlainDate | undefined) => void;
 }
 
 /** Pre-computed data for a single visible month. */
@@ -181,6 +189,12 @@ export interface DatePickerStateContextValue {
   numberOfMonths: number;
   /** Map of month index → label element id (for per-grid `aria-labelledby`). */
   gridLabelIds: Record<number, string>;
+  /** The currently hovered date (for range preview). */
+  hoveredDate: Temporal.PlainDate | undefined;
+  /** Start of the computed preview range. */
+  previewStart: Temporal.PlainDate | undefined;
+  /** End of the computed preview range. */
+  previewEnd: Temporal.PlainDate | undefined;
   /** The root component's state object for render functions. */
   rootState: RootState;
 }
@@ -347,10 +361,23 @@ interface RangeControlledProps<F extends ValueFormat = ValueFormat> {
     meta: ValueChangeMeta<DateRange<F> | null>,
   ) => void;
   /**
-   * What happens when clicking a date that falls inside the current range.
+   * Controls how clicking inside an existing range behaves.
    * @default "nearest-end"
    */
-  insideRangeAction?: InsideRangeAction;
+  rangeMode?: RangeMode;
+  /**
+   * When `true`, reversed ranges are auto-sorted so start &lt; end.
+   * When `false`, reversed selections collapse to a single-day range.
+   * @default false
+   */
+  allowRangeReversal?: boolean;
+  /**
+   * Overrides the internally-computed preview range. `null` hides the preview.
+   * Only used when `selectionMode="range"`.
+   */
+  previewRange?: DateRange<F> | null;
+  /** Fires when the hovered date changes (on `pointerenter`/`pointerleave`). */
+  onHoveredDateChange?: (date: Temporal.PlainDate | undefined) => void;
 }
 
 /**
@@ -369,10 +396,23 @@ interface RangeUncontrolledProps<F extends ValueFormat = ValueFormat> {
     meta: ValueChangeMeta<DateRange<F> | null>,
   ) => void;
   /**
-   * What happens when clicking a date that falls inside the current range.
+   * Controls how clicking inside an existing range behaves.
    * @default "nearest-end"
    */
-  insideRangeAction?: InsideRangeAction;
+  rangeMode?: RangeMode;
+  /**
+   * When `true`, reversed ranges are auto-sorted so start &lt; end.
+   * When `false`, reversed selections collapse to a single-day range.
+   * @default false
+   */
+  allowRangeReversal?: boolean;
+  /**
+   * Overrides the internally-computed preview range. `null` hides the preview.
+   * Only used when `selectionMode="range"`.
+   */
+  previewRange?: DateRange<F> | null;
+  /** Fires when the hovered date changes (on `pointerenter`/`pointerleave`). */
+  onHoveredDateChange?: (date: Temporal.PlainDate | undefined) => void;
 }
 
 /**
@@ -603,6 +643,8 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   rangeBoundary: boolean;
   /** Position within the range as a fraction from `0` (range start) to `1` (range end), or `false` if not in range. */
   inRange: number | false;
+  /** `true` when this cell is within the hover preview range (not the committed range). */
+  rangePreview: boolean;
 };
 
 /** State exposed by the `DayButton` component (same as `DayCellTemplateState`). */
@@ -630,8 +672,8 @@ export interface DayButtonOwnProps {
 export type DayButtonProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"button", DayButtonState<F>> & DayButtonOwnProps;
 
-/** State exposed by the `SelectedRange` component. */
-export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
+/** State exposed by the `RangeSelected` component. */
+export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   active: boolean;
   weekIndex: number;
@@ -644,9 +686,25 @@ export type SelectedRangeState<F extends ValueFormat = ValueFormat> = {
   orientation: "horizontal" | "vertical";
 };
 
-/** Full props for the `SelectedRange` component. */
+/** Full props for the `RangeSelected` component. */
+export type RangeSelectedProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", RangeSelectedState<F>>;
+
+/** @deprecated Use {@link RangeSelectedState} instead. */
+export type SelectedRangeState<F extends ValueFormat = ValueFormat> =
+  RangeSelectedState<F>;
+
+/** @deprecated Use {@link RangeSelectedProps} instead. */
 export type SelectedRangeProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"td", SelectedRangeState<F>>;
+  RangeSelectedProps<F>;
+
+/** State exposed by the `RangePreview` component (same shape as `RangeSelectedState`). */
+export type RangePreviewState<F extends ValueFormat = ValueFormat> =
+  RangeSelectedState<F>;
+
+/** Full props for the `RangePreview` component (same shape as `RangeSelectedProps`). */
+export type RangePreviewProps<F extends ValueFormat = ValueFormat> =
+  RangeSelectedProps<F>;
 
 /** Which end of a range the drag handle controls. */
 export type DragHandleEdge = "start" | "end";

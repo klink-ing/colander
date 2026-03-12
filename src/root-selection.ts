@@ -2,7 +2,7 @@ import type { Temporal } from "@js-temporal/polyfill";
 import type {
   DateRange,
   DateValueObject,
-  InsideRangeAction,
+  RangeMode,
   RawValueForFormat,
   TemporalNamespace,
   ValueChangeMeta,
@@ -49,7 +49,10 @@ export type UseRootStateParams<F extends ValueFormat> =
             value: DateRange<F> | null,
             meta: ValueChangeMeta<DateRange<F> | null>,
           ) => void;
-          insideRangeAction?: InsideRangeAction;
+          rangeMode?: RangeMode;
+          allowRangeReversal?: boolean;
+          previewRange?: DateRange<F> | null;
+          onHoveredDateChange?: (date: Temporal.PlainDate | undefined) => void;
         }
       | {
           selectionMode: "multiple";
@@ -76,15 +79,16 @@ export function tagRaw<F extends ValueFormat>(
   return { format, value: raw } as DateValueObject;
 }
 
-/** Resolve nearest-* variants to a concrete "start" | "end" | "reset" action. */
+/** Resolve a `RangeMode` to a concrete "start" | "end" | "reset" action for inside-range clicks. */
 export function resolveInsideAction(
-  action: InsideRangeAction,
+  mode: RangeMode,
   date: Temporal.PlainDate,
   start: Temporal.PlainDate,
   end: Temporal.PlainDate,
 ): "start" | "end" | "reset" {
-  if (action === "start" || action === "end" || action === "reset")
-    return action;
+  if (mode === "adjust-start") return "start";
+  if (mode === "adjust-end") return "end";
+  if (mode === "reset") return "reset";
 
   // nearest-start or nearest-end: compare distance to each boundary
   const daysFromStart = Math.abs(date.since(start).days);
@@ -93,7 +97,7 @@ export function resolveInsideAction(
   if (daysFromStart < daysFromEnd) return "start";
   if (daysFromEnd < daysFromStart) return "end";
   // Tie: use the suffix
-  return action === "nearest-start" ? "start" : "end";
+  return mode === "nearest-start" ? "start" : "end";
 }
 
 // --- Selection update types ---
@@ -120,7 +124,8 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
   committedStart: Temporal.PlainDate | undefined;
   committedEnd: Temporal.PlainDate | undefined;
   selectedZdt: Temporal.ZonedDateTime | undefined;
-  insideRangeAction: InsideRangeAction;
+  rangeMode: RangeMode;
+  allowRangeReversal: boolean;
   sortDates: (dates: Temporal.PlainDate[]) => Temporal.PlainDate[];
   currentSingleFormatted: () => RawValueForFormat<F> | null;
   currentRangeFormatted: () => DateRange<F> | null;
@@ -139,7 +144,8 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
     committedStart,
     committedEnd,
     selectedZdt,
-    insideRangeAction,
+    rangeMode,
+    allowRangeReversal,
     sortDates,
     currentSingleFormatted,
     currentRangeFormatted,
@@ -184,11 +190,133 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
     };
   }
 
+  // --- start-end range mode ---
+  if (isRange && rangeMode === "start-end") {
+    const prevRange = currentRangeFormatted();
+
+    // No dates: set start, fire null (range not committed)
+    if (committedDates.length === 0) {
+      return {
+        newDates: [date],
+        fireCallback: (onValueChange) => {
+          (
+            onValueChange as
+              | ((
+                  v: DateRange<F> | null,
+                  m: ValueChangeMeta<DateRange<F> | null>,
+                ) => void)
+              | undefined
+          )?.(null, { date, previous: prevRange });
+        },
+      };
+    }
+
+    // Start-only (1 date, no end yet)
+    if (committedDates.length === 1) {
+      const start = committedDates[0];
+
+      // Clicking same date as start → deselect
+      if (T.PlainDate.compare(date, start) === 0) {
+        return {
+          newDates: [],
+          fireCallback: (onValueChange) => {
+            (
+              onValueChange as
+                | ((
+                    v: DateRange<F> | null,
+                    m: ValueChangeMeta<DateRange<F> | null>,
+                  ) => void)
+                | undefined
+            )?.(null, { date, previous: prevRange });
+          },
+        };
+      }
+
+      // date >= start: complete range
+      if (T.PlainDate.compare(date, start) >= 0) {
+        const newDates = [start, date];
+        return {
+          newDates,
+          fireCallback: (onValueChange, plainToFormatValue) => {
+            (
+              onValueChange as
+                | ((
+                    v: DateRange<F> | null,
+                    m: ValueChangeMeta<DateRange<F> | null>,
+                  ) => void)
+                | undefined
+            )?.({
+              start: plainToFormatValue(newDates[0]),
+              end: plainToFormatValue(newDates[1]),
+            }, { date, previous: prevRange });
+          },
+        };
+      }
+
+      // date < start
+      if (allowRangeReversal) {
+        // Auto-sort
+        const newDates = [date, start];
+        return {
+          newDates,
+          fireCallback: (onValueChange, plainToFormatValue) => {
+            (
+              onValueChange as
+                | ((
+                    v: DateRange<F> | null,
+                    m: ValueChangeMeta<DateRange<F> | null>,
+                  ) => void)
+                | undefined
+            )?.({
+              start: plainToFormatValue(newDates[0]),
+              end: plainToFormatValue(newDates[1]),
+            }, { date, previous: prevRange });
+          },
+        };
+      }
+      // Collapse to single-day
+      const newDates = [start, start];
+      return {
+        newDates,
+        fireCallback: (onValueChange, plainToFormatValue) => {
+          (
+            onValueChange as
+              | ((
+                  v: DateRange<F> | null,
+                  m: ValueChangeMeta<DateRange<F> | null>,
+                ) => void)
+              | undefined
+          )?.({
+            start: plainToFormatValue(start),
+            end: plainToFormatValue(start),
+          }, { date, previous: prevRange });
+        },
+      };
+    }
+
+    // Range complete (2 dates): clear + set start
+    return {
+      newDates: [date],
+      fireCallback: (onValueChange) => {
+        (
+          onValueChange as
+            | ((
+                v: DateRange<F> | null,
+                m: ValueChangeMeta<DateRange<F> | null>,
+              ) => void)
+            | undefined
+        )?.(null, { date, previous: prevRange });
+      },
+    };
+  }
+
+  // --- Non-start-end range modes with complete range ---
   if (isRange && committedStart && committedEnd) {
     const prevRange = currentRangeFormatted();
     const isSingleDay =
       T.PlainDate.compare(committedStart, committedEnd) === 0;
 
+    // Single-day range: clicking same date → deselect
     if (isSingleDay && T.PlainDate.compare(date, committedStart) === 0) {
       return {
         newDates: [],
@@ -205,6 +333,31 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
       };
     }
 
+    // Multi-day range: clicking on start or end boundary → collapse to single-day
+    if (!isSingleDay) {
+      const isOnStart = T.PlainDate.compare(date, committedStart) === 0;
+      const isOnEnd = T.PlainDate.compare(date, committedEnd) === 0;
+      if (isOnStart || isOnEnd) {
+        const newDates = [date, date];
+        return {
+          newDates,
+          fireCallback: (onValueChange, plainToFormatValue) => {
+            (
+              onValueChange as
+                | ((
+                    v: DateRange<F> | null,
+                    m: ValueChangeMeta<DateRange<F> | null>,
+                  ) => void)
+                | undefined
+            )?.({
+              start: plainToFormatValue(date),
+              end: plainToFormatValue(date),
+            }, { date, previous: prevRange });
+          },
+        };
+      }
+    }
+
     const beforeStart = T.PlainDate.compare(date, committedStart) < 0;
     const afterEnd = T.PlainDate.compare(date, committedEnd) > 0;
 
@@ -215,7 +368,7 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
       newDates = [committedStart, date];
     } else {
       const action = resolveInsideAction(
-        insideRangeAction,
+        rangeMode,
         date,
         committedStart,
         committedEnd,
@@ -437,4 +590,63 @@ export function truncateDatesForMode<F extends ValueFormat>(opts: {
     });
   }
   return clamped;
+}
+
+/**
+ * Pure utility that computes the preview range for a hovered date, using the
+ * same logic as the internal hook. Useful for deriving the preview in an
+ * `onHoveredDateChange` handler without needing a controlled `previewRange`.
+ */
+export function computePreviewRange<F extends ValueFormat>(
+  hoveredDate: Temporal.PlainDate,
+  currentRange: DateRange<F> | null,
+  rangeMode: RangeMode,
+  allowRangeReversal = false,
+  T?: TemporalNamespace,
+): DateRange<F> | null {
+  const Temporal: TemporalNamespace = T ?? (globalThis as any).Temporal;
+  if (!Temporal) {
+    throw new Error(
+      "computePreviewRange requires a Temporal namespace. Pass it as the 5th argument or ensure globalThis.Temporal is available.",
+    );
+  }
+
+  const committedDates: Temporal.PlainDate[] = currentRange
+    ? [
+        Temporal.PlainDate.from(currentRange.start as any),
+        Temporal.PlainDate.from(currentRange.end as any),
+      ]
+    : [];
+  const committedStart = committedDates[0] as Temporal.PlainDate | undefined;
+  const committedEnd = committedDates[1] as Temporal.PlainDate | undefined;
+
+  const noop = () => [] as any;
+  const result = computeSelectionUpdate<F>({
+    date: hoveredDate,
+    readOnly: false,
+    isDateDisabled: () => false,
+    isMultiple: false,
+    isRange: true,
+    committedDates,
+    committedStart,
+    committedEnd,
+    selectedZdt: undefined,
+    rangeMode,
+    allowRangeReversal,
+    sortDates: (d) => [...d].sort((a, b) => Temporal.PlainDate.compare(a, b)),
+    currentSingleFormatted: noop,
+    currentRangeFormatted: () => currentRange,
+    currentMultipleFormatted: noop,
+    resolvedFormat: "PlainDate",
+    timeZone: "UTC",
+    T: Temporal,
+  });
+
+  if (result.skip || result.newDates.length === 0) return null;
+  const start = result.newDates[0];
+  const end = result.newDates.length > 1 ? result.newDates[1] : start;
+  return {
+    start: start as unknown as RawValueForFormat<F>,
+    end: end as unknown as RawValueForFormat<F>,
+  };
 }

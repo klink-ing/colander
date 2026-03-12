@@ -43,6 +43,8 @@ export function computeDayCellState(
   T: TemporalNamespace,
   selectionMode: "single" | "range" | "multiple",
   outsideDays: OutsideDays,
+  previewStart?: TemporalPoly.PlainDate | undefined,
+  previewEnd?: TemporalPoly.PlainDate | undefined,
 ): DayCellTemplateState & { isTabTarget: boolean } {
   const isCurrentMonth =
     date.year === currentDateTime.year && date.month === currentDateTime.month;
@@ -64,6 +66,7 @@ export function computeDayCellState(
       rangeEnd: false,
       rangeBoundary: false,
       inRange: false,
+      rangePreview: false,
       isTabTarget: false,
     };
   }
@@ -71,13 +74,22 @@ export function computeDayCellState(
   const today = T.Now.plainDateISO();
   const isToday = T.PlainDate.compare(date, today) === 0;
 
-  const isRangeStart = rangeStart
-    ? T.PlainDate.compare(date, rangeStart) === 0
+  // Use preview range if available, otherwise committed range
+  const effectiveStart = previewStart ?? rangeStart;
+  const effectiveEnd = previewEnd ?? rangeEnd;
+
+  const isRangeStart = effectiveStart
+    ? T.PlainDate.compare(date, effectiveStart) === 0
     : false;
-  const isRangeEnd = rangeEnd
-    ? T.PlainDate.compare(date, rangeEnd) === 0
+  const isRangeEnd = effectiveEnd
+    ? T.PlainDate.compare(date, effectiveEnd) === 0
     : false;
-  const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T);
+  const isInRangeDay = isInRangeUtil(date, effectiveStart, effectiveEnd, T);
+
+  // rangePreview: cell is within the preview range (not the committed range)
+  const isInPreview = previewStart && previewEnd
+    ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
+    : false;
 
   const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
   const suppressRange =
@@ -99,6 +111,7 @@ export function computeDayCellState(
       rangeEnd: suppressRange ? false : isRangeEnd,
       rangeBoundary: suppressRange ? false : isRangeStart || isRangeEnd,
       inRange: suppressRange ? false : isInRangeDay,
+      rangePreview: suppressRange ? false : isInPreview,
       isTabTarget: false,
     };
   }
@@ -126,6 +139,7 @@ export function computeDayCellState(
     rangeEnd: isRangeEnd,
     rangeBoundary: isRangeStart || isRangeEnd,
     inRange: isInRangeDay,
+    rangePreview: isInPreview,
     isTabTarget,
   };
 }
@@ -146,6 +160,7 @@ export const dayStateAttributesMapping = {
   rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
   rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
   inRange: (v) => (v !== false ? { "data-in-range": String(v) } : null),
+  rangePreview: (v) => (v ? { "data-range-preview": "" } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */
@@ -232,6 +247,7 @@ function dayCellPropsAreEqual(
     a.rangeStart === b.rangeStart &&
     a.rangeEnd === b.rangeEnd &&
     a.inRange === b.inRange &&
+    a.rangePreview === b.rangePreview &&
     a.isTabTarget === b.isTabTarget
   );
 }
@@ -264,6 +280,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
     tabTargetDate,
     rootState,
     weeks,
+    previewStart,
+    previewEnd,
   } = useDatePickerState();
 
   // Use the grid-specific month for outsideMonth checks, falling back to currentDateTime.
@@ -302,6 +320,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       T,
       selectionMode,
       outsideDays,
+      previewStart,
+      previewEnd,
     );
     return (
       <DayCellInstanceInner<F>
@@ -339,6 +359,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           T,
           selectionMode,
           outsideDays,
+          previewStart,
+          previewEnd,
         );
         return (
           <DayCellInstanceInner<F>
@@ -367,7 +389,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   props: DayButtonInstanceProps<F>,
 ) {
   const { ref, render, date, _derivedState, ...otherProps } = props;
-  const { onSelect, setFocusedDate, locale, gridFocusedRef, readOnly } =
+  const { onSelect, setFocusedDate, locale, gridFocusedRef, readOnly, setHoveredDate } =
     useDatePickerStable();
 
   const internalRef = useRef<HTMLButtonElement>(null);
@@ -407,6 +429,9 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
           setFocusedDate(date);
           onSelect(date);
         },
+        onPointerEnter: () => {
+          if (!isHidden && !isDisabled) setHoveredDate(date);
+        },
         children: date.day,
       };
 
@@ -442,6 +467,7 @@ function dayButtonPropsAreEqual(
     a.rangeStart === b.rangeStart &&
     a.rangeEnd === b.rangeEnd &&
     a.inRange === b.inRange &&
+    a.rangePreview === b.rangePreview &&
     a.isTabTarget === b.isTabTarget
   );
 }
@@ -506,6 +532,8 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     rangeEnd,
     tabTargetDate,
     rootState,
+    previewStart,
+    previewEnd,
   } = useDatePickerState();
   const {
     disabled,
@@ -536,6 +564,8 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     T,
     selectionMode,
     outsideDays,
+    previewStart,
+    previewEnd,
   );
 
   return (

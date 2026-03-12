@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import type { InsideRangeAction, OutsideDays } from "base-ui-cal";
+import type { RangeMode, OutsideDays } from "base-ui-cal";
 
 type ExampleId = "styled" | "render-prop" | "anchor";
 
@@ -96,8 +96,8 @@ export interface AppControlsProps {
   setOrientation: (v: "horizontal" | "vertical") => void;
   selectionMode: "single" | "range" | "multiple";
   setSelectionMode: (v: "single" | "range" | "multiple") => void;
-  insideRangeAction: InsideRangeAction;
-  setInsideRangeAction: (v: InsideRangeAction) => void;
+  rangeMode: RangeMode;
+  setRangeMode: (v: RangeMode) => void;
   timeZone: string;
   handleTimeZoneChange: (v: string) => void;
   tzOptions: { value: string; label: string }[];
@@ -140,8 +140,8 @@ export function AppControls(props: AppControlsProps) {
     setOrientation,
     selectionMode,
     setSelectionMode,
-    insideRangeAction,
-    setInsideRangeAction,
+    rangeMode,
+    setRangeMode,
     timeZone,
     handleTimeZoneChange,
     tzOptions,
@@ -247,14 +247,14 @@ export function AppControls(props: AppControlsProps) {
           </label>
           <select
             id="inside-range-action"
-            value={insideRangeAction}
+            value={rangeMode}
             onChange={(e) =>
-              setInsideRangeAction(e.target.value as InsideRangeAction)
+              setRangeMode(e.target.value as RangeMode)
             }
             className={selectClassName}
           >
-            <option value="end">Adjust End</option>
-            <option value="start">Adjust Start</option>
+            <option value="adjust-end">Adjust End</option>
+            <option value="adjust-start">Adjust Start</option>
             <option value="nearest-end">Nearest (tie: End)</option>
             <option value="nearest-start">Nearest (tie: Start)</option>
             <option value="reset">Reset to Single Day</option>

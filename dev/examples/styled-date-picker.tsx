@@ -4,7 +4,7 @@ import type {
   RawValueForFormat,
   DateRange,
   Components,
-  InsideRangeAction,
+  RangeMode,
 } from "base-ui-cal";
 import { WeekNumberCell, WeekNumberHeader } from "base-ui-cal";
 import {
@@ -52,7 +52,7 @@ type StyledDatePickerProps<F extends ValueFormat> = {
       value?: DateRange<F> | null;
       defaultValue?: DateRange<F>;
       onValueChange?: (value: DateRange<F> | null) => void;
-      insideRangeAction?: InsideRangeAction;
+      rangeMode?: RangeMode;
     }
   | {
       selectionMode: "multiple";

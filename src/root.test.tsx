@@ -57,7 +57,7 @@ function SelectTrigger({
   return null;
 }
 
-describe("insideRangeAction", () => {
+describe("rangeMode", () => {
   const march5 = Temporal.PlainDate.from("2026-03-05");
   const march15 = Temporal.PlainDate.from("2026-03-15");
   const march25 = Temporal.PlainDate.from("2026-03-25");
@@ -68,7 +68,7 @@ describe("insideRangeAction", () => {
   ) => void;
 
   function renderRangeRoot(
-    insideRangeAction: "start" | "end" | "nearest-start" | "nearest-end" | "reset",
+    rangeMode: "adjust-start" | "adjust-end" | "nearest-start" | "nearest-end" | "reset",
     onValueChange: RangeChangeFn,
   ) {
     let selectFn: (date: Temporal.PlainDate) => void = () => {};
@@ -78,7 +78,7 @@ describe("insideRangeAction", () => {
         selectionMode="range"
         defaultValue={{ start: march10, end: march20 }}
         onValueChange={onValueChange}
-        insideRangeAction={insideRangeAction}
+        rangeMode={rangeMode}
       >
         <SelectTrigger onCapture={(fn) => { selectFn = fn; }} />
       </Root>,
@@ -88,19 +88,19 @@ describe("insideRangeAction", () => {
 
   it.each<{
     description: string;
-    action: "start" | "end" | "nearest-start" | "nearest-end" | "reset";
+    action: "adjust-start" | "adjust-end" | "nearest-start" | "nearest-end" | "reset";
     clickDate: Temporal.PlainDate;
     expected: { start: string; end: string };
   }>([
     {
-      description: '"start" moves range start to clicked date',
-      action: "start",
+      description: '"adjust-start" moves range start to clicked date',
+      action: "adjust-start",
       clickDate: march15,
       expected: { start: "2026-03-15", end: "2026-03-20" },
     },
     {
-      description: '"end" moves range end to clicked date',
-      action: "end",
+      description: '"adjust-end" moves range end to clicked date',
+      action: "adjust-end",
       clickDate: march15,
       expected: { start: "2026-03-10", end: "2026-03-15" },
     },
@@ -147,9 +147,9 @@ describe("insideRangeAction", () => {
     unmount();
   });
 
-  it("clicking before range always extends start regardless of action", () => {
+  it("clicking before range always extends start regardless of mode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
-    const { unmount, select } = renderRangeRoot("end", onValueChange);
+    const { unmount, select } = renderRangeRoot("adjust-end", onValueChange);
 
     act(() => { select(march5); });
 
@@ -160,15 +160,41 @@ describe("insideRangeAction", () => {
     unmount();
   });
 
-  it("clicking after range always extends end regardless of action", () => {
+  it("clicking after range always extends end regardless of mode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
-    const { unmount, select } = renderRangeRoot("start", onValueChange);
+    const { unmount, select } = renderRangeRoot("adjust-start", onValueChange);
 
     act(() => { select(march25); });
 
     const [value] = onValueChange.mock.calls[0];
     expect(value?.start.toString()).toBe("2026-03-10");
     expect(value?.end.toString()).toBe("2026-03-25");
+
+    unmount();
+  });
+
+  it("clicking on start boundary of multi-day range collapses to single-day", () => {
+    const onValueChange = vi.fn<RangeChangeFn>();
+    const { unmount, select } = renderRangeRoot("nearest-end", onValueChange);
+
+    act(() => { select(march10); });
+
+    const [value] = onValueChange.mock.calls[0];
+    expect(value!.start.toString()).toBe("2026-03-10");
+    expect(value!.end.toString()).toBe("2026-03-10");
+
+    unmount();
+  });
+
+  it("clicking on end boundary of multi-day range collapses to single-day", () => {
+    const onValueChange = vi.fn<RangeChangeFn>();
+    const { unmount, select } = renderRangeRoot("nearest-end", onValueChange);
+
+    act(() => { select(march20); });
+
+    const [value] = onValueChange.mock.calls[0];
+    expect(value!.start.toString()).toBe("2026-03-20");
+    expect(value!.end.toString()).toBe("2026-03-20");
 
     unmount();
   });

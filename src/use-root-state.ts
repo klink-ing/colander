@@ -5,8 +5,8 @@ import type {
   DatePickerStateContextValue,
   DateRange,
   DateValueObject,
-  InsideRangeAction,
   MonthData,
+  RangeMode,
   RawValueForFormat,
   RootState,
   ValueChangeMeta,
@@ -51,11 +51,14 @@ export function useRootState<F extends ValueFormat>(
     onMonthChange,
   } = params;
 
-  const insideRangeAction: InsideRangeAction =
-    selectionMode === "range"
-      ? ((params as Extract<UseRootStateParams<F>, { selectionMode: "range" }>)
-          .insideRangeAction ?? "nearest-end")
-      : "reset";
+  const rangeParams = selectionMode === "range"
+    ? (params as Extract<UseRootStateParams<F>, { selectionMode: "range" }>)
+    : undefined;
+
+  const rangeMode: RangeMode = rangeParams?.rangeMode ?? "nearest-end";
+  const allowRangeReversal = rangeParams?.allowRangeReversal ?? false;
+  const previewRangeProp = rangeParams?.previewRange;
+  const onHoveredDateChange = rangeParams?.onHoveredDateChange;
 
   const disabled = disabledProp ?? false;
   const readOnly = readOnlyProp ?? false;
@@ -195,15 +198,28 @@ export function useRootState<F extends ValueFormat>(
     !isMultiple && committedDates.length > 0
       ? committedDates[0]
       : undefined;
+  // For start-end mode with only 1 date, rangeEnd is undefined (range not yet committed)
   const rangeEnd =
     !isMultiple && committedDates.length > 0
-      ? committedDates[committedDates.length - 1]
+      ? (rangeMode === "start-end" && committedDates.length === 1
+          ? undefined
+          : committedDates[committedDates.length - 1])
       : undefined;
   const committedStart = committedDates[0] as Temporal.PlainDate | undefined;
   const committedEnd =
-    committedDates.length > 0
+    committedDates.length > 1
       ? committedDates[committedDates.length - 1]
-      : undefined;
+      : (rangeMode === "start-end" && committedDates.length === 1
+          ? undefined
+          : committedDates[0]);
+
+  // --- Hover state for range preview ---
+  const [hoveredDate, setHoveredDateRaw] = useState<Temporal.PlainDate | undefined>(undefined);
+
+  const setHoveredDate = useCallback((date: Temporal.PlainDate | undefined) => {
+    onHoveredDateChange?.(date);
+    setHoveredDateRaw(date);
+  }, [onHoveredDateChange]);
 
   const plainToFormatValue = useCallback(
     (plain: Temporal.PlainDate): RawValueForFormat<F> => {
@@ -242,6 +258,64 @@ export function useRootState<F extends ValueFormat>(
     (): RawValueForFormat<F>[] => committedDates.map(plainToFormatValue),
     [committedDates, plainToFormatValue],
   );
+
+  // --- Compute preview range ---
+  const [previewStart, previewEnd] = useMemo<
+    [Temporal.PlainDate | undefined, Temporal.PlainDate | undefined]
+  >(() => {
+    // Controlled preview overrides internal derivation
+    if (previewRangeProp !== undefined) {
+      if (!previewRangeProp) return [undefined, undefined];
+      const rawToPlainLocal = (raw: RawValueForFormat<F>): Temporal.PlainDate => {
+        const tagged = { format: resolvedFormat, value: raw } as DateValueObject;
+        return toZonedDateTime(tagged, timeZone, T).toPlainDate();
+      };
+      return [rawToPlainLocal(previewRangeProp.start), rawToPlainLocal(previewRangeProp.end)];
+    }
+    // Derive from hoveredDate by simulating what a click would produce
+    if (!hoveredDate || !isRange) return [undefined, undefined];
+    const result = computeSelectionUpdate<F>({
+      date: hoveredDate,
+      readOnly,
+      isDateDisabled,
+      isMultiple: false,
+      isRange: true,
+      committedDates,
+      committedStart,
+      committedEnd,
+      selectedZdt: undefined,
+      rangeMode,
+      allowRangeReversal,
+      sortDates,
+      currentSingleFormatted,
+      currentRangeFormatted,
+      currentMultipleFormatted,
+      resolvedFormat,
+      timeZone,
+      T,
+    });
+    if (result.skip || result.newDates.length === 0) return [undefined, undefined];
+    if (result.newDates.length === 1) return [result.newDates[0], result.newDates[0]];
+    return [result.newDates[0], result.newDates[1]];
+  }, [
+    previewRangeProp,
+    hoveredDate,
+    isRange,
+    readOnly,
+    isDateDisabled,
+    committedDates,
+    committedStart,
+    committedEnd,
+    rangeMode,
+    allowRangeReversal,
+    sortDates,
+    currentSingleFormatted,
+    currentRangeFormatted,
+    currentMultipleFormatted,
+    resolvedFormat,
+    timeZone,
+    T,
+  ]);
 
   // Auto-truncate internal dates when selection mode changes
   const prevModeRef = useRef(selectionMode);
@@ -415,7 +489,8 @@ export function useRootState<F extends ValueFormat>(
         committedStart,
         committedEnd,
         selectedZdt,
-        insideRangeAction,
+        rangeMode,
+        allowRangeReversal,
         sortDates,
         currentSingleFormatted,
         currentRangeFormatted,
@@ -426,6 +501,8 @@ export function useRootState<F extends ValueFormat>(
       });
       if (result.skip) return;
       setInternalDates(result.newDates);
+      // Clear hover preview when selection changes
+      if (isRange) setHoveredDateRaw(undefined);
       if (!isMultiple) navigateToMonth(date.year, date.month);
       result.fireCallback(onValueChange, plainToFormatValue);
     },
@@ -444,7 +521,8 @@ export function useRootState<F extends ValueFormat>(
       committedEnd,
       plainToFormatValue,
       sortDates,
-      insideRangeAction,
+      rangeMode,
+      allowRangeReversal,
       currentSingleFormatted,
       currentRangeFormatted,
       currentMultipleFormatted,
@@ -662,6 +740,9 @@ export function useRootState<F extends ValueFormat>(
       weekStartDay: params.weekStartDay,
       numberOfMonths: params.numberOfMonths,
       outsideDays: params.outsideDays,
+      rangeMode,
+      allowRangeReversal,
+      setHoveredDate,
     }),
     [
       onSelect,
@@ -681,6 +762,9 @@ export function useRootState<F extends ValueFormat>(
       params.weekStartDay,
       params.numberOfMonths,
       params.outsideDays,
+      rangeMode,
+      allowRangeReversal,
+      setHoveredDate,
     ],
   );
 
@@ -697,6 +781,9 @@ export function useRootState<F extends ValueFormat>(
       allMonths,
       numberOfMonths: params.numberOfMonths,
       gridLabelIds,
+      hoveredDate,
+      previewStart,
+      previewEnd,
       rootState: state as unknown as RootState,
     }),
     [
@@ -711,6 +798,9 @@ export function useRootState<F extends ValueFormat>(
       allMonths,
       params.numberOfMonths,
       gridLabelIds,
+      hoveredDate,
+      previewStart,
+      previewEnd,
       state,
     ],
   );

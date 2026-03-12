@@ -3,7 +3,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import {
   createDatePicker,
   type DateRange,
-  type InsideRangeAction,
+  type RangeMode,
   type OutsideDays,
 } from "base-ui-cal";
 import { StyledDatePicker } from "./examples/styled-date-picker";
@@ -37,8 +37,8 @@ export default function App() {
   );
   const [autoFocus, setAutoFocus] = useState(false);
   const [showWeekNumbers, setShowWeekNumbers] = useState(false);
-  const [insideRangeAction, setInsideRangeAction] =
-    useState<InsideRangeAction>("nearest-end");
+  const [rangeMode, setRangeMode] =
+    useState<RangeMode>("nearest-end");
   const [allowRangeReversal, setAllowRangeReversal] = useState(false);
   const [numberOfMonths, setNumberOfMonths] = useState(1);
   const [outsideDays, setOutsideDays] = useState<OutsideDays>("enabled");
@@ -215,7 +215,7 @@ export default function App() {
           selectionMode="range"
           value={range}
           onValueChange={setRange}
-          insideRangeAction={insideRangeAction}
+          rangeMode={rangeMode}
           allowRangeReversal={allowRangeReversal}
         />
       );
@@ -252,8 +252,8 @@ export default function App() {
             setOrientation,
             selectionMode,
             setSelectionMode,
-            insideRangeAction,
-            setInsideRangeAction,
+            rangeMode,
+            setRangeMode,
             timeZone,
             handleTimeZoneChange,
             tzOptions,
