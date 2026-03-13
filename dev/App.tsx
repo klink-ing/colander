@@ -7,7 +7,6 @@ import {
   type OutsideDays,
 } from "base-ui-cal";
 import { StyledDatePicker } from "./examples/styled-date-picker";
-import { RenderPropDatePicker } from "./examples/render-prop-date-picker";
 import { AnchorDatePicker } from "./examples/anchor-date-picker";
 import { AppControls, TIMEZONES, formatTzLabel } from "./AppControls";
 
@@ -15,7 +14,7 @@ const ZonedDatePicker = createDatePicker("ZonedDateTime", {
   temporal: Temporal,
 });
 
-type ExampleId = "styled" | "render-prop" | "anchor";
+type ExampleId = "styled" | "anchor";
 
 export default function App() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
@@ -39,7 +38,7 @@ export default function App() {
   const [showWeekNumbers, setShowWeekNumbers] = useState(false);
   const [rangeMode, setRangeMode] =
     useState<RangeMode>("nearest-end");
-  const [allowRangeReversal, setAllowRangeReversal] = useState(false);
+  const [preventRangeReversal, setPreventRangeReversal] = useState(false);
   const [numberOfMonths, setNumberOfMonths] = useState(1);
   const [outsideDays, setOutsideDays] = useState<OutsideDays>("enabled");
   const [orientation, setOrientation] = useState<"horizontal" | "vertical">(
@@ -186,43 +185,23 @@ export default function App() {
   } as const;
 
   function renderExample() {
-    // Anchor example is always range mode
-    if (example === "anchor") {
-      return (
-        <AnchorDatePicker
-          {...commonProps}
-          value={range}
-          onValueChange={setRange}
-        />
-      );
-    }
-
-    // Render prop example is always single mode
-    if (example === "render-prop") {
-      return (
-        <RenderPropDatePicker
-          {...commonProps}
-          value={singleDate}
-          onValueChange={setSingleDate}
-        />
-      );
-    }
+    const Picker = example === "anchor" ? AnchorDatePicker : StyledDatePicker;
 
     if (selectionMode === "range") {
       return (
-        <StyledDatePicker
+        <Picker
           {...commonProps}
           selectionMode="range"
           value={range}
           onValueChange={setRange}
           rangeMode={rangeMode}
-          allowRangeReversal={allowRangeReversal}
+          preventRangeReversal={preventRangeReversal}
         />
       );
     }
     if (selectionMode === "multiple") {
       return (
-        <StyledDatePicker
+        <Picker
           {...commonProps}
           selectionMode="multiple"
           value={multipleDates as any}
@@ -231,7 +210,7 @@ export default function App() {
       );
     }
     return (
-      <StyledDatePicker
+      <Picker
         {...commonProps}
         selectionMode="single"
         value={singleDate}
@@ -277,8 +256,8 @@ export default function App() {
             setShowWeekNumbers,
             outsideDays,
             setOutsideDays,
-            allowRangeReversal,
-            setAllowRangeReversal,
+            preventRangeReversal,
+            setPreventRangeReversal,
             numberOfMonths,
             setNumberOfMonths,
             selectionDisplay,

@@ -21,14 +21,15 @@ export const DRAG_TYPE = "date-range-handle";
 export interface UseDragHandleDnDOptions {
   edge: "start" | "end";
   handleRef: React.RefObject<HTMLSpanElement | null>;
-  allowRangeReversal?: boolean;
+  preventRangeReversal?: boolean;
 }
 
 export function useDragHandleDnD({
   edge,
   handleRef,
-  allowRangeReversal = false,
+  preventRangeReversal = false,
 }: UseDragHandleDnDOptions) {
+  const allowRangeReversal = !preventRangeReversal;
   const { rangeStart, rangeEnd, setRange, temporal: T } = useDatePicker();
   const cellData = useContext(DayCellDataContext);
   const date = cellData?.date;
@@ -41,6 +42,7 @@ export function useDragHandleDnD({
   const [dragging, setDragging] = useState(false);
   const [anyHandleDragging, setAnyHandleDragging] = useState(false);
   const draggingRef = useRef(false);
+  const didLeaveRef = useRef(false);
   const rangeRef = useRef({ start: rangeStart, end: rangeEnd });
   rangeRef.current = { start: rangeStart, end: rangeEnd };
 
@@ -66,6 +68,7 @@ export function useDragHandleDnD({
       },
       onDragStart: () => {
         draggingRef.current = true;
+        didLeaveRef.current = false;
         setDragging(true);
         document.body.style.cursor = "grabbing";
       },
@@ -157,13 +160,14 @@ export function useDragHandleDnD({
         Tp.PlainDate.compare(newStart, start) !== 0 ||
         Tp.PlainDate.compare(newEnd, end) !== 0
       ) {
+        didLeaveRef.current = true;
         rangeRef.current = { start: newStart, end: newEnd };
         setRangeRef.current(newStart, newEnd);
       }
     }
   }, [dragging, allowRangeReversal]);
 
-  return { dragging, anyHandleDragging };
+  return { dragging, anyHandleDragging, didLeaveRef };
 }
 
 /**

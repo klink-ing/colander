@@ -82,10 +82,11 @@ export function RangeDragHandle<F extends ValueFormat = ValueFormat>(
   const { ref, render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
     useDragHandle<F>(edge, { dragging });
-  const { selectionMode } = useDatePicker();
+  const { selectionMode, rangeStart: rs, rangeEnd: re } = useDatePicker();
+  const rangeIncomplete = !rs || !re;
 
   return useRender(
-    selectionMode !== "range"
+    selectionMode !== "range" || rangeIncomplete
       ? {}
       : {
           defaultTagName: "span",

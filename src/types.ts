@@ -150,7 +150,7 @@ export interface DatePickerStableContextValue {
   /** Active range selection mode. */
   rangeMode: RangeMode;
   /** Whether reversed ranges are auto-sorted instead of collapsed. */
-  allowRangeReversal: boolean;
+  preventRangeReversal: boolean;
   /** Sets the hovered date for range preview. */
   setHoveredDate: (date: Temporal.PlainDate | undefined) => void;
 }
@@ -366,11 +366,11 @@ interface RangeControlledProps<F extends ValueFormat = ValueFormat> {
    */
   rangeMode?: RangeMode;
   /**
-   * When `true`, reversed ranges are auto-sorted so start &lt; end.
-   * When `false`, reversed selections collapse to a single-day range.
+   * When `true`, reversed selections collapse to a single-day range
+   * instead of being auto-sorted.
    * @default false
    */
-  allowRangeReversal?: boolean;
+  preventRangeReversal?: boolean;
   /**
    * Overrides the internally-computed preview range. `null` hides the preview.
    * Only used when `selectionMode="range"`.
@@ -401,11 +401,11 @@ interface RangeUncontrolledProps<F extends ValueFormat = ValueFormat> {
    */
   rangeMode?: RangeMode;
   /**
-   * When `true`, reversed ranges are auto-sorted so start &lt; end.
-   * When `false`, reversed selections collapse to a single-day range.
+   * When `true`, reversed selections collapse to a single-day range
+   * instead of being auto-sorted.
    * @default false
    */
-  allowRangeReversal?: boolean;
+  preventRangeReversal?: boolean;
   /**
    * Overrides the internally-computed preview range. `null` hides the preview.
    * Only used when `selectionMode="range"`.
@@ -713,14 +713,6 @@ export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
 /** Full props for the `RangeSelected` component. */
 export type RangeSelectedProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"td", RangeSelectedState<F>>;
-
-/** @deprecated Use {@link RangeSelectedState} instead. */
-export type SelectedRangeState<F extends ValueFormat = ValueFormat> =
-  RangeSelectedState<F>;
-
-/** @deprecated Use {@link RangeSelectedProps} instead. */
-export type SelectedRangeProps<F extends ValueFormat = ValueFormat> =
-  RangeSelectedProps<F>;
 
 /** State exposed by the `RangePreview` component (same shape as `RangeSelectedState`). */
 export type RangePreviewState<F extends ValueFormat = ValueFormat> =

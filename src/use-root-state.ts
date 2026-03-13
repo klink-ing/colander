@@ -57,7 +57,7 @@ export function useRootState<F extends ValueFormat>(
     : undefined;
 
   const rangeMode: RangeMode = rangeParams?.rangeMode ?? "nearest-end";
-  const allowRangeReversal = rangeParams?.allowRangeReversal ?? false;
+  const allowRangeReversal = !(rangeParams?.preventRangeReversal ?? false);
   const previewRangeProp = rangeParams?.previewRange;
   const onHoveredDateChange = rangeParams?.onHoveredDateChange;
 
@@ -167,6 +167,8 @@ export function useRootState<F extends ValueFormat>(
         const end =
           rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
         if (start === null && end === null) return [];
+        // Normalize {start: null, end} → [end, null] (pending start)
+        if (start === null && end !== null) return [end, null];
         return [start, end];
       }
       return undefined;
@@ -195,6 +197,8 @@ export function useRootState<F extends ValueFormat>(
       const end =
         rangeDefault.end != null ? rawToPlain(rangeDefault.end) : null;
       if (start === null && end === null) return [];
+      // Normalize {start: null, end} → [end, null] (pending start)
+      if (start === null && end !== null) return [end, null];
       return [start, end];
     }
     if (singleDefault != null) return [rawToPlain(singleDefault)];
@@ -795,7 +799,7 @@ export function useRootState<F extends ValueFormat>(
       numberOfMonths: params.numberOfMonths,
       outsideDays: params.outsideDays,
       rangeMode,
-      allowRangeReversal,
+      preventRangeReversal: !allowRangeReversal,
       setHoveredDate,
     }),
     [

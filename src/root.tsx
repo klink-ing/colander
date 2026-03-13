@@ -63,7 +63,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     outsideDays: outsideDaysProp,
     onMonthChange,
     rangeMode,
-    allowRangeReversal,
+    preventRangeReversal,
     previewRange,
     onHoveredDateChange,
     ...otherProps
@@ -99,7 +99,7 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     numberOfMonths: Math.max(1, Math.min(numberOfMonthsProp ?? 1, 12)),
     outsideDays: outsideDaysProp ?? "enabled",
     onMonthChange,
-    ...(selectionMode === "range" ? { rangeMode, allowRangeReversal, previewRange, onHoveredDateChange } : {}),
+    ...(selectionMode === "range" ? { rangeMode, preventRangeReversal, previewRange, onHoveredDateChange } : {}),
   } as UseRootStateParams<F>);
 
   const rendered = useRender({

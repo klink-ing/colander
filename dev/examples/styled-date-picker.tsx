@@ -17,7 +17,7 @@ import {
   StyledGridBody,
   StyledWeekTemplate,
   StyledDayCellTemplate,
-  StyledSelectedRange,
+  StyledRangeSelected,
   StyledRangePreview,
 } from "./date-picker-styled";
 import { cn } from "../lib/utils";
@@ -36,7 +36,7 @@ type StyledDatePickerProps<F extends ValueFormat> = {
   weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   autoFocus?: boolean;
   showWeekNumbers?: boolean;
-  allowRangeReversal?: boolean;
+  preventRangeReversal?: boolean;
   numberOfMonths?: number;
   orientation?: "horizontal" | "vertical";
   outsideDays?: "enabled" | "readonly" | "disabled" | "hidden";
@@ -80,7 +80,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
     weekStartDay,
     autoFocus,
     showWeekNumbers,
-    allowRangeReversal,
+    preventRangeReversal,
     numberOfMonths: numberOfMonthsProp,
     orientation,
     outsideDays,
@@ -173,7 +173,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
                 )}
               />
             )}
-            <StyledSelectedRange
+            <StyledRangeSelected
               columnOffset={showWeekNumbers ? 1 : 0}
             />
             <StyledRangePreview
@@ -181,7 +181,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
             />
             <StyledDayCellTemplate
               columnOffset={showWeekNumbers ? 1 : 0}
-              allowRangeReversal={allowRangeReversal}
+              preventRangeReversal={preventRangeReversal}
             />
           </StyledWeekTemplate>
         </StyledGridBody>
@@ -204,7 +204,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
       numberOfMonths={numberOfMonths}
       outsideDays={outsideDays}
       onMonthChange={onMonthChange}
-      allowRangeReversal={allowRangeReversal}
+      preventRangeReversal={preventRangeReversal}
     >
       <div className={cn("p-3", className)}>
         {numberOfMonths === 1 && (

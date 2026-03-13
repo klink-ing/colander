@@ -5,20 +5,18 @@
  * functional DnD behavior. Styled versions can wrap these and pass className.
  */
 
-import { useContext, useRef } from "react";
+import { useRef } from "react";
 import {
   RangeStartDragHandle,
   RangeEndDragHandle,
   DayButton,
-  useDatePicker,
-  DayCellDataContext,
 } from "base-ui-cal";
 import type { DayButtonProps, ValueFormat } from "base-ui-cal";
 import { useDragHandleDnD, useDayDropTarget } from "./use-drag-range";
 
 export interface DragHandleProps {
   edge: "start" | "end";
-  allowRangeReversal?: boolean;
+  preventRangeReversal?: boolean;
   className?: string;
   style?: React.CSSProperties;
 }
@@ -29,34 +27,16 @@ export interface DragHandleProps {
  */
 export function DragHandle({
   edge,
-  allowRangeReversal,
+  preventRangeReversal,
   className,
   style,
 }: DragHandleProps) {
   const handleRef = useRef<HTMLSpanElement>(null);
-  const didDragRef = useRef(false);
-  const { dragging, anyHandleDragging } = useDragHandleDnD({
+  const { dragging, anyHandleDragging, didLeaveRef } = useDragHandleDnD({
     edge,
     handleRef,
-    allowRangeReversal,
+    preventRangeReversal,
   });
-  const prevDragging = useRef(false);
-  if (dragging && !prevDragging.current) {
-    didDragRef.current = true;
-  }
-  // When drag ends, reset the flag after a tick so the browser's
-  // click-from-mouseup is still suppressed, but the next intentional
-  // click is not.
-  if (!dragging && prevDragging.current) {
-    requestAnimationFrame(() => {
-      didDragRef.current = false;
-    });
-  }
-  prevDragging.current = dragging;
-
-  const { onSelect, setFocusedDate } = useDatePicker();
-  const cellData = useContext(DayCellDataContext);
-  const date = cellData?.date;
 
   const Handle = edge === "start" ? RangeStartDragHandle : RangeEndDragHandle;
 
@@ -77,12 +57,15 @@ export function DragHandle({
         <span
           {...renderProps}
           tabIndex={-1}
-          onClick={() => {
-            if (didDragRef.current) return;
-            if (date) {
-              onSelect(date);
-              setFocusedDate(date);
+          onClick={(e) => {
+            if (didLeaveRef.current) {
+              e.stopPropagation();
+              requestAnimationFrame(() => {
+                didLeaveRef.current = false;
+              });
+              return;
             }
+            // let it bubble to button — button handles selection
           }}
           style={{
             ...(renderProps.style as React.CSSProperties),

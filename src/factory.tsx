@@ -16,7 +16,7 @@ import {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-import { RangeSelected, SelectedRange } from "./selected-range";
+import { RangeSelected } from "./selected-range";
 import { RangePreview } from "./range-preview";
 import { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 import { WeekNumberCell, WeekNumberHeader } from "./week-number";
@@ -50,8 +50,6 @@ export function createDatePicker<F extends ValueFormat>(
     DayButton: DayButton<F>,
     RangeSelected: RangeSelected<F>,
     RangePreview: RangePreview<F>,
-    /** @deprecated Use `RangeSelected` instead. */
-    SelectedRange: SelectedRange<F>,
     RangeStartDragHandle: RangeStartDragHandle<F>,
     RangeEndDragHandle: RangeEndDragHandle<F>,
     DateString: DateString<F>,

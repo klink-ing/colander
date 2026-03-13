@@ -14,7 +14,7 @@ import {
   TimeString,
   PrevMonthButton,
   NextMonthButton,
-  SelectedRange,
+  RangeSelected,
   RangePreview,
   useDatePicker,
   DayCellDataContext,
@@ -35,7 +35,7 @@ import type {
   TimeStringProps,
   PrevMonthButtonProps,
   NextMonthButtonProps,
-  SelectedRangeProps,
+  RangeSelectedProps,
   RangePreviewProps,
 } from "base-ui-cal";
 
@@ -201,13 +201,13 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
   allProps: DayCellTemplateProps<F> & {
     ref?: React.Ref<HTMLTableCellElement>;
     columnOffset?: number;
-    allowRangeReversal?: boolean;
+    preventRangeReversal?: boolean;
   },
 ) {
   const {
     className,
     columnOffset = 0,
-    allowRangeReversal,
+    preventRangeReversal,
     ...props
   } = allProps;
   return (
@@ -229,14 +229,9 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
             style={gridStyle}
             className={cn("relative text-center", className)}
           >
-            <StyledDayButton date={state.date} />
-            <StyledDragHandle
-              edge="start"
-              allowRangeReversal={allowRangeReversal}
-            />
-            <StyledDragHandle
-              edge="end"
-              allowRangeReversal={allowRangeReversal}
+            <StyledDayButton
+              date={state.date}
+              preventRangeReversal={preventRangeReversal}
             />
           </td>
         );
@@ -249,8 +244,12 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   className,
   date,
   children,
+  preventRangeReversal,
   ...props
-}: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
+}: DayButtonProps<F> & {
+  ref?: React.Ref<HTMLButtonElement>;
+  preventRangeReversal?: boolean;
+}) {
   return (
     <DragDayButton
       date={date}
@@ -276,6 +275,14 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
               />
             }
             <div className="isolate inline-block w-[2ch] text-right">{children}</div>
+            <StyledDragHandle
+              edge="start"
+              preventRangeReversal={preventRangeReversal}
+            />
+            <StyledDragHandle
+              edge="end"
+              preventRangeReversal={preventRangeReversal}
+            />
           </button>
         );
       }}
@@ -307,11 +314,11 @@ export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
 
 export function StyledDragHandle({
   edge,
-  allowRangeReversal,
+  preventRangeReversal,
   className,
 }: {
   edge: "start" | "end";
-  allowRangeReversal?: boolean;
+  preventRangeReversal?: boolean;
   className?: string;
 }) {
   const { rangeStart, rangeEnd, temporal: T, selectionMode } = useDatePicker();
@@ -357,7 +364,7 @@ export function StyledDragHandle({
   return (
     <DragHandle
       edge={edge}
-      allowRangeReversal={allowRangeReversal}
+      preventRangeReversal={preventRangeReversal}
       className={cn(classNames, className)}
     />
   );
@@ -417,16 +424,16 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
   );
 }
 
-export function StyledSelectedRange<F extends ValueFormat = ValueFormat>(
-  allProps: SelectedRangeProps<F> & {
+export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
+  allProps: RangeSelectedProps<F> & {
     ref?: React.Ref<HTMLTableCellElement>;
     columnOffset?: number;
   },
 ) {
   const { className, columnOffset = 0, ...props } = allProps;
   return (
-    <SelectedRange
-      {...(props as SelectedRangeProps)}
+    <RangeSelected
+      {...(props as RangeSelectedProps)}
       data-range-selection
       render={(renderProps, state) => {
         if (!state.active) {

@@ -50,7 +50,7 @@ export type UseRootStateParams<F extends ValueFormat> =
             meta: ValueChangeMeta<DateRange<F> | null>,
           ) => void;
           rangeMode?: RangeMode;
-          allowRangeReversal?: boolean;
+          preventRangeReversal?: boolean;
           previewRange?: DateRange<F> | null;
           onHoveredDateChange?: (date: Temporal.PlainDate | undefined) => void;
         }
@@ -277,56 +277,6 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
         fireCallback: (onValueChange, plainToFormatValue) => {
           (onValueChange as RangeCb)?.(
             mkRange<F>(plainToFormatValue(start), plainToFormatValue(start)),
-            { date, previous: prevRange },
-          );
-        },
-      };
-    }
-
-    // Pending end [null, end]
-    if (isPending && committedDates[0] === null && committedDates[1] != null) {
-      const end = committedDates[1];
-
-      if (T.PlainDate.compare(date, end) === 0) {
-        return {
-          newDates: [date, date],
-          fireCallback: (onValueChange, plainToFormatValue) => {
-            (onValueChange as RangeCb)?.(
-              mkRange<F>(plainToFormatValue(date), plainToFormatValue(date)),
-              { date, previous: prevRange },
-            );
-          },
-        };
-      }
-
-      if (T.PlainDate.compare(date, end) <= 0) {
-        return {
-          newDates: [date, end],
-          fireCallback: (onValueChange, plainToFormatValue) => {
-            (onValueChange as RangeCb)?.(
-              mkRange<F>(plainToFormatValue(date), plainToFormatValue(end)),
-              { date, previous: prevRange },
-            );
-          },
-        };
-      }
-
-      if (allowRangeReversal) {
-        return {
-          newDates: [end, date],
-          fireCallback: (onValueChange, plainToFormatValue) => {
-            (onValueChange as RangeCb)?.(
-              mkRange<F>(plainToFormatValue(end), plainToFormatValue(date)),
-              { date, previous: prevRange },
-            );
-          },
-        };
-      }
-      return {
-        newDates: [end, end],
-        fireCallback: (onValueChange, plainToFormatValue) => {
-          (onValueChange as RangeCb)?.(
-            mkRange<F>(plainToFormatValue(end), plainToFormatValue(end)),
             { date, previous: prevRange },
           );
         },
@@ -653,7 +603,7 @@ export function computePreviewRange<F extends ValueFormat>(
   hoveredDate: Temporal.PlainDate,
   currentRange: DateRange<F> | null,
   rangeMode: RangeMode,
-  allowRangeReversal = false,
+  preventRangeReversal = false,
   T?: TemporalNamespace,
 ): DateRange<F> | null {
   const Temporal: TemporalNamespace = T ?? (globalThis as any).Temporal;
@@ -663,15 +613,17 @@ export function computePreviewRange<F extends ValueFormat>(
     );
   }
 
+  const rawStart = currentRange?.start != null
+    ? Temporal.PlainDate.from(currentRange.start as any)
+    : null;
+  const rawEnd = currentRange?.end != null
+    ? Temporal.PlainDate.from(currentRange.end as any)
+    : null;
+  // Normalize {start: null, end} → [end, null] (pending start)
   const committedDates: (Temporal.PlainDate | null)[] = currentRange
-    ? [
-        currentRange.start != null
-          ? Temporal.PlainDate.from(currentRange.start as any)
-          : null,
-        currentRange.end != null
-          ? Temporal.PlainDate.from(currentRange.end as any)
-          : null,
-      ]
+    ? rawStart === null && rawEnd !== null
+      ? [rawEnd, null]
+      : [rawStart, rawEnd]
     : [];
   const committedStart = (committedDates[0] ?? undefined) as
     | Temporal.PlainDate
@@ -692,7 +644,7 @@ export function computePreviewRange<F extends ValueFormat>(
     committedEnd,
     selectedZdt: undefined,
     rangeMode,
-    allowRangeReversal,
+    allowRangeReversal: !preventRangeReversal,
     sortDates: (d) => [...d].sort((a, b) => Temporal.PlainDate.compare(a, b)),
     currentSingleFormatted: noop,
     currentRangeFormatted: () => currentRange,

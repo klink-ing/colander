@@ -14,7 +14,7 @@ export {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-export { RangeSelected, SelectedRange } from "./selected-range";
+export { RangeSelected } from "./selected-range";
 export { RangePreview } from "./range-preview";
 export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 export { WeekNumberCell, WeekNumberHeader } from "./week-number";
@@ -49,8 +49,6 @@ export type {
   DayButtonState,
   RangeSelectedProps,
   RangeSelectedState,
-  SelectedRangeProps,
-  SelectedRangeState,
   RangePreviewProps,
   RangePreviewState,
   DragHandleOwnProps,

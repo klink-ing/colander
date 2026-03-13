@@ -1,11 +1,10 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { RangeMode, OutsideDays } from "base-ui-cal";
 
-type ExampleId = "styled" | "render-prop" | "anchor";
+type ExampleId = "styled" | "anchor";
 
 export const EXAMPLES: { value: ExampleId; label: string }[] = [
   { value: "styled", label: "Styled DatePicker" },
-  { value: "render-prop", label: "Render Prop DatePicker" },
   { value: "anchor", label: "Anchor-Positioned DatePicker" },
 ];
 
@@ -121,8 +120,8 @@ export interface AppControlsProps {
   setShowWeekNumbers: (v: boolean) => void;
   outsideDays: OutsideDays;
   setOutsideDays: (v: OutsideDays) => void;
-  allowRangeReversal: boolean;
-  setAllowRangeReversal: (v: boolean) => void;
+  preventRangeReversal: boolean;
+  setPreventRangeReversal: (v: boolean) => void;
   numberOfMonths: number;
   setNumberOfMonths: (v: number) => void;
   selectionDisplay: string;
@@ -165,8 +164,8 @@ export function AppControls(props: AppControlsProps) {
     setShowWeekNumbers,
     outsideDays,
     setOutsideDays,
-    allowRangeReversal,
-    setAllowRangeReversal,
+    preventRangeReversal,
+    setPreventRangeReversal,
     numberOfMonths,
     setNumberOfMonths,
     selectionDisplay,
@@ -414,10 +413,10 @@ export function AppControls(props: AppControlsProps) {
           <label className={checkboxClassName}>
             <input
               type="checkbox"
-              checked={allowRangeReversal}
-              onChange={(e) => setAllowRangeReversal(e.target.checked)}
+              checked={preventRangeReversal}
+              onChange={(e) => setPreventRangeReversal(e.target.checked)}
             />
-            Allow Range Reversal (drag)
+            Prevent Range Reversal (drag)
           </label>
         )}
       </div>

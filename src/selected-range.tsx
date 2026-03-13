@@ -150,6 +150,3 @@ export function RangeSelected<F extends ValueFormat = ValueFormat>(
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 }
-
-/** @deprecated Use {@link RangeSelected} instead. */
-export const SelectedRange = RangeSelected;
