@@ -1,5 +1,5 @@
 // Minimal unstyled date picker with drag-and-drop range handles.
-// Measures the bundle cost of @atlaskit/pragmatic-drag-and-drop without styling overhead.
+// Measures the bundle cost of native drag-and-drop hooks without styling overhead.
 import React from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import {
