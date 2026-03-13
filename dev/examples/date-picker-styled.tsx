@@ -386,25 +386,30 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
           <td
             {...renderProps}
             style={gridStyle}
-            className={cn(
-              "z-10 pointer-events-none relative",
-              className,
-            )}
+            className={cn("z-10 pointer-events-none relative", className)}
           >
             {/* White solid line */}
-            <div className={cn(
-              "absolute inset-0 rounded-md border border-white",
-              horizontal
-                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
-                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
-            )} data-extends-before={state.extendsBefore || undefined} data-extends-after={state.extendsAfter || undefined} />
+            <div
+              className={cn(
+                "absolute inset-0 rounded-md border border-white",
+                horizontal
+                  ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none data-extends-after:border-r-0 data-extends-before:border-l-0"
+                  : "data-extends-after:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+              )}
+              data-extends-before={state.extendsBefore || undefined}
+              data-extends-after={state.extendsAfter || undefined}
+            />
             {/* Blue dashed line on top */}
-            <div className={cn(
-              "absolute inset-0 rounded-md border border-dashed border-primary/80",
-              horizontal
-                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
-                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
-            )} data-extends-before={state.extendsBefore || undefined} data-extends-after={state.extendsAfter || undefined} />
+            <div
+              className={cn(
+                "absolute inset-0 rounded-md border border-dashed border-primary/80",
+                horizontal
+                  ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
+                  : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+              )}
+              data-extends-before={state.extendsBefore || undefined}
+              data-extends-after={state.extendsAfter || undefined}
+            />
           </td>
         );
       }}

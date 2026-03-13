@@ -68,12 +68,16 @@ export function computeDayCellState(
       inRange: false,
       rangeIndex: false,
       rangeLength: false,
+      rangeHasStart: false,
+      rangeHasEnd: false,
       rangeStartPreview: false,
       rangeEndPreview: false,
       rangeBoundaryPreview: false,
       inRangePreview: false,
       rangeIndexPreview: false,
       rangeLengthPreview: false,
+      rangePreviewHasStart: false,
+      rangePreviewHasEnd: false,
       isTabTarget: false,
     };
   }
@@ -88,8 +92,10 @@ export function computeDayCellState(
     ? T.PlainDate.compare(date, rangeEnd) === 0
     : false;
   const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
-  const rangeIdx = isInRangeDay && rangeStart ? date.since(rangeStart).days : false;
-  const rangeLen = isInRangeDay && rangeStart && rangeEnd ? rangeEnd.since(rangeStart).days + 1 : false;
+  const effectiveStart = rangeStart ?? rangeEnd;
+  const effectiveEnd = rangeEnd ?? rangeStart;
+  const rangeIdx = isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
+  const rangeLen = isInRangeDay && effectiveStart && effectiveEnd ? effectiveEnd.since(effectiveStart).days + 1 : false;
 
   const isPreviewRangeStart = previewStart
     ? T.PlainDate.compare(date, previewStart) === 0
@@ -125,12 +131,16 @@ export function computeDayCellState(
       inRange: suppressRange ? false : isInRangeDay,
       rangeIndex: suppressRange ? false : rangeIdx,
       rangeLength: suppressRange ? false : rangeLen,
+      rangeHasStart: suppressRange ? false : isInRangeDay && rangeStart !== undefined,
+      rangeHasEnd: suppressRange ? false : isInRangeDay && rangeEnd !== undefined,
       rangeStartPreview: suppressRange ? false : isPreviewRangeStart,
       rangeEndPreview: suppressRange ? false : isPreviewRangeEnd,
       rangeBoundaryPreview: suppressRange ? false : isPreviewRangeStart || isPreviewRangeEnd,
       inRangePreview: suppressRange ? false : isInPreviewRange,
       rangeIndexPreview: suppressRange ? false : previewIdx,
       rangeLengthPreview: suppressRange ? false : previewLen,
+      rangePreviewHasStart: suppressRange ? false : isInPreviewRange && previewStart !== undefined,
+      rangePreviewHasEnd: suppressRange ? false : isInPreviewRange && previewEnd !== undefined,
       isTabTarget: false,
     };
   }
@@ -160,12 +170,16 @@ export function computeDayCellState(
     inRange: isInRangeDay,
     rangeIndex: rangeIdx,
     rangeLength: rangeLen,
+    rangeHasStart: isInRangeDay && rangeStart !== undefined,
+    rangeHasEnd: isInRangeDay && rangeEnd !== undefined,
     rangeStartPreview: isPreviewRangeStart,
     rangeEndPreview: isPreviewRangeEnd,
     rangeBoundaryPreview: isPreviewRangeStart || isPreviewRangeEnd,
     inRangePreview: isInPreviewRange,
     rangeIndexPreview: previewIdx,
     rangeLengthPreview: previewLen,
+    rangePreviewHasStart: isInPreviewRange && previewStart !== undefined,
+    rangePreviewHasEnd: isInPreviewRange && previewEnd !== undefined,
     isTabTarget,
   };
 }
@@ -188,12 +202,16 @@ export const dayStateAttributesMapping = {
   inRange: (v) => (v ? { "data-in-range": "" } : null),
   rangeIndex: (v) => (v !== false ? { "data-range-index": String(v) } : null),
   rangeLength: (v) => (v !== false ? { "data-range-length": String(v) } : null),
+  rangeHasStart: (v) => (v ? { "data-range-has-start": "" } : null),
+  rangeHasEnd: (v) => (v ? { "data-range-has-end": "" } : null),
   rangeStartPreview: (v) => (v ? { "data-range-start-preview": "" } : null),
   rangeEndPreview: (v) => (v ? { "data-range-end-preview": "" } : null),
   rangeBoundaryPreview: (v) => (v ? { "data-range-boundary-preview": "" } : null),
   inRangePreview: (v) => (v ? { "data-in-range-preview": "" } : null),
   rangeIndexPreview: (v) => (v !== false ? { "data-range-index-preview": String(v) } : null),
   rangeLengthPreview: (v) => (v !== false ? { "data-range-length-preview": String(v) } : null),
+  rangePreviewHasStart: (v) => (v ? { "data-range-preview-has-start": "" } : null),
+  rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": "" } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */
@@ -282,12 +300,16 @@ function dayCellPropsAreEqual(
     a.inRange === b.inRange &&
     a.rangeIndex === b.rangeIndex &&
     a.rangeLength === b.rangeLength &&
+    a.rangeHasStart === b.rangeHasStart &&
+    a.rangeHasEnd === b.rangeHasEnd &&
     a.rangeStartPreview === b.rangeStartPreview &&
     a.rangeEndPreview === b.rangeEndPreview &&
     a.rangeBoundaryPreview === b.rangeBoundaryPreview &&
     a.inRangePreview === b.inRangePreview &&
     a.rangeIndexPreview === b.rangeIndexPreview &&
     a.rangeLengthPreview === b.rangeLengthPreview &&
+    a.rangePreviewHasStart === b.rangePreviewHasStart &&
+    a.rangePreviewHasEnd === b.rangePreviewHasEnd &&
     a.isTabTarget === b.isTabTarget
   );
 }
@@ -509,12 +531,16 @@ function dayButtonPropsAreEqual(
     a.inRange === b.inRange &&
     a.rangeIndex === b.rangeIndex &&
     a.rangeLength === b.rangeLength &&
+    a.rangeHasStart === b.rangeHasStart &&
+    a.rangeHasEnd === b.rangeHasEnd &&
     a.rangeStartPreview === b.rangeStartPreview &&
     a.rangeEndPreview === b.rangeEndPreview &&
     a.rangeBoundaryPreview === b.rangeBoundaryPreview &&
     a.inRangePreview === b.inRangePreview &&
     a.rangeIndexPreview === b.rangeIndexPreview &&
     a.rangeLengthPreview === b.rangeLengthPreview &&
+    a.rangePreviewHasStart === b.rangePreviewHasStart &&
+    a.rangePreviewHasEnd === b.rangePreviewHasEnd &&
     a.isTabTarget === b.isTabTarget
   );
 }

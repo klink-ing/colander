@@ -204,6 +204,7 @@ export function StyledDatePicker<F extends ValueFormat = ValueFormat>(
       numberOfMonths={numberOfMonths}
       outsideDays={outsideDays}
       onMonthChange={onMonthChange}
+      allowRangeReversal={allowRangeReversal}
     >
       <div className={cn("p-3", className)}>
         {numberOfMonths === 1 && (

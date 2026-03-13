@@ -647,6 +647,10 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   rangeIndex: number | false;
   /** Total number of days in the committed range, or `false` if not in range. */
   rangeLength: number | false;
+  /** Whether the committed range has a defined start boundary. */
+  rangeHasStart: boolean;
+  /** Whether the committed range has a defined end boundary. */
+  rangeHasEnd: boolean;
   /** Whether this cell is the start of the hover preview range. */
   rangeStartPreview: boolean;
   /** Whether this cell is the end of the hover preview range. */
@@ -659,6 +663,10 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   rangeIndexPreview: number | false;
   /** Total number of days in the preview range, or `false` if not in preview range. */
   rangeLengthPreview: number | false;
+  /** Whether the preview range has a defined start boundary. */
+  rangePreviewHasStart: boolean;
+  /** Whether the preview range has a defined end boundary. */
+  rangePreviewHasEnd: boolean;
 };
 
 /** State exposed by the `DayButton` component (same as `DayCellTemplateState`). */
@@ -697,6 +705,8 @@ export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
   endDate: string;
   extendsBefore: boolean;
   extendsAfter: boolean;
+  hasStart: boolean;
+  hasEnd: boolean;
   orientation: "horizontal" | "vertical";
 };
 

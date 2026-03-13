@@ -56,9 +56,11 @@ export function RangePreview<F extends ValueFormat = ValueFormat>(
       endDate,
       extendsBefore: info.extendsBefore,
       extendsAfter: info.extendsAfter,
+      hasStart: previewStart !== undefined,
+      hasEnd: previewEnd !== undefined,
       orientation,
     }),
-    [rootState, info, weekIndex, startDate, endDate, orientation],
+    [rootState, info, weekIndex, startDate, endDate, previewStart, previewEnd, orientation],
   );
 
   const defaultProps: Record<string, unknown> = {

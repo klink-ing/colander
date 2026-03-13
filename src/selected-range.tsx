@@ -23,6 +23,8 @@ export const rangeOverlayStateAttributesMapping = {
   endDate: (v) => (v ? { "data-end-date": v } : null),
   extendsBefore: (v) => (v ? { "data-extends-before": "" } : null),
   extendsAfter: (v) => (v ? { "data-extends-after": "" } : null),
+  hasStart: (v) => (v ? { "data-has-start": "" } : null),
+  hasEnd: (v) => (v ? { "data-has-end": "" } : null),
   orientation: (v) => ({ "data-orientation": v }),
 } as const satisfies StateAttributesMapping<RangeSelectedState>;
 
@@ -127,9 +129,11 @@ export function RangeSelected<F extends ValueFormat = ValueFormat>(
       endDate,
       extendsBefore: info.extendsBefore,
       extendsAfter: info.extendsAfter,
+      hasStart: rangeStart !== undefined,
+      hasEnd: rangeEnd !== undefined,
       orientation,
     }),
-    [rootState, info, weekIndex, startDate, endDate, orientation],
+    [rootState, info, weekIndex, startDate, endDate, rangeStart, rangeEnd, orientation],
   );
 
   const defaultProps: Record<string, unknown> = {

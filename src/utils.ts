@@ -398,15 +398,17 @@ export function isInRange(
   rangeEnd: Temporal.PlainDate | undefined,
   T: TemporalNamespace,
 ): number | false {
-  if (!rangeStart || !rangeEnd) return false;
+  if (!rangeStart && !rangeEnd) return false;
+  const effectiveStart = rangeStart ?? rangeEnd!;
+  const effectiveEnd = rangeEnd ?? rangeStart!;
   if (
-    T.PlainDate.compare(date, rangeStart) < 0 ||
-    T.PlainDate.compare(date, rangeEnd) > 0
+    T.PlainDate.compare(date, effectiveStart) < 0 ||
+    T.PlainDate.compare(date, effectiveEnd) > 0
   )
     return false;
-  const totalDays = rangeEnd.since(rangeStart).days;
+  const totalDays = effectiveEnd.since(effectiveStart).days;
   if (totalDays === 0) return 0;
-  const offsetDays = date.since(rangeStart).days;
+  const offsetDays = date.since(effectiveStart).days;
   return offsetDays / totalDays;
 }
 
@@ -442,25 +444,28 @@ export function computeWeekRangeInfo(
     extendsBefore: false,
     extendsAfter: false,
   };
-  if (!rangeStart || !rangeEnd || weekDays.length === 0) return inactive;
+  if (weekDays.length === 0) return inactive;
+  if (!rangeStart && !rangeEnd) return inactive;
+  const effectiveStart = rangeStart ?? rangeEnd!;
+  const effectiveEnd = rangeEnd ?? rangeStart!;
 
   const weekStart = weekDays[0];
   const weekEnd = weekDays[weekDays.length - 1];
 
   if (
-    T.PlainDate.compare(rangeEnd, weekStart) < 0 ||
-    T.PlainDate.compare(rangeStart, weekEnd) > 0
+    T.PlainDate.compare(effectiveEnd, weekStart) < 0 ||
+    T.PlainDate.compare(effectiveStart, weekEnd) > 0
   ) {
     return inactive;
   }
 
-  const extendsBefore = T.PlainDate.compare(rangeStart, weekStart) < 0;
-  const extendsAfter = T.PlainDate.compare(rangeEnd, weekEnd) > 0;
+  const extendsBefore = T.PlainDate.compare(effectiveStart, weekStart) < 0;
+  const extendsAfter = T.PlainDate.compare(effectiveEnd, weekEnd) > 0;
 
   let startIndex = 0;
   if (!extendsBefore) {
     startIndex = weekDays.findIndex(
-      (d) => T.PlainDate.compare(d, rangeStart) === 0,
+      (d) => T.PlainDate.compare(d, effectiveStart) === 0,
     );
     if (startIndex === -1) return inactive;
   }
@@ -468,7 +473,7 @@ export function computeWeekRangeInfo(
   let endIndex = weekDays.length - 1;
   if (!extendsAfter) {
     endIndex = weekDays.findIndex(
-      (d) => T.PlainDate.compare(d, rangeEnd) === 0,
+      (d) => T.PlainDate.compare(d, effectiveEnd) === 0,
     );
     if (endIndex === -1) return inactive;
   }

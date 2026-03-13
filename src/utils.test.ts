@@ -780,24 +780,32 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   const marchWeeks = getMonthWeeks(2026, 3, T);
   const week1 = marchWeeks[1];
 
-  it("returns inactive when rangeStart is undefined", () => {
+  it("treats undefined rangeStart as single-day range at rangeEnd", () => {
     const result = computeWeekRangeInfo(
       week1,
       undefined,
-      d("2026-03-15"),
+      d("2026-03-10"),
       T,
     );
-    expect(result.active).toBe(false);
+    expect(result.active).toBe(true);
+    expect(result.startIndex).toBe(2);
+    expect(result.endIndex).toBe(2);
+    expect(result.extendsBefore).toBe(false);
+    expect(result.extendsAfter).toBe(false);
   });
 
-  it("returns inactive when rangeEnd is undefined", () => {
+  it("treats undefined rangeEnd as single-day range at rangeStart", () => {
     const result = computeWeekRangeInfo(
       week1,
-      d("2026-03-08"),
+      d("2026-03-11"),
       undefined,
       T,
     );
-    expect(result.active).toBe(false);
+    expect(result.active).toBe(true);
+    expect(result.startIndex).toBe(3);
+    expect(result.endIndex).toBe(3);
+    expect(result.extendsBefore).toBe(false);
+    expect(result.extendsAfter).toBe(false);
   });
 
   it("returns inactive when range has no overlap with week", () => {
