@@ -1,5 +1,5 @@
 {
-  "include": ["src/**/*", "dev/**/*"],
+  "include": ["src/**/*", "dev/**/*", "size-limit/**/*"],
   "exclude": ["node_modules", "dist"],
   "compilerOptions": {
     "incremental": true,

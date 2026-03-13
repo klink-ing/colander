@@ -174,7 +174,7 @@ export function AppControls(props: AppControlsProps) {
 
   return (
     <div className="flex w-64 shrink-0 flex-col gap-4">
-      <h2 className="text-lg font-semibold text-foreground">Controls</h2>
+      <h2 className="text-foreground text-lg font-semibold">Controls</h2>
 
       {/* Example selector */}
       <div>
@@ -205,9 +205,7 @@ export function AppControls(props: AppControlsProps) {
             id="orientation-select"
             value={orientation}
             onChange={(e) =>
-              setOrientation(
-                e.target.value as "horizontal" | "vertical",
-              )
+              setOrientation(e.target.value as "horizontal" | "vertical")
             }
             className={selectClassName}
           >
@@ -226,9 +224,7 @@ export function AppControls(props: AppControlsProps) {
           id="selection-mode"
           value={selectionMode}
           onChange={(e) =>
-            setSelectionMode(
-              e.target.value as "single" | "range" | "multiple",
-            )
+            setSelectionMode(e.target.value as "single" | "range" | "multiple")
           }
           className={selectClassName}
         >
@@ -247,9 +243,7 @@ export function AppControls(props: AppControlsProps) {
           <select
             id="range-mode"
             value={rangeMode}
-            onChange={(e) =>
-              setRangeMode(e.target.value as RangeMode)
-            }
+            onChange={(e) => setRangeMode(e.target.value as RangeMode)}
             className={selectClassName}
           >
             <option value="start-end">Start → End</option>
@@ -309,9 +303,7 @@ export function AppControls(props: AppControlsProps) {
           id="week-start-day"
           value={weekStartDay}
           onChange={(e) =>
-            setWeekStartDay(
-              Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-            )
+            setWeekStartDay(Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6)
           }
           className={selectClassName}
         >
@@ -352,7 +344,7 @@ export function AppControls(props: AppControlsProps) {
       </div>
 
       {/* Boolean toggles */}
-      <div className="flex flex-col gap-2 border-t border-input pt-3">
+      <div className="border-input flex flex-col gap-2 border-t pt-3">
         <label className={checkboxClassName}>
           <input
             type="checkbox"
@@ -423,7 +415,9 @@ export function AppControls(props: AppControlsProps) {
 
       {/* Number of months */}
       <div>
-        <label htmlFor="number-of-months" className={labelClassName}>Number of Months</label>
+        <label htmlFor="number-of-months" className={labelClassName}>
+          Number of Months
+        </label>
         <select
           id="number-of-months"
           className={selectClassName}
@@ -439,14 +433,11 @@ export function AppControls(props: AppControlsProps) {
       </div>
 
       {/* State readout */}
-      <div className="border-t border-input pt-3">
-        <h3 className="mb-2 text-sm font-semibold text-foreground">
-          State
-        </h3>
-        <div className="text-xs text-muted-foreground">
+      <div className="border-input border-t pt-3">
+        <h3 className="text-foreground mb-2 text-sm font-semibold">State</h3>
+        <div className="text-muted-foreground text-xs">
           <div className="mb-1">
-            <span className="font-medium">Selection:</span>{" "}
-            {selectionDisplay}
+            <span className="font-medium">Selection:</span> {selectionDisplay}
           </div>
           {lastMonthChange && (
             <div>

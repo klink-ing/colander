@@ -31,10 +31,6 @@ const T: TemporalNamespace = {
   PlainYearMonth: Temporal.PlainYearMonth,
 };
 
-function date(iso: string): Temporal.PlainDate {
-  return Temporal.PlainDate.from(iso);
-}
-
 describe("calendarForLocale", () => {
   it("returns 'gregory' for en-US", () => {
     expect(calendarForLocale("en-US")).toBe("gregory");
@@ -158,11 +154,7 @@ describe("toZonedDateTime", () => {
 
   it("converts a native Date to ZonedDateTime", () => {
     const nativeDate = new Date(2026, 2, 15, 10, 30, 0);
-    const zdt = toZonedDateTime(
-      { format: "Date", value: nativeDate },
-      tz,
-      T,
-    );
+    const zdt = toZonedDateTime({ format: "Date", value: nativeDate }, tz, T);
     expect(zdt.year).toBe(2026);
     expect(zdt.month).toBe(3);
     expect(zdt.day).toBe(15);
@@ -413,19 +405,36 @@ describe.each(temporalVariants)("computeAdjacentMonth ($name)", ({ T }) => {
     direction: "prev" | "next";
     expected: { year: number; month: number; firstDay: string };
   }>([
-    { description: "mid-year next", current: { year: 2026, month: 3 }, direction: "next", expected: { year: 2026, month: 4, firstDay: "2026-04-01" } },
-    { description: "mid-year prev", current: { year: 2026, month: 3 }, direction: "prev", expected: { year: 2026, month: 2, firstDay: "2026-02-01" } },
-    { description: "Dec→Jan wrap", current: { year: 2026, month: 12 }, direction: "next", expected: { year: 2027, month: 1, firstDay: "2027-01-01" } },
-    { description: "Jan→Dec wrap", current: { year: 2027, month: 1 }, direction: "prev", expected: { year: 2026, month: 12, firstDay: "2026-12-01" } },
-  ])(
-    "$description",
-    ({ current, direction, expected }) => {
-      const result = computeAdjacentMonth(current, direction, T);
-      expect(result.year).toBe(expected.year);
-      expect(result.month).toBe(expected.month);
-      expect(result.firstDay.toString()).toBe(expected.firstDay);
+    {
+      description: "mid-year next",
+      current: { year: 2026, month: 3 },
+      direction: "next",
+      expected: { year: 2026, month: 4, firstDay: "2026-04-01" },
     },
-  );
+    {
+      description: "mid-year prev",
+      current: { year: 2026, month: 3 },
+      direction: "prev",
+      expected: { year: 2026, month: 2, firstDay: "2026-02-01" },
+    },
+    {
+      description: "Dec→Jan wrap",
+      current: { year: 2026, month: 12 },
+      direction: "next",
+      expected: { year: 2027, month: 1, firstDay: "2027-01-01" },
+    },
+    {
+      description: "Jan→Dec wrap",
+      current: { year: 2027, month: 1 },
+      direction: "prev",
+      expected: { year: 2026, month: 12, firstDay: "2026-12-01" },
+    },
+  ])("$description", ({ current, direction, expected }) => {
+    const result = computeAdjacentMonth(current, direction, T);
+    expect(result.year).toBe(expected.year);
+    expect(result.month).toBe(expected.month);
+    expect(result.firstDay.toString()).toBe(expected.firstDay);
+  });
 });
 
 describe.each(temporalVariants)("focusedDateForMonth ($name)", ({ T }) => {
@@ -438,22 +447,45 @@ describe.each(temporalVariants)("focusedDateForMonth ($name)", ({ T }) => {
     firstDay: string;
     expected: string;
   }>([
-    { description: "falls back to firstDay when in a different month", focused: "2026-03-15", targetMonth: { year: 2026, month: 4 }, firstDay: "2026-04-01", expected: "2026-04-01" },
-    { description: "preserves focused when already in target month", focused: "2026-04-10", targetMonth: { year: 2026, month: 4 }, firstDay: "2026-04-01", expected: "2026-04-10" },
-    { description: "falls back to firstDay when in a different year", focused: "2025-12-20", targetMonth: { year: 2026, month: 1 }, firstDay: "2026-01-01", expected: "2026-01-01" },
-    { description: "preserves focused at month boundary (day 1)", focused: "2026-05-01", targetMonth: { year: 2026, month: 5 }, firstDay: "2026-05-01", expected: "2026-05-01" },
-    { description: "preserves focused at month boundary (last day)", focused: "2026-05-31", targetMonth: { year: 2026, month: 5 }, firstDay: "2026-05-01", expected: "2026-05-31" },
-  ])(
-    "$description",
-    ({ focused, targetMonth, firstDay, expected }) => {
-      const result = focusedDateForMonth(
-        d(focused),
-        targetMonth,
-        d(firstDay),
-      );
-      expect(result.toString()).toBe(expected);
+    {
+      description: "falls back to firstDay when in a different month",
+      focused: "2026-03-15",
+      targetMonth: { year: 2026, month: 4 },
+      firstDay: "2026-04-01",
+      expected: "2026-04-01",
     },
-  );
+    {
+      description: "preserves focused when already in target month",
+      focused: "2026-04-10",
+      targetMonth: { year: 2026, month: 4 },
+      firstDay: "2026-04-01",
+      expected: "2026-04-10",
+    },
+    {
+      description: "falls back to firstDay when in a different year",
+      focused: "2025-12-20",
+      targetMonth: { year: 2026, month: 1 },
+      firstDay: "2026-01-01",
+      expected: "2026-01-01",
+    },
+    {
+      description: "preserves focused at month boundary (day 1)",
+      focused: "2026-05-01",
+      targetMonth: { year: 2026, month: 5 },
+      firstDay: "2026-05-01",
+      expected: "2026-05-01",
+    },
+    {
+      description: "preserves focused at month boundary (last day)",
+      focused: "2026-05-31",
+      targetMonth: { year: 2026, month: 5 },
+      firstDay: "2026-05-01",
+      expected: "2026-05-31",
+    },
+  ])("$description", ({ focused, targetMonth, firstDay, expected }) => {
+    const result = focusedDateForMonth(d(focused), targetMonth, d(firstDay));
+    expect(result.toString()).toBe(expected);
+  });
 });
 
 describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
@@ -724,16 +756,33 @@ describe("shouldMoveDomFocus", () => {
     gridHasFocus: boolean;
     expected: boolean;
   }>([
-    { description: "focused + grid has focus → true (keyboard nav)", isFocused: true, gridHasFocus: true, expected: true },
-    { description: "focused + grid blurred → false (nav button click)", isFocused: true, gridHasFocus: false, expected: false },
-    { description: "not focused + grid has focus → false", isFocused: false, gridHasFocus: true, expected: false },
-    { description: "not focused + grid blurred → false", isFocused: false, gridHasFocus: false, expected: false },
-  ])(
-    "$description",
-    ({ isFocused, gridHasFocus, expected }) => {
-      expect(shouldMoveDomFocus(isFocused, gridHasFocus)).toBe(expected);
+    {
+      description: "focused + grid has focus → true (keyboard nav)",
+      isFocused: true,
+      gridHasFocus: true,
+      expected: true,
     },
-  );
+    {
+      description: "focused + grid blurred → false (nav button click)",
+      isFocused: true,
+      gridHasFocus: false,
+      expected: false,
+    },
+    {
+      description: "not focused + grid has focus → false",
+      isFocused: false,
+      gridHasFocus: true,
+      expected: false,
+    },
+    {
+      description: "not focused + grid blurred → false",
+      isFocused: false,
+      gridHasFocus: false,
+      expected: false,
+    },
+  ])("$description", ({ isFocused, gridHasFocus, expected }) => {
+    expect(shouldMoveDomFocus(isFocused, gridHasFocus)).toBe(expected);
+  });
 });
 
 describe.each(temporalVariants)("isInRange ($name)", ({ T }) => {
@@ -748,16 +797,76 @@ describe.each(temporalVariants)("isInRange ($name)", ({ T }) => {
     e: string;
     expected: number | false;
   }>([
-    { description: "before range", d: "2026-03-05", s: "2026-03-10", e: "2026-03-20", expected: false },
-    { description: "at range start (inclusive)", d: "2026-03-10", s: "2026-03-10", e: "2026-03-20", expected: 0 },
-    { description: "middle of range", d: "2026-03-15", s: "2026-03-10", e: "2026-03-20", expected: 0.5 },
-    { description: "at range end (inclusive)", d: "2026-03-20", s: "2026-03-10", e: "2026-03-20", expected: 1 },
-    { description: "after range", d: "2026-03-25", s: "2026-03-10", e: "2026-03-20", expected: false },
-    { description: "one day before start", d: "2026-03-09", s: "2026-03-10", e: "2026-03-20", expected: false },
-    { description: "one day after end", d: "2026-03-21", s: "2026-03-10", e: "2026-03-20", expected: false },
-    { description: "two-day range start endpoint", d: "2026-03-10", s: "2026-03-10", e: "2026-03-11", expected: 0 },
-    { description: "two-day range end endpoint", d: "2026-03-11", s: "2026-03-10", e: "2026-03-11", expected: 1 },
-    { description: "single-day range (start = end = date)", d: "2026-03-15", s: "2026-03-15", e: "2026-03-15", expected: 0 },
+    {
+      description: "before range",
+      d: "2026-03-05",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: false,
+    },
+    {
+      description: "at range start (inclusive)",
+      d: "2026-03-10",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: 0,
+    },
+    {
+      description: "middle of range",
+      d: "2026-03-15",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: 0.5,
+    },
+    {
+      description: "at range end (inclusive)",
+      d: "2026-03-20",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: 1,
+    },
+    {
+      description: "after range",
+      d: "2026-03-25",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: false,
+    },
+    {
+      description: "one day before start",
+      d: "2026-03-09",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: false,
+    },
+    {
+      description: "one day after end",
+      d: "2026-03-21",
+      s: "2026-03-10",
+      e: "2026-03-20",
+      expected: false,
+    },
+    {
+      description: "two-day range start endpoint",
+      d: "2026-03-10",
+      s: "2026-03-10",
+      e: "2026-03-11",
+      expected: 0,
+    },
+    {
+      description: "two-day range end endpoint",
+      d: "2026-03-11",
+      s: "2026-03-10",
+      e: "2026-03-11",
+      expected: 1,
+    },
+    {
+      description: "single-day range (start = end = date)",
+      d: "2026-03-15",
+      s: "2026-03-15",
+      e: "2026-03-15",
+      expected: 0,
+    },
   ])("$description", ({ d: dd, s, e, expected }) => {
     expect(isInRange(d(dd), d(s), d(e), T)).toBe(expected);
   });
@@ -781,12 +890,7 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   const week1 = marchWeeks[1];
 
   it("treats undefined rangeStart as single-day range at rangeEnd", () => {
-    const result = computeWeekRangeInfo(
-      week1,
-      undefined,
-      d("2026-03-10"),
-      T,
-    );
+    const result = computeWeekRangeInfo(week1, undefined, d("2026-03-10"), T);
     expect(result.active).toBe(true);
     expect(result.startIndex).toBe(2);
     expect(result.endIndex).toBe(2);
@@ -795,12 +899,7 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   });
 
   it("treats undefined rangeEnd as single-day range at rangeStart", () => {
-    const result = computeWeekRangeInfo(
-      week1,
-      d("2026-03-11"),
-      undefined,
-      T,
-    );
+    const result = computeWeekRangeInfo(week1, d("2026-03-11"), undefined, T);
     expect(result.active).toBe(true);
     expect(result.startIndex).toBe(3);
     expect(result.endIndex).toBe(3);
@@ -913,14 +1012,46 @@ describe.each(temporalVariants)("getISOWeekNumber ($name)", ({ T }) => {
     d: string;
     expected: number;
   }>([
-    { description: "Jan 1, 2026 (Thursday) → week 1", d: "2026-01-01", expected: 1 },
-    { description: "Jan 4, 2026 (Sunday) → week 1", d: "2026-01-04", expected: 1 },
-    { description: "Jan 5, 2026 (Monday) → week 2", d: "2026-01-05", expected: 2 },
-    { description: "Dec 31, 2026 (Thursday) → week 53", d: "2026-12-31", expected: 53 },
-    { description: "Dec 28, 2025 (Sunday) → week 52 of 2025", d: "2025-12-28", expected: 52 },
-    { description: "Dec 29, 2025 (Monday) → week 1 of 2026", d: "2025-12-29", expected: 1 },
-    { description: "Mar 15, 2026 (Sunday) → week 11", d: "2026-03-15", expected: 11 },
-    { description: "Jun 1, 2026 (Monday) → week 23", d: "2026-06-01", expected: 23 },
+    {
+      description: "Jan 1, 2026 (Thursday) → week 1",
+      d: "2026-01-01",
+      expected: 1,
+    },
+    {
+      description: "Jan 4, 2026 (Sunday) → week 1",
+      d: "2026-01-04",
+      expected: 1,
+    },
+    {
+      description: "Jan 5, 2026 (Monday) → week 2",
+      d: "2026-01-05",
+      expected: 2,
+    },
+    {
+      description: "Dec 31, 2026 (Thursday) → week 53",
+      d: "2026-12-31",
+      expected: 53,
+    },
+    {
+      description: "Dec 28, 2025 (Sunday) → week 52 of 2025",
+      d: "2025-12-28",
+      expected: 52,
+    },
+    {
+      description: "Dec 29, 2025 (Monday) → week 1 of 2026",
+      d: "2025-12-29",
+      expected: 1,
+    },
+    {
+      description: "Mar 15, 2026 (Sunday) → week 11",
+      d: "2026-03-15",
+      expected: 11,
+    },
+    {
+      description: "Jun 1, 2026 (Monday) → week 23",
+      d: "2026-06-01",
+      expected: 23,
+    },
   ])("$description", ({ d: dd, expected }) => {
     expect(getISOWeekNumber(d(dd), T)).toBe(expected);
   });

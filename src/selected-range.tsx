@@ -2,7 +2,12 @@ import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useDatePicker, useDatePickerStable, WeekDataContext, GridContext } from "./context";
+import {
+  useDatePicker,
+  useDatePickerStable,
+  WeekDataContext,
+  GridContext,
+} from "./context";
 import { computeWeekRangeInfo } from "./utils";
 import type { Temporal } from "@js-temporal/polyfill";
 import type {
@@ -133,7 +138,16 @@ export function RangeSelected<F extends ValueFormat = ValueFormat>(
       hasEnd: rangeEnd !== undefined,
       orientation,
     }),
-    [rootState, info, weekIndex, startDate, endDate, rangeStart, rangeEnd, orientation],
+    [
+      rootState,
+      info,
+      weekIndex,
+      startDate,
+      endDate,
+      rangeStart,
+      rangeEnd,
+      orientation,
+    ],
   );
 
   const defaultProps: Record<string, unknown> = {

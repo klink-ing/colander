@@ -78,16 +78,12 @@ export function DragHandle({
 }
 
 /** Unstyled drag handle for the range start boundary. */
-export function DragHandleStart(
-  props: Omit<DragHandleProps, "edge">,
-) {
+export function DragHandleStart(props: Omit<DragHandleProps, "edge">) {
   return <DragHandle edge="start" {...props} />;
 }
 
 /** Unstyled drag handle for the range end boundary. */
-export function DragHandleEnd(
-  props: Omit<DragHandleProps, "edge">,
-) {
+export function DragHandleEnd(props: Omit<DragHandleProps, "edge">) {
   return <DragHandle edge="end" {...props} />;
 }
 

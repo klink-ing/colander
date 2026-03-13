@@ -10,8 +10,6 @@ import {
   GridHeader,
   GridHeaderCell,
   MonthYearString,
-  DateString,
-  TimeString,
   PrevMonthButton,
   NextMonthButton,
   RangeSelected,
@@ -20,7 +18,6 @@ import {
   DayCellDataContext,
   GridContext,
 } from "base-ui-cal";
-import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   GridProps,
@@ -31,8 +28,6 @@ import type {
   GridHeaderProps,
   GridHeaderCellProps,
   MonthYearStringProps,
-  DateStringProps,
-  TimeStringProps,
   PrevMonthButtonProps,
   NextMonthButtonProps,
   RangeSelectedProps,
@@ -51,7 +46,7 @@ export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -73,7 +68,7 @@ export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -92,30 +87,6 @@ export function StyledMonthYearString<F extends ValueFormat = ValueFormat>({
       data-testid="text-current-month"
       {...(props as MonthYearStringProps)}
       className={cn("text-sm font-medium", className)}
-    />
-  );
-}
-
-export function StyledDateString<F extends ValueFormat = ValueFormat>({
-  className,
-  ...props
-}: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
-  return (
-    <DateString
-      {...(props as DateStringProps)}
-      className={cn("text-xs text-muted-foreground", className)}
-    />
-  );
-}
-
-export function StyledTimeString<F extends ValueFormat = ValueFormat>({
-  className,
-  ...props
-}: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
-  return (
-    <TimeString
-      {...(props as TimeStringProps)}
-      className={cn("text-sm text-muted-foreground", className)}
     />
   );
 }
@@ -144,8 +115,8 @@ export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
     <GridHeader
       {...(props as GridHeaderProps)}
       className={cn(
-        "col-span-full grid [grid-template-columns:subgrid]",
-        "[&>tr]:col-span-full [&>tr]:grid [&>tr]:[grid-template-columns:subgrid]",
+        "col-span-full grid grid-cols-subgrid",
+        "[&>tr]:col-span-full [&>tr]:grid [&>tr]:grid-cols-subgrid",
         className,
       )}
     />
@@ -160,7 +131,7 @@ export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
     <GridHeaderCell
       {...(props as GridHeaderCellProps)}
       className={cn(
-        "flex justify-end p-1 text-center text-[0.8rem] font-normal text-muted-foreground",
+        "text-muted-foreground flex justify-end p-1 text-center text-[0.8rem] font-normal",
         className,
       )}
     />
@@ -174,10 +145,7 @@ export function StyledGridBody<F extends ValueFormat = ValueFormat>({
   return (
     <GridBody
       {...(props as GridBodyProps)}
-      className={cn(
-        "col-span-full grid gap-y-1 [grid-template-columns:subgrid]",
-        className,
-      )}
+      className={cn("col-span-full grid grid-cols-subgrid gap-y-1", className)}
     />
   );
 }
@@ -189,10 +157,7 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   return (
     <WeekTemplate
       {...(props as WeekTemplateProps)}
-      className={cn(
-        "col-span-full grid [grid-template-columns:subgrid]",
-        className,
-      )}
+      className={cn("col-span-full grid grid-cols-subgrid", className)}
     />
   );
 }
@@ -256,12 +221,12 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       {...(props as DayButtonProps)}
       className={cn(
         "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
-        "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "focus-visible:ring-ring focus-visible:z-10 focus-visible:ring-2 focus-visible:outline-none",
         "text-foreground hover:bg-accent hover:text-accent-foreground hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
         "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
-        "isolate select-none data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground data-in-range:data-outside-month:opacity-70",
+        "data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground isolate select-none data-in-range:data-outside-month:opacity-70",
         className,
       )}
       render={({ children, ...props }) => {
@@ -270,11 +235,13 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
             {
               <div
                 className={cn(
-                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-neutral-200 group-data-today:block group-data-selected:bg-white/50 group-data-in-range:bg-white/20",
+                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-neutral-200 group-data-in-range:bg-white/20 group-data-selected:bg-white/50 group-data-today:block",
                 )}
               />
             }
-            <div className="isolate inline-block w-[2ch] text-right">{children}</div>
+            <div className="isolate inline-block w-[2ch] text-right">
+              {children}
+            </div>
             <StyledDragHandle
               edge="start"
               preventRangeReversal={preventRangeReversal}
@@ -290,28 +257,6 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledDayTemplate<F extends ValueFormat = ValueFormat>({
-  cellClassName,
-  buttonClassName,
-  cellRef,
-  buttonRef,
-  date,
-}: {
-  cellClassName?: string;
-  buttonClassName?: string;
-  cellRef?: React.Ref<HTMLTableCellElement>;
-  buttonRef?: React.Ref<HTMLButtonElement>;
-  date?: Temporal.PlainDate;
-}) {
-  const Cell = StyledDayCellTemplate<F>;
-  const Button = StyledDayButton<F>;
-  return (
-    <Cell ref={cellRef} className={cellClassName} date={date}>
-      <Button ref={buttonRef} className={buttonClassName} />
-    </Cell>
-  );
-}
-
 export function StyledDragHandle({
   edge,
   preventRangeReversal,
@@ -321,7 +266,7 @@ export function StyledDragHandle({
   preventRangeReversal?: boolean;
   className?: string;
 }) {
-  const { rangeStart, rangeEnd, temporal: T, selectionMode } = useDatePicker();
+  const { rangeStart, rangeEnd, temporal: T } = useDatePicker();
   const { orientation } = useContext(GridContext);
   const cellData = useContext(DayCellDataContext);
 
@@ -393,15 +338,15 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
           <td
             {...renderProps}
             style={gridStyle}
-            className={cn("z-10 pointer-events-none relative", className)}
+            className={cn("pointer-events-none relative z-10", className)}
           >
             {/* White solid line */}
             <div
               className={cn(
                 "absolute inset-0 rounded-md border border-white",
                 horizontal
-                  ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none data-extends-after:border-r-0 data-extends-before:border-l-0"
-                  : "data-extends-after:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+                  ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
+                  : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
               )}
               data-extends-before={state.extendsBefore || undefined}
               data-extends-after={state.extendsAfter || undefined}
@@ -409,10 +354,10 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
             {/* Blue dashed line on top */}
             <div
               className={cn(
-                "absolute inset-0 rounded-md border border-dashed border-primary/80",
+                "border-primary/80 absolute inset-0 rounded-md border border-dashed",
                 horizontal
-                  ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
-                  : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+                  ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
+                  : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
               )}
               data-extends-before={state.extendsBefore || undefined}
               data-extends-after={state.extendsAfter || undefined}
@@ -451,10 +396,10 @@ export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
                 : { gridRow: span, gridColumn: 1 }
             }
             className={cn(
-              "rounded-md bg-primary/80",
+              "bg-primary/80 rounded-md",
               horizontal
-                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none"
-                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none",
+                ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none"
+                : "data-extends-after:rounded-b-none data-extends-before:rounded-t-none",
               className,
             )}
           />

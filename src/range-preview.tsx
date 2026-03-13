@@ -1,8 +1,16 @@
 import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import { useDatePicker, useDatePickerStable, WeekDataContext, GridContext } from "./context";
-import { computeClippedRangeInfo, rangeOverlayStateAttributesMapping } from "./selected-range";
+import {
+  useDatePicker,
+  useDatePickerStable,
+  WeekDataContext,
+  GridContext,
+} from "./context";
+import {
+  computeClippedRangeInfo,
+  rangeOverlayStateAttributesMapping,
+} from "./selected-range";
 import type {
   ValueFormat,
   RangePreviewState,
@@ -21,7 +29,12 @@ export function RangePreview<F extends ValueFormat = ValueFormat>(
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
   const { orientation } = useContext(GridContext);
-  const { previewStart, previewEnd, temporal: T, rootState } = useDatePicker<F>();
+  const {
+    previewStart,
+    previewEnd,
+    temporal: T,
+    rootState,
+  } = useDatePicker<F>();
   const { outsideDays } = useDatePickerStable();
 
   const days = weekData?.days ?? [];
@@ -60,7 +73,16 @@ export function RangePreview<F extends ValueFormat = ValueFormat>(
       hasEnd: previewEnd !== undefined,
       orientation,
     }),
-    [rootState, info, weekIndex, startDate, endDate, previewStart, previewEnd, orientation],
+    [
+      rootState,
+      info,
+      weekIndex,
+      startDate,
+      endDate,
+      previewStart,
+      previewEnd,
+      orientation,
+    ],
   );
 
   const defaultProps: Record<string, unknown> = {

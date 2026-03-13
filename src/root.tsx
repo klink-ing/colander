@@ -2,19 +2,9 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { useMemo } from "react";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import {
-  DatePickerStableContext,
-  DatePickerStateContext,
-} from "./context";
-import type {
-  RootProps,
-  RootState,
-  ValueFormat,
-} from "./types";
-import {
-  getSystemTimeZone,
-  resolveTemporal,
-} from "./utils";
+import { DatePickerStableContext, DatePickerStateContext } from "./context";
+import type { RootProps, RootState, ValueFormat } from "./types";
+import { getSystemTimeZone, resolveTemporal } from "./utils";
 import { useRootState } from "./use-root-state";
 import type { UseRootStateParams } from "./root-selection";
 
@@ -74,7 +64,10 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
   const resolvedFormat: ValueFormat = formatProp ?? "PlainDate";
   const selectionMode = selectionModeProp ?? "single";
 
-  if (numberOfMonthsProp != null && (numberOfMonthsProp < 1 || numberOfMonthsProp > 12)) {
+  if (
+    numberOfMonthsProp != null &&
+    (numberOfMonthsProp < 1 || numberOfMonthsProp > 12)
+  ) {
     console.warn(
       `[DatePicker] numberOfMonths={${numberOfMonthsProp}} is out of the supported range (1–12). The value will be clamped.`,
     );
@@ -99,7 +92,9 @@ export function Root<F extends ValueFormat = ValueFormat>(props: RootProps<F>) {
     numberOfMonths: Math.max(1, Math.min(numberOfMonthsProp ?? 1, 12)),
     outsideDays: outsideDaysProp ?? "enabled",
     onMonthChange,
-    ...(selectionMode === "range" ? { rangeMode, preventRangeReversal, previewRange, onHoveredDateChange } : {}),
+    ...(selectionMode === "range"
+      ? { rangeMode, preventRangeReversal, previewRange, onHoveredDateChange }
+      : {}),
   } as UseRootStateParams<F>);
 
   const rendered = useRender({

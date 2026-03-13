@@ -51,11 +51,36 @@ describe("PlainDate.compare", () => {
     b: string;
     expected: number;
   }>([
-    { description: "equal dates", a: "2026-03-15", b: "2026-03-15", expected: 0 },
-    { description: "a before b (day)", a: "2026-03-14", b: "2026-03-15", expected: -1 },
-    { description: "a after b (day)", a: "2026-03-16", b: "2026-03-15", expected: 1 },
-    { description: "a before b (month)", a: "2026-02-15", b: "2026-03-15", expected: -1 },
-    { description: "a before b (year)", a: "2025-03-15", b: "2026-03-15", expected: -1 },
+    {
+      description: "equal dates",
+      a: "2026-03-15",
+      b: "2026-03-15",
+      expected: 0,
+    },
+    {
+      description: "a before b (day)",
+      a: "2026-03-14",
+      b: "2026-03-15",
+      expected: -1,
+    },
+    {
+      description: "a after b (day)",
+      a: "2026-03-16",
+      b: "2026-03-15",
+      expected: 1,
+    },
+    {
+      description: "a before b (month)",
+      a: "2026-02-15",
+      b: "2026-03-15",
+      expected: -1,
+    },
+    {
+      description: "a before b (year)",
+      a: "2025-03-15",
+      b: "2026-03-15",
+      expected: -1,
+    },
   ])("$description", ({ a, b, expected }) => {
     expect(T.PlainDate.compare(date(a), date(b))).toBe(expected);
   });
@@ -79,11 +104,15 @@ describe("PlainDate add/subtract", () => {
   });
 
   it("subtracts days", () => {
-    expect(date("2026-03-15").subtract({ days: 5 }).toString()).toBe("2026-03-10");
+    expect(date("2026-03-15").subtract({ days: 5 }).toString()).toBe(
+      "2026-03-10",
+    );
   });
 
   it("subtracts months", () => {
-    expect(date("2026-03-31").subtract({ months: 1 }).toString()).toBe("2026-02-28");
+    expect(date("2026-03-31").subtract({ months: 1 }).toString()).toBe(
+      "2026-02-28",
+    );
   });
 
   it("crosses year boundary forward", () => {
@@ -91,7 +120,9 @@ describe("PlainDate add/subtract", () => {
   });
 
   it("crosses year boundary backward", () => {
-    expect(date("2027-01-01").subtract({ days: 1 }).toString()).toBe("2026-12-31");
+    expect(date("2027-01-01").subtract({ days: 1 }).toString()).toBe(
+      "2026-12-31",
+    );
   });
 
   it("adds months crossing year boundary", () => {
@@ -166,7 +197,12 @@ describe("PlainDateTime", () => {
   });
 
   it("from object", () => {
-    const dt = T.PlainDateTime.from({ year: 2026, month: 3, day: 15, hour: 10 });
+    const dt = T.PlainDateTime.from({
+      year: 2026,
+      month: 3,
+      day: 15,
+      hour: 10,
+    });
     expect(dt.hour).toBe(10);
     expect(dt.minute).toBe(0);
   });
@@ -204,8 +240,12 @@ describe("PlainYearMonth", () => {
   });
 
   it("daysInMonth", () => {
-    expect(T.PlainYearMonth.from({ year: 2026, month: 2 }).daysInMonth).toBe(28);
-    expect(T.PlainYearMonth.from({ year: 2024, month: 2 }).daysInMonth).toBe(29);
+    expect(T.PlainYearMonth.from({ year: 2026, month: 2 }).daysInMonth).toBe(
+      28,
+    );
+    expect(T.PlainYearMonth.from({ year: 2024, month: 2 }).daysInMonth).toBe(
+      29,
+    );
   });
 });
 
@@ -273,24 +313,21 @@ describe("Now", () => {
 });
 
 describe("PlainDate → ZonedDateTime → PlainDate roundtrip", () => {
-  it.each([
-    "2026-01-01",
-    "2026-06-15",
-    "2026-12-31",
-    "2024-02-29",
-  ])("%s roundtrips through UTC", (iso) => {
-    const pd = date(iso);
-    const zdt = pd.toZonedDateTime("UTC");
-    expect(zdt.toPlainDate().toString()).toBe(iso);
-  });
+  it.each(["2026-01-01", "2026-06-15", "2026-12-31", "2024-02-29"])(
+    "%s roundtrips through UTC",
+    (iso) => {
+      const pd = date(iso);
+      const zdt = pd.toZonedDateTime("UTC");
+      expect(zdt.toPlainDate().toString()).toBe(iso);
+    },
+  );
 
-  it.each([
-    "2026-01-01",
-    "2026-06-15",
-    "2026-12-31",
-  ])("%s roundtrips through America/New_York", (iso) => {
-    const pd = date(iso);
-    const zdt = pd.toZonedDateTime("America/New_York");
-    expect(zdt.toPlainDate().toString()).toBe(iso);
-  });
+  it.each(["2026-01-01", "2026-06-15", "2026-12-31"])(
+    "%s roundtrips through America/New_York",
+    (iso) => {
+      const pd = date(iso);
+      const zdt = pd.toZonedDateTime("America/New_York");
+      expect(zdt.toPlainDate().toString()).toBe(iso);
+    },
+  );
 });

@@ -166,18 +166,42 @@ describe("resolveFocusTarget", () => {
   const noDisabled = () => false;
 
   bench("focused date in grid (fast path)", () => {
-    resolveFocusTarget(focusedDate, selectedDate, marchWeeks, currentMonth, noDisabled, T, true);
+    resolveFocusTarget(
+      focusedDate,
+      selectedDate,
+      marchWeeks,
+      currentMonth,
+      noDisabled,
+      T,
+      true,
+    );
   });
 
   bench("selected date fallback", () => {
     // Focus a date outside the grid to force fallback to selectedDate
     const outsideFocus = Temporal.PlainDate.from("2026-05-01");
-    resolveFocusTarget(outsideFocus, selectedDate, marchWeeks, currentMonth, noDisabled, T, true);
+    resolveFocusTarget(
+      outsideFocus,
+      selectedDate,
+      marchWeeks,
+      currentMonth,
+      noDisabled,
+      T,
+      true,
+    );
   });
 
   bench("no match — linear scan to first enabled", () => {
     const outsideFocus = Temporal.PlainDate.from("2026-05-01");
     const outsideSelected = Temporal.PlainDate.from("2026-05-15");
-    resolveFocusTarget(outsideFocus, outsideSelected, marchWeeks, currentMonth, noDisabled, T, true);
+    resolveFocusTarget(
+      outsideFocus,
+      outsideSelected,
+      marchWeeks,
+      currentMonth,
+      noDisabled,
+      T,
+      true,
+    );
   });
 });

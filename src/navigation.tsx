@@ -61,14 +61,18 @@ export function DateString<F extends ValueFormat = ValueFormat>(
 
   const formatted = displayDate.toLocaleDateString(locales ?? locale, options);
 
+  const month = displayDate.getMonth() + 1;
+  const year = displayDate.getFullYear();
+  const day = displayDate.getDate();
+
   const state = useMemo<DateStringState<F>>(
     () => ({
       root: rootState,
-      month: displayDate.getMonth() + 1,
-      year: displayDate.getFullYear(),
-      day: displayDate.getDate(),
+      month,
+      year,
+      day,
     }),
-    [rootState, displayDate],
+    [rootState, month, year, day],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -114,14 +118,19 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
     mergedOptions,
   );
 
+  const nowZdt = selZdt ?? T.Now.zonedDateTimeISO(timeZone);
+  const hour = nowZdt.hour;
+  const minute = nowZdt.minute;
+  const second = nowZdt.second;
+
   const state = useMemo<TimeStringState<F>>(
     () => ({
       root: rootState,
-      hour: selZdt?.hour ?? T.Now.zonedDateTimeISO(timeZone).hour,
-      minute: selZdt?.minute ?? T.Now.zonedDateTimeISO(timeZone).minute,
-      second: selZdt?.second ?? T.Now.zonedDateTimeISO(timeZone).second,
+      hour,
+      minute,
+      second,
     }),
-    [rootState, selZdt, timeZone, T],
+    [rootState, hour, minute, second],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -154,7 +163,14 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
 export function MonthYearString<F extends ValueFormat = ValueFormat>(
   props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
-  const { ref, render, locales, options, monthIndex: monthIndexProp, ...otherProps } = props;
+  const {
+    ref,
+    render,
+    locales,
+    options,
+    monthIndex: monthIndexProp,
+    ...otherProps
+  } = props;
   const monthIndex = monthIndexProp ?? 0;
   const { currentDateTime, allMonths, locale, setGridLabelId, rootState } =
     useDatePicker<F>();
@@ -226,7 +242,7 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
   // For "prev", compute destination from the first visible month
   const refMonth =
     direction === "next"
-      ? allMonths[numberOfMonths - 1] ?? currentDateTime
+      ? (allMonths[numberOfMonths - 1] ?? currentDateTime)
       : currentDateTime;
 
   const destMonth =

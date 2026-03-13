@@ -110,8 +110,9 @@ describe("Grid render profiling", () => {
       </Profiler>,
     );
 
-    const mountDuration = entries.find((e) => e.phase === "mount")
-      ?.actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )?.actualDuration;
 
     // Change selection
     currentValue = march20;
@@ -146,10 +147,7 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-nav" onRender={onRender}>
-        <Root
-          {...defaultProps}
-          defaultValue={march15}
-        >
+        <Root {...defaultProps} defaultValue={march15}>
           <Grid />
         </Root>
       </Profiler>,
@@ -171,9 +169,7 @@ describe("Grid render profiling", () => {
     const navDuration = updates[updates.length - 1].actualDuration;
     expect(navDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
-    console.log(
-      `[perf] month navigation: ${navDuration.toFixed(2)}ms`,
-    );
+    console.log(`[perf] month navigation: ${navDuration.toFixed(2)}ms`);
 
     unmount();
   });
@@ -212,9 +208,7 @@ describe("Grid render profiling", () => {
     const rangeDuration = updates[updates.length - 1].actualDuration;
     expect(rangeDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
-    console.log(
-      `[perf] range expand: ${rangeDuration.toFixed(2)}ms`,
-    );
+    console.log(`[perf] range expand: ${rangeDuration.toFixed(2)}ms`);
 
     unmount();
   });
@@ -256,8 +250,7 @@ describe("Grid render profiling", () => {
     const updates = entries.filter((e) => e.phase === "update");
     const durations = updates.map((e) => e.actualDuration);
     const maxDuration = Math.max(...durations);
-    const avgDuration =
-      durations.reduce((a, b) => a + b, 0) / durations.length;
+    const avgDuration = durations.reduce((a, b) => a + b, 0) / durations.length;
 
     // No single update should be wildly expensive
     expect(maxDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
@@ -338,9 +331,7 @@ describe("Grid render profiling", () => {
       .join(" ");
     console.log(`[perf] per-week re-render: ${weekSummary}`);
 
-    const rerenderedWeeks = weekUpdateDurations.filter(
-      (d) => d > 0.01,
-    ).length;
+    const rerenderedWeeks = weekUpdateDurations.filter((d) => d > 0.01).length;
     console.log(
       `[perf] weeks re-rendered: ${rerenderedWeeks}/${weekUpdateDurations.length}`,
     );
@@ -366,8 +357,9 @@ describe("Grid render profiling", () => {
       </Profiler>,
     );
 
-    const mountDuration = entries.find((e) => e.phase === "mount")!
-      .actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     const march16 = Temporal.PlainDate.from("2026-03-16");
     rerender(
@@ -406,8 +398,9 @@ describe("Grid render profiling", () => {
       </Profiler>,
     );
 
-    const mountDuration = entries.find((e) => e.phase === "mount")!
-      .actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     // 3 grids worth of cells — mount threshold scales linearly
     expect(mountDuration).toBeLessThan(MOUNT_THRESHOLD_MS * 3);
@@ -452,8 +445,9 @@ describe("Grid render profiling", () => {
       </Profiler>,
     );
 
-    const mountDuration = entries.find((e) => e.phase === "mount")!
-      .actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     // Approximate hover preview render cost by shifting the range end
     const march22 = Temporal.PlainDate.from("2026-03-22");
@@ -500,8 +494,9 @@ describe("Grid render profiling", () => {
       </Profiler>,
     );
 
-    const mountDuration = entries.find((e) => e.phase === "mount")!
-      .actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     rerender(
       <Profiler id="grid-range-memo" onRender={onRender}>

@@ -15,7 +15,7 @@ import {
   DateString,
   PrevMonthButton,
   NextMonthButton,
-  SelectedRange,
+  RangeSelected,
   RangeStartDragHandle,
   RangeEndDragHandle,
 } from "../dist/index.js";
@@ -35,7 +35,7 @@ export function DatePicker() {
         </GridHeader>
         <GridBody>
           <WeekTemplate>
-            <SelectedRange />
+            <RangeSelected />
             <DayCellTemplate>
               <DayButton />
               <RangeStartDragHandle edge="start" />

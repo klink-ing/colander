@@ -1,9 +1,4 @@
-import {
-  useContext,
-  useEffect,
-  useRef,
-  memo,
-} from "react";
+import { useContext, useEffect, useRef, memo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import type { Temporal as TemporalPoly } from "@js-temporal/polyfill";
@@ -94,8 +89,12 @@ export function computeDayCellState(
   const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
   const effectiveStart = rangeStart ?? rangeEnd;
   const effectiveEnd = rangeEnd ?? rangeStart;
-  const rangeIdx = isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
-  const rangeLen = isInRangeDay && effectiveStart && effectiveEnd ? effectiveEnd.since(effectiveStart).days + 1 : false;
+  const rangeIdx =
+    isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
+  const rangeLen =
+    isInRangeDay && effectiveStart && effectiveEnd
+      ? effectiveEnd.since(effectiveStart).days + 1
+      : false;
 
   const isPreviewRangeStart = previewStart
     ? T.PlainDate.compare(date, previewStart) === 0
@@ -103,11 +102,16 @@ export function computeDayCellState(
   const isPreviewRangeEnd = previewEnd
     ? T.PlainDate.compare(date, previewEnd) === 0
     : false;
-  const isInPreviewRange = previewStart && previewEnd
-    ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
-    : false;
-  const previewIdx = isInPreviewRange && previewStart ? date.since(previewStart).days : false;
-  const previewLen = isInPreviewRange && previewStart && previewEnd ? previewEnd.since(previewStart).days + 1 : false;
+  const isInPreviewRange =
+    previewStart && previewEnd
+      ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
+      : false;
+  const previewIdx =
+    isInPreviewRange && previewStart ? date.since(previewStart).days : false;
+  const previewLen =
+    isInPreviewRange && previewStart && previewEnd
+      ? previewEnd.since(previewStart).days + 1
+      : false;
 
   const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
   const suppressRange =
@@ -131,16 +135,26 @@ export function computeDayCellState(
       inRange: suppressRange ? false : isInRangeDay,
       rangeIndex: suppressRange ? false : rangeIdx,
       rangeLength: suppressRange ? false : rangeLen,
-      rangeHasStart: suppressRange ? false : isInRangeDay && rangeStart !== undefined,
-      rangeHasEnd: suppressRange ? false : isInRangeDay && rangeEnd !== undefined,
+      rangeHasStart: suppressRange
+        ? false
+        : isInRangeDay && rangeStart !== undefined,
+      rangeHasEnd: suppressRange
+        ? false
+        : isInRangeDay && rangeEnd !== undefined,
       rangeStartPreview: suppressRange ? false : isPreviewRangeStart,
       rangeEndPreview: suppressRange ? false : isPreviewRangeEnd,
-      rangeBoundaryPreview: suppressRange ? false : isPreviewRangeStart || isPreviewRangeEnd,
+      rangeBoundaryPreview: suppressRange
+        ? false
+        : isPreviewRangeStart || isPreviewRangeEnd,
       inRangePreview: suppressRange ? false : isInPreviewRange,
       rangeIndexPreview: suppressRange ? false : previewIdx,
       rangeLengthPreview: suppressRange ? false : previewLen,
-      rangePreviewHasStart: suppressRange ? false : isInPreviewRange && previewStart !== undefined,
-      rangePreviewHasEnd: suppressRange ? false : isInPreviewRange && previewEnd !== undefined,
+      rangePreviewHasStart: suppressRange
+        ? false
+        : isInPreviewRange && previewStart !== undefined,
+      rangePreviewHasEnd: suppressRange
+        ? false
+        : isInPreviewRange && previewEnd !== undefined,
       isTabTarget: false,
     };
   }
@@ -206,11 +220,15 @@ export const dayStateAttributesMapping = {
   rangeHasEnd: (v) => (v ? { "data-range-has-end": "" } : null),
   rangeStartPreview: (v) => (v ? { "data-range-start-preview": "" } : null),
   rangeEndPreview: (v) => (v ? { "data-range-end-preview": "" } : null),
-  rangeBoundaryPreview: (v) => (v ? { "data-range-boundary-preview": "" } : null),
+  rangeBoundaryPreview: (v) =>
+    v ? { "data-range-boundary-preview": "" } : null,
   inRangePreview: (v) => (v ? { "data-in-range-preview": "" } : null),
-  rangeIndexPreview: (v) => (v !== false ? { "data-range-index-preview": String(v) } : null),
-  rangeLengthPreview: (v) => (v !== false ? { "data-range-length-preview": String(v) } : null),
-  rangePreviewHasStart: (v) => (v ? { "data-range-preview-has-start": "" } : null),
+  rangeIndexPreview: (v) =>
+    v !== false ? { "data-range-index-preview": String(v) } : null,
+  rangeLengthPreview: (v) =>
+    v !== false ? { "data-range-length-preview": String(v) } : null,
+  rangePreviewHasStart: (v) =>
+    v ? { "data-range-preview-has-start": "" } : null,
   rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": "" } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
@@ -451,8 +469,14 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   props: DayButtonInstanceProps<F>,
 ) {
   const { ref, render, date, _derivedState, ...otherProps } = props;
-  const { onSelect, setFocusedDate, locale, gridFocusedRef, readOnly, setHoveredDate } =
-    useDatePickerStable();
+  const {
+    onSelect,
+    setFocusedDate,
+    locale,
+    gridFocusedRef,
+    readOnly,
+    setHoveredDate,
+  } = useDatePickerStable();
 
   const internalRef = useRef<HTMLButtonElement>(null);
 

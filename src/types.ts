@@ -201,8 +201,7 @@ export interface DatePickerStateContextValue {
 
 /** Combined context value (backward compat). */
 export interface DatePickerContextValue
-  extends DatePickerStableContextValue,
-    DatePickerStateContextValue {}
+  extends DatePickerStableContextValue, DatePickerStateContextValue {}
 
 /** State exposed by the `Root` component to its render function and descendants. */
 export type RootState<F extends ValueFormat = ValueFormat> = {

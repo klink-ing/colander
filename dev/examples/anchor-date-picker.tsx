@@ -126,7 +126,7 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>(
             isVertical
               ? cn(
                   "contents",
-                  "[&>tr]:col-auto [&>tr]:row-span-full [&>tr]:grid [&>tr]:[grid-template-columns:unset] [&>tr]:grid-rows-subgrid",
+                  "[&>tr]:col-auto [&>tr]:row-span-full [&>tr]:grid [&>tr]:grid-cols-[unset] [&>tr]:grid-rows-subgrid",
                 )
               : undefined
           }
@@ -134,59 +134,57 @@ export function AnchorDatePicker<F extends ValueFormat = ValueFormat>(
           {showWeekNumbers && (
             <WeekNumberHeader
               className={cn(
-                "p-1 text-center text-[0.7rem] font-normal text-muted-foreground",
+                "text-muted-foreground p-1 text-center text-[0.7rem] font-normal",
                 !isVertical && "w-8",
                 isVertical && "flex items-center",
               )}
               render={({ children, ...props }) => (
                 <th {...props}>
-                  <span className="inline-block w-[2ch] text-right">{children}</span>
+                  <span className="inline-block w-[2ch] text-right">
+                    {children}
+                  </span>
                 </th>
               )}
             />
           )}
           <StyledGridHeaderCell
             className={
-              isVertical
-                ? "flex w-fit items-center text-right"
-                : undefined
+              isVertical ? "flex w-fit items-center text-right" : undefined
             }
           />
         </StyledGridHeader>
         <StyledGridBody
           className={
             isVertical
-              ? "col-auto row-span-full auto-cols-fr gap-x-1 gap-y-0 grid-flow-col [grid-template-columns:unset] [grid-template-rows:subgrid]"
+              ? "col-auto row-span-full auto-cols-fr grid-flow-col grid-cols-[unset] grid-rows-subgrid gap-x-1 gap-y-0"
               : undefined
           }
         >
           <StyledWeekTemplate
             className={
               isVertical
-                ? "col-auto row-span-full [grid-template-columns:unset] [grid-template-rows:subgrid]"
+                ? "col-auto row-span-full grid-cols-[unset] grid-rows-subgrid"
                 : undefined
             }
           >
             {showWeekNumbers && (
               <WeekNumberCell
                 className={cn(
-                  "p-1 text-center text-[0.7rem] tabular-nums text-muted-foreground",
+                  "text-muted-foreground p-1 text-center text-[0.7rem] tabular-nums",
                   !isVertical && "w-8",
                   isVertical && "flex items-center justify-center",
                 )}
                 render={({ children, ...props }) => (
                   <td {...props}>
-                    <span className="inline-block w-[2ch] text-right">{children}</span>
+                    <span className="inline-block w-[2ch] text-right">
+                      {children}
+                    </span>
                   </td>
                 )}
               />
             )}
-            <AnchorRangeSelected
-              columnOffset={showWeekNumbers ? 1 : 0}
-            />
-            <AnchorRangePreview
-              columnOffset={showWeekNumbers ? 1 : 0}
-            />
+            <AnchorRangeSelected columnOffset={showWeekNumbers ? 1 : 0} />
+            <AnchorRangePreview columnOffset={showWeekNumbers ? 1 : 0} />
             <AnchorDayCellTemplate
               columnOffset={showWeekNumbers ? 1 : 0}
               preventRangeReversal={preventRangeReversal}
@@ -300,12 +298,12 @@ function AnchorDayButton<F extends ValueFormat = ValueFormat>({
       {...(props as import("base-ui-cal").DayButtonProps)}
       className={cn(
         "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
-        "focus-visible:z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+        "focus-visible:ring-ring focus-visible:z-10 focus-visible:ring-2 focus-visible:outline-none",
         "text-foreground hover:bg-accent hover:text-accent-foreground hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
         "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
-        "isolate select-none data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground data-in-range:data-outside-month:opacity-70",
+        "data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground isolate select-none data-in-range:data-outside-month:opacity-70",
         className,
       )}
       render={({ children, ...props }) => {
@@ -320,11 +318,13 @@ function AnchorDayButton<F extends ValueFormat = ValueFormat>({
             {
               <div
                 className={cn(
-                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-neutral-200 group-data-today:block group-data-selected:bg-white/50 group-data-in-range:bg-white/20",
+                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-neutral-200 group-data-in-range:bg-white/20 group-data-selected:bg-white/50 group-data-today:block",
                 )}
               />
             }
-            <div className="isolate inline-block w-[2ch] text-right">{children}</div>
+            <div className="isolate inline-block w-[2ch] text-right">
+              {children}
+            </div>
             <StyledDragHandle
               edge="start"
               preventRangeReversal={preventRangeReversal}
@@ -365,10 +365,10 @@ function AnchorRangeSelected<F extends ValueFormat = ValueFormat>(
             {...renderProps}
             data-testid="selected-range"
             className={cn(
-              "rounded-md bg-primary/80",
+              "bg-primary/80 rounded-md",
               horizontal
-                ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none"
-                : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none",
+                ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none"
+                : "data-extends-after:rounded-b-none data-extends-before:rounded-t-none",
               className,
             )}
             style={
@@ -434,15 +434,15 @@ function AnchorRangePreview<F extends ValueFormat = ValueFormat>(
           <td
             {...renderProps}
             style={anchorStyle}
-            className={cn("z-10 pointer-events-none relative", className)}
+            className={cn("pointer-events-none relative z-10", className)}
           >
             {/* White solid line */}
             <div
               className={cn(
                 "absolute inset-0 rounded-md border border-white",
                 horizontal
-                  ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none data-extends-after:border-r-0 data-extends-before:border-l-0"
-                  : "data-extends-after:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+                  ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
+                  : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
               )}
               data-extends-before={state.extendsBefore || undefined}
               data-extends-after={state.extendsAfter || undefined}
@@ -450,10 +450,10 @@ function AnchorRangePreview<F extends ValueFormat = ValueFormat>(
             {/* Blue dashed line on top */}
             <div
               className={cn(
-                "absolute inset-0 rounded-md border border-dashed border-primary/80",
+                "border-primary/80 absolute inset-0 rounded-md border border-dashed",
                 horizontal
-                  ? "data-[extends-after]:rounded-r-none data-[extends-before]:rounded-l-none data-[extends-after]:border-r-0 data-[extends-before]:border-l-0"
-                  : "data-[extends-after]:rounded-b-none data-[extends-before]:rounded-t-none data-[extends-after]:border-b-0 data-[extends-before]:border-t-0",
+                  ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
+                  : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
               )}
               data-extends-before={state.extendsBefore || undefined}
               data-extends-after={state.extendsAfter || undefined}

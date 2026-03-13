@@ -35,10 +35,7 @@ function SetRangeTrigger({
   onCapture,
 }: {
   onCapture: (
-    setRange: (
-      start: Temporal.PlainDate,
-      end: Temporal.PlainDate,
-    ) => void,
+    setRange: (start: Temporal.PlainDate, end: Temporal.PlainDate) => void,
   ) => void;
 }) {
   const { setRange } = useDatePicker();
@@ -68,7 +65,12 @@ describe("rangeMode", () => {
   ) => void;
 
   function renderRangeRoot(
-    rangeMode: "adjust-start" | "adjust-end" | "nearest-start" | "nearest-end" | "reset",
+    rangeMode:
+      | "adjust-start"
+      | "adjust-end"
+      | "nearest-start"
+      | "nearest-end"
+      | "reset",
     onValueChange: RangeChangeFn,
   ) {
     let selectFn: (date: Temporal.PlainDate) => void = () => {};
@@ -80,7 +82,11 @@ describe("rangeMode", () => {
         onValueChange={onValueChange}
         rangeMode={rangeMode}
       >
-        <SelectTrigger onCapture={(fn) => { selectFn = fn; }} />
+        <SelectTrigger
+          onCapture={(fn) => {
+            selectFn = fn;
+          }}
+        />
       </Root>,
     );
     return { ...result, select: selectFn };
@@ -88,7 +94,12 @@ describe("rangeMode", () => {
 
   it.each<{
     description: string;
-    action: "adjust-start" | "adjust-end" | "nearest-start" | "nearest-end" | "reset";
+    action:
+      | "adjust-start"
+      | "adjust-end"
+      | "nearest-start"
+      | "nearest-end"
+      | "reset";
     clickDate: Temporal.PlainDate;
     expected: { start: string; end: string };
   }>([
@@ -138,7 +149,9 @@ describe("rangeMode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
     const { unmount, select } = renderRangeRoot(action, onValueChange);
 
-    act(() => { select(clickDate); });
+    act(() => {
+      select(clickDate);
+    });
 
     const [value] = onValueChange.mock.calls[0];
     expect(value!.start!.toString()).toBe(expected.start);
@@ -151,7 +164,9 @@ describe("rangeMode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
     const { unmount, select } = renderRangeRoot("adjust-end", onValueChange);
 
-    act(() => { select(march5); });
+    act(() => {
+      select(march5);
+    });
 
     const [value] = onValueChange.mock.calls[0];
     expect(value?.start?.toString()).toBe("2026-03-05");
@@ -164,7 +179,9 @@ describe("rangeMode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
     const { unmount, select } = renderRangeRoot("adjust-start", onValueChange);
 
-    act(() => { select(march25); });
+    act(() => {
+      select(march25);
+    });
 
     const [value] = onValueChange.mock.calls[0];
     expect(value?.start?.toString()).toBe("2026-03-10");
@@ -177,7 +194,9 @@ describe("rangeMode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
     const { unmount, select } = renderRangeRoot("nearest-end", onValueChange);
 
-    act(() => { select(march10); });
+    act(() => {
+      select(march10);
+    });
 
     const [value] = onValueChange.mock.calls[0];
     expect(value!.start!.toString()).toBe("2026-03-10");
@@ -190,7 +209,9 @@ describe("rangeMode", () => {
     const onValueChange = vi.fn<RangeChangeFn>();
     const { unmount, select } = renderRangeRoot("nearest-end", onValueChange);
 
-    act(() => { select(march20); });
+    act(() => {
+      select(march20);
+    });
 
     const [value] = onValueChange.mock.calls[0];
     expect(value!.start!.toString()).toBe("2026-03-20");
@@ -264,7 +285,9 @@ describe("setRange normalization", () => {
       DateRange<"PlainDate">,
       ValueChangeMeta<DateRange<"PlainDate"> | null>,
     ];
-    expect(Temporal.PlainDate.compare(value.start!, value.end!)).toBeLessThanOrEqual(0);
+    expect(
+      Temporal.PlainDate.compare(value.start!, value.end!),
+    ).toBeLessThanOrEqual(0);
     expect(value).toEqual({ start: march10, end: march20 });
 
     unmount();
@@ -332,7 +355,11 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -351,7 +378,11 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={march15}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -368,15 +399,25 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
-        <SelectTrigger onCapture={(fn) => { selectFn = fn; }} />
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <SelectTrigger
+          onCapture={(fn) => {
+            selectFn = fn;
+          }}
+        />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
     expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
 
     // Select a date in April (second visible month) — should NOT shift
-    act(() => { selectFn(april15); });
+    act(() => {
+      selectFn(april15);
+    });
 
     expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
 
@@ -389,14 +430,24 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
-        <SelectTrigger onCapture={(fn) => { selectFn = fn; }} />
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <SelectTrigger
+          onCapture={(fn) => {
+            selectFn = fn;
+          }}
+        />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
     // Select June — outside visible March+April window
     const june15 = Temporal.PlainDate.from("2026-06-15");
-    act(() => { selectFn(june15); });
+    act(() => {
+      selectFn(june15);
+    });
 
     expect(captured!.currentMonth).toEqual({ year: 2026, month: 6 });
 
@@ -408,7 +459,11 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -429,7 +484,11 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={dec15} numberOfMonths={2}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -483,11 +542,11 @@ describe("numberOfMonths", () => {
     expect(grid0Dates.length).toBeGreaterThan(0);
     expect(grid1Dates.length).toBeGreaterThan(0);
 
-    const grid0HasMarch = Array.from(grid0Dates).some(
-      (el) => el.getAttribute("data-date")?.startsWith("2026-03"),
+    const grid0HasMarch = Array.from(grid0Dates).some((el) =>
+      el.getAttribute("data-date")?.startsWith("2026-03"),
     );
-    const grid1HasApril = Array.from(grid1Dates).some(
-      (el) => el.getAttribute("data-date")?.startsWith("2026-04"),
+    const grid1HasApril = Array.from(grid1Dates).some((el) =>
+      el.getAttribute("data-date")?.startsWith("2026-04"),
     );
     expect(grid0HasMarch).toBe(true);
     expect(grid1HasApril).toBe(true);
@@ -500,7 +559,11 @@ describe("numberOfMonths", () => {
 
     const { rerender, unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -508,7 +571,11 @@ describe("numberOfMonths", () => {
 
     rerender(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -527,7 +594,11 @@ describe("numberOfMonths", () => {
 
     const { unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={0}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
       </Root>,
     );
 
@@ -538,11 +609,17 @@ describe("numberOfMonths", () => {
   });
 
   it("keyboard PageDown from last visible month shifts view", () => {
-    let captured: { currentMonth: { year: number; month: number }; focusedDate: string } | undefined;
+    let captured:
+      | { currentMonth: { year: number; month: number }; focusedDate: string }
+      | undefined;
 
     const { container, unmount } = render(
       <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
         <Grid monthIndex={0} />
         <Grid monthIndex={1} />
       </Root>,
@@ -578,11 +655,17 @@ describe("numberOfMonths", () => {
   });
 
   it("keyboard PageUp from first visible month shifts view", () => {
-    let captured: { currentMonth: { year: number; month: number }; focusedDate: string } | undefined;
+    let captured:
+      | { currentMonth: { year: number; month: number }; focusedDate: string }
+      | undefined;
 
     const { container, unmount } = render(
       <Root {...defaultProps} defaultValue={april15} numberOfMonths={2}>
-        <MonthDataCapture onCapture={(d) => { captured = d; }} />
+        <MonthDataCapture
+          onCapture={(d) => {
+            captured = d;
+          }}
+        />
         <Grid monthIndex={0} />
       </Root>,
     );
@@ -615,14 +698,18 @@ describe("numberOfMonths", () => {
     const grids = container.querySelectorAll('[role="grid"]');
 
     // In grid 0 (March), outside-month dates should not be March dates
-    const grid0OutsideMonth = Array.from(grids[0].querySelectorAll("[data-outside-month]"));
+    const grid0OutsideMonth = Array.from(
+      grids[0].querySelectorAll("[data-outside-month]"),
+    );
     for (const el of grid0OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
       expect(dateStr.startsWith("2026-03")).toBe(false);
     }
 
     // In grid 1 (April), outside-month dates should not be April dates
-    const grid1OutsideMonth = Array.from(grids[1].querySelectorAll("[data-outside-month]"));
+    const grid1OutsideMonth = Array.from(
+      grids[1].querySelectorAll("[data-outside-month]"),
+    );
     for (const el of grid1OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
       expect(dateStr.startsWith("2026-04")).toBe(false);
@@ -664,7 +751,12 @@ describe("numberOfMonths", () => {
     it("next button disabled when last visible month reaches max", () => {
       const maxDate = Temporal.PlainDate.from("2026-05-31");
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3} max={maxDate}>
+        <Root
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={3}
+          max={maxDate}
+        >
           <NextMonthButton data-testid="next" />
         </Root>,
       );
@@ -679,7 +771,12 @@ describe("numberOfMonths", () => {
     it("prev button disabled when first visible month reaches min", () => {
       const minDate = Temporal.PlainDate.from("2026-03-01");
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2} min={minDate}>
+        <Root
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          min={minDate}
+        >
           <PrevMonthButton data-testid="prev" />
         </Root>,
       );
@@ -692,11 +789,17 @@ describe("numberOfMonths", () => {
     });
 
     it("clicking next shifts view by one month", () => {
-      let captured: { currentMonth: { year: number; month: number } } | undefined;
+      let captured:
+        | { currentMonth: { year: number; month: number } }
+        | undefined;
 
       const { container, unmount } = render(
         <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
           <NextMonthButton data-testid="next" />
         </Root>,
       );
@@ -704,9 +807,9 @@ describe("numberOfMonths", () => {
       expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
 
       act(() => {
-        container.querySelector('[data-testid="next"]')!.dispatchEvent(
-          new MouseEvent("click", { bubbles: true }),
-        );
+        container
+          .querySelector('[data-testid="next"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
       });
 
       // Shifts by 1 month, not by numberOfMonths
@@ -716,19 +819,25 @@ describe("numberOfMonths", () => {
     });
 
     it("clicking prev shifts view by one month", () => {
-      let captured: { currentMonth: { year: number; month: number } } | undefined;
+      let captured:
+        | { currentMonth: { year: number; month: number } }
+        | undefined;
 
       const { container, unmount } = render(
         <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
           <PrevMonthButton data-testid="prev" />
         </Root>,
       );
 
       act(() => {
-        container.querySelector('[data-testid="prev"]')!.dispatchEvent(
-          new MouseEvent("click", { bubbles: true }),
-        );
+        container
+          .querySelector('[data-testid="prev"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
       });
 
       expect(captured!.currentMonth).toEqual({ year: 2026, month: 2 });
@@ -757,14 +866,22 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // Grid 0 (March): March 25-31 should be in range
-      const grid0InRange = Array.from(grids[0].querySelectorAll('[data-in-range]'));
-      const grid0InRangeDates = grid0InRange.map((el) => el.getAttribute("data-date"));
+      const grid0InRange = Array.from(
+        grids[0].querySelectorAll("[data-in-range]"),
+      );
+      const grid0InRangeDates = grid0InRange.map((el) =>
+        el.getAttribute("data-date"),
+      );
       expect(grid0InRangeDates).toContain("2026-03-25");
       expect(grid0InRangeDates).toContain("2026-03-31");
 
       // Grid 1 (April): April 1-5 should be in range
-      const grid1InRange = Array.from(grids[1].querySelectorAll('[data-in-range]'));
-      const grid1InRangeDates = grid1InRange.map((el) => el.getAttribute("data-date"));
+      const grid1InRange = Array.from(
+        grids[1].querySelectorAll("[data-in-range]"),
+      );
+      const grid1InRangeDates = grid1InRange.map((el) =>
+        el.getAttribute("data-date"),
+      );
       expect(grid1InRangeDates).toContain("2026-04-01");
       expect(grid1InRangeDates).toContain("2026-04-05");
 
@@ -790,11 +907,15 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // range-start should be in grid 0 (March 20)
-      const grid0RangeStart = grids[0].querySelector('[data-range-start][data-date="2026-03-20"]');
+      const grid0RangeStart = grids[0].querySelector(
+        '[data-range-start][data-date="2026-03-20"]',
+      );
       expect(grid0RangeStart).toBeTruthy();
 
       // range-end should be in grid 1 (April 10)
-      const grid1RangeEnd = grids[1].querySelector('[data-range-end][data-date="2026-04-10"]');
+      const grid1RangeEnd = grids[1].querySelector(
+        '[data-range-end][data-date="2026-04-10"]',
+      );
       expect(grid1RangeEnd).toBeTruthy();
 
       unmount();
@@ -813,9 +934,13 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // Grid state attributes reflect each grid's month
-      expect(grids[0].getAttribute("data-calendar-weeks-in-month")).toBeTruthy();
+      expect(
+        grids[0].getAttribute("data-calendar-weeks-in-month"),
+      ).toBeTruthy();
       expect(grids[0].getAttribute("data-calendar-days-per-week")).toBe("7");
-      expect(grids[1].getAttribute("data-calendar-weeks-in-month")).toBeTruthy();
+      expect(
+        grids[1].getAttribute("data-calendar-weeks-in-month"),
+      ).toBeTruthy();
       expect(grids[1].getAttribute("data-calendar-days-per-week")).toBe("7");
 
       unmount();
@@ -876,8 +1001,8 @@ describe("numberOfMonths", () => {
       expect(grids).toHaveLength(1);
 
       const dates = Array.from(grids[0].querySelectorAll("[data-date]"));
-      const hasMarch = dates.some(
-        (el) => el.getAttribute("data-date")?.startsWith("2026-03"),
+      const hasMarch = dates.some((el) =>
+        el.getAttribute("data-date")?.startsWith("2026-03"),
       );
       expect(hasMarch).toBe(true);
 
@@ -904,9 +1029,9 @@ describe("numberOfMonths", () => {
       expect(onMonthChange).not.toHaveBeenCalled();
 
       act(() => {
-        container.querySelector('[data-testid="next"]')!.dispatchEvent(
-          new MouseEvent("click", { bubbles: true }),
-        );
+        container
+          .querySelector('[data-testid="next"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
       });
 
       expect(onMonthChange).toHaveBeenCalledTimes(1);
@@ -929,12 +1054,18 @@ describe("numberOfMonths", () => {
           numberOfMonths={2}
           onMonthChange={onMonthChange}
         >
-          <SelectTrigger onCapture={(fn) => { selectFn = fn; }} />
+          <SelectTrigger
+            onCapture={(fn) => {
+              selectFn = fn;
+            }}
+          />
         </Root>,
       );
 
       // Select within April (second visible month) — shouldn't trigger month change
-      act(() => { selectFn(april15); });
+      act(() => {
+        selectFn(april15);
+      });
 
       expect(onMonthChange).not.toHaveBeenCalled();
 
@@ -948,7 +1079,11 @@ describe("numberOfMonths", () => {
 
       const { rerender, unmount } = render(
         <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
         </Root>,
       );
 
@@ -956,7 +1091,11 @@ describe("numberOfMonths", () => {
 
       rerender(
         <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
         </Root>,
       );
 
@@ -971,7 +1110,11 @@ describe("numberOfMonths", () => {
 
       const { rerender, unmount } = render(
         <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
         </Root>,
       );
 
@@ -979,7 +1122,11 @@ describe("numberOfMonths", () => {
 
       rerender(
         <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
         </Root>,
       );
 
@@ -989,13 +1136,19 @@ describe("numberOfMonths", () => {
     });
 
     it("arrow key within visible months does not shift view", () => {
-      let captured: { currentMonth: { year: number; month: number }; focusedDate: string } | undefined;
+      let captured:
+        | { currentMonth: { year: number; month: number }; focusedDate: string }
+        | undefined;
 
       // Focus on March 31, with April also visible
       const march31 = Temporal.PlainDate.from("2026-03-31");
       const { container, unmount } = render(
         <Root {...defaultProps} defaultValue={march31} numberOfMonths={2}>
-          <MonthDataCapture onCapture={(d) => { captured = d; }} />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
           <Grid monthIndex={0} />
         </Root>,
       );
@@ -1277,12 +1430,16 @@ describe("outsideDays", () => {
 
       const grids = Array.from(container.querySelectorAll("[role='grid']"));
 
-      const grid0Hidden = Array.from(grids[0].querySelectorAll("[data-hidden]"));
+      const grid0Hidden = Array.from(
+        grids[0].querySelectorAll("[data-hidden]"),
+      );
       for (const cell of grid0Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
 
-      const grid1Hidden = Array.from(grids[1].querySelectorAll("[data-hidden]"));
+      const grid1Hidden = Array.from(
+        grids[1].querySelectorAll("[data-hidden]"),
+      );
       for (const cell of grid1Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
@@ -1347,7 +1504,9 @@ describe("outsideDays", () => {
 
       const grids1 = Array.from(c1.querySelectorAll("[role='grid']"));
       // Grid 0 (March): April dates should have no range attrs
-      const outsideInGrid0 = Array.from(grids1[0].querySelectorAll("[data-outside-month]"));
+      const outsideInGrid0 = Array.from(
+        grids1[0].querySelectorAll("[data-outside-month]"),
+      );
       for (const cell of outsideInGrid0) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
@@ -1370,7 +1529,9 @@ describe("outsideDays", () => {
 
       const grids2 = Array.from(c2.querySelectorAll("[role='grid']"));
       // Grid 0 (March): April dates should still have range attrs with readonly
-      const outsideInGrid0Readonly = Array.from(grids2[0].querySelectorAll("[data-outside-month][data-in-range]"));
+      const outsideInGrid0Readonly = Array.from(
+        grids2[0].querySelectorAll("[data-outside-month][data-in-range]"),
+      );
       expect(outsideInGrid0Readonly.length).toBeGreaterThan(0);
 
       u2();

@@ -52,9 +52,10 @@ export function useRootState<F extends ValueFormat>(
     onMonthChange,
   } = params;
 
-  const rangeParams = selectionMode === "range"
-    ? (params as Extract<UseRootStateParams<F>, { selectionMode: "range" }>)
-    : undefined;
+  const rangeParams =
+    selectionMode === "range"
+      ? (params as Extract<UseRootStateParams<F>, { selectionMode: "range" }>)
+      : undefined;
 
   const rangeMode: RangeMode = rangeParams?.rangeMode ?? "nearest-end";
   const allowRangeReversal = !(rangeParams?.preventRangeReversal ?? false);
@@ -84,7 +85,9 @@ export function useRootState<F extends ValueFormat>(
         : undefined
     : undefined;
   const rangeDefault: DateRange<F> | undefined =
-    isRange && defaultValueProp != null && isDateRange<F>(defaultValueProp as any)
+    isRange &&
+    defaultValueProp != null &&
+    isDateRange<F>(defaultValueProp as any)
       ? (defaultValueProp as DateRange<F>)
       : undefined;
 
@@ -96,7 +99,9 @@ export function useRootState<F extends ValueFormat>(
         : undefined
     : undefined;
   const multipleDefault: RawValueForFormat<F>[] | undefined =
-    isMultiple && Array.isArray(defaultValueProp) ? defaultValueProp : undefined;
+    isMultiple && Array.isArray(defaultValueProp)
+      ? defaultValueProp
+      : undefined;
 
   const taggedValue = useMemo(
     () => tagRaw(singleValue ?? undefined, resolvedFormat),
@@ -164,8 +169,7 @@ export function useRootState<F extends ValueFormat>(
       if (rangeValue) {
         const start =
           rangeValue.start != null ? rawToPlain(rangeValue.start) : null;
-        const end =
-          rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
+        const end = rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
         if (start === null && end === null) return [];
         // Normalize {start: null, end} → [end, null] (pending start)
         if (start === null && end !== null) return [end, null];
@@ -203,7 +207,14 @@ export function useRootState<F extends ValueFormat>(
     }
     if (singleDefault != null) return [rawToPlain(singleDefault)];
     return [];
-  }, [isMultiple, multipleDefault, rangeDefault, singleDefault, rawToPlain, sortDates]);
+  }, [
+    isMultiple,
+    multipleDefault,
+    rangeDefault,
+    singleDefault,
+    rawToPlain,
+    sortDates,
+  ]);
 
   const [internalDates, setInternalDates] =
     useState<(Temporal.PlainDate | null)[]>(defaultDates);
@@ -233,12 +244,17 @@ export function useRootState<F extends ValueFormat>(
       : committedStart;
 
   // --- Hover state for range preview ---
-  const [hoveredDate, setHoveredDateRaw] = useState<Temporal.PlainDate | undefined>(undefined);
+  const [hoveredDate, setHoveredDateRaw] = useState<
+    Temporal.PlainDate | undefined
+  >(undefined);
 
-  const setHoveredDate = useCallback((date: Temporal.PlainDate | undefined) => {
-    onHoveredDateChange?.(date);
-    setHoveredDateRaw(date);
-  }, [onHoveredDateChange]);
+  const setHoveredDate = useCallback(
+    (date: Temporal.PlainDate | undefined) => {
+      onHoveredDateChange?.(date);
+      setHoveredDateRaw(date);
+    },
+    [onHoveredDateChange],
+  );
 
   const plainToFormatValue = useCallback(
     (plain: Temporal.PlainDate): RawValueForFormat<F> => {
@@ -268,26 +284,21 @@ export function useRootState<F extends ValueFormat>(
   );
 
   /** Build the current formatted single value (for "previous" in meta). */
-  const currentSingleFormatted = useCallback(
-    (): RawValueForFormat<F> | null => {
+  const currentSingleFormatted =
+    useCallback((): RawValueForFormat<F> | null => {
       if (committedDates.length === 0) return null;
       const first = committedDates[0];
       return first != null ? plainToFormatValue(first) : null;
-    },
-    [committedDates, plainToFormatValue],
-  );
+    }, [committedDates, plainToFormatValue]);
 
   /** Build the current formatted range (for "previous" in meta). */
-  const currentRangeFormatted = useCallback(
-    (): DateRange<F> | null => {
-      if (!committedStart && !committedEnd) return null;
-      return {
-        start: committedStart ? plainToFormatValue(committedStart) : null,
-        end: committedEnd ? plainToFormatValue(committedEnd) : null,
-      } as DateRange<F>;
-    },
-    [committedStart, committedEnd, plainToFormatValue],
-  );
+  const currentRangeFormatted = useCallback((): DateRange<F> | null => {
+    if (!committedStart && !committedEnd) return null;
+    return {
+      start: committedStart ? plainToFormatValue(committedStart) : null,
+      end: committedEnd ? plainToFormatValue(committedEnd) : null,
+    } as DateRange<F>;
+  }, [committedStart, committedEnd, plainToFormatValue]);
 
   /** Build the current formatted multiple value (for "previous" in meta). */
   const currentMultipleFormatted = useCallback(
@@ -305,8 +316,13 @@ export function useRootState<F extends ValueFormat>(
     // Controlled preview overrides internal derivation
     if (previewRangeProp !== undefined) {
       if (!previewRangeProp) return [undefined, undefined];
-      const rawToPlainLocal = (raw: RawValueForFormat<F>): Temporal.PlainDate => {
-        const tagged = { format: resolvedFormat, value: raw } as DateValueObject;
+      const rawToPlainLocal = (
+        raw: RawValueForFormat<F>,
+      ): Temporal.PlainDate => {
+        const tagged = {
+          format: resolvedFormat,
+          value: raw,
+        } as DateValueObject;
         return toZonedDateTime(tagged, timeZone, T).toPlainDate();
       };
       const s =
@@ -341,7 +357,8 @@ export function useRootState<F extends ValueFormat>(
       timeZone,
       T,
     });
-    if (result.skip || result.newDates.length === 0) return [undefined, undefined];
+    if (result.skip || result.newDates.length === 0)
+      return [undefined, undefined];
     const ps = result.newDates[0];
     const pe = result.newDates.length > 1 ? result.newDates[1] : ps;
     if (ps == null || pe == null) return [undefined, undefined];
@@ -382,7 +399,13 @@ export function useRootState<F extends ValueFormat>(
         onValueChange,
       }),
     );
-  }, [selectionMode, maxDatesForMode, onValueChange, plainToFormatValue, isControlled]);
+  }, [
+    selectionMode,
+    maxDatesForMode,
+    onValueChange,
+    plainToFormatValue,
+    isControlled,
+  ]);
 
   const initSrc = useMemo(() => {
     if (taggedValue) return taggedValue;
@@ -642,8 +665,7 @@ export function useRootState<F extends ValueFormat>(
     };
     const result: MonthData[] = [];
     for (let i = 0; i < params.numberOfMonths; i++) {
-      const totalMonths =
-        currentMonth.year * 12 + (currentMonth.month - 1) + i;
+      const totalMonths = currentMonth.year * 12 + (currentMonth.month - 1) + i;
       const y = Math.floor(totalMonths / 12);
       const m = (totalMonths % 12) + 1;
       result.push({ year: y, month: m, weeks: getMonthWeeks(y, m, T, opts) });

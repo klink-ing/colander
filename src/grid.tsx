@@ -1,10 +1,4 @@
-import {
-  useContext,
-  useMemo,
-  useCallback,
-  useEffect,
-  useRef,
-} from "react";
+import { useContext, useMemo, useCallback, useEffect, useRef } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import type { KeyboardEvent } from "react";
@@ -124,12 +118,12 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     setHoveredDate,
   } = useDatePicker<F>();
 
-  const monthData = allMonths[monthIndex];
   if (monthIndex >= allMonths.length) {
     console.warn(
       `[DatePicker] Grid monthIndex={${monthIndex}} is out of bounds (numberOfMonths=${allMonths.length}). Falling back to the first month.`,
     );
   }
+  const monthData = allMonths[monthIndex];
   const gridWeeks = monthData?.weeks ?? defaultWeeks;
 
   const handleKeyDown = useGridKeyboard();

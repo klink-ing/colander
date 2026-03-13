@@ -36,8 +36,7 @@ export default function App() {
   );
   const [autoFocus, setAutoFocus] = useState(false);
   const [showWeekNumbers, setShowWeekNumbers] = useState(false);
-  const [rangeMode, setRangeMode] =
-    useState<RangeMode>("nearest-end");
+  const [rangeMode, setRangeMode] = useState<RangeMode>("nearest-end");
   const [preventRangeReversal, setPreventRangeReversal] = useState(false);
   const [numberOfMonths, setNumberOfMonths] = useState(1);
   const [outsideDays, setOutsideDays] = useState<OutsideDays>("enabled");
@@ -46,13 +45,13 @@ export default function App() {
   );
 
   // Value state
-  const [singleDate, setSingleDate] = useState<
-    Temporal.ZonedDateTime | null
-  >(null);
+  const [singleDate, setSingleDate] = useState<Temporal.ZonedDateTime | null>(
+    null,
+  );
   const [range, setRange] = useState<DateRange<"ZonedDateTime"> | null>(null);
-  const [multipleDates, setMultipleDates] = useState<
-    Temporal.ZonedDateTime[]
-  >([]);
+  const [multipleDates, setMultipleDates] = useState<Temporal.ZonedDateTime[]>(
+    [],
+  );
 
   // Min/max
   const defaultMin = useMemo(
@@ -108,9 +107,7 @@ export default function App() {
           }
         : null,
     );
-    setMultipleDates((prev) =>
-      prev.map((d) => d.withTimeZone(newTz)),
-    );
+    setMultipleDates((prev) => prev.map((d) => d.withTimeZone(newTz)));
   }, []);
 
   const handleMonthChange = useCallback(
@@ -220,7 +217,7 @@ export default function App() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background p-6">
+    <div className="bg-background flex min-h-screen flex-col items-center p-6">
       <div className="flex w-full max-w-4xl gap-8">
         {/* Controls panel */}
         <AppControls

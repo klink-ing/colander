@@ -25,7 +25,11 @@ function clamp(val: number, min: number, max: number): number {
   return val < min ? min : val > max ? max : val;
 }
 
-function parseDateISO(str: string): { year: number; month: number; day: number } {
+function parseDateISO(str: string): {
+  year: number;
+  month: number;
+  day: number;
+} {
   const [datePart] = str.split("T");
   const [y, m, d] = datePart.split("-").map(Number);
   return { year: y, month: m, day: d };
@@ -41,9 +45,17 @@ function parseDateTimeISO(str: string): {
 } {
   const [datePart, timePart] = str.split("T");
   const [y, m, d] = datePart.split("-").map(Number);
-  if (!timePart) return { year: y, month: m, day: d, hour: 0, minute: 0, second: 0 };
+  if (!timePart)
+    return { year: y, month: m, day: d, hour: 0, minute: 0, second: 0 };
   const [h, min, s] = timePart.split(":").map(Number);
-  return { year: y, month: m, day: d, hour: h || 0, minute: min || 0, second: s || 0 };
+  return {
+    year: y,
+    month: m,
+    day: d,
+    hour: h || 0,
+    minute: min || 0,
+    second: s || 0,
+  };
 }
 
 // Cache Intl.DateTimeFormat instances per timezone
@@ -197,19 +209,13 @@ class MiniPlainDate {
     });
   }
 
-  since(
-    other: MiniPlainDate,
-    _opts?: any,
-  ): { days: number } {
+  since(other: MiniPlainDate, _opts?: any): { days: number } {
     const thisUTC = toUTC(this.year, this.month, this.day);
     const otherUTC = toUTC(other.year, other.month, other.day);
     return { days: Math.round((thisUTC - otherUTC) / 86400000) };
   }
 
-  until(
-    other: MiniPlainDate,
-    _opts?: any,
-  ): { days: number } {
+  until(other: MiniPlainDate, _opts?: any): { days: number } {
     const thisUTC = toUTC(this.year, this.month, this.day);
     const otherUTC = toUTC(other.year, other.month, other.day);
     return { days: Math.round((otherUTC - thisUTC) / 86400000) };
@@ -232,9 +238,11 @@ class MiniPlainDate {
     return this.toPlainDateTime().toZonedDateTime(tzId);
   }
 
-  toPlainDateTime(
-    timeLike?: { hour?: number; minute?: number; second?: number },
-  ): MiniPlainDateTime {
+  toPlainDateTime(timeLike?: {
+    hour?: number;
+    minute?: number;
+    second?: number;
+  }): MiniPlainDateTime {
     return new MiniPlainDateTime(
       this.year,
       this.month,
@@ -483,14 +491,15 @@ class MiniZonedDateTime {
 // ---------------------------------------------------------------------------
 
 const PlainDate = {
-  from(
-    item: any,
-    options?: { overflow?: string },
-  ): MiniPlainDate {
+  from(item: any, options?: { overflow?: string }): MiniPlainDate {
     if (typeof item === "string") {
       const { year, month, day } = parseDateISO(item);
       if (options?.overflow === "constrain") {
-        return new MiniPlainDate(year, month, clamp(day, 1, daysInMonth(year, month)));
+        return new MiniPlainDate(
+          year,
+          month,
+          clamp(day, 1, daysInMonth(year, month)),
+        );
       }
       return new MiniPlainDate(year, month, day);
     }
@@ -512,10 +521,7 @@ const PlainDate = {
 };
 
 const PlainDateTime = {
-  from(
-    item: any,
-    _options?: { overflow?: string },
-  ): MiniPlainDateTime {
+  from(item: any, _options?: { overflow?: string }): MiniPlainDateTime {
     if (typeof item === "string") {
       const { year, month, day, hour, minute, second } = parseDateTimeISO(item);
       return new MiniPlainDateTime(year, month, day, hour, minute, second);
@@ -539,7 +545,9 @@ const PlainMonthDay = {
       if (parts.length >= 3) return new MiniPlainMonthDay(parts[1], parts[2]);
       return new MiniPlainMonthDay(parts[0], parts[1]);
     }
-    const month = item.month ?? (item.monthCode ? Number.parseInt(item.monthCode.slice(1), 10) : 1);
+    const month =
+      item.month ??
+      (item.monthCode ? Number.parseInt(item.monthCode.slice(1), 10) : 1);
     return new MiniPlainMonthDay(month, item.day);
   },
 };

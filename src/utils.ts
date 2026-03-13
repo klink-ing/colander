@@ -1,5 +1,10 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import type { TemporalNamespace, DateValueObject, ValueFormat, WeekStartDay } from "./types";
+import type {
+  TemporalNamespace,
+  DateValueObject,
+  ValueFormat,
+  WeekStartDay,
+} from "./types";
 
 /**
  * Returns the default calendar system for a given locale (e.g. `"gregory"` for `"en-US"`).
@@ -388,8 +393,8 @@ export function shouldMoveDomFocus(
  * A single-day range returns `0` for that date.
  *
  * @param date - The date to test.
- * @param rangeStart - Start of the range (inclusive). Returns `false` when `undefined`.
- * @param rangeEnd - End of the range (inclusive). Returns `false` when `undefined`.
+ * @param rangeStart - Start of the range (inclusive). When `undefined` and `rangeEnd` is defined, the range collapses to a single-day range at `rangeEnd`.
+ * @param rangeEnd - End of the range (inclusive). When `undefined` and `rangeStart` is defined, the range collapses to a single-day range at `rangeStart`. Returns `false` when both boundaries are `undefined`.
  * @param T - Temporal namespace used for date comparison.
  */
 export function isInRange(
