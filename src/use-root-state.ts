@@ -28,6 +28,7 @@ import {
   computeSelectionUpdate,
   computeSetRangeUpdate,
   truncateDatesForMode,
+  type SelectionResult,
   type UseRootStateParams,
 } from "./root-selection";
 
@@ -150,7 +151,9 @@ export function useRootState<F extends ValueFormat>(
       ? 2
       : 1;
 
-  const controlledDates = useMemo<Temporal.PlainDate[] | undefined>(() => {
+  const controlledDates = useMemo<
+    (Temporal.PlainDate | null)[] | undefined
+  >(() => {
     if (isMultiple) {
       if (multipleValue === null) return [];
       if (multipleValue) return sortDates(multipleValue.map(rawToPlain));
@@ -158,8 +161,14 @@ export function useRootState<F extends ValueFormat>(
     }
     if (isRange) {
       if (rangeValue === null) return [];
-      if (rangeValue)
-        return [rawToPlain(rangeValue.start), rawToPlain(rangeValue.end)];
+      if (rangeValue) {
+        const start =
+          rangeValue.start != null ? rawToPlain(rangeValue.start) : null;
+        const end =
+          rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
+        if (start === null && end === null) return [];
+        return [start, end];
+      }
       return undefined;
     }
     if (singleValue === null) return [];
@@ -175,53 +184,49 @@ export function useRootState<F extends ValueFormat>(
     sortDates,
   ]);
 
-  const defaultDates = useMemo<Temporal.PlainDate[]>(() => {
+  const defaultDates = useMemo<(Temporal.PlainDate | null)[]>(() => {
     if (isMultiple) {
       if (multipleDefault) return sortDates(multipleDefault.map(rawToPlain));
       return [];
     }
-    if (rangeDefault)
-      return [rawToPlain(rangeDefault.start), rawToPlain(rangeDefault.end)];
+    if (rangeDefault) {
+      const start =
+        rangeDefault.start != null ? rawToPlain(rangeDefault.start) : null;
+      const end =
+        rangeDefault.end != null ? rawToPlain(rangeDefault.end) : null;
+      if (start === null && end === null) return [];
+      return [start, end];
+    }
     if (singleDefault != null) return [rawToPlain(singleDefault)];
     return [];
   }, [isMultiple, multipleDefault, rangeDefault, singleDefault, rawToPlain, sortDates]);
 
   const [internalDates, setInternalDates] =
-    useState<Temporal.PlainDate[]>(defaultDates);
+    useState<(Temporal.PlainDate | null)[]>(defaultDates);
 
   // `controlledDates === undefined` means the value prop was not provided (uncontrolled).
   // `controlledDates` being an array (even empty) means controlled mode — `null` maps to `[]`.
   const isControlled = controlledDates !== undefined;
 
-  // In start-end mode, a pending start (1 date, no end) fires onValueChange(null).
-  // In controlled mode this sets controlledDates to [], but the pending start lives
-  // in internalDates. Fall through to internalDates when the controlled value is
-  // empty and internalDates has the pending start.
-  const committedDates =
-    isControlled
-      ? (rangeMode === "start-end" && controlledDates.length === 0 && internalDates.length === 1
-          ? internalDates
-          : controlledDates)
-      : internalDates;
+  const committedDates = isControlled ? controlledDates : internalDates;
 
   const rangeStart =
     !isMultiple && committedDates.length > 0
-      ? committedDates[0]
+      ? (committedDates[0] ?? undefined)
       : undefined;
-  // For start-end mode with only 1 date, rangeEnd is undefined (range not yet committed)
   const rangeEnd =
-    !isMultiple && committedDates.length > 0
-      ? (rangeMode === "start-end" && committedDates.length === 1
-          ? undefined
-          : committedDates[committedDates.length - 1])
+    !isMultiple && committedDates.length >= 2
+      ? (committedDates[1] ?? undefined)
       : undefined;
-  const committedStart = committedDates[0] as Temporal.PlainDate | undefined;
+  const committedStart = (committedDates[0] ?? undefined) as
+    | Temporal.PlainDate
+    | undefined;
   const committedEnd =
     committedDates.length > 1
-      ? committedDates[committedDates.length - 1]
-      : (rangeMode === "start-end" && committedDates.length === 1
-          ? undefined
-          : committedDates[0]);
+      ? ((committedDates[committedDates.length - 1] ?? undefined) as
+          | Temporal.PlainDate
+          | undefined)
+      : committedStart;
 
   // --- Hover state for range preview ---
   const [hoveredDate, setHoveredDateRaw] = useState<Temporal.PlainDate | undefined>(undefined);
@@ -242,30 +247,50 @@ export function useRootState<F extends ValueFormat>(
     [resolvedFormat, timeZone, T],
   );
 
+  /** Commit a selection result: update internal state + fire callback.
+   * In controlled mode, internal state is kept empty (the parent owns it). */
+  const commitSelection = useCallback(
+    (result: SelectionResult<F>) => {
+      if (result.skip) return;
+      if (isControlled) {
+        // Controlled: never store internal state, proactively clear if stale
+        setInternalDates((prev) => (prev.length === 0 ? prev : []));
+      } else {
+        setInternalDates(result.newDates);
+      }
+      result.fireCallback(onValueChange, plainToFormatValue);
+    },
+    [isControlled, onValueChange, plainToFormatValue],
+  );
+
   /** Build the current formatted single value (for "previous" in meta). */
   const currentSingleFormatted = useCallback(
-    (): RawValueForFormat<F> | null =>
-      committedDates.length > 0
-        ? plainToFormatValue(committedDates[0])
-        : null,
+    (): RawValueForFormat<F> | null => {
+      if (committedDates.length === 0) return null;
+      const first = committedDates[0];
+      return first != null ? plainToFormatValue(first) : null;
+    },
     [committedDates, plainToFormatValue],
   );
 
   /** Build the current formatted range (for "previous" in meta). */
   const currentRangeFormatted = useCallback(
-    (): DateRange<F> | null =>
-      committedStart && committedEnd
-        ? {
-            start: plainToFormatValue(committedStart),
-            end: plainToFormatValue(committedEnd),
-          }
-        : null,
+    (): DateRange<F> | null => {
+      if (!committedStart && !committedEnd) return null;
+      return {
+        start: committedStart ? plainToFormatValue(committedStart) : null,
+        end: committedEnd ? plainToFormatValue(committedEnd) : null,
+      } as DateRange<F>;
+    },
     [committedStart, committedEnd, plainToFormatValue],
   );
 
   /** Build the current formatted multiple value (for "previous" in meta). */
   const currentMultipleFormatted = useCallback(
-    (): RawValueForFormat<F>[] => committedDates.map(plainToFormatValue),
+    (): RawValueForFormat<F>[] =>
+      committedDates
+        .filter((d): d is Temporal.PlainDate => d != null)
+        .map(plainToFormatValue),
     [committedDates, plainToFormatValue],
   );
 
@@ -280,7 +305,15 @@ export function useRootState<F extends ValueFormat>(
         const tagged = { format: resolvedFormat, value: raw } as DateValueObject;
         return toZonedDateTime(tagged, timeZone, T).toPlainDate();
       };
-      return [rawToPlainLocal(previewRangeProp.start), rawToPlainLocal(previewRangeProp.end)];
+      const s =
+        previewRangeProp.start != null
+          ? rawToPlainLocal(previewRangeProp.start)
+          : undefined;
+      const e =
+        previewRangeProp.end != null
+          ? rawToPlainLocal(previewRangeProp.end)
+          : undefined;
+      return [s, e];
     }
     // Derive from hoveredDate by simulating what a click would produce
     if (!hoveredDate || !isRange) return [undefined, undefined];
@@ -305,8 +338,10 @@ export function useRootState<F extends ValueFormat>(
       T,
     });
     if (result.skip || result.newDates.length === 0) return [undefined, undefined];
-    if (result.newDates.length === 1) return [result.newDates[0], result.newDates[0]];
-    return [result.newDates[0], result.newDates[1]];
+    const ps = result.newDates[0];
+    const pe = result.newDates.length > 1 ? result.newDates[1] : ps;
+    if (ps == null || pe == null) return [undefined, undefined];
+    return [ps, pe];
   }, [
     previewRangeProp,
     hoveredDate,
@@ -327,11 +362,13 @@ export function useRootState<F extends ValueFormat>(
     T,
   ]);
 
-  // Auto-truncate internal dates when selection mode changes
+  // Auto-truncate internal dates when selection mode changes.
+  // In controlled mode, truncation is the parent's responsibility.
   const prevModeRef = useRef(selectionMode);
   useEffect(() => {
     if (prevModeRef.current === selectionMode) return;
     prevModeRef.current = selectionMode;
+    if (isControlled) return;
     setInternalDates((prev) =>
       truncateDatesForMode<F>({
         prev,
@@ -341,21 +378,21 @@ export function useRootState<F extends ValueFormat>(
         onValueChange,
       }),
     );
-  }, [selectionMode, maxDatesForMode, onValueChange, plainToFormatValue]);
+  }, [selectionMode, maxDatesForMode, onValueChange, plainToFormatValue, isControlled]);
 
   const initSrc = useMemo(() => {
     if (taggedValue) return taggedValue;
     if (taggedDefault) return taggedDefault;
-    if (rangeValue)
-      return {
-        format: resolvedFormat,
-        value: rangeValue.start,
-      } as DateValueObject;
-    if (rangeDefault)
-      return {
-        format: resolvedFormat,
-        value: rangeDefault.start,
-      } as DateValueObject;
+    if (rangeValue) {
+      const src = rangeValue.start ?? rangeValue.end;
+      if (src != null)
+        return { format: resolvedFormat, value: src } as DateValueObject;
+    }
+    if (rangeDefault) {
+      const src = rangeDefault.start ?? rangeDefault.end;
+      if (src != null)
+        return { format: resolvedFormat, value: src } as DateValueObject;
+    }
     if (multipleValue && multipleValue.length > 0)
       return {
         format: resolvedFormat,
@@ -416,7 +453,9 @@ export function useRootState<F extends ValueFormat>(
   const selected: DateValueObject | undefined = useMemo(() => {
     if (taggedValue) return taggedValue;
     if (committedDates.length === 0) return undefined;
-    const zdt = committedDates[0]
+    const first = committedDates[0];
+    if (!first) return undefined;
+    const zdt = first
       .toPlainDateTime({ hour: 0, minute: 0, second: 0 })
       .toZonedDateTime(timeZone);
     return fromZonedDateTime(zdt, resolvedFormat, T);
@@ -466,21 +505,25 @@ export function useRootState<F extends ValueFormat>(
       (maxValue && T.PlainDate.compare(start, maxValue) > 0);
     if (outOfBounds) {
       const prev = currentSingleFormatted();
-      setInternalDates([]);
-      (
-        onValueChange as
-          | ((
-              v: RawValueForFormat<F> | null,
-              m: ValueChangeMeta<RawValueForFormat<F> | null>,
-            ) => void)
-          | undefined
-      )?.(null, { date: undefined, previous: prev });
+      commitSelection({
+        newDates: [],
+        fireCallback: (onValueChange) => {
+          (
+            onValueChange as
+              | ((
+                  v: RawValueForFormat<F> | null,
+                  m: ValueChangeMeta<RawValueForFormat<F> | null>,
+                ) => void)
+              | undefined
+          )?.(null, { date: undefined, previous: prev });
+        },
+      });
     }
   }, [
     minValue,
     maxValue,
     committedStart,
-    onValueChange,
+    commitSelection,
     currentSingleFormatted,
     T,
     isRange,
@@ -510,18 +553,17 @@ export function useRootState<F extends ValueFormat>(
         T,
       });
       if (result.skip) return;
-      setInternalDates(result.newDates);
+      commitSelection(result);
       // Clear hover preview when selection changes
       if (isRange) setHoveredDateRaw(undefined);
       if (!isMultiple) navigateToMonth(date.year, date.month);
-      result.fireCallback(onValueChange, plainToFormatValue);
     },
     [
       readOnly,
       isMultiple,
       committedDates,
       selectedZdt,
-      onValueChange,
+      commitSelection,
       resolvedFormat,
       isDateDisabled,
       timeZone,
@@ -529,7 +571,6 @@ export function useRootState<F extends ValueFormat>(
       isRange,
       committedStart,
       committedEnd,
-      plainToFormatValue,
       sortDates,
       rangeMode,
       allowRangeReversal,
@@ -555,15 +596,13 @@ export function useRootState<F extends ValueFormat>(
         T,
       });
       if (result.skip) return;
-      setInternalDates(result.newDates);
-      result.fireCallback(onValueChange, plainToFormatValue);
+      commitSelection(result);
     },
     [
       readOnly,
       isMultiple,
       isRange,
-      onValueChange,
-      plainToFormatValue,
+      commitSelection,
       currentRangeFormatted,
       currentSingleFormatted,
       timeZone,
@@ -650,9 +689,14 @@ export function useRootState<F extends ValueFormat>(
     [selected],
   );
 
+  const nonNullDates = useMemo(
+    () => committedDates.filter((d): d is Temporal.PlainDate => d != null),
+    [committedDates],
+  );
+
   const rawSelectedDates = useMemo(
-    () => committedDates.map(plainToFormatValue),
-    [committedDates, plainToFormatValue],
+    () => nonNullDates.map(plainToFormatValue),
+    [nonNullDates, plainToFormatValue],
   );
 
   const rawRangeStart = useMemo(
@@ -667,7 +711,7 @@ export function useRootState<F extends ValueFormat>(
 
   const state = useMemo<RootState<F>>(
     () => ({
-      hasSelection: committedDates.length > 0,
+      hasSelection: nonNullDates.length > 0,
       selected: rawSelected,
       selectedDates: rawSelectedDates,
       rangeStart: rawRangeStart,
@@ -679,7 +723,7 @@ export function useRootState<F extends ValueFormat>(
       readOnly,
     }),
     [
-      committedDates.length,
+      nonNullDates.length,
       rawSelected,
       rawSelectedDates,
       rawRangeStart,
@@ -781,7 +825,7 @@ export function useRootState<F extends ValueFormat>(
   const stateCtx = useMemo<DatePickerStateContextValue>(
     () => ({
       selected,
-      selectedDates: committedDates,
+      selectedDates: nonNullDates,
       rangeStart,
       rangeEnd,
       focusedDate,
@@ -798,7 +842,7 @@ export function useRootState<F extends ValueFormat>(
     }),
     [
       selected,
-      committedDates,
+      nonNullDates,
       rangeStart,
       rangeEnd,
       focusedDate,

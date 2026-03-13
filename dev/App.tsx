@@ -104,8 +104,8 @@ export default function App() {
     setRange((prev) =>
       prev
         ? {
-            start: prev.start.withTimeZone(newTz),
-            end: prev.end.withTimeZone(newTz),
+            start: prev.start?.withTimeZone(newTz) ?? null,
+            end: prev.end?.withTimeZone(newTz) ?? null,
           }
         : null,
     );
@@ -144,7 +144,7 @@ export default function App() {
 
   const formatRangeDisplay = (val: DateRange<"ZonedDateTime"> | null) =>
     val
-      ? `${new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" })} \u2013 ${new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" })}`
+      ? `${val.start ? new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" }) : "..."} \u2013 ${val.end ? new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" }) : "..."}`
       : "No selection";
 
   const formatMultipleDisplay = (val: Temporal.ZonedDateTime[]) =>

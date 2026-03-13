@@ -141,8 +141,8 @@ describe("rangeMode", () => {
     act(() => { select(clickDate); });
 
     const [value] = onValueChange.mock.calls[0];
-    expect(value!.start.toString()).toBe(expected.start);
-    expect(value!.end.toString()).toBe(expected.end);
+    expect(value!.start!.toString()).toBe(expected.start);
+    expect(value!.end!.toString()).toBe(expected.end);
 
     unmount();
   });
@@ -154,8 +154,8 @@ describe("rangeMode", () => {
     act(() => { select(march5); });
 
     const [value] = onValueChange.mock.calls[0];
-    expect(value?.start.toString()).toBe("2026-03-05");
-    expect(value?.end.toString()).toBe("2026-03-20");
+    expect(value?.start?.toString()).toBe("2026-03-05");
+    expect(value?.end?.toString()).toBe("2026-03-20");
 
     unmount();
   });
@@ -167,8 +167,8 @@ describe("rangeMode", () => {
     act(() => { select(march25); });
 
     const [value] = onValueChange.mock.calls[0];
-    expect(value?.start.toString()).toBe("2026-03-10");
-    expect(value?.end.toString()).toBe("2026-03-25");
+    expect(value?.start?.toString()).toBe("2026-03-10");
+    expect(value?.end?.toString()).toBe("2026-03-25");
 
     unmount();
   });
@@ -180,8 +180,8 @@ describe("rangeMode", () => {
     act(() => { select(march10); });
 
     const [value] = onValueChange.mock.calls[0];
-    expect(value!.start.toString()).toBe("2026-03-10");
-    expect(value!.end.toString()).toBe("2026-03-10");
+    expect(value!.start!.toString()).toBe("2026-03-10");
+    expect(value!.end!.toString()).toBe("2026-03-10");
 
     unmount();
   });
@@ -193,8 +193,8 @@ describe("rangeMode", () => {
     act(() => { select(march20); });
 
     const [value] = onValueChange.mock.calls[0];
-    expect(value!.start.toString()).toBe("2026-03-20");
-    expect(value!.end.toString()).toBe("2026-03-20");
+    expect(value!.start!.toString()).toBe("2026-03-20");
+    expect(value!.end!.toString()).toBe("2026-03-20");
 
     unmount();
   });
@@ -264,7 +264,7 @@ describe("setRange normalization", () => {
       DateRange<"PlainDate">,
       ValueChangeMeta<DateRange<"PlainDate"> | null>,
     ];
-    expect(Temporal.PlainDate.compare(value.start, value.end)).toBeLessThanOrEqual(0);
+    expect(Temporal.PlainDate.compare(value.start!, value.end!)).toBeLessThanOrEqual(0);
     expect(value).toEqual({ start: march10, end: march20 });
 
     unmount();

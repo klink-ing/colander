@@ -90,8 +90,8 @@ export type RawValueForFormat<F extends ValueFormat> =
 
 /** A start/end date pair for range selection, typed to the given format `F`. */
 export type DateRange<F extends ValueFormat = ValueFormat> = {
-  start: RawValueForFormat<F>;
-  end: RawValueForFormat<F>;
+  start: RawValueForFormat<F> | null;
+  end: RawValueForFormat<F> | null;
 };
 
 /**
