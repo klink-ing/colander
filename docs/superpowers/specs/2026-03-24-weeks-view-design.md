@@ -123,7 +123,6 @@ interface WeeksViewRootProps {
   onFirstWeekChange: (date: Temporal.PlainDate) => void
 
   // Navigation
-  weekSnap: "top" | "center" | "nearest"  // see weekSnap section below
   scrollBy: "row" | "page"
 
   // Overflow at min/max boundaries
@@ -177,19 +176,45 @@ interface WeeksButtonProps {
 
 Defaults to shifting by `weekCount`.
 
-### weekSnap
+### `scrollToWeek` (imperative method)
 
-Controls where the target week is positioned within the window when navigating to a specific date via a controlled `firstWeek` update:
+Exposed via ref or hook. Navigates the window so that a target date is visible, with configurable positioning.
 
-- **`"top"`** — the week containing the target date becomes the first row of the window.
-- **`"center"`** — the target week is centered vertically in the window (or as close as possible given bounds).
+```ts
+scrollToWeek(
+  target: Temporal.PlainDate | Date,
+  options?: { snap?: "start" | "center" | "end" | "nearest" }
+): void
+```
+
+Snap modes:
+- **`"start"`** (default) — the week containing `target` becomes the first visible row.
+- **`"center"`** — the target week is centered vertically in the window.
+- **`"end"`** — the target week becomes the last visible row.
 - **`"nearest"`** — if the target week is already visible, the window does not move. If it's above the window, it becomes the first row. If it's below, it becomes the last row.
 
-`weekSnap` only applies to programmatic `firstWeek` changes. Button and keyboard navigation always shift by their defined amounts. Default: `"top"`.
+Internally, `scrollToWeek` calls `resolveFirstWeek` to compute the new `firstWeek`, updates state, and fires `onFirstWeekChange`.
+
+### `resolveFirstWeek` (pure utility)
+
+Exported utility function that computes the resulting `firstWeek` for a given scroll target. This is the pure computation that `scrollToWeek` uses internally. Consumers can use it directly for custom navigation logic.
+
+```ts
+function resolveFirstWeek(
+  currentFirstWeek: Temporal.PlainDate,
+  weekCount: number,
+  target: Temporal.PlainDate,
+  options?: { snap?: "start" | "center" | "end" | "nearest" }
+): Temporal.PlainDate
+```
+
+Returns the `PlainDate` of the first day of the resolved first week. Does not consider `overflowBehavior` — it computes the ideal position. Overflow adjustment is applied separately by the component when it receives the new `firstWeek`.
 
 ### `onFirstWeekChange` callback
 
 The callback always receives a resolved `Temporal.PlainDate` (the first day of the resolved week), regardless of which `FirstWeekSpec` form was used to set `firstWeek`. This is intentional — internally the component always resolves to a concrete date, and the callback reflects the resolved state. Consumers who need to round-trip a different format can convert the PlainDate back.
+
+`onFirstWeekChange` fires after any window shift — keyboard navigation, button clicks, or `scrollToWeek` calls. `firstWeek` always means the actual first visible row.
 
 ### `Date` in FirstWeekSpec and timezone
 
@@ -313,7 +338,7 @@ Six hooks, maintaining the stable/volatile separation for render performance:
 | `useCalendarState()` | value |
 | `useMonthViewStable()` | numberOfMonths, fixedWeeks, outsideDays, overflowBehavior, goNextMonth, goPrevMonth |
 | `useMonthViewState()` | currentMonth, focusedDate |
-| `useWeeksViewStable()` | weekCount (prop), scrollBy, overflowBehavior, goNext, goPrev |
+| `useWeeksViewStable()` | weekCount (prop), scrollBy, overflowBehavior, goNext, goPrev, scrollToWeek |
 | `useWeeksViewState()` | focusedDate, windowInfo: WindowInfo (nested object containing windowStart, windowEnd, weekCount, dayCount, enabledWeekCount, enabledDayCount) |
 
 The existing `useDatePickerStable` / `useDatePickerState` are removed (breaking change).
