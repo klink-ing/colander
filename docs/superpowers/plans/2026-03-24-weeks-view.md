@@ -1097,7 +1097,6 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
   }
 
   let nextDate: Temporal.PlainDate | null = null;
-  let forcedShift = 0;
 
   switch (key) {
     case "ArrowRight":
@@ -1114,10 +1113,10 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
       break;
     case "Home":
       nextDate = windowStart;
-      return { action: "move", date: nextDate, windowShift: 0 };
+      return { action: "move", date: nextDate, windowShift: 0, followFocus: false };
     case "End":
       nextDate = windowEnd;
-      return { action: "move", date: nextDate, windowShift: 0 };
+      return { action: "move", date: nextDate, windowShift: 0, followFocus: false };
     case "PageUp":
       if (shiftKey) {
         nextDate = focusedDate.subtract({ years: 1 });
