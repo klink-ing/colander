@@ -326,6 +326,12 @@ Default for both `MonthView.Root` and `WeeksView.Root` is `"unbounded"`.
 | weekCount exceeds available weeks | Shrink modes: show only valid weeks. Non-shrink modes: fill with disabled rows. |
 | Focus target is disabled | Receives roving tabindex, can't be selected. |
 
+## Controlled Props
+
+A prop is considered controlled if its value is anything except `undefined`. Even `null` is a controlled value (though it may be invalid and produce an error). Internal state must never diverge from controlled prop values — if a consumer passes `firstWeek={someDate}`, the component must always reflect that value, even if overflow behavior would normally adjust it. The component may warn or error on invalid controlled values but must not silently override them.
+
+This applies to all controlled/uncontrolled prop pairs: `value`/`defaultValue`, `firstWeek`/`defaultFirstWeek`, `month`/`defaultMonth`.
+
 ## State & Context Architecture
 
 ### Stable/volatile split per provider
