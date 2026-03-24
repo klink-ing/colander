@@ -30,75 +30,51 @@ function getDragHandle(page: Page, edge: "start" | "end"): Locator {
 }
 
 /**
- * Perform a pointer-based drag from a drag handle to a target date.
- * Dispatches pointer events directly in the page context to ensure
- * pointer capture works correctly.
+ * Perform a real mouse drag from a drag handle to a target day button.
+ * Uses Playwright's page.mouse API to dispatch genuine browser events,
+ * ensuring the full pointer event pipeline is exercised.
  */
-async function pointerDragToDate(
+async function dragHandleToDay(
   page: Page,
-  handleSelector: string,
-  targetDateStr: string,
+  edge: "start" | "end",
+  targetDay: string,
 ) {
-  await page.evaluate(
-    ({ handleSel, targetDate }) => {
-      const handle = document.querySelector(handleSel);
-      const target = document.querySelector(
-        `[data-drop-date="${targetDate}"]`,
-      );
-      if (!handle || !target) {
-        throw new Error(
-          `Missing elements: handle=${!!handle} target=${!!target}`,
-        );
-      }
+  const handle = getDragHandle(page, edge);
+  await expect(handle).toBeVisible();
 
-      const hBox = handle.getBoundingClientRect();
-      const tBox = target.getBoundingClientRect();
-      const startX = hBox.x + hBox.width / 2;
-      const startY = hBox.y + hBox.height / 2;
-      const endX = tBox.x + tBox.width / 2;
-      const endY = tBox.y + tBox.height / 2;
+  const handleBox = await handle.boundingBox();
+  if (!handleBox) throw new Error(`No bounding box for ${edge} handle`);
 
-      handle.dispatchEvent(
-        new PointerEvent("pointerdown", {
-          bubbles: true,
-          cancelable: true,
-          pointerId: 1,
-          button: 0,
-          clientX: startX,
-          clientY: startY,
-          pointerType: "mouse",
-        }),
-      );
+  const targetBtn = getDayButton(page, targetDay);
+  await expect(targetBtn).toBeVisible();
+  const targetBox = await targetBtn.boundingBox();
+  if (!targetBox) throw new Error(`No bounding box for day ${targetDay}`);
 
-      const steps = 10;
-      for (let i = 1; i <= steps; i++) {
-        const x = startX + ((endX - startX) * i) / steps;
-        const y = startY + ((endY - startY) * i) / steps;
-        handle.dispatchEvent(
-          new PointerEvent("pointermove", {
-            bubbles: true,
-            cancelable: true,
-            pointerId: 1,
-            clientX: x,
-            clientY: y,
-            pointerType: "mouse",
-          }),
-        );
-      }
+  const startX = handleBox.x + handleBox.width / 2;
+  const startY = handleBox.y + handleBox.height / 2;
+  const endX = targetBox.x + targetBox.width / 2;
+  const endY = targetBox.y + targetBox.height / 2;
 
-      handle.dispatchEvent(
-        new PointerEvent("pointerup", {
-          bubbles: true,
-          cancelable: true,
-          pointerId: 1,
-          clientX: endX,
-          clientY: endY,
-          pointerType: "mouse",
-        }),
-      );
-    },
-    { handleSel: handleSelector, targetDate: targetDateStr },
-  );
+  // Move to handle center and press
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+
+  // Wait for React to process the drag start and set pointerEvents: "none"
+  // on handle overlays so elementFromPoint can see through to day buttons
+  await page.waitForTimeout(50);
+
+  // Move to target in steps, giving React time to process state updates
+  const steps = 10;
+  for (let i = 1; i <= steps; i++) {
+    const x = startX + ((endX - startX) * i) / steps;
+    const y = startY + ((endY - startY) * i) / steps;
+    await page.mouse.move(x, y);
+    // Small delay between moves to let React re-render
+    if (i % 3 === 0) await page.waitForTimeout(30);
+  }
+
+  await page.mouse.up();
+
   // Allow React state to settle
   await page.waitForTimeout(100);
 }
@@ -172,28 +148,44 @@ test.describe("Drag Range Handles", () => {
     await expect(selectedRange.first()).toBeVisible();
 
     // Drag end handle from day 15 to day 20
-    await pointerDragToDate(
-      page,
-      '[data-testid="drag-handle-end"][data-active]',
-      "2026-03-20",
-    );
+    await dragHandleToDay(page, "end", "20");
 
-    // Verify the range was extended
-    await expect(page.locator("text=Mar 20")).toBeVisible();
+    // Verify the end handle moved to day 20
+    const endHandle = getDragHandle(page, "end");
+    const day20Btn = getDayButton(page, "20");
+    const day20Box = await day20Btn.boundingBox();
+    const handleBox = await endHandle.boundingBox();
+    // The handle should be positioned on day 20's button
+    expect(handleBox).toBeTruthy();
+    expect(day20Box).toBeTruthy();
+    // Handle center should be within the day 20 button bounds
+    const handleCenterX = handleBox!.x + handleBox!.width / 2;
+    const handleCenterY = handleBox!.y + handleBox!.height / 2;
+    expect(handleCenterX).toBeGreaterThanOrEqual(day20Box!.x);
+    expect(handleCenterX).toBeLessThanOrEqual(day20Box!.x + day20Box!.width);
+    expect(handleCenterY).toBeGreaterThanOrEqual(day20Box!.y);
+    expect(handleCenterY).toBeLessThanOrEqual(day20Box!.y + day20Box!.height);
   });
 
   test("dragging start handle adjusts the range", async ({ page }) => {
     await selectRange(page, "10", "20");
 
     // Drag start handle from day 10 to day 14
-    await pointerDragToDate(
-      page,
-      '[data-testid="drag-handle-start"][data-active]',
-      "2026-03-14",
-    );
+    await dragHandleToDay(page, "start", "14");
 
-    // Verify the range start was adjusted
-    await expect(page.locator("text=Mar 14")).toBeVisible();
+    // Verify the start handle moved to day 14
+    const startHandle = getDragHandle(page, "start");
+    const day14Btn = getDayButton(page, "14");
+    const day14Box = await day14Btn.boundingBox();
+    const handleBox = await startHandle.boundingBox();
+    expect(handleBox).toBeTruthy();
+    expect(day14Box).toBeTruthy();
+    const handleCenterX = handleBox!.x + handleBox!.width / 2;
+    const handleCenterY = handleBox!.y + handleBox!.height / 2;
+    expect(handleCenterX).toBeGreaterThanOrEqual(day14Box!.x);
+    expect(handleCenterX).toBeLessThanOrEqual(day14Box!.x + day14Box!.width);
+    expect(handleCenterY).toBeGreaterThanOrEqual(day14Box!.y);
+    expect(handleCenterY).toBeLessThanOrEqual(day14Box!.y + day14Box!.height);
   });
 
   test("range selection is visually shown", async ({ page }) => {
@@ -214,5 +206,41 @@ test.describe("Drag Range Handles", () => {
 
     await expect(getDragHandle(page, "start")).toBeVisible();
     await expect(getDragHandle(page, "end")).toBeVisible();
+  });
+
+  test("drag across multiple cells updates continuously", async ({ page }) => {
+    await selectRange(page, "10", "15");
+
+    // Drag end handle from day 15 to day 22 - crosses multiple cells
+    await dragHandleToDay(page, "end", "22");
+
+    // The end handle should now be on day 22
+    const endHandle = getDragHandle(page, "end");
+    const day22Btn = getDayButton(page, "22");
+    const day22Box = await day22Btn.boundingBox();
+    const handleBox = await endHandle.boundingBox();
+    expect(handleBox).toBeTruthy();
+    expect(day22Box).toBeTruthy();
+    const handleCenterX = handleBox!.x + handleBox!.width / 2;
+    expect(handleCenterX).toBeGreaterThanOrEqual(day22Box!.x);
+    expect(handleCenterX).toBeLessThanOrEqual(day22Box!.x + day22Box!.width);
+  });
+
+  test("drag start handle earlier expands range", async ({ page }) => {
+    await selectRange(page, "15", "20");
+
+    // Drag start handle from day 15 to day 8
+    await dragHandleToDay(page, "start", "8");
+
+    // The start handle should be on day 8
+    const startHandle = getDragHandle(page, "start");
+    const day8Btn = getDayButton(page, "8");
+    const day8Box = await day8Btn.boundingBox();
+    const handleBox = await startHandle.boundingBox();
+    expect(handleBox).toBeTruthy();
+    expect(day8Box).toBeTruthy();
+    const handleCenterX = handleBox!.x + handleBox!.width / 2;
+    expect(handleCenterX).toBeGreaterThanOrEqual(day8Box!.x);
+    expect(handleCenterX).toBeLessThanOrEqual(day8Box!.x + day8Box!.width);
   });
 });

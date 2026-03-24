@@ -1,0 +1,68 @@
+<h2>Architecture: Mode on Root vs Separate Component Tree</h2>
+<p class="subtitle">How should the continuous-weeks view relate to the existing month grid?</p>
+
+<div class="options">
+  <div class="option" data-choice="a" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>New mode on existing Root</h3>
+      <p>A <code>view="weeks"</code> prop on Root switches grid rendering</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Single entry point — consumers learn one API</li>
+            <li>Shared state is automatic (selection, disabled dates, min/max all just work)</li>
+            <li>Existing components like DayButton, DayCell stay the same</li>
+            <li>Switching between views at runtime is trivial (toggle a prop)</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>Root's props/state grow — weeks-only props (weekCount, firstWeek, overflow behavior) clutter the API for month-grid users</li>
+            <li>Grid component needs branching logic for two rendering modes</li>
+            <li>New components (month separators, week nav buttons) only make sense in weeks mode — consumers could misuse them in month mode</li>
+            <li>Harder to tree-shake — consumers who only want month-grid still bundle weeks logic</li>
+            <li>Risk of the Root becoming a "god component" as features accumulate</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="option" data-choice="b" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Separate compound component tree</h3>
+      <p>New top-level component (e.g. <code>WeeksView.Root</code>) with its own components, sharing context with DatePicker</p>
+      <div class="pros-cons">
+        <div class="pros">
+          <h4>Pros</h4>
+          <ul>
+            <li>Clean separation — each view's API only exposes what's relevant</li>
+            <li>No branching in Grid — each view has its own grid component purpose-built for its layout</li>
+            <li>New components (separators, week nav) live naturally under the new namespace</li>
+            <li>Tree-shakeable — don't use it, don't bundle it</li>
+            <li>Easier path to infinite scroll later — the weeks view can evolve independently</li>
+            <li>Shared selection/state still possible via shared context or composition</li>
+          </ul>
+        </div>
+        <div class="cons">
+          <h4>Cons</h4>
+          <ul>
+            <li>More API surface to learn — two component trees instead of one</li>
+            <li>Shared logic (day rendering, keyboard nav, selection) needs to be extracted into shared hooks/utils to avoid duplication</li>
+            <li>Runtime view switching requires swapping component trees rather than toggling a prop</li>
+            <li>Risk of the two views drifting apart in behavior if shared logic isn't well-factored</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section" style="margin-top: 2rem; padding: 1.25rem; background: var(--surface); border-radius: 8px; border-left: 3px solid var(--accent);">
+  <h3 style="margin-top: 0;">Recommendation: B</h3>
+  <p style="margin: 0;">The weeks view has fundamentally different layout semantics (continuous rows vs month grids), unique components (separators, week navigation), and a future that diverges further (infinite scroll). Keeping it separate avoids polluting the month-grid API while still sharing core logic through hooks and utilities.</p>
+</div>
