@@ -513,16 +513,28 @@ export default function App() {
                             return (
                               <>
                                 {state.firstDayVisible && (
-                                  <tr
-                                    aria-hidden
-                                    className="pointer-events-none relative z-10 bg-muted-foreground"
-                                    style={{
-                                      gridColumn: `${borderFromCol} / -1`,
-                                      gridRow: state.gridRowStart,
-                                      alignSelf: "start",
-                                      height: "1px",
-                                    }}
-                                  />
+                                  <>
+                                    {/* Top border from 1st day column to end */}
+                                    <tr
+                                      aria-hidden
+                                      className="pointer-events-none relative z-10 rounded-tl-md bg-muted-foreground"
+                                      style={{
+                                        gridColumn: `${borderFromCol} / -1`,
+                                        gridRow: state.gridRowStart,
+                                        alignSelf: "start",
+                                        height: "1px",
+                                      }}
+                                    />
+                                    {/* Left border at 1st day column spanning all month rows */}
+                                    <tr
+                                      aria-hidden
+                                      className="pointer-events-none relative z-10 -ml-px w-0 rounded-bl-md border-l border-muted-foreground"
+                                      style={{
+                                        gridColumn: `${borderFromCol} / ${borderFromCol + 1}`,
+                                        gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
+                                      }}
+                                    />
+                                  </>
                                 )}
                                 {showLabel && (
                                   <tr
@@ -569,7 +581,6 @@ export default function App() {
                         <StyledDayCellTemplate
                           columnOffset={showWeekNumbers ? 1 : 0}
                           preventRangeReversal={preventRangeReversal}
-                          showFirstOfMonthBorder
                         />
                       </StyledWeekTemplate>
                     </StyledGridBody>
