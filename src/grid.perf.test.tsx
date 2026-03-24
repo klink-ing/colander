@@ -3,8 +3,9 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 import { render } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
-import { Root } from "./root";
-import { useDatePicker, WeekDataContext } from "./context";
+import { MonthView } from "./month-view";
+import { useMonthViewState } from "./month-view-context";
+import { WeekDataContext } from "./context";
 import {
   Grid,
   GridBody,
@@ -68,9 +69,9 @@ describe("Grid render profiling", () => {
   // Warm up the Temporal polyfill so first-run JIT cost doesn't skew mount timings
   beforeAll(() => {
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15}>
+      <MonthView {...defaultProps} defaultValue={march15}>
         <Grid />
-      </Root>,
+      </MonthView>,
     );
     unmount();
   });
@@ -80,9 +81,9 @@ describe("Grid render profiling", () => {
 
     const { unmount } = render(
       <Profiler id="grid-mount" onRender={onRender}>
-        <Root {...defaultProps} defaultValue={march15}>
+        <MonthView {...defaultProps} defaultValue={march15}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -104,9 +105,9 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-select" onRender={onRender}>
-        <Root {...defaultProps} value={currentValue}>
+        <MonthView {...defaultProps} value={currentValue}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -118,9 +119,9 @@ describe("Grid render profiling", () => {
     currentValue = march20;
     rerender(
       <Profiler id="grid-select" onRender={onRender}>
-        <Root {...defaultProps} value={currentValue}>
+        <MonthView {...defaultProps} value={currentValue}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -147,9 +148,9 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-nav" onRender={onRender}>
-        <Root {...defaultProps} defaultValue={march15}>
+        <MonthView {...defaultProps} defaultValue={march15}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -157,9 +158,9 @@ describe("Grid render profiling", () => {
     const april15 = Temporal.PlainDate.from("2026-04-15");
     rerender(
       <Profiler id="grid-nav" onRender={onRender}>
-        <Root {...defaultProps} value={april15}>
+        <MonthView {...defaultProps} value={april15}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -179,26 +180,26 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-range" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: march15 }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
     // Expand range
     rerender(
       <Profiler id="grid-range" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: march20 }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -222,13 +223,13 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-drag" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: days[0] }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -236,13 +237,13 @@ describe("Grid render profiling", () => {
     for (const day of days.slice(1)) {
       rerender(
         <Profiler id="grid-drag" onRender={onRender}>
-          <Root
+          <MonthView
             {...defaultProps}
             selectionMode="range"
             value={{ start: march10, end: day }}
           >
             <Grid />
-          </Root>
+          </MonthView>
         </Profiler>,
       );
     }
@@ -268,7 +269,7 @@ describe("Grid render profiling", () => {
     const weekProfilers = Array.from({ length: 6 }, () => createProfiler());
 
     function ProfiledGrid() {
-      const { weeks } = useDatePicker();
+      const { weeks } = useMonthViewState();
       return (
         <>
           <GridHeader>
@@ -300,11 +301,11 @@ describe("Grid render profiling", () => {
     const march16 = Temporal.PlainDate.from("2026-03-16");
 
     const { rerender, unmount } = render(
-      <Root {...defaultProps} value={march15}>
+      <MonthView {...defaultProps} value={march15}>
         <Grid>
           <ProfiledGrid />
         </Grid>
-      </Root>,
+      </MonthView>,
     );
 
     // Clear mount entries
@@ -312,11 +313,11 @@ describe("Grid render profiling", () => {
 
     // Change selection within the same week
     rerender(
-      <Root {...defaultProps} value={march16}>
+      <MonthView {...defaultProps} value={march16}>
         <Grid>
           <ProfiledGrid />
         </Grid>
-      </Root>,
+      </MonthView>,
     );
 
     const weekUpdateDurations = weekProfilers.map((p) => {
@@ -351,9 +352,9 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-memo" onRender={onRender}>
-        <Root {...defaultProps} value={march15}>
+        <MonthView {...defaultProps} value={march15}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -364,9 +365,9 @@ describe("Grid render profiling", () => {
     const march16 = Temporal.PlainDate.from("2026-03-16");
     rerender(
       <Profiler id="grid-memo" onRender={onRender}>
-        <Root {...defaultProps} value={march16}>
+        <MonthView {...defaultProps} value={march16}>
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -390,11 +391,11 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-multi" onRender={onRender}>
-        <Root {...defaultProps} value={march15} numberOfMonths={3}>
+        <MonthView {...defaultProps} value={march15} numberOfMonths={3}>
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
           <Grid monthIndex={2} />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -408,11 +409,11 @@ describe("Grid render profiling", () => {
     const march16 = Temporal.PlainDate.from("2026-03-16");
     rerender(
       <Profiler id="grid-multi" onRender={onRender}>
-        <Root {...defaultProps} value={march16} numberOfMonths={3}>
+        <MonthView {...defaultProps} value={march16} numberOfMonths={3}>
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
           <Grid monthIndex={2} />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -435,13 +436,13 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-preview" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: march20 }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -453,13 +454,13 @@ describe("Grid render profiling", () => {
     const march22 = Temporal.PlainDate.from("2026-03-22");
     rerender(
       <Profiler id="grid-preview" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: march22 }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -484,13 +485,13 @@ describe("Grid render profiling", () => {
 
     const { rerender, unmount } = render(
       <Profiler id="grid-range-memo" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: march15 }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 
@@ -500,13 +501,13 @@ describe("Grid render profiling", () => {
 
     rerender(
       <Profiler id="grid-range-memo" onRender={onRender}>
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march10, end: march20 }}
         >
           <Grid />
-        </Root>
+        </MonthView>
       </Profiler>,
     );
 

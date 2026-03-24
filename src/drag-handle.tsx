@@ -2,12 +2,9 @@ import { useContext, useMemo, useRef } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import {
-  useDatePicker,
-  useDatePickerStable,
-  DayCellDataContext,
-  GridContext,
-} from "./context";
+import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { useMonthViewState } from "./month-view-context";
+import { DayCellDataContext, GridContext } from "./context";
 import type {
   ValueFormat,
   DragHandleState,
@@ -28,8 +25,9 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
   { dragging: draggingProp }: { dragging?: boolean },
 ) {
-  const { rangeStart, rangeEnd, temporal: T, rootState } = useDatePicker<F>();
-  const { setHoveredDate } = useDatePickerStable();
+  const { temporal: T, setHoveredDate } = useCalendarStable();
+  const { rangeStart, rangeEnd } = useCalendarState();
+  const { rootState } = useMonthViewState();
   const cellData = useContext(DayCellDataContext);
   const { orientation } = useContext(GridContext);
   const date = cellData?.date;
@@ -47,7 +45,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
 
   const state = useMemo<DragHandleState<F>>(
     () => ({
-      root: rootState,
+      root: rootState as any,
       active: isActive,
       dragging: isDragging,
       edge,
@@ -87,7 +85,8 @@ export function RangeDragHandle<F extends ValueFormat = ValueFormat>(
   const { ref, render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
     useDragHandle<F>(edge, { dragging });
-  const { selectionMode, rangeStart: rs, rangeEnd: re } = useDatePicker();
+  const { selectionMode } = useCalendarStable();
+  const { rangeStart: rs, rangeEnd: re } = useCalendarState();
   const rangeIncomplete = !rs || !re;
 
   return useRender(

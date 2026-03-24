@@ -14,7 +14,8 @@ import {
   NextMonthButton,
   RangeSelected,
   RangePreview,
-  useDatePicker,
+  useCalendarStable,
+  useCalendarState,
   DayCellDataContext,
   GridContext,
 } from "base-ui-cal";
@@ -100,7 +101,7 @@ export function StyledGrid<F extends ValueFormat = ValueFormat>({
       mode="grid"
       {...(props as GridProps)}
       className={cn(
-        "grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]",
+        "grid w-full gap-x-px grid-cols-[repeat(var(--calendar-days-per-week),1fr)]",
         className,
       )}
     />
@@ -157,7 +158,13 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   return (
     <WeekTemplate
       {...(props as WeekTemplateProps)}
-      className={cn("col-span-full grid grid-cols-subgrid", className)}
+      render={(renderProps, state) => (
+        <tr
+          {...renderProps}
+          className={cn("col-span-full grid grid-cols-subgrid", className)}
+          style={state.gridRow ? { gridRow: state.gridRow } : undefined}
+        />
+      )}
     />
   );
 }
@@ -167,12 +174,14 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
     ref?: React.Ref<HTMLTableCellElement>;
     columnOffset?: number;
     preventRangeReversal?: boolean;
+    showFirstOfMonthBorder?: boolean;
   },
 ) {
   const {
     className,
     columnOffset = 0,
     preventRangeReversal,
+    showFirstOfMonthBorder,
     ...props
   } = allProps;
   return (
@@ -188,12 +197,19 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
                   gridColumn: 1,
                 }
             : undefined;
+        const isFirstOfMonth = showFirstOfMonthBorder && state.date.day === 1;
         return (
           <td
             {...renderProps}
             style={gridStyle}
             className={cn("relative text-center", className)}
           >
+            {isFirstOfMonth && (
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 left-0 w-0 -ml-px border-l border-muted-foreground"
+              />
+            )}
             <StyledDayButton
               date={state.date}
               preventRangeReversal={preventRangeReversal}
@@ -266,7 +282,8 @@ export function StyledDragHandle({
   preventRangeReversal?: boolean;
   className?: string;
 }) {
-  const { rangeStart, rangeEnd, temporal: T } = useDatePicker();
+  const { temporal: T } = useCalendarStable();
+  const { rangeStart, rangeEnd } = useCalendarState();
   const { orientation } = useContext(GridContext);
   const cellData = useContext(DayCellDataContext);
 

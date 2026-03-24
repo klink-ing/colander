@@ -1,12 +1,10 @@
 import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import {
-  useDatePicker,
-  useDatePickerStable,
-  WeekDataContext,
-  GridContext,
-} from "./context";
+import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { useMonthViewState } from "./month-view-context";
+import { MonthViewStableContext } from "./month-view-context";
+import { WeekDataContext, GridContext } from "./context";
 import {
   computeClippedRangeInfo,
   rangeOverlayStateAttributesMapping,
@@ -29,13 +27,11 @@ export function RangePreview<F extends ValueFormat = ValueFormat>(
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
   const { orientation } = useContext(GridContext);
-  const {
-    previewStart,
-    previewEnd,
-    temporal: T,
-    rootState,
-  } = useDatePicker<F>();
-  const { outsideDays } = useDatePickerStable();
+  const { temporal: T } = useCalendarStable();
+  const { previewStart, previewEnd } = useCalendarState();
+  const monthStable = useContext(MonthViewStableContext);
+  const { rootState } = useMonthViewState();
+  const outsideDays = monthStable?.outsideDays ?? "enabled";
 
   const days = weekData?.days ?? [];
   const gridMonth = weekData?.gridMonth;
@@ -60,7 +56,7 @@ export function RangePreview<F extends ValueFormat = ValueFormat>(
 
   const state = useMemo<RangePreviewState<F>>(
     () => ({
-      root: rootState,
+      root: rootState as any,
       active: info.active,
       weekIndex,
       startIndex: info.startIndex,

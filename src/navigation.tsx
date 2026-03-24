@@ -2,7 +2,8 @@ import { useId, useMemo, useEffect } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useDatePicker } from "./context";
+import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { useMonthViewStable, useMonthViewState } from "./month-view-context";
 import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
 import type {
   ValueFormat,
@@ -45,14 +46,9 @@ export function DateString<F extends ValueFormat = ValueFormat>(
   props: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const {
-    currentDateTime,
-    selected,
-    timeZone,
-    locale,
-    temporal: T,
-    rootState,
-  } = useDatePicker<F>();
+  const { locale, temporal: T, timeZone } = useCalendarStable();
+  const { selected } = useCalendarState();
+  const { currentDateTime, rootState } = useMonthViewState();
 
   const selectedZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selectedZdt
@@ -67,7 +63,7 @@ export function DateString<F extends ValueFormat = ValueFormat>(
 
   const state = useMemo<DateStringState<F>>(
     () => ({
-      root: rootState,
+      root: rootState as any,
       month,
       year,
       day,
@@ -99,13 +95,9 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
   props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
 ) {
   const { ref, render, locales, options, ...otherProps } = props;
-  const {
-    selected,
-    timeZone,
-    locale,
-    temporal: T,
-    rootState,
-  } = useDatePicker<F>();
+  const { locale, temporal: T, timeZone } = useCalendarStable();
+  const { selected } = useCalendarState();
+  const { rootState } = useMonthViewState();
 
   const selZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selZdt
@@ -125,7 +117,7 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
 
   const state = useMemo<TimeStringState<F>>(
     () => ({
-      root: rootState,
+      root: rootState as any,
       hour,
       minute,
       second,
@@ -172,8 +164,11 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
     ...otherProps
   } = props;
   const monthIndex = monthIndexProp ?? 0;
-  const { currentDateTime, allMonths, locale, setGridLabelId, rootState } =
-    useDatePicker<F>();
+  const { locale } = useCalendarStable();
+  const monthViewStable = useMonthViewStable();
+  const { currentMonth: currentDateTime, allMonths, rootState } =
+    useMonthViewState();
+  const { setGridLabelId } = monthViewStable;
 
   const id = useId();
 
@@ -198,7 +193,7 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
 
   const state = useMemo<MonthYearStringState<F>>(
     () => ({
-      root: rootState,
+      root: rootState as any,
       month: displayMonth,
       year: displayYear,
     }),
@@ -225,18 +220,21 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
   direction: "prev" | "next",
 ) {
   const {
-    goToPrevMonth,
-    goToNextMonth,
-    currentDateTime,
-    allMonths,
-    numberOfMonths,
     disabled: globalDisabled,
     minValue,
     maxValue,
     locale,
     temporal: T,
-    rootState,
-  } = useDatePicker<F>();
+  } = useCalendarStable();
+  const monthViewStable = useMonthViewStable();
+  const monthViewState = useMonthViewState();
+  const {
+    goNextMonth: goToNextMonth,
+    goPrevMonth: goToPrevMonth,
+    numberOfMonths,
+  } = monthViewStable;
+  const { currentMonth: currentDateTime, allMonths, rootState } =
+    monthViewState;
 
   // For "next", compute destination from the last visible month
   // For "prev", compute destination from the first visible month
@@ -293,7 +291,7 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
   );
 
   const state = useMemo<NavButtonState<F>>(
-    () => ({ root: rootState, direction, disabled: isDisabled, target }),
+    () => ({ root: rootState as any, direction, disabled: isDisabled, target }),
     [rootState, direction, isDisabled, target],
   );
 

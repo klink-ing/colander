@@ -619,6 +619,8 @@ export type GridProps<F extends ValueFormat = ValueFormat> =
 export type WeekTemplateState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   weekIndex: number;
+  /** 1-based CSS grid row index for this week row (WeeksView only, undefined in MonthView). */
+  gridRow: number | undefined;
 };
 
 /** Full props for the `WeekTemplate` component. */

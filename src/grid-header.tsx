@@ -2,7 +2,8 @@ import { useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useDatePicker } from "./context";
+import { useCalendarStable } from "./calendar-context";
+import { useMonthViewState } from "./month-view-context";
 import { getWeekdayNames, getReferenceWeekStart } from "./utils";
 import type {
   ValueFormat,
@@ -15,7 +16,8 @@ import type {
 function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
   index: number,
 ) {
-  const { locale, temporal: T, rootState, weekStartDay } = useDatePicker<F>();
+  const { locale, temporal: T, weekStartDay } = useCalendarStable();
+  const { rootState } = useMonthViewState();
 
   const weekdayNames = useMemo(
     () => getWeekdayNames(locale, T, weekStartDay),
@@ -24,7 +26,7 @@ function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
 
   const state = useMemo<GridHeaderCellState<F>>(
     () => ({
-      root: rootState,
+      root: rootState as unknown as GridHeaderCellState<F>["root"],
       dayOfWeek: index,
       long: weekdayNames[index].long,
       short: weekdayNames[index].short,
@@ -83,7 +85,7 @@ export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
   props: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { index: indexProp, ...restProps } = props;
-  const { temporal: T } = useDatePicker<F>();
+  const { temporal: T } = useCalendarStable();
   const Instance = GridHeaderCellInstance<F>;
 
   if (indexProp != null) {
@@ -107,10 +109,10 @@ export function GridHeader<F extends ValueFormat = ValueFormat>(
   props: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> },
 ) {
   const { ref, render, children, ...otherProps } = props;
-  const { rootState } = useDatePicker<F>();
+  const { rootState } = useMonthViewState();
 
   const state = useMemo<GridHeaderState<F>>(
-    () => ({ root: rootState }),
+    () => ({ root: rootState as unknown as GridHeaderState<F>["root"] }),
     [rootState],
   );
 

@@ -2,8 +2,10 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, act } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
-import { Root } from "./root";
-import { useDatePicker } from "./context";
+import { MonthView } from "./month-view";
+import { useCalendarStable } from "./calendar-context";
+import { useMonthViewState } from "./month-view-context";
+import { useViewContext } from "./view-context";
 import { Grid } from "./grid";
 import {
   MonthYearString,
@@ -38,19 +40,23 @@ function SetRangeTrigger({
     setRange: (start: Temporal.PlainDate, end: Temporal.PlainDate) => void,
   ) => void;
 }) {
-  const { setRange } = useDatePicker();
+  const { setRange } = useCalendarStable();
   onCapture(setRange);
   return null;
 }
 
-/** Helper that captures `onSelect` from context. */
+/** Helper that captures a select function (onSelect + setFocusedDate) from context. */
 function SelectTrigger({
   onCapture,
 }: {
   onCapture: (onSelect: (date: Temporal.PlainDate) => void) => void;
 }) {
-  const { onSelect } = useDatePicker();
-  onCapture(onSelect);
+  const { onSelect } = useCalendarStable();
+  const { setFocusedDate } = useViewContext();
+  onCapture((date: Temporal.PlainDate) => {
+    setFocusedDate(date);
+    onSelect(date);
+  });
   return null;
 }
 
@@ -75,7 +81,7 @@ describe("rangeMode", () => {
   ) {
     let selectFn: (date: Temporal.PlainDate) => void = () => {};
     const result = render(
-      <Root
+      <MonthView
         {...defaultProps}
         selectionMode="range"
         defaultValue={{ start: march10, end: march20 }}
@@ -87,7 +93,7 @@ describe("rangeMode", () => {
             selectFn = fn;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
     return { ...result, select: selectFn };
   }
@@ -230,7 +236,7 @@ describe("setRange normalization", () => {
     ) => void = () => {};
 
     const { unmount } = render(
-      <Root
+      <MonthView
         {...defaultProps}
         selectionMode="range"
         onValueChange={onValueChange}
@@ -240,7 +246,7 @@ describe("setRange normalization", () => {
             captured = fn;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     act(() => {
@@ -263,7 +269,7 @@ describe("setRange normalization", () => {
     ) => void = () => {};
 
     const { unmount } = render(
-      <Root
+      <MonthView
         {...defaultProps}
         selectionMode="range"
         onValueChange={onValueChange}
@@ -273,7 +279,7 @@ describe("setRange normalization", () => {
             captured = fn;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     // Call with end before start
@@ -301,7 +307,7 @@ describe("setRange normalization", () => {
     ) => void = () => {};
 
     const { unmount } = render(
-      <Root
+      <MonthView
         {...defaultProps}
         selectionMode="range"
         onValueChange={onValueChange}
@@ -311,7 +317,7 @@ describe("setRange normalization", () => {
             captured = fn;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     act(() => {
@@ -337,10 +343,11 @@ function MonthDataCapture({
     focusedDate: string;
   }) => void;
 }) {
-  const { allMonths, currentDateTime, focusedDate } = useDatePicker();
+  const { allMonths, currentMonth } = useMonthViewState();
+  const { focusedDate } = useViewContext();
   onCapture({
     allMonths,
-    currentMonth: { year: currentDateTime.year, month: currentDateTime.month },
+    currentMonth: { year: currentMonth.year, month: currentMonth.month },
     focusedDate: focusedDate.toString(),
   });
   return null;
@@ -354,13 +361,13 @@ describe("numberOfMonths", () => {
     let captured: { allMonths: MonthData[] } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     expect(captured!.allMonths).toHaveLength(3);
@@ -377,13 +384,13 @@ describe("numberOfMonths", () => {
     let captured: { allMonths: MonthData[] } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15}>
+      <MonthView {...defaultProps} defaultValue={march15}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     expect(captured!.allMonths).toHaveLength(1);
@@ -398,7 +405,7 @@ describe("numberOfMonths", () => {
     let captured: { currentMonth: { year: number; month: number } } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <SelectTrigger
           onCapture={(fn) => {
             selectFn = fn;
@@ -409,7 +416,7 @@ describe("numberOfMonths", () => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
@@ -429,7 +436,7 @@ describe("numberOfMonths", () => {
     let captured: { currentMonth: { year: number; month: number } } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <SelectTrigger
           onCapture={(fn) => {
             selectFn = fn;
@@ -440,7 +447,7 @@ describe("numberOfMonths", () => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     // Select June — outside visible March+April window
@@ -458,13 +465,13 @@ describe("numberOfMonths", () => {
     let captured: { allMonths: MonthData[] } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     for (const monthData of captured!.allMonths) {
@@ -483,13 +490,13 @@ describe("numberOfMonths", () => {
     let captured: { allMonths: MonthData[] } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={dec15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={dec15} numberOfMonths={2}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
@@ -502,12 +509,12 @@ describe("numberOfMonths", () => {
 
   it("renders separate grid labels for each month", () => {
     const { container, unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <MonthYearString monthIndex={0} />
         <MonthYearString monthIndex={1} />
         <Grid monthIndex={0} />
         <Grid monthIndex={1} />
-      </Root>,
+      </MonthView>,
     );
 
     const grids = container.querySelectorAll('[role="grid"]');
@@ -529,10 +536,10 @@ describe("numberOfMonths", () => {
 
   it("Grid monthIndex selects correct month data", () => {
     const { container, unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <Grid monthIndex={0} />
         <Grid monthIndex={1} />
-      </Root>,
+      </MonthView>,
     );
 
     const grids = container.querySelectorAll('[role="grid"]');
@@ -558,25 +565,25 @@ describe("numberOfMonths", () => {
     let captured: { allMonths: MonthData[] } | undefined;
 
     const { rerender, unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={1}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     expect(captured!.allMonths).toHaveLength(1);
 
     rerender(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     expect(captured!.allMonths).toHaveLength(3);
@@ -593,13 +600,13 @@ describe("numberOfMonths", () => {
     let captured: { allMonths: MonthData[] } | undefined;
 
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={0}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={0}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
-      </Root>,
+      </MonthView>,
     );
 
     // 0 should be clamped to 1
@@ -614,7 +621,7 @@ describe("numberOfMonths", () => {
       | undefined;
 
     const { container, unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
@@ -622,7 +629,7 @@ describe("numberOfMonths", () => {
         />
         <Grid monthIndex={0} />
         <Grid monthIndex={1} />
-      </Root>,
+      </MonthView>,
     );
 
     // Initially March+April, focused on March 15
@@ -660,14 +667,14 @@ describe("numberOfMonths", () => {
       | undefined;
 
     const { container, unmount } = render(
-      <Root {...defaultProps} defaultValue={april15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={april15} numberOfMonths={2}>
         <MonthDataCapture
           onCapture={(d) => {
             captured = d;
           }}
         />
         <Grid monthIndex={0} />
-      </Root>,
+      </MonthView>,
     );
 
     // Initially April+May, focused on April 15
@@ -689,10 +696,10 @@ describe("numberOfMonths", () => {
 
   it("outsideMonth is relative to each grid's month", () => {
     const { container, unmount } = render(
-      <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+      <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
         <Grid monthIndex={0} />
         <Grid monthIndex={1} />
-      </Root>,
+      </MonthView>,
     );
 
     const grids = container.querySelectorAll('[role="grid"]');
@@ -721,9 +728,9 @@ describe("numberOfMonths", () => {
   describe("navigation buttons with multi-month", () => {
     it("next button computes destination from last visible month", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
           <NextMonthButton data-testid="next" />
-        </Root>,
+        </MonthView>,
       );
 
       // With numberOfMonths=3 viewing March, the last visible month is May.
@@ -736,9 +743,9 @@ describe("numberOfMonths", () => {
 
     it("prev button computes destination from first visible month", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
           <PrevMonthButton data-testid="prev" />
-        </Root>,
+        </MonthView>,
       );
 
       // "Prev" should point to February 2026 (one before first visible).
@@ -751,14 +758,14 @@ describe("numberOfMonths", () => {
     it("next button disabled when last visible month reaches max", () => {
       const maxDate = Temporal.PlainDate.from("2026-05-31");
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           defaultValue={march15}
           numberOfMonths={3}
           max={maxDate}
         >
           <NextMonthButton data-testid="next" />
-        </Root>,
+        </MonthView>,
       );
 
       // Last visible month is May, max is May 31 → next (June) is beyond max
@@ -771,14 +778,14 @@ describe("numberOfMonths", () => {
     it("prev button disabled when first visible month reaches min", () => {
       const minDate = Temporal.PlainDate.from("2026-03-01");
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           defaultValue={march15}
           numberOfMonths={2}
           min={minDate}
         >
           <PrevMonthButton data-testid="prev" />
-        </Root>,
+        </MonthView>,
       );
 
       // First visible month is March, min is March 1 → prev (Feb) is before min
@@ -794,14 +801,14 @@ describe("numberOfMonths", () => {
         | undefined;
 
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
           <NextMonthButton data-testid="next" />
-        </Root>,
+        </MonthView>,
       );
 
       expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
@@ -824,14 +831,14 @@ describe("numberOfMonths", () => {
         | undefined;
 
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
           <PrevMonthButton data-testid="prev" />
-        </Root>,
+        </MonthView>,
       );
 
       act(() => {
@@ -852,7 +859,7 @@ describe("numberOfMonths", () => {
       const rangeEnd = Temporal.PlainDate.from("2026-04-05");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: rangeStart, end: rangeEnd }}
@@ -860,7 +867,7 @@ describe("numberOfMonths", () => {
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
@@ -893,7 +900,7 @@ describe("numberOfMonths", () => {
       const rangeEnd = Temporal.PlainDate.from("2026-04-10");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: rangeStart, end: rangeEnd }}
@@ -901,7 +908,7 @@ describe("numberOfMonths", () => {
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
@@ -925,10 +932,10 @@ describe("numberOfMonths", () => {
   describe("grid state attributes", () => {
     it("each grid exposes correct month and year in state", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
@@ -948,10 +955,10 @@ describe("numberOfMonths", () => {
 
     it("CSS custom properties set per grid", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={2}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
@@ -971,10 +978,10 @@ describe("numberOfMonths", () => {
   describe("backward compatibility", () => {
     it("single-month without monthIndex works unchanged", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15}>
+        <MonthView {...defaultProps} defaultValue={march15}>
           <MonthYearString />
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
@@ -991,10 +998,10 @@ describe("numberOfMonths", () => {
 
     it("explicit monthIndex={0} on single-month setup works", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={1}>
           <MonthYearString monthIndex={0} />
           <Grid monthIndex={0} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
@@ -1015,14 +1022,14 @@ describe("numberOfMonths", () => {
       const onMonthChange = vi.fn();
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           defaultValue={march15}
           numberOfMonths={2}
           onMonthChange={onMonthChange}
         >
           <NextMonthButton data-testid="next" />
-        </Root>,
+        </MonthView>,
       );
 
       // Should not fire on mount
@@ -1048,7 +1055,7 @@ describe("numberOfMonths", () => {
       let selectFn: (date: Temporal.PlainDate) => void = () => {};
 
       const { unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           defaultValue={march15}
           numberOfMonths={2}
@@ -1059,7 +1066,7 @@ describe("numberOfMonths", () => {
               selectFn = fn;
             }}
           />
-        </Root>,
+        </MonthView>,
       );
 
       // Select within April (second visible month) — shouldn't trigger month change
@@ -1078,25 +1085,25 @@ describe("numberOfMonths", () => {
       let captured: { focusedDate: string } | undefined;
 
       const { rerender, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={1}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
-        </Root>,
+        </MonthView>,
       );
 
       expect(captured!.focusedDate).toBe("2026-03-15");
 
       rerender(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
-        </Root>,
+        </MonthView>,
       );
 
       // focusedDate should not change when numberOfMonths grows
@@ -1109,25 +1116,25 @@ describe("numberOfMonths", () => {
       let captured: { focusedDate: string } | undefined;
 
       const { rerender, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={3}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
-        </Root>,
+        </MonthView>,
       );
 
       expect(captured!.focusedDate).toBe("2026-03-15");
 
       rerender(
-        <Root {...defaultProps} defaultValue={march15} numberOfMonths={1}>
+        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={1}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
-        </Root>,
+        </MonthView>,
       );
 
       expect(captured!.focusedDate).toBe("2026-03-15");
@@ -1143,14 +1150,14 @@ describe("numberOfMonths", () => {
       // Focus on March 31, with April also visible
       const march31 = Temporal.PlainDate.from("2026-03-31");
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march31} numberOfMonths={2}>
+        <MonthView {...defaultProps} defaultValue={march31} numberOfMonths={2}>
           <MonthDataCapture
             onCapture={(d) => {
               captured = d;
             }}
           />
           <Grid monthIndex={0} />
-        </Root>,
+        </MonthView>,
       );
 
       expect(captured!.focusedDate).toBe("2026-03-31");
@@ -1178,9 +1185,9 @@ describe("outsideDays", () => {
   describe('outsideDays="enabled" (default)', () => {
     it("outside-month cells are visible and interactive", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15}>
+        <MonthView {...defaultProps} defaultValue={march15}>
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const outsideCells = Array.from(
@@ -1211,9 +1218,9 @@ describe("outsideDays", () => {
   describe('outsideDays="readonly"', () => {
     it("outside-month buttons render but are disabled", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} outsideDays="readonly">
+        <MonthView {...defaultProps} defaultValue={march15} outsideDays="readonly">
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const outsideCells = Array.from(
@@ -1240,14 +1247,14 @@ describe("outsideDays", () => {
       const april3 = Temporal.PlainDate.from("2026-04-03");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march25, end: april3 }}
           outsideDays="readonly"
         >
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       // April 1 in the March grid is outside-month
@@ -1267,14 +1274,14 @@ describe("outsideDays", () => {
       const april3 = Temporal.PlainDate.from("2026-04-03");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march25, end: april3 }}
           outsideDays="disabled"
         >
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const outsideCells = Array.from(
@@ -1300,9 +1307,9 @@ describe("outsideDays", () => {
   describe('outsideDays="hidden"', () => {
     it("outside-month cells are empty with data-hidden and aria-hidden", () => {
       const { container, unmount } = render(
-        <Root {...defaultProps} defaultValue={march15} outsideDays="hidden">
+        <MonthView {...defaultProps} defaultValue={march15} outsideDays="hidden">
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const hiddenCells = Array.from(
@@ -1324,14 +1331,14 @@ describe("outsideDays", () => {
       const march25 = Temporal.PlainDate.from("2026-03-25");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march5, end: march25 }}
           outsideDays="hidden"
         >
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const hiddenCells = Array.from(
@@ -1355,14 +1362,14 @@ describe("outsideDays", () => {
       const march25 = Temporal.PlainDate.from("2026-03-25");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march5, end: march25 }}
           outsideDays="hidden"
         >
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const rangeStart = container.querySelector("[data-range-start]");
@@ -1387,7 +1394,7 @@ describe("outsideDays", () => {
 
     it("works with multi-month: each grid hides its own outside-month cells", () => {
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           defaultValue={march15}
           numberOfMonths={2}
@@ -1395,7 +1402,7 @@ describe("outsideDays", () => {
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = Array.from(container.querySelectorAll("[role='grid']"));
@@ -1416,7 +1423,7 @@ describe("outsideDays", () => {
       const april5 = Temporal.PlainDate.from("2026-04-05");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march25, end: april5 }}
@@ -1425,7 +1432,7 @@ describe("outsideDays", () => {
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids = Array.from(container.querySelectorAll("[role='grid']"));
@@ -1459,14 +1466,14 @@ describe("outsideDays", () => {
       const feb15 = Temporal.PlainDate.from("2026-02-15");
 
       const { container, unmount } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           defaultValue={feb15}
           fixedWeeks
           outsideDays="hidden"
         >
           <Grid />
-        </Root>,
+        </MonthView>,
       );
 
       const rows = container.querySelectorAll("tbody tr");
@@ -1490,7 +1497,7 @@ describe("outsideDays", () => {
 
       // "disabled" — outside-month cells should NOT have range attrs
       const { container: c1, unmount: u1 } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march25, end: april5 }}
@@ -1499,7 +1506,7 @@ describe("outsideDays", () => {
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids1 = Array.from(c1.querySelectorAll("[role='grid']"));
@@ -1515,7 +1522,7 @@ describe("outsideDays", () => {
 
       // "readonly" — outside-month cells SHOULD have range attrs
       const { container: c2, unmount: u2 } = render(
-        <Root
+        <MonthView
           {...defaultProps}
           selectionMode="range"
           value={{ start: march25, end: april5 }}
@@ -1524,7 +1531,7 @@ describe("outsideDays", () => {
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
-        </Root>,
+        </MonthView>,
       );
 
       const grids2 = Array.from(c2.querySelectorAll("[role='grid']"));

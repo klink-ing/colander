@@ -1,12 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import type { RangeMode, OutsideDays } from "base-ui-cal";
-
-type ExampleId = "styled" | "anchor";
-
-export const EXAMPLES: { value: ExampleId; label: string }[] = [
-  { value: "styled", label: "Styled DatePicker" },
-  { value: "anchor", label: "Anchor-Positioned DatePicker" },
-];
+import type { RangeMode, OutsideDays, OverflowBehavior } from "base-ui-cal";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -42,7 +35,7 @@ export const TIMEZONES = [
 ];
 
 export const LOCALES = [
-  { value: "en-US", label: "English (US)" },
+  { value: "en-US", label: "English (US) (default)" },
   { value: "en-GB", label: "English (UK)" },
   { value: "de-DE", label: "Deutsch" },
   { value: "fr-FR", label: "Fran\u00e7ais" },
@@ -60,7 +53,7 @@ export const LOCALES = [
 ];
 
 export const WEEK_START_DAYS = [
-  { value: 0, label: "Sunday" },
+  { value: 0, label: "Sunday (default)" },
   { value: 1, label: "Monday" },
   { value: 2, label: "Tuesday" },
   { value: 3, label: "Wednesday" },
@@ -88,15 +81,17 @@ const labelClassName = "mb-1.5 block text-sm font-medium text-foreground";
 const checkboxClassName =
   "flex items-center gap-2 text-sm text-foreground cursor-pointer select-none";
 
+const sectionHeaderClassName =
+  "text-foreground text-xs font-semibold uppercase tracking-wide border-input border-t pt-3 mt-1";
+
 export interface AppControlsProps {
-  example: ExampleId;
-  setExample: (v: ExampleId) => void;
-  orientation: "horizontal" | "vertical";
-  setOrientation: (v: "horizontal" | "vertical") => void;
+  // Shared (CalendarProvider)
   selectionMode: "single" | "range" | "multiple";
   setSelectionMode: (v: "single" | "range" | "multiple") => void;
   rangeMode: RangeMode;
   setRangeMode: (v: RangeMode) => void;
+  preventRangeReversal: boolean;
+  setPreventRangeReversal: (v: boolean) => void;
   timeZone: string;
   handleTimeZoneChange: (v: string) => void;
   tzOptions: { value: string; label: string }[];
@@ -112,18 +107,32 @@ export interface AppControlsProps {
   setDisabled: (v: boolean) => void;
   readOnly: boolean;
   setReadOnly: (v: boolean) => void;
+
+  // Month View
+  numberOfMonths: number;
+  setNumberOfMonths: (v: number) => void;
   fixedWeeks: boolean;
   setFixedWeeks: (v: boolean) => void;
+  outsideDays: OutsideDays;
+  setOutsideDays: (v: OutsideDays) => void;
   autoFocus: boolean;
   setAutoFocus: (v: boolean) => void;
   showWeekNumbers: boolean;
   setShowWeekNumbers: (v: boolean) => void;
-  outsideDays: OutsideDays;
-  setOutsideDays: (v: OutsideDays) => void;
-  preventRangeReversal: boolean;
-  setPreventRangeReversal: (v: boolean) => void;
-  numberOfMonths: number;
-  setNumberOfMonths: (v: number) => void;
+  orientation: "horizontal" | "vertical";
+  setOrientation: (v: "horizontal" | "vertical") => void;
+
+  // Weeks View
+  weekCount: number;
+  setWeekCount: (v: number) => void;
+  scrollBy: "row" | "page";
+  setScrollBy: (v: "row" | "page") => void;
+  overflowBehavior: OverflowBehavior;
+  setOverflowBehavior: (v: OverflowBehavior) => void;
+  showMonthSeparators: boolean;
+  setShowMonthSeparators: (v: boolean) => void;
+
+  // State readout
   selectionDisplay: string;
   lastMonthChange: string;
 }
@@ -133,14 +142,12 @@ const toInputValue = (zdt: Temporal.ZonedDateTime) =>
 
 export function AppControls(props: AppControlsProps) {
   const {
-    example,
-    setExample,
-    orientation,
-    setOrientation,
     selectionMode,
     setSelectionMode,
     rangeMode,
     setRangeMode,
+    preventRangeReversal,
+    setPreventRangeReversal,
     timeZone,
     handleTimeZoneChange,
     tzOptions,
@@ -156,18 +163,26 @@ export function AppControls(props: AppControlsProps) {
     setDisabled,
     readOnly,
     setReadOnly,
+    numberOfMonths,
+    setNumberOfMonths,
     fixedWeeks,
     setFixedWeeks,
+    outsideDays,
+    setOutsideDays,
     autoFocus,
     setAutoFocus,
     showWeekNumbers,
     setShowWeekNumbers,
-    outsideDays,
-    setOutsideDays,
-    preventRangeReversal,
-    setPreventRangeReversal,
-    numberOfMonths,
-    setNumberOfMonths,
+    orientation,
+    setOrientation,
+    weekCount,
+    setWeekCount,
+    scrollBy,
+    setScrollBy,
+    overflowBehavior,
+    setOverflowBehavior,
+    showMonthSeparators,
+    setShowMonthSeparators,
     selectionDisplay,
     lastMonthChange,
   } = props;
@@ -176,44 +191,8 @@ export function AppControls(props: AppControlsProps) {
     <div className="flex w-64 shrink-0 flex-col gap-4">
       <h2 className="text-foreground text-lg font-semibold">Controls</h2>
 
-      {/* Example selector */}
-      <div>
-        <label htmlFor="example-select" className={labelClassName}>
-          Example
-        </label>
-        <select
-          id="example-select"
-          value={example}
-          onChange={(e) => setExample(e.target.value as ExampleId)}
-          className={selectClassName}
-        >
-          {EXAMPLES.map((ex) => (
-            <option key={ex.value} value={ex.value}>
-              {ex.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Orientation */}
-      {example === "styled" && (
-        <div>
-          <label htmlFor="orientation-select" className={labelClassName}>
-            Orientation
-          </label>
-          <select
-            id="orientation-select"
-            value={orientation}
-            onChange={(e) =>
-              setOrientation(e.target.value as "horizontal" | "vertical")
-            }
-            className={selectClassName}
-          >
-            <option value="horizontal">Horizontal (weeks as rows)</option>
-            <option value="vertical">Vertical (weeks as columns)</option>
-          </select>
-        </div>
-      )}
+      {/* ── CalendarProvider Options ── */}
+      <h3 className={sectionHeaderClassName}>CalendarProvider</h3>
 
       {/* Selection mode */}
       <div>
@@ -228,7 +207,7 @@ export function AppControls(props: AppControlsProps) {
           }
           className={selectClassName}
         >
-          <option value="single">Single</option>
+          <option value="single">Single (default)</option>
           <option value="range">Range</option>
           <option value="multiple">Multiple</option>
         </select>
@@ -246,7 +225,7 @@ export function AppControls(props: AppControlsProps) {
             onChange={(e) => setRangeMode(e.target.value as RangeMode)}
             className={selectClassName}
           >
-            <option value="start-end">Start → End</option>
+            <option value="start-end">Start → End (default)</option>
             <option value="nearest-end">Nearest (tie: End)</option>
             <option value="nearest-start">Nearest (tie: Start)</option>
             <option value="adjust-end">Adjust End</option>
@@ -254,6 +233,17 @@ export function AppControls(props: AppControlsProps) {
             <option value="reset">Reset to Single Day</option>
           </select>
         </div>
+      )}
+
+      {selectionMode === "range" && (
+        <label className={checkboxClassName}>
+          <input
+            type="checkbox"
+            checked={preventRangeReversal}
+            onChange={(e) => setPreventRangeReversal(e.target.checked)}
+          />
+          Prevent Range Reversal (drag)
+        </label>
       )}
 
       {/* Timezone */}
@@ -303,7 +293,9 @@ export function AppControls(props: AppControlsProps) {
           id="week-start-day"
           value={weekStartDay}
           onChange={(e) =>
-            setWeekStartDay(Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6)
+            setWeekStartDay(
+              Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+            )
           }
           className={selectClassName}
         >
@@ -344,7 +336,7 @@ export function AppControls(props: AppControlsProps) {
       </div>
 
       {/* Boolean toggles */}
-      <div className="border-input flex flex-col gap-2 border-t pt-3">
+      <div className="flex flex-col gap-2">
         <label className={checkboxClassName}>
           <input
             type="checkbox"
@@ -364,6 +356,55 @@ export function AppControls(props: AppControlsProps) {
         <label className={checkboxClassName}>
           <input
             type="checkbox"
+            checked={showWeekNumbers}
+            onChange={(e) => setShowWeekNumbers(e.target.checked)}
+          />
+          Week Numbers
+        </label>
+      </div>
+
+      {/* ── Month View Options ── */}
+      <h3 className={sectionHeaderClassName}>Month View</h3>
+
+      {/* Number of months */}
+      <div>
+        <label htmlFor="number-of-months" className={labelClassName}>
+          Number of Months
+        </label>
+        <select
+          id="number-of-months"
+          className={selectClassName}
+          value={numberOfMonths}
+          onChange={(e) => setNumberOfMonths(Number(e.target.value))}
+        >
+          <option value={1}>1 (default)</option>
+          <option value={2}>2</option>
+          <option value={3}>3</option>
+        </select>
+      </div>
+
+      {/* Orientation */}
+      <div>
+        <label htmlFor="orientation-select" className={labelClassName}>
+          Orientation
+        </label>
+        <select
+          id="orientation-select"
+          value={orientation}
+          onChange={(e) =>
+            setOrientation(e.target.value as "horizontal" | "vertical")
+          }
+          className={selectClassName}
+        >
+          <option value="horizontal">Horizontal (weeks as rows) (default)</option>
+          <option value="vertical">Vertical (weeks as columns)</option>
+        </select>
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <label className={checkboxClassName}>
+          <input
+            type="checkbox"
             checked={fixedWeeks}
             onChange={(e) => setFixedWeeks(e.target.checked)}
           />
@@ -377,14 +418,6 @@ export function AppControls(props: AppControlsProps) {
           />
           Auto Focus
         </label>
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={showWeekNumbers}
-            onChange={(e) => setShowWeekNumbers(e.target.checked)}
-          />
-          Week Numbers
-        </label>
         <div>
           <label htmlFor="outside-days" className={labelClassName}>
             Outside Days
@@ -395,44 +428,83 @@ export function AppControls(props: AppControlsProps) {
             onChange={(e) => setOutsideDays(e.target.value as OutsideDays)}
             className={selectClassName}
           >
-            <option value="enabled">Enabled</option>
+            <option value="enabled">Enabled (default)</option>
             <option value="readonly">Read-only</option>
             <option value="disabled">Disabled</option>
             <option value="hidden">Hidden</option>
           </select>
         </div>
-        {selectionMode === "range" && (
-          <label className={checkboxClassName}>
-            <input
-              type="checkbox"
-              checked={preventRangeReversal}
-              onChange={(e) => setPreventRangeReversal(e.target.checked)}
-            />
-            Prevent Range Reversal (drag)
-          </label>
-        )}
       </div>
 
-      {/* Number of months */}
+      {/* ── Weeks View Options ── */}
+      <h3 className={sectionHeaderClassName}>Weeks View</h3>
+
+      {/* Week count */}
       <div>
-        <label htmlFor="number-of-months" className={labelClassName}>
-          Number of Months
+        <label htmlFor="week-count" className={labelClassName}>
+          Week Count
         </label>
         <select
-          id="number-of-months"
+          id="week-count"
           className={selectClassName}
-          value={numberOfMonths}
-          onChange={(e) => setNumberOfMonths(Number(e.target.value))}
+          value={weekCount}
+          onChange={(e) => setWeekCount(Number(e.target.value))}
         >
-          {[1, 2, 3].map((n) => (
-            <option key={n} value={n}>
-              {n}
-            </option>
-          ))}
+          <option value={4}>4</option>
+          <option value={6}>6 (default)</option>
+          <option value={8}>8</option>
+          <option value={10}>10</option>
+          <option value={12}>12</option>
         </select>
       </div>
 
-      {/* State readout */}
+      {/* Scroll by */}
+      <div>
+        <label htmlFor="scroll-by" className={labelClassName}>
+          Scroll By
+        </label>
+        <select
+          id="scroll-by"
+          className={selectClassName}
+          value={scrollBy}
+          onChange={(e) => setScrollBy(e.target.value as "row" | "page")}
+        >
+          <option value="row">Row (one week) (default)</option>
+          <option value="page">Page (all visible)</option>
+        </select>
+      </div>
+
+      {/* Overflow behavior */}
+      <div>
+        <label htmlFor="overflow-behavior" className={labelClassName}>
+          Overflow Behavior
+        </label>
+        <select
+          id="overflow-behavior"
+          className={selectClassName}
+          value={overflowBehavior}
+          onChange={(e) =>
+            setOverflowBehavior(e.target.value as OverflowBehavior)
+          }
+        >
+          <option value="unbounded">Unbounded (default)</option>
+          <option value="stop">Stop</option>
+          <option value="stop-shrink">Stop + Shrink</option>
+          <option value="snap">Snap</option>
+          <option value="snap-shrink">Snap + Shrink</option>
+        </select>
+      </div>
+
+      <label className={checkboxClassName}>
+        <input
+          type="checkbox"
+          checked={showMonthSeparators}
+          onChange={(e) => setShowMonthSeparators(e.target.checked)}
+        />
+        Month Separators
+      </label>
+
+      {/* ── State Readout ── */}
       <div className="border-input border-t pt-3">
         <h3 className="text-foreground mb-2 text-sm font-semibold">State</h3>
         <div className="text-muted-foreground text-xs">

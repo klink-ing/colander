@@ -2,11 +2,9 @@ import { useContext, useMemo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import {
-  useDatePickerStable,
-  useDatePickerState,
-  WeekDataContext,
-} from "./context";
+import { useCalendarStable } from "./calendar-context";
+import { useMonthViewState } from "./month-view-context";
+import { WeekDataContext } from "./context";
 import { getISOWeekNumber } from "./utils";
 import type {
   ValueFormat,
@@ -30,8 +28,8 @@ export function WeekNumberCell<F extends ValueFormat = ValueFormat>(
 ) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
-  const { rootState } = useDatePickerState();
-  const { temporal: T } = useDatePickerStable();
+  const { rootState } = useMonthViewState();
+  const { temporal: T } = useCalendarStable();
 
   const days = weekData?.days ?? [];
 
@@ -84,7 +82,7 @@ export function WeekNumberHeader<F extends ValueFormat = ValueFormat>(
   props: WeekNumberHeaderProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { ref, render, ...otherProps } = props;
-  const { rootState } = useDatePickerState();
+  const { rootState } = useMonthViewState();
 
   const state = useMemo<WeekNumberHeaderState<F>>(
     () => ({ root: rootState as unknown as WeekNumberHeaderState<F>["root"] }),

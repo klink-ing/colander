@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll } from "vitest";
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 import { render, act, fireEvent } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
-import { Root } from "./root";
+import { MonthView } from "./month-view";
 import { Grid } from "./grid";
 
 type RenderEntry = {
@@ -74,9 +74,9 @@ function p95(values: number[]): number {
 describe("Grid event dispatch profiling", () => {
   beforeAll(() => {
     const { unmount } = render(
-      <Root {...defaultProps} defaultValue={march15}>
+      <MonthView {...defaultProps} defaultValue={march15}>
         <Grid />
-      </Root>,
+      </MonthView>,
     );
     unmount();
   });
@@ -89,9 +89,9 @@ describe("Grid event dispatch profiling", () => {
 
       const { container, unmount } = render(
         <Profiler id="click-event" onRender={onRender}>
-          <Root {...defaultProps} defaultValue={march15}>
+          <MonthView {...defaultProps} defaultValue={march15}>
             <Grid />
-          </Root>
+          </MonthView>
         </Profiler>,
       );
 
@@ -130,13 +130,13 @@ describe("Grid event dispatch profiling", () => {
 
       const { container, unmount } = render(
         <Profiler id="hover-event" onRender={onRender}>
-          <Root
+          <MonthView
             {...defaultProps}
             selectionMode="range"
             value={{ start: march10, end: march20 }}
           >
             <Grid />
-          </Root>
+          </MonthView>
         </Profiler>,
       );
 
@@ -175,13 +175,13 @@ describe("Grid event dispatch profiling", () => {
 
       const { container, unmount } = render(
         <Profiler id="sweep-event" onRender={onRender}>
-          <Root
+          <MonthView
             {...defaultProps}
             selectionMode="range"
             value={{ start: march10, end: march20 }}
           >
             <Grid />
-          </Root>
+          </MonthView>
         </Profiler>,
       );
 
@@ -227,13 +227,13 @@ describe("Grid event dispatch profiling", () => {
       // Mount with a committed range, then click a day to start a new selection
       const { container, unmount } = render(
         <Profiler id="range-click" onRender={onRender}>
-          <Root
+          <MonthView
             {...defaultProps}
             selectionMode="range"
             defaultValue={{ start: march10, end: march15 }}
           >
             <Grid />
-          </Root>
+          </MonthView>
         </Profiler>,
       );
 
@@ -273,9 +273,9 @@ describe("Grid event dispatch profiling", () => {
 
       const { unmount } = render(
         <Profiler id="mount-cost" onRender={onRender}>
-          <Root {...defaultProps} defaultValue={march15}>
+          <MonthView {...defaultProps} defaultValue={march15}>
             <Grid />
-          </Root>
+          </MonthView>
         </Profiler>,
       );
 

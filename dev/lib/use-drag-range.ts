@@ -10,7 +10,7 @@
 
 import { useContext, useEffect, useRef, useState } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
-import { useDatePicker, DayCellDataContext } from "base-ui-cal";
+import { useCalendarStable, useCalendarState, DayCellDataContext } from "base-ui-cal";
 import type { TemporalNamespace } from "base-ui-cal";
 
 export const DRAG_TYPE = "date-range-handle";
@@ -40,7 +40,8 @@ export function useDragHandleDnD({
   preventRangeReversal = false,
 }: UseDragHandleDnDOptions) {
   const allowRangeReversal = !preventRangeReversal;
-  const { rangeStart, rangeEnd, setRange, temporal: T } = useDatePicker();
+  const { setRange, temporal: T } = useCalendarStable();
+  const { rangeStart, rangeEnd } = useCalendarState();
   const cellData = useContext(DayCellDataContext);
   const date = cellData?.date;
 

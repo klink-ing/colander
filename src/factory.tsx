@@ -1,5 +1,5 @@
 import { type ComponentProps } from "react";
-import { Root } from "./root";
+import { MonthView } from "./month-view";
 import {
   Grid,
   GridHeader,
@@ -32,10 +32,14 @@ export function createDatePicker<F extends ValueFormat>(
   options?: CreateDatePickerOptions,
 ) {
   const TypedRoot = (
-    props: Omit<ComponentProps<typeof Root<F>>, "format" | "temporal">,
+    props: Omit<ComponentProps<typeof MonthView<F>>, "format" | "temporal">,
   ) => {
     return (
-      <Root {...(props as any)} format={format} temporal={options?.temporal} />
+      <MonthView
+        {...(props as any)}
+        format={format}
+        temporal={options?.temporal}
+      />
     );
   };
 

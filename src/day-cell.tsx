@@ -2,9 +2,11 @@ import { useContext, useEffect, useRef, memo } from "react";
 import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
 import type { Temporal as TemporalPoly } from "@js-temporal/polyfill";
+import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { MonthViewStableContext } from "./month-view-context";
+import { useMonthViewState } from "./month-view-context";
+import { useViewContext } from "./view-context";
 import {
-  useDatePickerStable,
-  useDatePickerState,
   WeekDataContext,
   DayCellDataContext,
   GridContext,
@@ -352,30 +354,36 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
   const weekData = useContext(WeekDataContext);
 
   const {
-    selectedDates,
-    currentDateTime,
-    focusedDate,
-    rangeStart,
-    rangeEnd,
-    tabTargetDate,
-    rootState,
-    weeks,
-    previewStart,
-    previewEnd,
-  } = useDatePickerState();
-
-  // Use the grid-specific month for outsideMonth checks, falling back to currentDateTime.
-  // In multi-month mode, gridMonth is set by WeekTemplate from GridMonthContext.
-  const cellMonth = weekData?.gridMonth ?? currentDateTime;
-
-  const {
     disabled,
     isDateDisabled,
     selectionMode,
     temporal: T,
     weekStartDay,
-    outsideDays,
-  } = useDatePickerStable();
+  } = useCalendarStable();
+
+  const {
+    selectedDates,
+    rangeStart,
+    rangeEnd,
+    previewStart,
+    previewEnd,
+  } = useCalendarState();
+
+  const viewCtx = useViewContext();
+  const { focusedDate, tabTargetDate } = viewCtx;
+
+  const monthStable = useContext(MonthViewStableContext);
+  const monthState = useMonthViewState();
+  const { rootState, weeks, currentMonth: currentDateTime } = monthState;
+  const outsideDays = monthStable?.outsideDays ?? "enabled";
+
+  // Use the grid-specific month for outsideMonth checks, falling back to currentMonth.
+  // In multi-month mode, gridMonth is set by WeekTemplate from GridMonthContext.
+  // In weeks view, cellMonth is computed per-day (see below) so outsideMonth is always false.
+  const isWeeksView = viewCtx.viewType === "weeks";
+  const cellMonth = isWeeksView
+    ? null // per-day below
+    : (weekData?.gridMonth ?? currentDateTime);
 
   const { orientation } = useContext(GridContext);
 
@@ -390,7 +398,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       colIdx,
       rootState,
       selectedDates,
-      cellMonth,
+      isWeeksView ? { year: dateProp.year, month: dateProp.month } : cellMonth!,
       disabled,
       isDateDisabled,
       focusedDate,
@@ -429,7 +437,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           colIdx,
           rootState,
           selectedDates,
-          cellMonth,
+          isWeeksView ? { year: day.year, month: day.month } : cellMonth!,
           disabled,
           isDateDisabled,
           focusedDate,
@@ -471,12 +479,13 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   const { ref, render, date, _derivedState, ...otherProps } = props;
   const {
     onSelect,
-    setFocusedDate,
     locale,
-    gridFocusedRef,
     readOnly,
     setHoveredDate,
-  } = useDatePickerStable();
+  } = useCalendarStable();
+  const { setFocusedDate } = useViewContext();
+  const monthStable = useContext(MonthViewStableContext);
+  const gridFocusedRef = monthStable!.gridFocusedRef;
 
   const internalRef = useRef<HTMLButtonElement>(null);
 
@@ -622,26 +631,30 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
   const { orientation } = useContext(GridContext);
   const weekData = useContext(WeekDataContext);
   const {
-    selectedDates,
-    currentDateTime,
-    focusedDate,
-    rangeStart,
-    rangeEnd,
-    tabTargetDate,
-    rootState,
-    previewStart,
-    previewEnd,
-  } = useDatePickerState();
-  const {
     disabled,
     isDateDisabled,
     selectionMode,
     temporal: T,
     weekStartDay,
-    outsideDays,
-  } = useDatePickerStable();
+  } = useCalendarStable();
+  const {
+    selectedDates,
+    rangeStart,
+    rangeEnd,
+    previewStart,
+    previewEnd,
+  } = useCalendarState();
+  const viewCtx = useViewContext();
+  const { focusedDate, tabTargetDate } = viewCtx;
+  const monthStable = useContext(MonthViewStableContext);
+  const monthState = useMonthViewState();
+  const { rootState, currentMonth: currentDateTime } = monthState;
+  const outsideDays = monthStable?.outsideDays ?? "enabled";
 
-  const cellMonth = weekData?.gridMonth ?? currentDateTime;
+  const isWeeksView = viewCtx.viewType === "weeks";
+  const cellMonth = isWeeksView
+    ? { year: date.year, month: date.month }
+    : (weekData?.gridMonth ?? currentDateTime);
   const daysInWeek = date.daysInWeek;
   const colIdx =
     ((date.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;

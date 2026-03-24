@@ -1,54 +1,5 @@
-import { createContext, useContext } from "react";
+import { createContext } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
-import type {
-  DatePickerStableContextValue,
-  DatePickerStateContextValue,
-  DatePickerContextValue,
-  ValueFormat,
-  RootState,
-} from "./types";
-
-/** @internal React context carrying stable DatePicker values (callbacks, config, refs). */
-export const DatePickerStableContext =
-  createContext<DatePickerStableContextValue | null>(null);
-
-/** @internal React context carrying volatile DatePicker state. */
-export const DatePickerStateContext =
-  createContext<DatePickerStateContextValue | null>(null);
-
-const ERROR_MSG =
-  "DatePicker compound components must be used within DatePicker.Root";
-
-/** Returns only the stable (callbacks/config) part of DatePicker context. */
-export function useDatePickerStable() {
-  const ctx = useContext(DatePickerStableContext);
-  if (!ctx) throw new Error(ERROR_MSG);
-  return ctx;
-}
-
-/** Returns only the volatile state part of DatePicker context. */
-export function useDatePickerState() {
-  const ctx = useContext(DatePickerStateContext);
-  if (!ctx) throw new Error(ERROR_MSG);
-  return ctx;
-}
-
-/**
- * Returns the nearest `DatePicker.Root` context (combined stable + state).
- *
- * @throws If called outside a `DatePicker.Root` tree.
- */
-export function useDatePicker<F extends ValueFormat = ValueFormat>() {
-  const stable = useDatePickerStable();
-  const state = useDatePickerState();
-  const combined = { ...stable, ...state } as unknown as Omit<
-    DatePickerContextValue,
-    "rootState"
-  > & {
-    rootState: RootState<F>;
-  };
-  return combined;
-}
 
 /** @internal Provides the days and index of the current week row to child components. */
 export const WeekDataContext = createContext<{
@@ -56,6 +7,8 @@ export const WeekDataContext = createContext<{
   weekIndex: number;
   /** The year/month this week belongs to (for outsideMonth checks in multi-month). */
   gridMonth?: { year: number; month: number };
+  /** 1-based CSS grid row index for this week row (WeeksView only). */
+  gridRow?: number;
 } | null>(null);
 
 /** Layout direction for the calendar grid. */

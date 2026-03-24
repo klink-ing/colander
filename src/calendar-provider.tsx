@@ -1,27 +1,23 @@
-import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { Temporal } from "@js-temporal/polyfill";
 import type {
-  DatePickerStableContextValue,
-  DatePickerStateContextValue,
+  CalendarProviderProps,
+  CalendarStableContextValue,
+  CalendarStateContextValue,
+} from "./calendar-types";
+import {
+  CalendarStableContext,
+  CalendarStateContext,
+} from "./calendar-context";
+import type {
   DateRange,
   DateValueObject,
-  MonthData,
   RangeMode,
   RawValueForFormat,
-  RootState,
   ValueChangeMeta,
   ValueFormat,
 } from "./types";
-import {
-  calendarForLocale,
-  computeAdjacentMonth,
-  focusedDateForMonth,
-  fromZonedDateTime,
-  getMonthWeeks,
-  resolveFocusTarget,
-  selectedToZdt,
-  toZonedDateTime,
-} from "./utils";
+import { fromZonedDateTime, toZonedDateTime, selectedToZdt } from "./utils";
 import {
   isDateRange,
   tagRaw,
@@ -29,32 +25,45 @@ import {
   computeSetRangeUpdate,
   truncateDatesForMode,
   type SelectionResult,
-  type UseRootStateParams,
 } from "./root-selection";
+import { getSystemTimeZone, resolveTemporal } from "./utils";
 
-export function useRootState<F extends ValueFormat>(
-  params: UseRootStateParams<F>,
+/**
+ * Provides shared calendar state (selection, config, range preview) to all
+ * descendant view components. Does NOT manage focus, navigation, or grid data.
+ */
+function CalendarProvider<F extends ValueFormat = "PlainDate">(
+  props: CalendarProviderProps<F>,
 ) {
   const {
-    format: resolvedFormat,
-    selectionMode,
-    value: valueProp,
-    defaultValue: defaultValueProp,
-    onValueChange,
+    format: formatProp,
+    selectionMode: selectionModeProp,
     min,
     max,
     disabled: disabledProp,
     readOnly: readOnlyProp,
     isDateDisabled: isDateDisabledProp,
-    timeZone,
-    locale,
-    temporal: T,
-    onMonthChange,
-  } = params;
+    timeZone: timeZoneProp,
+    locale: localeProp,
+    temporal: temporalProp,
+    weekStartDay: weekStartDayProp,
+    children,
+  } = props;
 
+  // --- Resolve defaults ---
+  const T = resolveTemporal(temporalProp);
+  const locale = localeProp ?? "en-US";
+  const timeZone = timeZoneProp ?? getSystemTimeZone(T);
+  const weekStartDay = weekStartDayProp ?? 0;
+  const resolvedFormat = (formatProp ?? "PlainDate") as F;
+  const selectionMode = selectionModeProp ?? "single";
+  const disabled = disabledProp ?? false;
+  const readOnly = readOnlyProp ?? false;
+
+  // --- Extract mode-specific props ---
   const rangeParams =
     selectionMode === "range"
-      ? (params as Extract<UseRootStateParams<F>, { selectionMode: "range" }>)
+      ? (props as Extract<CalendarProviderProps<F>, { selectionMode: "range" }>)
       : undefined;
 
   const rangeMode: RangeMode = rangeParams?.rangeMode ?? "nearest-end";
@@ -62,12 +71,14 @@ export function useRootState<F extends ValueFormat>(
   const previewRangeProp = rangeParams?.previewRange;
   const onHoveredDateChange = rangeParams?.onHoveredDateChange;
 
-  const disabled = disabledProp ?? false;
-  const readOnly = readOnlyProp ?? false;
   const isRange = selectionMode === "range";
   const isMultiple = selectionMode === "multiple";
 
-  // Extract mode-specific value/default, preserving `null` for controlled-empty.
+  // --- Value/defaultValue extraction ---
+  const valueProp = (props as any).value;
+  const defaultValueProp = (props as any).defaultValue;
+  const onValueChange = (props as any).onValueChange;
+
   const singleValue: RawValueForFormat<F> | null | undefined =
     !isRange && !isMultiple
       ? (valueProp as RawValueForFormat<F> | null | undefined)
@@ -95,24 +106,21 @@ export function useRootState<F extends ValueFormat>(
     ? valueProp === null
       ? null
       : Array.isArray(valueProp)
-        ? valueProp
+        ? (valueProp as RawValueForFormat<F>[])
         : undefined
     : undefined;
   const multipleDefault: RawValueForFormat<F>[] | undefined =
     isMultiple && Array.isArray(defaultValueProp)
-      ? defaultValueProp
+      ? (defaultValueProp as RawValueForFormat<F>[])
       : undefined;
 
+  // --- Tagged values ---
   const taggedValue = useMemo(
     () => tagRaw(singleValue ?? undefined, resolvedFormat),
     [singleValue, resolvedFormat],
   );
 
-  const taggedDefault = useMemo(
-    () => tagRaw(singleDefault, resolvedFormat),
-    [singleDefault, resolvedFormat],
-  );
-
+  // --- Min/Max resolution ---
   const minValue: Temporal.PlainDate | undefined = useMemo(() => {
     if (min == null) return undefined;
     const tagged = { format: resolvedFormat, value: min } as DateValueObject;
@@ -125,6 +133,7 @@ export function useRootState<F extends ValueFormat>(
     return toZonedDateTime(tagged, timeZone, T).toPlainDate();
   }, [max, resolvedFormat, timeZone, T]);
 
+  // --- isDateDisabled ---
   const isDateDisabled = useCallback(
     (date: Temporal.PlainDate): boolean => {
       if (disabled) return true;
@@ -135,6 +144,7 @@ export function useRootState<F extends ValueFormat>(
     [disabled, minValue, maxValue, isDateDisabledProp, T],
   );
 
+  // --- Helpers ---
   const rawToPlain = useCallback(
     (raw: RawValueForFormat<F>): Temporal.PlainDate => {
       const tagged = { format: resolvedFormat, value: raw } as DateValueObject;
@@ -149,13 +159,13 @@ export function useRootState<F extends ValueFormat>(
     [T],
   );
 
-  /** Maximum number of dates the current mode allows. */
   const maxDatesForMode = isMultiple
     ? Number.POSITIVE_INFINITY
     : isRange
       ? 2
       : 1;
 
+  // --- Controlled/Uncontrolled dates ---
   const controlledDates = useMemo<
     (Temporal.PlainDate | null)[] | undefined
   >(() => {
@@ -171,7 +181,6 @@ export function useRootState<F extends ValueFormat>(
           rangeValue.start != null ? rawToPlain(rangeValue.start) : null;
         const end = rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
         if (start === null && end === null) return [];
-        // Normalize {start: null, end} → [end, null] (pending start)
         if (start === null && end !== null) return [end, null];
         return [start, end];
       }
@@ -201,28 +210,17 @@ export function useRootState<F extends ValueFormat>(
       const end =
         rangeDefault.end != null ? rawToPlain(rangeDefault.end) : null;
       if (start === null && end === null) return [];
-      // Normalize {start: null, end} → [end, null] (pending start)
       if (start === null && end !== null) return [end, null];
       return [start, end];
     }
     if (singleDefault != null) return [rawToPlain(singleDefault)];
     return [];
-  }, [
-    isMultiple,
-    multipleDefault,
-    rangeDefault,
-    singleDefault,
-    rawToPlain,
-    sortDates,
-  ]);
+  }, [isMultiple, multipleDefault, rangeDefault, singleDefault, rawToPlain, sortDates]);
 
   const [internalDates, setInternalDates] =
     useState<(Temporal.PlainDate | null)[]>(defaultDates);
 
-  // `controlledDates === undefined` means the value prop was not provided (uncontrolled).
-  // `controlledDates` being an array (even empty) means controlled mode — `null` maps to `[]`.
   const isControlled = controlledDates !== undefined;
-
   const committedDates = isControlled ? controlledDates : internalDates;
 
   const rangeStart =
@@ -267,13 +265,11 @@ export function useRootState<F extends ValueFormat>(
     [resolvedFormat, timeZone, T],
   );
 
-  /** Commit a selection result: update internal state + fire callback.
-   * In controlled mode, internal state is kept empty (the parent owns it). */
+  // --- Commit selection ---
   const commitSelection = useCallback(
     (result: SelectionResult<F>) => {
       if (result.skip) return;
       if (isControlled) {
-        // Controlled: never store internal state, proactively clear if stale
         setInternalDates((prev) => (prev.length === 0 ? prev : []));
       } else {
         setInternalDates(result.newDates);
@@ -283,7 +279,7 @@ export function useRootState<F extends ValueFormat>(
     [isControlled, onValueChange, plainToFormatValue],
   );
 
-  /** Build the current formatted single value (for "previous" in meta). */
+  // --- Current formatted values (for "previous" in meta) ---
   const currentSingleFormatted =
     useCallback((): RawValueForFormat<F> | null => {
       if (committedDates.length === 0) return null;
@@ -291,7 +287,6 @@ export function useRootState<F extends ValueFormat>(
       return first != null ? plainToFormatValue(first) : null;
     }, [committedDates, plainToFormatValue]);
 
-  /** Build the current formatted range (for "previous" in meta). */
   const currentRangeFormatted = useCallback((): DateRange<F> | null => {
     if (!committedStart && !committedEnd) return null;
     return {
@@ -300,7 +295,6 @@ export function useRootState<F extends ValueFormat>(
     } as DateRange<F>;
   }, [committedStart, committedEnd, plainToFormatValue]);
 
-  /** Build the current formatted multiple value (for "previous" in meta). */
   const currentMultipleFormatted = useCallback(
     (): RawValueForFormat<F>[] =>
       committedDates
@@ -309,11 +303,27 @@ export function useRootState<F extends ValueFormat>(
     [committedDates, plainToFormatValue],
   );
 
+  // --- Selected value (tagged) ---
+  const selected: DateValueObject | undefined = useMemo(() => {
+    if (taggedValue) return taggedValue;
+    if (committedDates.length === 0) return undefined;
+    const first = committedDates[0];
+    if (!first) return undefined;
+    const zdt = first
+      .toPlainDateTime({ hour: 0, minute: 0, second: 0 })
+      .toZonedDateTime(timeZone);
+    return fromZonedDateTime(zdt, resolvedFormat, T);
+  }, [taggedValue, committedDates, timeZone, resolvedFormat, T]);
+
+  const selectedZdt = useMemo(
+    () => selectedToZdt(selected, timeZone, T),
+    [selected, timeZone, T],
+  );
+
   // --- Compute preview range ---
   const [previewStart, previewEnd] = useMemo<
     [Temporal.PlainDate | undefined, Temporal.PlainDate | undefined]
   >(() => {
-    // Controlled preview overrides internal derivation
     if (previewRangeProp !== undefined) {
       if (!previewRangeProp) return [undefined, undefined];
       const rawToPlainLocal = (
@@ -335,7 +345,6 @@ export function useRootState<F extends ValueFormat>(
           : undefined;
       return [s, e];
     }
-    // Derive from hoveredDate by simulating what a click would produce
     if (!hoveredDate || !isRange) return [undefined, undefined];
     const result = computeSelectionUpdate<F>({
       date: hoveredDate,
@@ -383,8 +392,7 @@ export function useRootState<F extends ValueFormat>(
     T,
   ]);
 
-  // Auto-truncate internal dates when selection mode changes.
-  // In controlled mode, truncation is the parent's responsibility.
+  // --- Auto-truncate internal dates on mode change ---
   const prevModeRef = useRef(selectionMode);
   useEffect(() => {
     if (prevModeRef.current === selectionMode) return;
@@ -407,122 +415,7 @@ export function useRootState<F extends ValueFormat>(
     isControlled,
   ]);
 
-  const initSrc = useMemo(() => {
-    if (taggedValue) return taggedValue;
-    if (taggedDefault) return taggedDefault;
-    if (rangeValue) {
-      const src = rangeValue.start ?? rangeValue.end;
-      if (src != null)
-        return { format: resolvedFormat, value: src } as DateValueObject;
-    }
-    if (rangeDefault) {
-      const src = rangeDefault.start ?? rangeDefault.end;
-      if (src != null)
-        return { format: resolvedFormat, value: src } as DateValueObject;
-    }
-    if (multipleValue && multipleValue.length > 0)
-      return {
-        format: resolvedFormat,
-        value: multipleValue[0],
-      } as DateValueObject;
-    if (multipleDefault && multipleDefault.length > 0)
-      return {
-        format: resolvedFormat,
-        value: multipleDefault[0],
-      } as DateValueObject;
-    return undefined;
-  }, [
-    taggedValue,
-    taggedDefault,
-    rangeValue,
-    rangeDefault,
-    multipleValue,
-    multipleDefault,
-    resolvedFormat,
-  ]);
-
-  const [currentMonth, setCurrentMonth] = useState<{
-    year: number;
-    month: number;
-  }>(() => {
-    const init = initSrc
-      ? toZonedDateTime(initSrc, timeZone, T)
-      : T.Now.zonedDateTimeISO(timeZone);
-    return { year: init.year, month: init.month };
-  });
-
-  const [gridLabelIds, setGridLabelIds] = useState<Record<number, string>>({});
-  const setGridLabelId = useCallback(
-    (monthIndex: number, id: string | undefined) => {
-      setGridLabelIds((prev) => {
-        if (id === undefined) {
-          if (!(monthIndex in prev)) return prev;
-          const next = { ...prev };
-          delete next[monthIndex];
-          return next;
-        }
-        if (prev[monthIndex] === id) return prev;
-        return { ...prev, [monthIndex]: id };
-      });
-    },
-    [],
-  );
-  const gridFocusedRef = useRef(false);
-  const [gridHasFocus, setGridHasFocus] = useState(false);
-
-  const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
-    if (initSrc) {
-      return toZonedDateTime(initSrc, timeZone, T).toPlainDate();
-    }
-    return T.Now.plainDateISO();
-  });
-
-  const selected: DateValueObject | undefined = useMemo(() => {
-    if (taggedValue) return taggedValue;
-    if (committedDates.length === 0) return undefined;
-    const first = committedDates[0];
-    if (!first) return undefined;
-    const zdt = first
-      .toPlainDateTime({ hour: 0, minute: 0, second: 0 })
-      .toZonedDateTime(timeZone);
-    return fromZonedDateTime(zdt, resolvedFormat, T);
-  }, [taggedValue, committedDates, timeZone, resolvedFormat, T]);
-
-  const selectedZdt = useMemo(
-    () => selectedToZdt(selected, timeZone, T),
-    [selected, timeZone, T],
-  );
-
-  /** Shift currentMonth only if the target month isn't already visible. */
-  const navigateToMonth = useCallback(
-    (targetYear: number, targetMonth: number) => {
-      setCurrentMonth((prev) => {
-        const n = params.numberOfMonths;
-        for (let i = 0; i < n; i++) {
-          const totalMonths = prev.year * 12 + (prev.month - 1) + i;
-          const y = Math.floor(totalMonths / 12);
-          const m = (totalMonths % 12) + 1;
-          if (targetYear === y && targetMonth === m) {
-            return prev; // Already visible
-          }
-        }
-        return { year: targetYear, month: targetMonth };
-      });
-    },
-    [params.numberOfMonths],
-  );
-
-  useEffect(() => {
-    if (taggedValue) {
-      const zdt = toZonedDateTime(taggedValue, timeZone, T);
-      navigateToMonth(zdt.year, zdt.month);
-    }
-  }, [taggedValue, timeZone, T, navigateToMonth]);
-
-  useEffect(() => {
-    navigateToMonth(focusedDate.year, focusedDate.month);
-  }, [focusedDate, navigateToMonth]);
-
+  // --- Out-of-bounds cleanup for single mode ---
   useEffect(() => {
     if (isRange || isMultiple) return;
     const start = committedStart;
@@ -557,6 +450,7 @@ export function useRootState<F extends ValueFormat>(
     isMultiple,
   ]);
 
+  // --- onSelect ---
   const onSelect = useCallback(
     (date: Temporal.PlainDate) => {
       const result = computeSelectionUpdate<F>({
@@ -581,9 +475,7 @@ export function useRootState<F extends ValueFormat>(
       });
       if (result.skip) return;
       commitSelection(result);
-      // Clear hover preview when selection changes
       if (isRange) setHoveredDateRaw(undefined);
-      if (!isMultiple) navigateToMonth(date.year, date.month);
     },
     [
       readOnly,
@@ -604,10 +496,10 @@ export function useRootState<F extends ValueFormat>(
       currentSingleFormatted,
       currentRangeFormatted,
       currentMultipleFormatted,
-      navigateToMonth,
     ],
   );
 
+  // --- setRange ---
   const setRange = useCallback(
     (start: Temporal.PlainDate, end: Temporal.PlainDate) => {
       const result = computeSetRangeUpdate<F>({
@@ -638,175 +530,17 @@ export function useRootState<F extends ValueFormat>(
     ],
   );
 
-  const goToNextMonth = useCallback(() => {
-    setCurrentMonth((m) => {
-      const { year, month, firstDay } = computeAdjacentMonth(m, "next", T);
-      setFocusedDate((prev) =>
-        focusedDateForMonth(prev, { year, month }, firstDay),
-      );
-      return { year, month };
-    });
-  }, [T]);
-
-  const goToPrevMonth = useCallback(() => {
-    setCurrentMonth((m) => {
-      const { year, month, firstDay } = computeAdjacentMonth(m, "prev", T);
-      setFocusedDate((prev) =>
-        focusedDateForMonth(prev, { year, month }, firstDay),
-      );
-      return { year, month };
-    });
-  }, [T]);
-
-  const allMonths = useMemo<MonthData[]>(() => {
-    const opts = {
-      weekStartDay: params.weekStartDay,
-      fixedWeeks: params.fixedWeeks,
-    };
-    const result: MonthData[] = [];
-    for (let i = 0; i < params.numberOfMonths; i++) {
-      const totalMonths = currentMonth.year * 12 + (currentMonth.month - 1) + i;
-      const y = Math.floor(totalMonths / 12);
-      const m = (totalMonths % 12) + 1;
-      result.push({ year: y, month: m, weeks: getMonthWeeks(y, m, T, opts) });
-    }
-    return result;
-  }, [
-    currentMonth.year,
-    currentMonth.month,
-    T,
-    params.weekStartDay,
-    params.fixedWeeks,
-    params.numberOfMonths,
-  ]);
-
-  const weeks = allMonths[0].weeks;
-
-  const currentDateTime = useMemo<Temporal.PlainDateTime>(
-    () =>
-      T.PlainDateTime.from(
-        {
-          year: currentMonth.year,
-          month: currentMonth.month,
-          day: focusedDate.day,
-          hour: selectedZdt?.hour ?? 0,
-          minute: selectedZdt?.minute ?? 0,
-          second: selectedZdt?.second ?? 0,
-        },
-        { overflow: "constrain" },
-      ),
-    [currentMonth, focusedDate.day, selectedZdt, T.PlainDateTime.from],
-  );
-
-  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
-
-  const viewingYearMonth = useMemo(
-    () =>
-      T.PlainYearMonth.from({
-        year: currentMonth.year,
-        month: currentMonth.month,
-        calendar: localeCalendar,
-      }),
-    [currentMonth, T, localeCalendar],
-  );
-
-  const rawSelected = useMemo(
-    () => (selected ? (selected.value as RawValueForFormat<F>) : undefined),
-    [selected],
-  );
-
+  // --- Selected dates (non-null) ---
   const nonNullDates = useMemo(
     () => committedDates.filter((d): d is Temporal.PlainDate => d != null),
     [committedDates],
   );
 
-  const rawSelectedDates = useMemo(
-    () => nonNullDates.map(plainToFormatValue),
-    [nonNullDates, plainToFormatValue],
-  );
-
-  const rawRangeStart = useMemo(
-    () => (rangeStart ? plainToFormatValue(rangeStart) : undefined),
-    [rangeStart, plainToFormatValue],
-  );
-
-  const rawRangeEnd = useMemo(
-    () => (rangeEnd ? plainToFormatValue(rangeEnd) : undefined),
-    [rangeEnd, plainToFormatValue],
-  );
-
-  const state = useMemo<RootState<F>>(
-    () => ({
-      hasSelection: nonNullDates.length > 0,
-      selected: rawSelected,
-      selectedDates: rawSelectedDates,
-      rangeStart: rawRangeStart,
-      rangeEnd: rawRangeEnd,
-      focused: focusedDate,
-      viewing: viewingYearMonth,
-      timeZone,
-      locale,
-      readOnly,
-    }),
-    [
-      nonNullDates.length,
-      rawSelected,
-      rawSelectedDates,
-      rawRangeStart,
-      rawRangeEnd,
-      focusedDate,
-      viewingYearMonth,
-      timeZone,
-      locale,
-      readOnly,
-    ],
-  );
-
-  const selectedPlain = selectedZdt?.toPlainDate();
-
-  const tabTargetDate = useMemo(
-    () =>
-      resolveFocusTarget(
-        focusedDate,
-        selectedPlain,
-        weeks,
-        currentMonth,
-        isDateDisabled,
-        T,
-        gridHasFocus,
-      ),
-    [
-      focusedDate,
-      selectedPlain,
-      weeks,
-      currentMonth,
-      isDateDisabled,
-      T,
-      gridHasFocus,
-    ],
-  );
-
-  const onMonthChangeRef = useRef(onMonthChange);
-  onMonthChangeRef.current = onMonthChange;
-  const mountedRef = useRef(false);
-
-  useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-    onMonthChangeRef.current?.(viewingYearMonth);
-  }, [viewingYearMonth]);
-
-  const stableCtx = useMemo<DatePickerStableContextValue>(
+  // --- Build context values ---
+  const stableCtx = useMemo<CalendarStableContextValue>(
     () => ({
       onSelect,
       setRange,
-      setFocusedDate,
-      goToNextMonth,
-      goToPrevMonth,
-      setGridHasFocus,
-      setGridLabelId,
       selectionMode,
       disabled,
       readOnly,
@@ -816,20 +550,15 @@ export function useRootState<F extends ValueFormat>(
       timeZone,
       locale,
       temporal: T,
-      gridFocusedRef,
-      weekStartDay: params.weekStartDay,
-      numberOfMonths: params.numberOfMonths,
-      outsideDays: params.outsideDays,
+      weekStartDay,
       rangeMode,
       preventRangeReversal: !allowRangeReversal,
+      valueFormat: resolvedFormat,
       setHoveredDate,
     }),
     [
       onSelect,
       setRange,
-      setGridLabelId,
-      goToNextMonth,
-      goToPrevMonth,
       selectionMode,
       disabled,
       readOnly,
@@ -839,51 +568,43 @@ export function useRootState<F extends ValueFormat>(
       timeZone,
       locale,
       T,
-      params.weekStartDay,
-      params.numberOfMonths,
-      params.outsideDays,
+      weekStartDay,
       rangeMode,
       allowRangeReversal,
+      resolvedFormat,
       setHoveredDate,
     ],
   );
 
-  const stateCtx = useMemo<DatePickerStateContextValue>(
+  const stateCtx = useMemo<CalendarStateContextValue>(
     () => ({
       selected,
       selectedDates: nonNullDates,
       rangeStart,
       rangeEnd,
-      focusedDate,
-      tabTargetDate,
-      currentDateTime,
-      weeks,
-      allMonths,
-      numberOfMonths: params.numberOfMonths,
-      gridLabelIds,
       hoveredDate,
       previewStart,
       previewEnd,
-      rootState: state as unknown as RootState,
     }),
     [
       selected,
       nonNullDates,
       rangeStart,
       rangeEnd,
-      focusedDate,
-      tabTargetDate,
-      currentDateTime,
-      weeks,
-      allMonths,
-      params.numberOfMonths,
-      gridLabelIds,
       hoveredDate,
       previewStart,
       previewEnd,
-      state,
     ],
   );
 
-  return { stableCtx, stateCtx, state };
+  return (
+    <CalendarStableContext.Provider value={stableCtx}>
+      <CalendarStateContext.Provider value={stateCtx}>
+        {children}
+      </CalendarStateContext.Provider>
+    </CalendarStableContext.Provider>
+  );
 }
+
+export { CalendarProvider };
+export type { CalendarProviderProps };
