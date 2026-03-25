@@ -1,5 +1,12 @@
 import { Link } from '@tanstack/react-router'
 import ThemeToggle from './ThemeToggle'
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  navigationMenuTriggerStyle,
+} from '#/components/ui/navigation-menu'
 
 export default function Header() {
   return (
@@ -15,7 +22,33 @@ export default function Header() {
           </Link>
         </h2>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:ml-0 sm:gap-2">
+        <NavigationMenu viewport={false} className="order-3 sm:order-2">
+          <NavigationMenuList className="gap-0.5">
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link to="/" className={navigationMenuTriggerStyle()}>
+                  Home
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link to="/docs" className={navigationMenuTriggerStyle()}>
+                  Docs
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuLink asChild>
+                <Link to="/demo" className={navigationMenuTriggerStyle()}>
+                  Demo
+                </Link>
+              </NavigationMenuLink>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+
+        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
           <a
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
@@ -32,23 +65,6 @@ export default function Header() {
           </a>
 
           <ThemeToggle />
-        </div>
-
-        <div className="type-body-100-bold order-3 flex w-full flex-wrap items-center gap-x-4 gap-y-1 pb-1 sm:order-2 sm:w-auto sm:flex-nowrap sm:pb-0">
-          <Link
-            to="/"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
-          >
-            Home
-          </Link>
-          <Link
-            to="/docs"
-            className="nav-link"
-            activeProps={{ className: 'nav-link is-active' }}
-          >
-            Docs
-          </Link>
         </div>
       </nav>
     </header>

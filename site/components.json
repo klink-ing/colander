@@ -1,12 +1,12 @@
 {
   "$schema": "https://ui.shadcn.com/schema.json",
-  "style": "base-nova",
+  "style": "base-vega",
   "rsc": false,
   "tsx": true,
   "tailwind": {
     "config": "",
     "css": "src/styles.css",
-    "baseColor": "neutral",
+    "baseColor": "stone",
     "cssVariables": true,
     "prefix": ""
   },
@@ -14,7 +14,7 @@
   "rtl": false,
   "aliases": {
     "components": "#/components",
-    "utils": "#/lib/cn",
+    "utils": "#/lib/utils",
     "ui": "#/components/ui",
     "lib": "#/lib",
     "hooks": "#/hooks"
