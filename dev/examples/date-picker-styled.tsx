@@ -240,7 +240,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
         "focus-visible:ring-ring focus-visible:z-10 focus-visible:ring-2 focus-visible:outline-none",
         "text-foreground hover:bg-accent hover:text-accent-foreground hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
-        "data-selected:bg-primary data-selected:text-primary-foreground data-selected:hover:bg-primary data-selected:hover:text-primary-foreground",
+        "data-selected:bg-primary/80 data-selected:text-primary-foreground data-selected:hover:bg-primary/80 data-selected:hover:text-primary-foreground",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         "data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground isolate select-none data-in-range:data-outside-month:opacity-70",
         className,
