@@ -243,4 +243,52 @@ test.describe("Drag Range Handles", () => {
     expect(handleCenterX).toBeGreaterThanOrEqual(day8Box!.x);
     expect(handleCenterX).toBeLessThanOrEqual(day8Box!.x + day8Box!.width);
   });
+
+  test("drag start handle backward when start clicked first (start-end mode)", async ({
+    page,
+  }) => {
+    // Ensure start-end range mode
+    await page.locator("#range-mode").selectOption("start-end");
+
+    // Click start first (10), then end (19) — ascending order
+    await selectRange(page, "10", "19");
+
+    // Drag start handle from day 10 to day 9
+    await dragHandleToDay(page, "start", "9");
+
+    // Verify start handle moved to day 9
+    const startHandle = getDragHandle(page, "start");
+    const day9Btn = getDayButton(page, "9");
+    const day9Box = await day9Btn.boundingBox();
+    const handleBox = await startHandle.boundingBox();
+    expect(handleBox).toBeTruthy();
+    expect(day9Box).toBeTruthy();
+    const handleCenterX = handleBox!.x + handleBox!.width / 2;
+    expect(handleCenterX).toBeGreaterThanOrEqual(day9Box!.x);
+    expect(handleCenterX).toBeLessThanOrEqual(day9Box!.x + day9Box!.width);
+  });
+
+  test("drag start handle backward when end clicked first (start-end mode)", async ({
+    page,
+  }) => {
+    // Ensure start-end range mode
+    await page.locator("#range-mode").selectOption("start-end");
+
+    // Click end first (19), then start (10) — descending order
+    await selectRange(page, "19", "10");
+
+    // Drag start handle from day 10 to day 9
+    await dragHandleToDay(page, "start", "9");
+
+    // Verify start handle moved to day 9
+    const startHandle = getDragHandle(page, "start");
+    const day9Btn = getDayButton(page, "9");
+    const day9Box = await day9Btn.boundingBox();
+    const handleBox = await startHandle.boundingBox();
+    expect(handleBox).toBeTruthy();
+    expect(day9Box).toBeTruthy();
+    const handleCenterX = handleBox!.x + handleBox!.width / 2;
+    expect(handleCenterX).toBeGreaterThanOrEqual(day9Box!.x);
+    expect(handleCenterX).toBeLessThanOrEqual(day9Box!.x + day9Box!.width);
+  });
 });

@@ -201,7 +201,7 @@ export function useDragHandleDnD({
       // new cell during drag). Document listeners are only removed
       // in handlePointerUp when the user releases the mouse.
     };
-  }, [isActive, edge, handleRef]);
+  }, [isActive, edge, handleRef, rangeStart, rangeEnd]);
 
   return { dragging, anyHandleDragging, didLeaveRef };
 }
