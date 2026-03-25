@@ -421,15 +421,21 @@ export function AppControls(props: AppControlsProps) {
             <div className="flex flex-col gap-4">
               {/* numberOfMonths */}
               <div>
-                <div className={propLabelClassName}>numberOfMonths</div>
-                <RadioGroup
-                  value={String(numberOfMonths)}
-                  onValueChange={(v) => setNumberOfMonths(Number(v))}
-                >
-                  <RadioGroupItem value="1" label="1 (default)" />
-                  <RadioGroupItem value="2" label="2" />
-                  <RadioGroupItem value="3" label="3" />
-                </RadioGroup>
+                <label htmlFor="number-of-months" className={propLabelClassName}>
+                  numberOfMonths
+                </label>
+                <input
+                  id="number-of-months"
+                  type="number"
+                  min={1}
+                  step={1}
+                  value={numberOfMonths}
+                  onChange={(e) => {
+                    const v = Math.max(1, Math.floor(Number(e.target.value) || 1));
+                    setNumberOfMonths(v);
+                  }}
+                  className={selectClassName}
+                />
               </div>
 
               {/* outsideDays */}
