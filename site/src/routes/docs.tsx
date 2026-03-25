@@ -36,7 +36,7 @@ function DocsLayout() {
   return (
     <main className="page-wrap flex gap-0 px-4 pb-12 pt-8">
       <Sidebar entries={entries} />
-      <article className="prose prose-neutral min-w-0 max-w-none flex-1">
+      <article className="prose prose-neutral dark:prose-invert min-w-0 max-w-none flex-1">
         <Outlet />
       </article>
     </main>
