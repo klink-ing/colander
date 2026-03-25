@@ -511,7 +511,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
         type: "button",
         tabIndex: isTabTarget ? 0 : -1,
         disabled: isDisabled,
-        "aria-readonly": readOnly || undefined,
+        "aria-disabled": readOnly || undefined,
         "aria-label": date.toLocaleString(locale, {
           weekday: "long",
           month: "long",
