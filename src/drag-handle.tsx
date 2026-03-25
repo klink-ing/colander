@@ -25,7 +25,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
   { dragging: draggingProp }: { dragging?: boolean },
 ) {
-  const { temporal: T, setHoveredDate } = useCalendarStable();
+  const { temporal: T, setHoveredDate, readOnly } = useCalendarStable();
   const { rangeStart, rangeEnd } = useCalendarState();
   const { rootState } = useMonthViewState();
   const cellData = useContext(DayCellDataContext);
@@ -33,7 +33,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   const date = cellData?.date;
   const outsideDisabled = cellData?.outsideDisabled ?? false;
 
-  const isActive = outsideDisabled
+  const isActive = readOnly || outsideDisabled
     ? false
     : edge === "start"
       ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
