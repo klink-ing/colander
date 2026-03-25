@@ -1,6 +1,7 @@
 import React from 'react'
 import { useRender } from '@base-ui/react/use-render'
 import { getSymbolByName, type ApiSymbol, type SymbolProperty } from '#/lib/api-data'
+import { cn } from '#/lib/cn'
 import TypeLink from './TypeLink'
 
 const MDN_BASE = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element'
@@ -77,30 +78,63 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
     >
       <thead className="contents">
         <tr className="contents">
-          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Prop</th>
-          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Type</th>
-          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Default</th>
-          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Description</th>
+          <Th>Prop</Th>
+          <Th>Type</Th>
+          <Th>Default</Th>
+          <Th lastInRow>Description</Th>
         </tr>
       </thead>
       <tbody className="contents">
-        {allProps.map((prop) => (
-          <tr key={prop.name} className="contents">
-            <td className="border-b border-line py-1.5 pr-4 last:border-0">
-              <Badge>
-                {prop.name}
-                {!prop.optional && <span className="ml-0.5 text-accent">*</span>}
-              </Badge>
-            </td>
-            <td className="type-code-100 break-all border-b border-line py-1.5 pr-4 text-fg-muted last:border-0">
-              <TypeLink type={prop.type} />
-            </td>
-            <td className="type-code-100 border-b border-line py-1.5 pr-4 text-fg-muted last:border-0">{prop.defaultValue || '—'}</td>
-            <td className="type-body-100 border-b border-line py-1.5 text-fg-muted last:border-0">{prop.description}</td>
-          </tr>
-        ))}
+        {allProps.map((prop, i) => {
+          const isLast = i === allProps.length - 1
+          return (
+            <tr key={prop.name} className="contents">
+              <Cell isLast={isLast}>
+                <Badge>
+                  {prop.name}
+                  {!prop.optional && <span className="ml-0.5 text-accent">*</span>}
+                </Badge>
+              </Cell>
+              <Cell isLast={isLast} className="type-code-100 break-all text-fg-muted">
+                <TypeLink type={prop.type} />
+              </Cell>
+              <Cell isLast={isLast} className="type-code-100 text-fg-muted">
+                {prop.defaultValue || '—'}
+              </Cell>
+              <Cell isLast={isLast} className="type-body-100 text-fg-muted" lastInRow>
+                {prop.description}
+              </Cell>
+            </tr>
+          )
+        })}
       </tbody>
     </table>
+  )
+}
+
+function Th({ children, lastInRow = false }: { children: React.ReactNode; lastInRow?: boolean }) {
+  return (
+    <th scope="col" className={cn('type-label-200 border-b border-line pb-1 text-left text-fg-muted', !lastInRow && 'pr-4')}>
+      {children}
+    </th>
+  )
+}
+
+function Cell({
+  children,
+  isLast = false,
+  lastInRow = false,
+  className,
+}: {
+  children: React.ReactNode
+  isLast?: boolean
+  lastInRow?: boolean
+  className?: string
+}) {
+  return (
+    <td className={cn('py-1.5', !lastInRow && 'pr-4', !isLast && 'border-b border-line', className)}>
+      {children}
+    </td>
   )
 }
 

@@ -1,13 +1,9 @@
 ---
 title: MonthView
-description: Traditional month grid calendar view
+description: Displays a traditional calendar grid with month-level navigation.
 order: 3
 section: Components
 ---
-
-# MonthView
-
-The month view displays a traditional calendar grid with navigation.
 
 ## Props
 

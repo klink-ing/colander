@@ -1,11 +1,9 @@
 ---
 title: Getting Started
-description: Install and set up $projectName
+description: Install $projectName and start building accessible calendar components.
 order: 1
 section: Guides
 ---
-
-# Getting Started
 
 ## Installation
 

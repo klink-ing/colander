@@ -2,10 +2,15 @@ import { clsx, type ClassValue } from 'clsx'
 import { extendTailwindMerge } from 'tailwind-merge'
 
 /**
- * All type-* utility names. Each one sets font-family, font-size,
- * line-height, and letter-spacing (and possibly font-weight, font-style,
- * text-transform), so they must conflict with each other AND with the
- * individual Tailwind utilities that set those same properties.
+ * All type-* utility names. Every type-* utility sets the same seven
+ * CSS properties — font-family, font-size, line-height, letter-spacing,
+ * font-weight, font-style, and text-transform — so switching between
+ * any two fully resets all typography with no property leaks.
+ *
+ * Conflicts are bidirectional: a type-* class removes any preceding
+ * individual utility (e.g. `text-sm type-body-200` → `type-body-200`),
+ * and an individual utility removes a preceding type-* class
+ * (e.g. `type-body-200 font-bold` → `font-bold`).
  */
 const typeClasses = [
   'type-display-100',
@@ -39,6 +44,7 @@ export const twMerge = extendTailwindMerge<'type-style'>({
         'tracking',
         'font-weight',
         'font-style',
+        'text-transform',
       ],
       // individual typography utilities win over type-*
       'font-size': ['type-style'],
@@ -47,6 +53,7 @@ export const twMerge = extendTailwindMerge<'type-style'>({
       tracking: ['type-style'],
       'font-weight': ['type-style'],
       'font-style': ['type-style'],
+      'text-transform': ['type-style'],
     },
   },
 })

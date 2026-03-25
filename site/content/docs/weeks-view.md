@@ -1,13 +1,9 @@
 ---
 title: WeeksView
-description: Continuous scrolling weeks view
+description: Displays a configurable window of continuous week rows that span month boundaries.
 order: 4
 section: Components
 ---
-
-# WeeksView
-
-The weeks view displays a configurable window of continuous week rows.
 
 ## Props
 

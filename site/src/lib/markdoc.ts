@@ -1,4 +1,5 @@
 import Markdoc, { type Config, type Schema } from '@markdoc/markdoc'
+import { cn } from './cn'
 
 export interface DocFrontmatter {
   title: string
@@ -51,6 +52,56 @@ const installCmdTag: Schema = {
   attributes: {},
 }
 
+const headingTypeClass: Record<number, string> = {
+  1: 'type-display-100',
+  2: 'type-heading-300',
+  3: 'type-heading-200',
+  4: 'type-heading-100',
+  5: 'type-heading-100',
+  6: 'type-heading-100',
+}
+
+const headingNode: Schema = {
+  children: ['inline'],
+  attributes: {
+    level: { type: Number, required: true },
+  },
+  transform(node, config) {
+    const level = node.attributes.level as number
+    const children = node.transformChildren(config)
+    const annotation = node.attributes.class as string | undefined
+    const text = children
+      .map((c) => (typeof c === 'string' ? c : ''))
+      .join('')
+    const id = (node.attributes.id as string | undefined) ?? text
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/\s+/g, '-')
+
+    return new Markdoc.Tag(
+      `h${level}`,
+      {
+        id,
+        className: cn(
+          headingTypeClass[level] ?? 'type-heading-100',
+          'text-fg mt-8 mb-4',
+          annotation,
+        ),
+      },
+      children,
+    )
+  },
+}
+
+const paragraphNode: Schema = {
+  children: ['inline'],
+  transform(node, config) {
+    const children = node.transformChildren(config)
+    const annotation = node.attributes.class as string | undefined
+    return new Markdoc.Tag('p', { className: cn('type-body-200 text-fg-muted mb-4', annotation) }, children)
+  },
+}
+
 const fenceNode: Schema = {
   render: 'CodeBlock',
   attributes: {
@@ -67,6 +118,8 @@ const config: Config = {
     'install-cmd': installCmdTag,
   },
   nodes: {
+    heading: headingNode,
+    paragraph: paragraphNode,
     fence: fenceNode,
   },
   variables: markdocVariables,

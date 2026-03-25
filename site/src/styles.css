@@ -106,6 +106,8 @@
   line-height: var(--type-display-100-lh);
   letter-spacing: var(--type-display-100-ls);
   font-weight: var(--type-display-100-weight);
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-display-200 {
@@ -114,6 +116,8 @@
   line-height: var(--type-display-200-lh);
   letter-spacing: var(--type-display-200-ls);
   font-weight: var(--type-display-200-weight);
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-heading-100 {
@@ -122,6 +126,8 @@
   line-height: var(--type-heading-100-lh);
   letter-spacing: var(--type-heading-100-ls);
   font-weight: var(--type-heading-100-weight);
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-heading-200 {
@@ -130,6 +136,8 @@
   line-height: var(--type-heading-200-lh);
   letter-spacing: var(--type-heading-200-ls);
   font-weight: var(--type-heading-200-weight);
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-heading-300 {
@@ -138,6 +146,8 @@
   line-height: var(--type-heading-300-lh);
   letter-spacing: var(--type-heading-300-ls);
   font-weight: var(--type-heading-300-weight);
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-body-100 {
@@ -145,6 +155,9 @@
   font-size: var(--type-body-100-size);
   line-height: var(--type-body-100-lh);
   letter-spacing: var(--type-body-100-ls);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-body-100-bold {
@@ -153,6 +166,8 @@
   line-height: var(--type-body-100-lh);
   letter-spacing: var(--type-body-100-ls);
   font-weight: 600;
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-body-100-italic {
@@ -160,7 +175,9 @@
   font-size: var(--type-body-100-size);
   line-height: var(--type-body-100-lh);
   letter-spacing: var(--type-body-100-ls);
+  font-weight: 400;
   font-style: italic;
+  text-transform: none;
 }
 
 @utility type-body-200 {
@@ -168,6 +185,9 @@
   font-size: var(--type-body-200-size);
   line-height: var(--type-body-200-lh);
   letter-spacing: var(--type-body-200-ls);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-body-200-bold {
@@ -176,6 +196,8 @@
   line-height: var(--type-body-200-lh);
   letter-spacing: var(--type-body-200-ls);
   font-weight: 600;
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-body-200-italic {
@@ -183,7 +205,9 @@
   font-size: var(--type-body-200-size);
   line-height: var(--type-body-200-lh);
   letter-spacing: var(--type-body-200-ls);
+  font-weight: 400;
   font-style: italic;
+  text-transform: none;
 }
 
 @utility type-label-100 {
@@ -192,6 +216,7 @@
   line-height: var(--type-label-100-lh);
   letter-spacing: var(--type-label-100-ls);
   font-weight: var(--type-label-100-weight);
+  font-style: normal;
   text-transform: uppercase;
 }
 
@@ -201,6 +226,7 @@
   line-height: var(--type-label-200-lh);
   letter-spacing: var(--type-label-200-ls);
   font-weight: var(--type-label-200-weight);
+  font-style: normal;
   text-transform: uppercase;
 }
 
@@ -209,6 +235,9 @@
   font-size: var(--type-code-100-size);
   line-height: var(--type-code-100-lh);
   letter-spacing: var(--type-code-100-ls);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
 }
 
 @utility type-code-200 {
@@ -216,6 +245,9 @@
   font-size: var(--type-code-200-size);
   line-height: var(--type-code-200-lh);
   letter-spacing: var(--type-code-200-ls);
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
 }
 
 /* ── Color tokens ───────────────────────────────────────── */
