@@ -10,3 +10,4 @@ stats.html
 .claude/worktrees
 .claude/plans
 /.superpowers
+site/node_modules
