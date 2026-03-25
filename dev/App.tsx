@@ -67,9 +67,9 @@ export default function App() {
   const [locale, setLocale] = useState("en-US");
   const [disabled, setDisabled] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
-  const [weekStartDay, setWeekStartDay] = useState<
-    0 | 1 | 2 | 3 | 4 | 5 | 6
-  >(0);
+  const [weekStartDay, setWeekStartDay] = useState<0 | 1 | 2 | 3 | 4 | 5 | 6>(
+    0,
+  );
   const [rangeMode, setRangeMode] = useState<RangeMode>("start-end");
   const [preventRangeReversal, setPreventRangeReversal] = useState(false);
 
@@ -402,184 +402,201 @@ export default function App() {
         {/* Calendar area */}
         <div className="flex flex-1 flex-col gap-4 pt-8">
           <div className="flex gap-8">
-          <CalendarProvider
-            temporal={Temporal}
-            format="ZonedDateTime"
-            {...(selectionProps as any)}
-            min={minDate}
-            max={maxDate}
-            locale={locale}
-            timeZone={timeZone}
-            disabled={disabled}
-            readOnly={readOnly}
-            weekStartDay={weekStartDay}
-          >
-            {/* Month View */}
-            <div>
-              <h3 className="text-foreground mb-3 text-sm font-semibold">
-                Month View
-              </h3>
-              <MonthView.Root
-                numberOfMonths={numberOfMonths}
-                fixedWeeks={fixedWeeks}
-                outsideDays={outsideDays}
-                onMonthChange={handleMonthChange}
-              >
-                <div className="p-3">
-                  {numberOfMonths === 1 && (
-                    <div className="flex items-center justify-between gap-1 px-1 pb-3">
-                      <StyledPrevMonthButton />
-                      <StyledMonthYearString />
-                      <StyledNextMonthButton />
-                    </div>
-                  )}
-                  {numberOfMonths > 1 && (
-                    <div className="flex items-center justify-between gap-1 px-1 pb-3">
-                      <StyledPrevMonthButton />
-                      <div />
-                      <StyledNextMonthButton />
-                    </div>
-                  )}
-                  <div
-                    className={numberOfMonths > 1 ? "flex gap-4" : undefined}
-                  >
-                    {Array.from({ length: numberOfMonths }, (_, i) =>
-                      renderMonthGrid(i),
+            <CalendarProvider
+              temporal={Temporal}
+              format="ZonedDateTime"
+              {...(selectionProps as any)}
+              min={minDate}
+              max={maxDate}
+              locale={locale}
+              timeZone={timeZone}
+              disabled={disabled}
+              readOnly={readOnly}
+              weekStartDay={weekStartDay}
+            >
+              {/* Month View */}
+              <div>
+                <h3 className="text-foreground mb-3 text-sm font-semibold">
+                  Month View
+                </h3>
+                <MonthView.Root
+                  numberOfMonths={numberOfMonths}
+                  fixedWeeks={fixedWeeks}
+                  outsideDays={outsideDays}
+                  onMonthChange={handleMonthChange}
+                >
+                  <div className="p-3">
+                    {numberOfMonths === 1 && (
+                      <div className="flex items-center justify-between gap-1 px-1 pb-3">
+                        <StyledPrevMonthButton />
+                        <StyledMonthYearString />
+                        <StyledNextMonthButton />
+                      </div>
                     )}
+                    {numberOfMonths > 1 && (
+                      <div className="flex items-center justify-between gap-1 px-1 pb-3">
+                        <StyledPrevMonthButton />
+                        <div />
+                        <StyledNextMonthButton />
+                      </div>
+                    )}
+                    <div
+                      className={numberOfMonths > 1 ? "flex gap-4" : undefined}
+                    >
+                      {Array.from({ length: numberOfMonths }, (_, i) =>
+                        renderMonthGrid(i),
+                      )}
+                    </div>
                   </div>
-                </div>
-              </MonthView.Root>
-            </div>
+                </MonthView.Root>
+              </div>
 
-            {/* Weeks View */}
-            <div>
-              <h3 className="text-foreground mb-3 text-sm font-semibold">
-                Weeks View
-              </h3>
-              <WeeksView.Root
-                weekCount={weekCount}
-                scrollBy={scrollBy}
-                overflowBehavior={overflowBehavior}
-              >
-                <div className="p-3">
-                  <div className="flex items-center justify-between gap-1 px-1 pb-3">
-                    <PrevWeeksButton className={navButtonClassName}>
-                      ↑
-                    </PrevWeeksButton>
-                    <WeeksViewHeader />
-                    <NextWeeksButton className={navButtonClassName}>
-                      ↓
-                    </NextWeeksButton>
-                  </div>
-                  <StyledGrid
-                    className={cn(
-                      "grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]",
-                      showWeekNumbers &&
-                        !showMonthSeparators &&
-                        "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)]",
-                      showWeekNumbers &&
-                        showMonthSeparators &&
-                        "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)_auto]",
-                      !showWeekNumbers &&
-                        showMonthSeparators &&
-                        "grid-cols-[repeat(var(--calendar-days-per-week),1fr)_auto]",
-                    )}
-                  >
-                    <StyledGridHeader>
-                      {showWeekNumbers && (
-                        <WeekNumberHeader
-                          className="text-muted-foreground w-8 p-1 text-center text-[0.7rem] font-normal"
-                          render={({ children, ...props }) => (
-                            <th {...props}>
-                              <span className="inline-block w-[2ch] text-right">
-                                {children}
-                              </span>
-                            </th>
-                          )}
-                        />
+              {/* Weeks View */}
+              <div>
+                <h3 className="text-foreground mb-3 text-sm font-semibold">
+                  Weeks View
+                </h3>
+                <WeeksView.Root
+                  weekCount={weekCount}
+                  scrollBy={scrollBy}
+                  overflowBehavior={overflowBehavior}
+                >
+                  <div className="p-3">
+                    <div className="flex items-center justify-between gap-1 px-1 pb-3">
+                      <PrevWeeksButton className={navButtonClassName}>
+                        ↑
+                      </PrevWeeksButton>
+                      <WeeksViewHeader />
+                      <NextWeeksButton className={navButtonClassName}>
+                        ↓
+                      </NextWeeksButton>
+                    </div>
+                    <StyledGrid
+                      className={cn(
+                        "grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)]",
+                        showWeekNumbers &&
+                          !showMonthSeparators &&
+                          "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)]",
+                        showWeekNumbers &&
+                          showMonthSeparators &&
+                          "grid-cols-[auto_repeat(var(--calendar-days-per-week),1fr)_auto]",
+                        !showWeekNumbers &&
+                          showMonthSeparators &&
+                          "grid-cols-[repeat(var(--calendar-days-per-week),1fr)_auto]",
                       )}
-                      <StyledGridHeaderCell />
-                      {showMonthSeparators && <th />}
-                    </StyledGridHeader>
-                    <StyledGridBody>
-                      {showMonthSeparators && (
-                        <MonthSeparator.Row
-                          render={(renderProps, state) => {
-                            const borderFromCol = state.firstDayColumn + 1 + (showWeekNumbers ? 1 : 0);
-                            const showLabel = state.fullWeeksVisibleAfter >= 2;
-                            return (
-                              <tr {...renderProps} className="contents">
-                                <td className="contents">
-                                  {/* Border: top + left with rounded corner */}
-                                  {state.firstDayVisible && (
-                                    <div
-                                      aria-hidden
-                                      className="pointer-events-none relative z-10 -ml-px rounded-l-md border-t border-l border-muted-foreground"
-                                      style={{
-                                        gridColumn: `${borderFromCol} / -1`,
-                                        gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
-                                      }}
-                                    />
-                                  )}
-                                  {/* Label */}
-                                  {showLabel && (
-                                    <div
-                                      className="flex h-full items-start justify-center px-0.5 pt-2 text-[0.8rem] font-semibold text-foreground"
-                                      style={{
-                                        gridColumn: "-2 / -1",
-                                        gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
-                                      }}
-                                    >
-                                      <span
-                                        className="whitespace-nowrap"
-                                        style={{
-                                          writingMode: "vertical-rl",
-                                          textOrientation: "mixed",
-                                        }}
-                                      >
-                                        <MonthSeparator.Month locale={locale} format="short" />
-                                      </span>
-                                    </div>
-                                  )}
-                                </td>
-                              </tr>
-                            );
-                          }}
-                        />
-                      )}
-                      <StyledWeekTemplate>
+                    >
+                      <StyledGridHeader>
                         {showWeekNumbers && (
-                          <WeekNumberCell
-                            className="text-muted-foreground w-8 p-1 text-center text-[0.7rem] tabular-nums"
+                          <WeekNumberHeader
+                            className="text-muted-foreground w-8 p-1 text-center text-[0.7rem] font-normal"
                             render={({ children, ...props }) => (
-                              <td {...props}>
+                              <th {...props}>
                                 <span className="inline-block w-[2ch] text-right">
                                   {children}
                                 </span>
-                              </td>
+                              </th>
                             )}
                           />
                         )}
-                        <StyledRangeSelected columnOffset={showWeekNumbers ? 1 : 0} />
-                        <StyledRangePreview columnOffset={showWeekNumbers ? 1 : 0} />
-                        <StyledDayCellTemplate
-                          columnOffset={showWeekNumbers ? 1 : 0}
-                          preventRangeReversal={preventRangeReversal}
-                        />
-                      </StyledWeekTemplate>
-                    </StyledGridBody>
-                  </StyledGrid>
-                </div>
-              </WeeksView.Root>
-            </div>
-          </CalendarProvider>
+                        <StyledGridHeaderCell />
+                        {showMonthSeparators && <th />}
+                      </StyledGridHeader>
+                      <StyledGridBody>
+                        {showMonthSeparators && (
+                          <MonthSeparator.Row
+                            render={(renderProps, state) => {
+                              const borderFromCol =
+                                state.firstDayColumn +
+                                1 +
+                                (showWeekNumbers ? 1 : 0);
+                              const showLabel =
+                                state.fullWeeksVisibleAfter >= 2;
+                              return (
+                                <tr
+                                  {...renderProps}
+                                  className={cn(
+                                    renderProps.className,
+                                    "contents",
+                                  )}
+                                >
+                                  <td className="contents">
+                                    {/* Border: top + left with rounded corner */}
+                                    {state.firstDayVisible && (
+                                      <div
+                                        aria-hidden
+                                        className="border-muted-foreground pointer-events-none relative z-10 -mt-px mb-(--radius-md) -ml-px rounded-tl-[calc(var(--radius-md)+1px)] border-t border-l"
+                                        style={{
+                                          gridColumn: `${borderFromCol} / -1`,
+                                          gridRow: `${state.gridRowStart} / span 1`,
+                                        }}
+                                      />
+                                    )}
+                                    {/* Label */}
+                                    {showLabel && (
+                                      <div
+                                        className="text-foreground flex h-full items-start justify-center px-0.5 pt-2 text-[0.8rem] font-semibold"
+                                        style={{
+                                          gridColumn: "-2 / -1",
+                                          gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
+                                        }}
+                                      >
+                                        <span
+                                          className="whitespace-nowrap"
+                                          style={{
+                                            writingMode: "vertical-rl",
+                                            textOrientation: "mixed",
+                                          }}
+                                        >
+                                          <MonthSeparator.Month
+                                            locale={locale}
+                                            format="short"
+                                          />
+                                        </span>
+                                      </div>
+                                    )}
+                                  </td>
+                                </tr>
+                              );
+                            }}
+                          />
+                        )}
+                        <StyledWeekTemplate>
+                          {showWeekNumbers && (
+                            <WeekNumberCell
+                              className="text-muted-foreground w-8 p-1 text-center text-[0.7rem] tabular-nums"
+                              render={({ children, ...props }) => (
+                                <td {...props}>
+                                  <span className="inline-block w-[2ch] text-right">
+                                    {children}
+                                  </span>
+                                </td>
+                              )}
+                            />
+                          )}
+                          <StyledRangeSelected
+                            columnOffset={showWeekNumbers ? 1 : 0}
+                          />
+                          <StyledRangePreview
+                            columnOffset={showWeekNumbers ? 1 : 0}
+                          />
+                          <StyledDayCellTemplate
+                            columnOffset={showWeekNumbers ? 1 : 0}
+                            preventRangeReversal={preventRangeReversal}
+                          />
+                        </StyledWeekTemplate>
+                      </StyledGridBody>
+                    </StyledGrid>
+                  </div>
+                </WeeksView.Root>
+              </div>
+            </CalendarProvider>
           </div>
 
           {/* Raw value display */}
           <div className="w-full pt-4">
             <textarea
               readOnly
-              className="text-muted-foreground w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs"
+              className="text-muted-foreground border-input bg-background w-full rounded-md border px-3 py-2 font-mono text-xs"
               rows={4}
               value={JSON.stringify(
                 selectionMode === "range"
