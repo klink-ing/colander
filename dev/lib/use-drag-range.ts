@@ -71,6 +71,14 @@ export function useDragHandleDnD({
     edgeRef.current = edge;
   }
 
+  // Track which DOM element we last attached to, so we can detect when
+  // React replaces it (e.g. when the cell re-renders after range changes).
+  const [handleEl, setHandleEl] = useState<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = handleRef.current;
+    if (el !== handleEl) setHandleEl(el);
+  });
+
   // Subscribe to global drag state for anyHandleDragging
   useEffect(() => {
     const listener = (active: boolean) => setAnyHandleDragging(active);
@@ -84,7 +92,7 @@ export function useDragHandleDnD({
   // pointermove/pointerup are attached to `document` so they survive
   // React re-renders that move the handle to a different cell.
   useEffect(() => {
-    const el = handleRef.current;
+    const el = handleEl;
     if (!el || !isActive) return;
 
     // Mark as draggable for CSS/test selectors
@@ -201,7 +209,7 @@ export function useDragHandleDnD({
       // new cell during drag). Document listeners are only removed
       // in handlePointerUp when the user releases the mouse.
     };
-  }, [isActive, edge, handleRef, rangeStart, rangeEnd]);
+  }, [isActive, edge, handleEl]);
 
   return { dragging, anyHandleDragging, didLeaveRef };
 }
