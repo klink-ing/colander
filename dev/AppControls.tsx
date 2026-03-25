@@ -551,7 +551,7 @@ export function AppControls(props: AppControlsProps) {
                   checked={autoFocus}
                   onChange={(e) => setAutoFocus(e.target.checked)}
                 />
-                Auto Focus
+                <span className="font-mono text-xs">Grid.autoFocus</span>
               </label>
 
               <label className={checkboxClassName}>
@@ -573,7 +573,7 @@ export function AppControls(props: AppControlsProps) {
               </label>
 
               <div>
-                <div className={displayLabelClassName}>Orientation</div>
+                <div className={propLabelClassName}>Grid.orientation</div>
                 <RadioGroup
                   value={orientation}
                   onValueChange={(v) => setOrientation(v as "horizontal" | "vertical")}
