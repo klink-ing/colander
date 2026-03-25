@@ -238,9 +238,9 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       className={cn(
         "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
         "focus-visible:ring-ring focus-visible:z-10 focus-visible:ring-2 focus-visible:outline-none",
-        "text-foreground not-aria-disabled:hover:bg-accent not-aria-disabled:hover:text-accent-foreground not-aria-disabled:hover:data-in-range:bg-white/20",
+        "text-foreground not-aria-disabled:hover:bg-accent not-aria-disabled:hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
-        "data-selected:bg-primary data-selected:text-primary-foreground data-selected:not-aria-disabled:hover:bg-primary data-selected:not-aria-disabled:hover:text-primary-foreground",
+        "data-selected:bg-primary data-selected:text-primary-foreground data-selected:not-aria-disabled:hover:bg-primary",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
         "data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground isolate select-none data-in-range:data-outside-month:opacity-70",
         className,
