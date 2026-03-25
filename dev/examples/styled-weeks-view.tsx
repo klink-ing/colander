@@ -8,7 +8,7 @@ import {
   useWeeksViewState,
   useCalendarStable,
   type OverflowBehavior,
-} from "base-ui-cal";
+} from "colander";
 import type { Temporal } from "@js-temporal/polyfill";
 import {
   StyledGrid,

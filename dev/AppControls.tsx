@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import type { RangeMode, OutsideDays, OverflowBehavior } from "base-ui-cal";
+import type { RangeMode, OutsideDays, OverflowBehavior } from "colander";
 import {
   Accordion,
   AccordionItem,

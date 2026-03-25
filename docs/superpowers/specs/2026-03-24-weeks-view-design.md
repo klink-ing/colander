@@ -1,6 +1,6 @@
 # Weeks View — Continuous Week Rows
 
-A new view mode for base-ui-cal that displays the calendar as a continuous column of week rows spanning month boundaries. Configurable window size, multiple ways to specify the starting week, overflow behavior at min/max bounds, and month/year separators.
+A new view mode for colander that displays the calendar as a continuous column of week rows spanning month boundaries. Configurable window size, multiple ways to specify the starting week, overflow behavior at min/max bounds, and month/year separators.
 
 ## Architecture
 

@@ -1,4 +1,4 @@
-import { MonthView, WeekNumberCell, WeekNumberHeader } from "base-ui-cal";
+import { MonthView, WeekNumberCell, WeekNumberHeader } from "colander";
 import {
   StyledPrevMonthButton,
   StyledNextMonthButton,
@@ -14,7 +14,7 @@ import {
 } from "./date-picker-styled";
 import { cn } from "../lib/utils";
 import type { Temporal } from "@js-temporal/polyfill";
-import type { OutsideDays } from "base-ui-cal";
+import type { OutsideDays } from "colander";
 
 interface MonthGridProps {
   monthIndex: number;

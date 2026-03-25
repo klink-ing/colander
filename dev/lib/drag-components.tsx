@@ -10,8 +10,8 @@ import {
   RangeStartDragHandle,
   RangeEndDragHandle,
   DayButton,
-} from "base-ui-cal";
-import type { DayButtonProps, ValueFormat } from "base-ui-cal";
+} from "colander";
+import type { DayButtonProps, ValueFormat } from "colander";
 import { useDragHandleDnD, useDayDropTarget } from "./use-drag-range";
 
 export interface DragHandleProps {

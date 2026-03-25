@@ -1,5 +1,5 @@
 /**
- * Extracts API documentation from base-ui-cal source code using ts-morph.
+ * Extracts API documentation from colander source code using ts-morph.
  * Parses all exports from src/index.ts and generates structured JSON
  * for the documentation site.
  *

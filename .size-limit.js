@@ -1,8 +1,8 @@
 import path from "node:path";
 
-/** Resolve `base-ui-cal` → `./dist/index.js` so esbuild can find the built output. */
+/** Resolve `colander` → `./dist/index.js` so esbuild can find the built output. */
 function withAlias(config) {
-  config.alias = { "base-ui-cal": path.resolve("dist/index.js") };
+  config.alias = { "colander": path.resolve("dist/index.js") };
   return config;
 }
 

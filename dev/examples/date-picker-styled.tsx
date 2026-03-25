@@ -18,7 +18,7 @@ import {
   useCalendarState,
   DayCellDataContext,
   GridContext,
-} from "base-ui-cal";
+} from "colander";
 import type {
   ValueFormat,
   GridProps,
@@ -33,7 +33,7 @@ import type {
   NextMonthButtonProps,
   RangeSelectedProps,
   RangePreviewProps,
-} from "base-ui-cal";
+} from "colander";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,

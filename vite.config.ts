@@ -7,7 +7,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "base-ui-cal": path.resolve(import.meta.dirname, "src/index.ts"),
+      "colander": path.resolve(import.meta.dirname, "src/index.ts"),
     },
   },
   root: path.resolve(import.meta.dirname, "dev"),

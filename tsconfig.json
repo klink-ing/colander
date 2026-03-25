@@ -16,7 +16,7 @@
     "baseUrl": ".",
     "types": [],
     "paths": {
-      "base-ui-cal": ["./src/index.ts"]
+      "colander": ["./src/index.ts"]
     }
   }
 }

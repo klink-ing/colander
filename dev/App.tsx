@@ -6,7 +6,7 @@ import {
   type RangeMode,
   type OutsideDays,
   type OverflowBehavior,
-} from "base-ui-cal";
+} from "colander";
 import { StyledMonthView } from "./examples/styled-month-view";
 import { StyledWeeksView } from "./examples/styled-weeks-view";
 import { AppControls, TIMEZONES, formatTzLabel } from "./AppControls";
