@@ -66,7 +66,7 @@ export default function App() {
   const [selectionMode, setSelectionMode] = useState<
     "single" | "range" | "multiple"
   >("range");
-  const [timeZone, setTimeZone] = useState(systemTz);
+  const [timeZone, setTimeZone] = useState("");
   const [locale, setLocale] = useState("en-US");
   const [disabled, setDisabled] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
@@ -141,12 +141,12 @@ export default function App() {
       const pd = Temporal.PlainDate.from(value);
       setMinDate(
         pd.toZonedDateTime({
-          timeZone,
+          timeZone: timeZone || systemTz,
           plainTime: Temporal.PlainTime.from("00:00"),
         }),
       );
     },
-    [timeZone],
+    [timeZone, systemTz],
   );
 
   const handleMaxChange = useCallback(
@@ -155,16 +155,17 @@ export default function App() {
       const pd = Temporal.PlainDate.from(value);
       setMaxDate(
         pd.toZonedDateTime({
-          timeZone,
+          timeZone: timeZone || systemTz,
           plainTime: Temporal.PlainTime.from("23:59"),
         }),
       );
     },
-    [timeZone],
+    [timeZone, systemTz],
   );
 
   const handleTimeZoneChange = useCallback((newTz: string) => {
     setTimeZone(newTz);
+    if (!newTz) return; // "None" selected — don't try to convert dates
     setSingleDate((prev) => (prev ? prev.withTimeZone(newTz) : null));
     setRange((prev) =>
       prev
@@ -490,7 +491,7 @@ export default function App() {
               min={minDate}
               max={maxDate}
               locale={locale}
-              timeZone={timeZone}
+              timeZone={timeZone || undefined}
               disabled={disabled}
               readOnly={readOnly}
               weekStartDay={weekStartDay}

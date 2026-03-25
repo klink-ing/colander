@@ -298,6 +298,7 @@ export function AppControls(props: AppControlsProps) {
                   onChange={(e) => handleTimeZoneChange(e.target.value)}
                   className={selectClassName}
                 >
+                  <option value="">None (default)</option>
                   {tzOptions.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                       {opt.label}
