@@ -52,7 +52,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
       <tbody className="contents">
         {properties.map((prop) => (
           <tr key={prop.name} className="contents">
-            <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs last:border-0">
+            <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink)] last:border-0">
               {prop.name}
               {!prop.optional && <span className="ml-0.5 text-[var(--accent)]">*</span>}
             </td>
