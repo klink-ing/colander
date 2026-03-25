@@ -505,33 +505,31 @@ export default function App() {
                       {showMonthSeparators && (
                         <MonthSeparator.Row
                           render={(renderProps, state) => {
-                            // 1-based column of the 1st day (accounting for week numbers col)
-                            // firstDayColumn is 0-based without week numbers offset,
-                            // so add 1 for CSS grid (1-based) plus 1 more if week numbers shown
                             const borderFromCol = state.firstDayColumn + 1 + (showWeekNumbers ? 1 : 0);
                             const showLabel = state.fullWeeksVisibleAfter >= 2;
                             return (
-                              <>
-                                {state.firstDayVisible && (
-                                  <tr
-                                    aria-hidden
-                                    className="pointer-events-none relative z-10 -ml-px rounded-l-md border-t border-l border-muted-foreground"
-                                    style={{
-                                      gridColumn: `${borderFromCol} / -1`,
-                                      gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
-                                    }}
-                                  />
-                                )}
-                                {showLabel && (
-                                  <tr
-                                    {...renderProps}
-                                    className="text-foreground text-[0.8rem] font-semibold"
-                                    style={{
-                                      gridColumn: "-2 / -1",
-                                      gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
-                                    }}
-                                  >
-                                    <td className="flex h-full items-start justify-center px-0.5 pt-2">
+                              <tr {...renderProps} className="contents">
+                                <td className="contents">
+                                  {/* Border: top + left with rounded corner */}
+                                  {state.firstDayVisible && (
+                                    <div
+                                      aria-hidden
+                                      className="pointer-events-none relative z-10 -ml-px rounded-l-md border-t border-l border-muted-foreground"
+                                      style={{
+                                        gridColumn: `${borderFromCol} / -1`,
+                                        gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
+                                      }}
+                                    />
+                                  )}
+                                  {/* Label */}
+                                  {showLabel && (
+                                    <div
+                                      className="flex h-full items-start justify-center px-0.5 pt-2 text-[0.8rem] font-semibold text-foreground"
+                                      style={{
+                                        gridColumn: "-2 / -1",
+                                        gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
+                                      }}
+                                    >
                                       <span
                                         className="whitespace-nowrap"
                                         style={{
@@ -541,10 +539,10 @@ export default function App() {
                                       >
                                         <MonthSeparator.Month locale={locale} format="short" />
                                       </span>
-                                    </td>
-                                  </tr>
-                                )}
-                              </>
+                                    </div>
+                                  )}
+                                </td>
+                              </tr>
                             );
                           }}
                         />
