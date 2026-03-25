@@ -20,7 +20,7 @@ export default function InstallCmd() {
         onValueChange={(v) => setPm(v as PackageManager)}
         className="gap-0"
       >
-        <TabsList variant="line" className="h-auto rounded-t-lg border border-b-0 border-line bg-surface p-0">
+        <TabsList variant="line" className="h-auto rounded-t-lg border border-b-0 border-border bg-card p-0">
           {managers.map((m) => (
             <TabsTrigger key={m} value={m} className="type-body-100-bold px-4 py-2">
               {m}
@@ -29,7 +29,7 @@ export default function InstallCmd() {
         </TabsList>
         {managers.map((m) => (
           <TabsContent key={m} value={m}>
-            <pre className="type-code-200 overflow-x-auto rounded-b-lg border border-line bg-surface-strong p-4">
+            <pre className="type-code-200 overflow-x-auto rounded-b-lg border border-border bg-muted p-4">
               <code>{getInstallCommand(m, packages)}</code>
             </pre>
           </TabsContent>

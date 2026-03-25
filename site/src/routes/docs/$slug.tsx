@@ -43,10 +43,10 @@ export const Route = createFileRoute("/docs/$slug")({
   loader: ({ params }) => getDocContent({ data: params.slug }),
   notFoundComponent: () => (
     <div className="py-12 text-center">
-      <h1 className="type-heading-300 mb-2 text-fg">
+      <h1 className="type-heading-300 mb-2 text-foreground">
         Page not found
       </h1>
-      <p className="type-body-200 text-fg-muted">
+      <p className="type-body-200 text-muted-foreground">
         The documentation page you requested does not exist.
       </p>
     </div>
@@ -72,11 +72,11 @@ function DocPage() {
     <div>
       <div className="mb-6">
         <p className="type-label-100 text-kicker mb-1">{frontmatter.section}</p>
-        <h1 className="type-display-100 mb-2 text-fg">
+        <h1 className="type-display-100 mb-2 text-foreground">
           {frontmatter.title}
         </h1>
         {frontmatter.description && (
-          <p className="type-body-200 text-fg-muted">
+          <p className="type-body-200 text-muted-foreground">
             {frontmatter.description}
           </p>
         )}

@@ -82,8 +82,8 @@ export default function Sidebar({
                       aria-current={isActive ? 'page' : undefined}
                       className={`type-body-100 block rounded-lg px-3 py-1.5 no-underline transition ${
                         isActive
-                          ? 'bg-accent-subtle font-semibold text-accent'
-                          : 'text-fg-muted hover:bg-link-bg-hover hover:text-fg'
+                          ? 'bg-accent font-semibold text-accent-foreground'
+                          : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                       }`}
                     >
                       {entry.frontmatter.title}
@@ -114,8 +114,8 @@ export default function Sidebar({
                         aria-current={isActive ? 'page' : undefined}
                         className={`type-code-100 block rounded-lg px-3 py-1.5 no-underline transition ${
                           isActive
-                            ? 'bg-accent-subtle font-semibold text-accent'
-                            : 'text-fg-muted hover:bg-link-bg-hover hover:text-fg'
+                            ? 'bg-accent font-semibold text-accent-foreground'
+                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                         }`}
                       >
                         {item.name}

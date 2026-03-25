@@ -10,12 +10,12 @@ import {
 
 export default function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-header-bg px-4 backdrop-blur-lg">
+    <header className="sticky top-0 z-50 border-b border-border bg-background/80 px-4 backdrop-blur-lg">
       <nav className="page-wrap flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:py-4">
         <h2 className="m-0 flex-shrink-0">
           <Link
             to="/"
-            className="type-body-100-bold inline-flex items-center gap-2 rounded-full border border-chip-line bg-chip-bg px-3 py-1.5 text-fg no-underline shadow-[0_8px_24px_var(--shadow-soft)] sm:px-4 sm:py-2"
+            className="type-body-100-bold inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-foreground no-underline shadow-md sm:px-4 sm:py-2"
           >
             <span className="h-2 w-2 rounded-full bg-accent" />
             {import.meta.env.VITE_PROJECT_NAME}
@@ -53,7 +53,7 @@ export default function Header() {
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
-            className="hidden rounded-xl p-2 text-fg-muted transition hover:bg-link-bg-hover hover:text-fg sm:block"
+            className="hidden rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground sm:block"
           >
             <span className="sr-only">{`${import.meta.env.VITE_PROJECT_NAME} on GitHub`}</span>
             <svg viewBox="0 0 16 16" aria-hidden="true" width="24" height="24">

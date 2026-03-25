@@ -17,7 +17,7 @@ export default function ExampleBlock({
   return (
     <div className="my-6">
       <Tabs defaultValue="ts" className="gap-0">
-        <div className="flex items-center rounded-t-lg border border-b-0 border-line bg-surface">
+        <div className="flex items-center rounded-t-lg border border-b-0 border-border bg-card">
           <TabsList variant="line" className="h-auto p-0">
             <TabsTrigger value="ts" className="type-body-100-bold px-4 py-2">
               TypeScript
@@ -27,21 +27,21 @@ export default function ExampleBlock({
             </TabsTrigger>
           </TabsList>
           <TabsContent value="ts" className="ml-auto pr-4">
-            <span className="type-code-100 text-fg-muted">{file}</span>
+            <span className="type-code-100 text-muted-foreground">{file}</span>
           </TabsContent>
           <TabsContent value="js" className="ml-auto pr-4">
-            <span className="type-code-100 text-fg-muted">{jsFile}</span>
+            <span className="type-code-100 text-muted-foreground">{jsFile}</span>
           </TabsContent>
         </div>
         <TabsContent value="ts">
           <div
-            className="overflow-x-auto rounded-b-lg border border-line [&_pre]:m-0 [&_pre]:rounded-none [&_pre]:border-0 [&_pre]:p-4"
+            className="overflow-x-auto rounded-b-lg border border-border [&_pre]:m-0 [&_pre]:rounded-none [&_pre]:border-0 [&_pre]:p-4"
             dangerouslySetInnerHTML={{ __html: tsHtml }}
           />
         </TabsContent>
         <TabsContent value="js">
           <div
-            className="overflow-x-auto rounded-b-lg border border-line [&_pre]:m-0 [&_pre]:rounded-none [&_pre]:border-0 [&_pre]:p-4"
+            className="overflow-x-auto rounded-b-lg border border-border [&_pre]:m-0 [&_pre]:rounded-none [&_pre]:border-0 [&_pre]:p-4"
             dangerouslySetInnerHTML={{ __html: jsHtml }}
           />
         </TabsContent>

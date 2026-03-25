@@ -31,7 +31,7 @@ export default function ApiReference({ symbol: symbolName }: { symbol: string })
 function DefaultElement({ symbol }: { symbol: ApiSymbol }) {
   const el = symbol.defaultElement!
   return (
-    <p className="type-body-100 mb-4 text-fg-muted">
+    <p className="type-body-100 mb-4 text-muted-foreground">
       Renders as{' '}
       <a
         href={`${MDN_BASE}/${el}`}
@@ -42,7 +42,7 @@ function DefaultElement({ symbol }: { symbol: ApiSymbol }) {
         &lt;{el}&gt;
       </a>
       {' '}by default. Use the{' '}
-      <Badge render={<a href="https://base-ui.com/react/handbook/styling#the-render-prop" target="_blank" rel="noopener noreferrer" className="no-underline hover:border-accent-border" />}>render</Badge>
+      <Badge render={<a href="https://base-ui.com/react/handbook/styling#the-render-prop" target="_blank" rel="noopener noreferrer" className="no-underline hover:border-primary" />}>render</Badge>
       {' '}prop to override.
     </p>
   )
@@ -95,13 +95,13 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                   {!prop.optional && <span className="ml-0.5 text-accent">*</span>}
                 </Badge>
               </Cell>
-              <Cell isLast={isLast} className="type-code-100 break-all text-fg-muted">
+              <Cell isLast={isLast} className="type-code-100 break-all text-muted-foreground">
                 <TypeLink type={prop.type} />
               </Cell>
-              <Cell isLast={isLast} className="type-code-100 text-fg-muted">
+              <Cell isLast={isLast} className="type-code-100 text-muted-foreground">
                 {prop.defaultValue || '—'}
               </Cell>
-              <Cell isLast={isLast} className="type-body-100 text-fg-muted" lastInRow>
+              <Cell isLast={isLast} className="type-body-100 text-muted-foreground" lastInRow>
                 {prop.description}
               </Cell>
             </tr>
@@ -114,7 +114,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
 
 function Th({ children, lastInRow = false }: { children: React.ReactNode; lastInRow?: boolean }) {
   return (
-    <th scope="col" className={cn('type-label-200 border-b border-line pb-1 text-left text-fg-muted', !lastInRow && 'pr-4')}>
+    <th scope="col" className={cn('type-label-200 border-b border-border pb-1 text-left text-muted-foreground', !lastInRow && 'pr-4')}>
       {children}
     </th>
   )
@@ -132,7 +132,7 @@ function Cell({
   className?: string
 }) {
   return (
-    <td className={cn('py-1.5', !lastInRow && 'pr-4', !isLast && 'border-b border-line', className)}>
+    <td className={cn('py-1.5', !lastInRow && 'pr-4', !isLast && 'border-b border-border', className)}>
       {children}
     </td>
   )
@@ -141,12 +141,12 @@ function Cell({
 function MembersTable({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div>
-      <p className="type-body-100-bold mb-2 text-fg">Members</p>
+      <p className="type-body-100-bold mb-2 text-foreground">Members</p>
       <div className="flex flex-wrap gap-2">
         {symbol.members!.map((member) => (
           <code
             key={member}
-            className="type-code-100 rounded-md border border-chip-line bg-chip-bg px-2 py-1"
+            className="type-code-100 rounded-md border border-border bg-secondary px-2 py-1"
           >
             {member}
           </code>
@@ -159,7 +159,7 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
 function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="type-code-200 rounded-lg border border-line bg-surface p-4">
+      <pre className="type-code-200 rounded-lg border border-border bg-card p-4">
         <code>
           {symbol.name}(
           {symbol.parameters?.map((p, i) => (
@@ -178,7 +178,7 @@ function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
 function HookSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="type-code-200 rounded-lg border border-line bg-surface p-4">
+      <pre className="type-code-200 rounded-lg border border-border bg-card p-4">
         <code>
           {symbol.name}(): {symbol.returnType && <TypeLink type={symbol.returnType} />}
         </code>
@@ -200,7 +200,7 @@ function Badge({
     render: render ?? <span />,
     state: {},
     props: {
-      className: 'type-code-100 inline-flex items-center rounded-md border border-chip-line bg-chip-bg px-1.5 py-0.5 text-fg',
+      className: 'type-code-100 inline-flex items-center rounded-md border border-border bg-secondary px-1.5 py-0.5 text-foreground',
       children,
     },
     defaultTagName: 'span',

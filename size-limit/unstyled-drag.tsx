@@ -16,7 +16,7 @@ import {
   NextMonthButton,
   RangeSelected,
 } from "../dist/index.js";
-import { DragHandleStart, DragHandleEnd, DragDayButton } from "../dev/lib/drag-components";
+import { DragHandleStart, DragHandleEnd, DragDayButton } from "../site/src/lib/drag-components";
 
 export function DatePicker() {
   return (

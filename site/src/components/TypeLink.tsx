@@ -57,7 +57,7 @@ function SymbolLink({ name }: { name: string }) {
       <TooltipContent
         side="top"
         align="start"
-        className="max-w-sm rounded-lg border border-line bg-popover p-3 text-popover-foreground shadow-[0_8px_24px_var(--shadow)]"
+        className="max-w-sm rounded-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg"
       >
         <TypeTooltipBody symbol={sym} />
       </TooltipContent>
@@ -76,34 +76,34 @@ function TypeTooltipBody({
     <>
       <div className="mb-1 flex items-center gap-2">
         <span className="type-code-100 text-accent">{symbol.kind}</span>
-        <span className="type-code-100 font-semibold text-fg">
+        <span className="type-code-100 font-semibold text-foreground">
           {symbol.name}
         </span>
       </div>
 
       {symbol.description && (
-        <p className="type-body-100 m-0 mb-2 text-fg-muted">
+        <p className="type-body-100 m-0 mb-2 text-muted-foreground">
           {symbol.description}
         </p>
       )}
 
       {symbol.typeText && !symbol.properties?.length && (
-        <pre className="type-code-100 m-0 whitespace-pre-wrap text-fg-muted">
+        <pre className="type-code-100 m-0 whitespace-pre-wrap text-muted-foreground">
           {symbol.typeText}
         </pre>
       )}
 
       {symbol.properties && symbol.properties.length > 0 && (
-        <pre className="type-code-100 m-0 whitespace-pre-wrap text-fg-muted">
+        <pre className="type-code-100 m-0 whitespace-pre-wrap text-muted-foreground">
           {'{'}
           {symbol.properties.slice(0, maxProps).map((p) => (
             <div key={p.name} className="pl-3">
-              <span className="text-fg">{p.name}</span>
+              <span className="text-foreground">{p.name}</span>
               {p.optional ? '?' : ''}: {p.type}
             </div>
           ))}
           {symbol.properties.length > maxProps && (
-            <div className="pl-3 text-fg-muted">
+            <div className="pl-3 text-muted-foreground">
               // ... {symbol.properties.length - maxProps} more
             </div>
           )}
@@ -112,7 +112,7 @@ function TypeTooltipBody({
       )}
 
       {symbol.members && symbol.members.length > 0 && (
-        <pre className="type-code-100 m-0 whitespace-pre-wrap text-fg-muted">
+        <pre className="type-code-100 m-0 whitespace-pre-wrap text-muted-foreground">
           {symbol.members.join(' | ')}
         </pre>
       )}

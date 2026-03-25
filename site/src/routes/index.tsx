@@ -7,10 +7,10 @@ function App() {
     <main className="page-wrap px-4 pb-8 pt-14">
       <section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 sm:py-14">
         <p className="type-label-100 mb-3 text-kicker">Accessible calendar components for React</p>
-        <h1 className="type-display-200 mb-5 max-w-3xl text-fg">
+        <h1 className="type-display-200 mb-5 max-w-3xl text-foreground">
           {import.meta.env.VITE_PROJECT_NAME}
         </h1>
-        <p className="type-body-200 mb-8 max-w-2xl text-fg-muted">
+        <p className="type-body-200 mb-8 max-w-2xl text-muted-foreground">
           Accessible, customizable calendar components for React. Built on Base UI
           and the Temporal API.
         </p>
@@ -18,7 +18,7 @@ function App() {
           <Link
             to="/docs/$slug"
             params={{ slug: 'getting-started' }}
-            className="type-body-100-bold rounded-full border border-accent-border bg-accent-subtle px-5 py-2.5 text-accent no-underline transition hover:-translate-y-0.5 hover:bg-accent-subtle-hover"
+            className="type-body-100-bold rounded-full border border-primary bg-accent px-5 py-2.5 text-accent-foreground no-underline transition hover:-translate-y-0.5 hover:bg-primary/10"
           >
             Get Started
           </Link>
@@ -26,7 +26,7 @@ function App() {
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="type-body-100-bold rounded-full border border-chip-line bg-chip-bg px-5 py-2.5 text-fg no-underline transition hover:-translate-y-0.5"
+            className="type-body-100-bold rounded-full border border-border bg-secondary px-5 py-2.5 text-foreground no-underline transition hover:-translate-y-0.5"
           >
             GitHub
           </a>
@@ -46,10 +46,10 @@ function App() {
             className="island-shell feature-card rise-in rounded-2xl p-5"
             style={{ animationDelay: `${index * 90 + 80}ms` }}
           >
-            <h2 className="type-body-200-bold mb-2 text-fg">
+            <h2 className="type-body-200-bold mb-2 text-foreground">
               {title}
             </h2>
-            <p className="type-body-100 m-0 text-fg-muted">{desc}</p>
+            <p className="type-body-100 m-0 text-muted-foreground">{desc}</p>
           </article>
         ))}
       </section>

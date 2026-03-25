@@ -41,7 +41,7 @@
 		}
 	},
 	"files": {
-		"includes": ["src/**", "dev/**"]
+		"includes": ["src/**"]
 	},
 	"css": {
 		"linter": {

@@ -2,7 +2,7 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="mt-20 border-t border-line px-4 pb-14 pt-10 text-fg-muted">
+    <footer className="mt-20 border-t border-border px-4 pb-14 pt-10 text-muted-foreground">
       <div className="page-wrap flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
         <p className="type-body-100 m-0">
           &copy; {year} {import.meta.env.VITE_PROJECT_NAME}{' '}contributors. All rights reserved.
@@ -14,7 +14,7 @@ export default function Footer() {
           href={import.meta.env.VITE_GITHUB_REPO_URL}
           target="_blank"
           rel="noreferrer"
-          className="rounded-xl p-2 text-fg-muted transition hover:bg-link-bg-hover hover:text-fg"
+          className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
         >
           <span className="sr-only">{`${import.meta.env.VITE_PROJECT_NAME} on GitHub`}</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
