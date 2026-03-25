@@ -37,34 +37,32 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
   const properties = symbol.properties!
 
   return (
-    <div className="overflow-x-auto" role="table" aria-label={`${symbol.name} props`}>
-      {/* Header row */}
-      <div
-        className="hidden grid-cols-[auto_1fr_auto_1fr] gap-x-4 gap-y-2 text-sm sm:grid"
-        role="row"
-      >
-        <div role="columnheader" className="font-semibold text-[var(--sea-ink-soft)] text-xs uppercase tracking-wider pb-1 border-b border-[var(--line)]">Prop</div>
-        <div role="columnheader" className="font-semibold text-[var(--sea-ink-soft)] text-xs uppercase tracking-wider pb-1 border-b border-[var(--line)]">Type</div>
-        <div role="columnheader" className="font-semibold text-[var(--sea-ink-soft)] text-xs uppercase tracking-wider pb-1 border-b border-[var(--line)]">Default</div>
-        <div role="columnheader" className="font-semibold text-[var(--sea-ink-soft)] text-xs uppercase tracking-wider pb-1 border-b border-[var(--line)]">Description</div>
-      </div>
-      {/* Data rows — grid on sm+, stacked on mobile */}
-      {properties.map((prop) => (
-        <div
-          key={prop.name}
-          role="row"
-          className="grid grid-cols-1 gap-x-4 gap-y-0.5 border-b border-[var(--line)] py-2 text-sm last:border-0 sm:grid-cols-[auto_1fr_auto_1fr] sm:gap-y-2 sm:py-0"
-        >
-          <div role="cell" className="font-mono text-xs py-1.5">
-            {prop.name}
-            {!prop.optional && <span className="ml-0.5 text-[var(--accent)]">*</span>}
-          </div>
-          <div role="cell" className="font-mono text-xs text-[var(--sea-ink-soft)] py-1.5 break-all">{prop.type}</div>
-          <div role="cell" className="font-mono text-xs text-[var(--sea-ink-soft)] py-1.5">{prop.defaultValue || '—'}</div>
-          <div role="cell" className="text-xs text-[var(--sea-ink-soft)] py-1.5">{prop.description}</div>
-        </div>
-      ))}
-    </div>
+    <table
+      className="w-full border-collapse overflow-x-auto text-sm [display:grid] [grid-template-columns:auto_1fr_auto_1fr]"
+      aria-label={`${symbol.name} props`}
+    >
+      <thead className="contents">
+        <tr className="contents">
+          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Prop</th>
+          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Type</th>
+          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Default</th>
+          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Description</th>
+        </tr>
+      </thead>
+      <tbody className="contents">
+        {properties.map((prop) => (
+          <tr key={prop.name} className="contents">
+            <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs last:border-0">
+              {prop.name}
+              {!prop.optional && <span className="ml-0.5 text-[var(--accent)]">*</span>}
+            </td>
+            <td className="break-all border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.type}</td>
+            <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.defaultValue || '—'}</td>
+            <td className="border-b border-[var(--line)] py-1.5 text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.description}</td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
   )
 }
 
