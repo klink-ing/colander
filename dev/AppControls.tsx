@@ -132,6 +132,12 @@ export interface AppControlsProps {
   showMonthSeparators: boolean;
   setShowMonthSeparators: (v: boolean) => void;
 
+  // New controls
+  disableDateMode: string;
+  setDisableDateMode: (v: string) => void;
+  monthOverflowBehavior: "unbounded" | "stop";
+  setMonthOverflowBehavior: (v: "unbounded" | "stop") => void;
+
   // State readout
   selectionDisplay: string;
   lastMonthChange: string;
@@ -183,6 +189,10 @@ export function AppControls(props: AppControlsProps) {
     setOverflowBehavior,
     showMonthSeparators,
     setShowMonthSeparators,
+    disableDateMode,
+    setDisableDateMode,
+    monthOverflowBehavior,
+    setMonthOverflowBehavior,
     selectionDisplay,
     lastMonthChange,
   } = props;
@@ -363,6 +373,23 @@ export function AppControls(props: AppControlsProps) {
         </label>
       </div>
 
+      <div>
+        <label htmlFor="disable-dates" className={labelClassName}>
+          Disable Dates
+        </label>
+        <select
+          id="disable-dates"
+          value={disableDateMode}
+          onChange={(e) => setDisableDateMode(e.target.value)}
+          className={selectClassName}
+        >
+          <option value="none">None (default)</option>
+          <option value="weekends">Weekends</option>
+          <option value="past">Past dates</option>
+          <option value="every3rd">Every 3rd day</option>
+        </select>
+      </div>
+
       {/* ── Month View Options ── */}
       <h3 className={sectionHeaderClassName}>Month View</h3>
 
@@ -432,6 +459,20 @@ export function AppControls(props: AppControlsProps) {
             <option value="readonly">Read-only</option>
             <option value="disabled">Disabled</option>
             <option value="hidden">Hidden</option>
+          </select>
+        </div>
+        <div>
+          <label htmlFor="month-overflow" className={labelClassName}>
+            Overflow Behavior
+          </label>
+          <select
+            id="month-overflow"
+            value={monthOverflowBehavior}
+            onChange={(e) => setMonthOverflowBehavior(e.target.value as "unbounded" | "stop")}
+            className={selectClassName}
+          >
+            <option value="unbounded">Unbounded (default)</option>
+            <option value="stop">Stop</option>
           </select>
         </div>
       </div>

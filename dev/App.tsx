@@ -90,6 +90,24 @@ export default function App() {
     useState<OverflowBehavior>("unbounded");
   const [showMonthSeparators, setShowMonthSeparators] = useState(true);
 
+  // ── New controls ──
+  const [disableDateMode, setDisableDateMode] = useState<string>("none");
+  const [monthOverflowBehavior, setMonthOverflowBehavior] = useState<"unbounded" | "stop">("unbounded");
+
+  // ── Event log ──
+  interface EventLogEntry {
+    timestamp: string;
+    callbackName: string;
+    params: unknown[];
+  }
+  const [eventLog, setEventLog] = useState<EventLogEntry[]>([]);
+  const log = useCallback((callbackName: string, ...params: unknown[]) => {
+    setEventLog((prev) => [
+      ...prev.slice(-50),
+      { timestamp: new Date().toISOString(), callbackName, params },
+    ]);
+  }, []);
+
   // ── Value state ──
   const [singleDate, setSingleDate] = useState<Temporal.ZonedDateTime | null>(
     null,
@@ -156,6 +174,22 @@ export default function App() {
     setMultipleDates((prev) => prev.map((d) => d.withTimeZone(newTz)));
   }, []);
 
+  const isDateDisabled = useMemo(() => {
+    switch (disableDateMode) {
+      case "weekends":
+        return (date: Temporal.PlainDate) => date.dayOfWeek >= 6; // Sat=6, Sun=7
+      case "past":
+        return (date: Temporal.PlainDate) => {
+          const today = Temporal.Now.plainDateISO();
+          return Temporal.PlainDate.compare(date, today) < 0;
+        };
+      case "every3rd":
+        return (date: Temporal.PlainDate) => date.day % 3 === 0;
+      default:
+        return undefined;
+    }
+  }, [disableDateMode]);
+
   const handleMonthChange = useCallback(
     (month: Temporal.PlainYearMonth) => {
       const formatted = month.toLocaleString(locale, {
@@ -163,8 +197,34 @@ export default function App() {
         year: "numeric",
       });
       setLastMonthChange(formatted);
+      log("onMonthChange", month.toString());
     },
-    [locale],
+    [locale, log],
+  );
+
+  const handleHoveredDateChange = useCallback(
+    (date: Temporal.PlainDate | undefined) => {
+      log("onHoveredDateChange", date?.toString());
+    },
+    [log],
+  );
+
+  const handleFirstWeekChange = useCallback(
+    (date: Temporal.PlainDate) => {
+      log("onFirstWeekChange", date.toString());
+    },
+    [log],
+  );
+
+  const handleWindowChange = useCallback(
+    (info: any) => {
+      log("onWindowChange", {
+        windowStart: info.windowStart.toString(),
+        windowEnd: info.windowEnd.toString(),
+        weekCount: info.weekCount,
+      });
+    },
+    [log],
   );
 
   const tzOptions = useMemo(() => {
@@ -214,22 +274,32 @@ export default function App() {
       return {
         selectionMode: "range" as const,
         value: range,
-        onValueChange: setRange,
+        onValueChange: (v: DateRange<"ZonedDateTime"> | null) => {
+          setRange(v);
+          log("onValueChange", v);
+        },
         rangeMode,
         preventRangeReversal,
+        onHoveredDateChange: handleHoveredDateChange,
       };
     }
     if (selectionMode === "multiple") {
       return {
         selectionMode: "multiple" as const,
         value: multipleDates,
-        onValueChange: setMultipleDates,
+        onValueChange: (v: Temporal.ZonedDateTime[]) => {
+          setMultipleDates(v);
+          log("onValueChange", v);
+        },
       };
     }
     return {
       selectionMode: "single" as const,
       value: singleDate,
-      onValueChange: setSingleDate,
+      onValueChange: (v: Temporal.ZonedDateTime | null) => {
+        setSingleDate(v);
+        log("onValueChange", v);
+      },
     };
   }, [
     selectionMode,
@@ -238,6 +308,8 @@ export default function App() {
     multipleDates,
     rangeMode,
     preventRangeReversal,
+    log,
+    handleHoveredDateChange,
   ]);
 
   const isVertical = orientation === "vertical";
@@ -394,6 +466,10 @@ export default function App() {
             setOverflowBehavior,
             showMonthSeparators,
             setShowMonthSeparators,
+            disableDateMode,
+            setDisableDateMode,
+            monthOverflowBehavior,
+            setMonthOverflowBehavior,
             selectionDisplay,
             lastMonthChange,
           }}
@@ -413,6 +489,7 @@ export default function App() {
               disabled={disabled}
               readOnly={readOnly}
               weekStartDay={weekStartDay}
+              isDateDisabled={isDateDisabled}
             >
               {/* Month View */}
               <div>
@@ -424,6 +501,7 @@ export default function App() {
                   fixedWeeks={fixedWeeks}
                   outsideDays={outsideDays}
                   onMonthChange={handleMonthChange}
+                  overflowBehavior={monthOverflowBehavior}
                 >
                   <div className="p-3">
                     {numberOfMonths === 1 && (
@@ -460,6 +538,8 @@ export default function App() {
                   weekCount={weekCount}
                   scrollBy={scrollBy}
                   overflowBehavior={overflowBehavior}
+                  onFirstWeekChange={handleFirstWeekChange}
+                  onWindowChange={handleWindowChange}
                 >
                   <div className="p-3">
                     <div className="flex items-center justify-between gap-1 px-1 pb-3">
@@ -604,6 +684,21 @@ export default function App() {
                   : selectionMode === "multiple"
                     ? multipleDates
                     : singleDate,
+                (_, v) =>
+                  v && typeof v === "object" && "epochNanoseconds" in v
+                    ? v.toString()
+                    : v,
+                2,
+              )}
+            />
+          </div>
+          <div className="w-full pt-2">
+            <textarea
+              readOnly
+              className="text-muted-foreground border-input bg-background w-full rounded-md border px-3 py-2 font-mono text-xs"
+              rows={6}
+              value={JSON.stringify(
+                eventLog,
                 (_, v) =>
                   v && typeof v === "object" && "epochNanoseconds" in v
                     ? v.toString()
