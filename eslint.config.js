@@ -7,13 +7,19 @@ export default [
     languageOptions: {
       parser: tseslint.parser,
     },
+  },
+  {
+    files: ["site/**/*.{ts,tsx}"],
+    languageOptions: {
+      parser: tseslint.parser,
+    },
     plugins: {
       "tailwind-canonical-classes": tailwindCanonicalClasses,
     },
     rules: {
       "tailwind-canonical-classes/tailwind-canonical-classes": [
         "warn",
-        { cssPath: "./dev/index.css" },
+        { cssPath: "./site/src/styles.css" },
       ],
     },
   },

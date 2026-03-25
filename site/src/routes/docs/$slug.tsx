@@ -71,7 +71,7 @@ function DocPage() {
   return (
     <div>
       <div className="mb-6">
-        <p className="type-label-100 text-kicker mb-1">{frontmatter.section}</p>
+        <p className="type-label-100 text-muted-foreground mb-1">{frontmatter.section}</p>
         <h1 className="type-display-100 mb-2 text-foreground">
           {frontmatter.title}
         </h1>

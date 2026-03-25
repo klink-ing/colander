@@ -5,8 +5,8 @@ export const Route = createFileRoute('/')({ component: App })
 function App() {
   return (
     <main className="page-wrap px-4 pb-8 pt-14">
-      <section className="island-shell rise-in relative overflow-hidden rounded-[2rem] px-6 py-10 sm:px-10 sm:py-14">
-        <p className="type-label-100 mb-3 text-kicker">Accessible calendar components for React</p>
+      <section className="rise-in relative overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-10 shadow-lg sm:px-10 sm:py-14">
+        <p className="type-label-100 mb-3 text-muted-foreground">Accessible calendar components for React</p>
         <h1 className="type-display-200 mb-5 max-w-3xl text-foreground">
           {import.meta.env.VITE_PROJECT_NAME}
         </h1>
@@ -43,7 +43,7 @@ function App() {
         ].map(([title, desc], index) => (
           <article
             key={title}
-            className="island-shell feature-card rise-in rounded-2xl p-5"
+            className="rise-in rounded-2xl border border-border bg-card p-5 shadow-md transition hover:-translate-y-0.5"
             style={{ animationDelay: `${index * 90 + 80}ms` }}
           >
             <h2 className="type-body-200-bold mb-2 text-foreground">

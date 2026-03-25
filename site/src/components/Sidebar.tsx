@@ -70,7 +70,7 @@ export default function Sidebar({
       <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
         {Array.from(grouped.entries()).map(([section, entries]) => (
           <div key={section} className="mb-5">
-            <h4 className="type-label-100 mb-2 text-kicker">{section}</h4>
+            <h4 className="type-label-100 mb-2 text-muted-foreground">{section}</h4>
             <ul className="m-0 list-none space-y-0.5 p-0">
               {entries.map((entry) => {
                 const path = `/docs/${entry.slug}`
@@ -99,7 +99,7 @@ export default function Sidebar({
           const items = apiGrouped.get(kind)!
           return (
             <div key={kind} className="mb-5">
-              <h4 className="type-label-100 mb-2 text-kicker">
+              <h4 className="type-label-100 mb-2 text-muted-foreground">
                 {kindLabels[kind] ?? kind}
               </h4>
               <ul className="m-0 list-none space-y-0.5 p-0">

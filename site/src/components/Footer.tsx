@@ -7,7 +7,7 @@ export default function Footer() {
         <p className="type-body-100 m-0">
           &copy; {year} {import.meta.env.VITE_PROJECT_NAME}{' '}contributors. All rights reserved.
         </p>
-        <p className="type-label-100 m-0 text-kicker">MIT License</p>
+        <p className="type-label-100 m-0 text-muted-foreground">MIT License</p>
       </div>
       <div className="mt-4 flex justify-center gap-4">
         <a

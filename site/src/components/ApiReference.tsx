@@ -73,7 +73,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
 
   return (
     <table
-      className="type-body-100 w-full border-collapse overflow-x-auto [display:grid] [grid-template-columns:auto_1fr_auto_1fr]"
+      className="type-body-100 w-full border-collapse overflow-x-auto grid grid-cols-[auto_1fr_auto_1fr]"
       aria-label={`${symbol.name} props`}
     >
       <thead className="contents">
@@ -200,9 +200,10 @@ function Badge({
     render: render ?? <span />,
     state: {},
     props: {
-      className: 'type-code-100 inline-flex items-center rounded-md border border-border bg-secondary px-1.5 py-0.5 text-foreground',
+      className:
+        "type-code-100 inline-flex items-center rounded-md border border-border bg-accent px-1.5 py-0.5 text-foreground",
       children,
     },
-    defaultTagName: 'span',
-  })
+    defaultTagName: "span",
+  });
 }

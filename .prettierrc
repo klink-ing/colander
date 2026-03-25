@@ -1,3 +1,11 @@
 {
-  "plugins": ["prettier-plugin-tailwindcss"]
+  "overrides": [
+    {
+      "files": "site/**/*.{ts,tsx,css}",
+      "options": {
+        "plugins": ["prettier-plugin-tailwindcss"],
+        "tailwindStylesheet": "./site/src/styles.css"
+      }
+    }
+  ]
 }

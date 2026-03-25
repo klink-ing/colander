@@ -84,7 +84,7 @@ const headingNode: Schema = {
         id,
         className: cn(
           headingTypeClass[level] ?? 'type-heading-100',
-          'text-fg mt-8 mb-4',
+          'text-foreground mt-8 mb-4',
           annotation,
         ),
       },
@@ -98,7 +98,7 @@ const paragraphNode: Schema = {
   transform(node, config) {
     const children = node.transformChildren(config)
     const annotation = node.attributes.class as string | undefined
-    return new Markdoc.Tag('p', { className: cn('type-body-200 text-fg-muted mb-4', annotation) }, children)
+    return new Markdoc.Tag('p', { className: cn('type-body-200 text-muted-foreground mb-4', annotation) }, children)
   },
 }
 
