@@ -6,6 +6,7 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "./components/ui/accordion";
+import { RadioGroup, RadioGroupItem } from "./components/ui/radio-group";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -218,23 +219,15 @@ export function AppControls(props: AppControlsProps) {
             <div className="flex flex-col gap-4">
               {/* selectionMode */}
               <div>
-                <label htmlFor="selection-mode" className={propLabelClassName}>
-                  selectionMode
-                </label>
-                <select
-                  id="selection-mode"
+                <div className={propLabelClassName}>selectionMode</div>
+                <RadioGroup
                   value={selectionMode}
-                  onChange={(e) =>
-                    setSelectionMode(
-                      e.target.value as "single" | "range" | "multiple",
-                    )
-                  }
-                  className={selectClassName}
+                  onValueChange={(v) => setSelectionMode(v as "single" | "range" | "multiple")}
                 >
-                  <option value="single">Single (default)</option>
-                  <option value="range">Range</option>
-                  <option value="multiple">Multiple</option>
-                </select>
+                  <RadioGroupItem value="single" label="single (default)" />
+                  <RadioGroupItem value="range" label="range" />
+                  <RadioGroupItem value="multiple" label="multiple" />
+                </RadioGroup>
               </div>
 
               {/* rangeMode */}
@@ -389,20 +382,16 @@ export function AppControls(props: AppControlsProps) {
 
               {/* isDateDisabled */}
               <div>
-                <label htmlFor="disable-dates" className={propLabelClassName}>
-                  isDateDisabled
-                </label>
-                <select
-                  id="disable-dates"
+                <div className={propLabelClassName}>isDateDisabled</div>
+                <RadioGroup
                   value={disableDateMode}
-                  onChange={(e) => setDisableDateMode(e.target.value)}
-                  className={selectClassName}
+                  onValueChange={setDisableDateMode}
                 >
-                  <option value="none">None (default)</option>
-                  <option value="weekends">Weekends</option>
-                  <option value="past">Past dates</option>
-                  <option value="every3rd">Every 3rd day</option>
-                </select>
+                  <RadioGroupItem value="none" label="None (default)" />
+                  <RadioGroupItem value="weekends" label="Weekends" />
+                  <RadioGroupItem value="past" label="Past dates" />
+                  <RadioGroupItem value="every3rd" label="Every 3rd day" />
+                </RadioGroup>
               </div>
             </div>
           </AccordionContent>
@@ -415,42 +404,29 @@ export function AppControls(props: AppControlsProps) {
             <div className="flex flex-col gap-4">
               {/* numberOfMonths */}
               <div>
-                <label
-                  htmlFor="number-of-months"
-                  className={propLabelClassName}
+                <div className={propLabelClassName}>numberOfMonths</div>
+                <RadioGroup
+                  value={String(numberOfMonths)}
+                  onValueChange={(v) => setNumberOfMonths(Number(v))}
                 >
-                  numberOfMonths
-                </label>
-                <select
-                  id="number-of-months"
-                  className={selectClassName}
-                  value={numberOfMonths}
-                  onChange={(e) => setNumberOfMonths(Number(e.target.value))}
-                >
-                  <option value={1}>1 (default)</option>
-                  <option value={2}>2</option>
-                  <option value={3}>3</option>
-                </select>
+                  <RadioGroupItem value="1" label="1 (default)" />
+                  <RadioGroupItem value="2" label="2" />
+                  <RadioGroupItem value="3" label="3" />
+                </RadioGroup>
               </div>
 
               {/* outsideDays */}
               <div>
-                <label htmlFor="outside-days" className={propLabelClassName}>
-                  outsideDays
-                </label>
-                <select
-                  id="outside-days"
+                <div className={propLabelClassName}>outsideDays</div>
+                <RadioGroup
                   value={outsideDays}
-                  onChange={(e) =>
-                    setOutsideDays(e.target.value as OutsideDays)
-                  }
-                  className={selectClassName}
+                  onValueChange={(v) => setOutsideDays(v as OutsideDays)}
                 >
-                  <option value="enabled">Enabled (default)</option>
-                  <option value="readonly">Read-only</option>
-                  <option value="disabled">Disabled</option>
-                  <option value="hidden">Hidden</option>
-                </select>
+                  <RadioGroupItem value="enabled" label="enabled (default)" />
+                  <RadioGroupItem value="readonly" label="readonly" />
+                  <RadioGroupItem value="disabled" label="disabled" />
+                  <RadioGroupItem value="hidden" label="hidden" />
+                </RadioGroup>
               </div>
 
               {/* fixedWeeks */}
@@ -465,22 +441,14 @@ export function AppControls(props: AppControlsProps) {
 
               {/* overflowBehavior (month) */}
               <div>
-                <label htmlFor="month-overflow" className={propLabelClassName}>
-                  overflowBehavior
-                </label>
-                <select
-                  id="month-overflow"
+                <div className={propLabelClassName}>overflowBehavior</div>
+                <RadioGroup
                   value={monthOverflowBehavior}
-                  onChange={(e) =>
-                    setMonthOverflowBehavior(
-                      e.target.value as "unbounded" | "stop",
-                    )
-                  }
-                  className={selectClassName}
+                  onValueChange={(v) => setMonthOverflowBehavior(v as "unbounded" | "stop")}
                 >
-                  <option value="unbounded">Unbounded (default)</option>
-                  <option value="stop">Stop</option>
-                </select>
+                  <RadioGroupItem value="unbounded" label="unbounded (default)" />
+                  <RadioGroupItem value="stop" label="stop" />
+                </RadioGroup>
               </div>
             </div>
           </AccordionContent>
@@ -512,20 +480,14 @@ export function AppControls(props: AppControlsProps) {
 
               {/* scrollBy */}
               <div>
-                <label htmlFor="scroll-by" className={propLabelClassName}>
-                  scrollBy
-                </label>
-                <select
-                  id="scroll-by"
-                  className={selectClassName}
+                <div className={propLabelClassName}>scrollBy</div>
+                <RadioGroup
                   value={scrollBy}
-                  onChange={(e) =>
-                    setScrollBy(e.target.value as "row" | "page")
-                  }
+                  onValueChange={(v) => setScrollBy(v as "row" | "page")}
                 >
-                  <option value="row">Row (one week) (default)</option>
-                  <option value="page">Page (all visible)</option>
-                </select>
+                  <RadioGroupItem value="row" label="row (default)" />
+                  <RadioGroupItem value="page" label="page" />
+                </RadioGroup>
               </div>
 
               {/* overflowBehavior (weeks) */}
@@ -588,29 +550,14 @@ export function AppControls(props: AppControlsProps) {
               </label>
 
               <div>
-                <label
-                  htmlFor="orientation-select"
-                  className={displayLabelClassName}
-                >
-                  Orientation
-                </label>
-                <select
-                  id="orientation-select"
+                <div className={displayLabelClassName}>Orientation</div>
+                <RadioGroup
                   value={orientation}
-                  onChange={(e) =>
-                    setOrientation(
-                      e.target.value as "horizontal" | "vertical",
-                    )
-                  }
-                  className={selectClassName}
+                  onValueChange={(v) => setOrientation(v as "horizontal" | "vertical")}
                 >
-                  <option value="horizontal">
-                    Horizontal (weeks as rows) (default)
-                  </option>
-                  <option value="vertical">
-                    Vertical (weeks as columns)
-                  </option>
-                </select>
+                  <RadioGroupItem value="horizontal" label="Horizontal (default)" />
+                  <RadioGroupItem value="vertical" label="Vertical" />
+                </RadioGroup>
               </div>
             </div>
           </AccordionContent>
