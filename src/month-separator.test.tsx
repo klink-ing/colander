@@ -15,6 +15,11 @@ const mockData: MonthSeparatorState = {
   firstVisible: true,
   weeksVisibleBefore: 2,
   weeksVisibleAfter: 4,
+  firstDayColumn: 0,
+  totalColumns: 7,
+  firstDayVisible: true,
+  fullWeeksVisibleAfter: 4,
+  gridRowStart: 2,
 };
 
 function renderInTable(ui: React.ReactElement, data = mockData) {

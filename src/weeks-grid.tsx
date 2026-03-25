@@ -166,7 +166,6 @@ export function WeeksGrid(props: {
         }
 
         // Determine firstOfYear
-        const prevMonthKey = Array.from(seenMonths).slice(-2)[0]; // second to last
         const isNewYear = boundaries.length > 0
           ? boundaries[boundaries.length - 1].data.year !== newYear
           : newMonth === 1;

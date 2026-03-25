@@ -46,7 +46,7 @@ function WeeksViewHeader() {
   const label = monthNames.join("/") + (hasMore ? "/..." : "");
 
   // Show year(s)
-  const years = [...new Set(visibleMonths.map((vm) => vm.year))];
+  const years = Array.from(new Set(visibleMonths.map((vm) => vm.year)));
   const yearLabel = years.join("/");
 
   return (

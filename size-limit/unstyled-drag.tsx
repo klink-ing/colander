@@ -3,7 +3,7 @@
 import React from "react";
 import { Temporal } from "@js-temporal/polyfill";
 import {
-  Root,
+  MonthView,
   Grid,
   GridBody,
   GridHeader,
@@ -20,7 +20,7 @@ import { DragHandleStart, DragHandleEnd, DragDayButton } from "../dev/lib/drag-c
 
 export function DatePicker() {
   return (
-    <Root temporal={Temporal} format="object">
+    <MonthView temporal={Temporal} format="object">
       <div>
         <PrevMonthButton>←</PrevMonthButton>
         <MonthYearString />
@@ -42,6 +42,6 @@ export function DatePicker() {
           </WeekTemplate>
         </GridBody>
       </Grid>
-    </Root>
+    </MonthView>
   );
 }

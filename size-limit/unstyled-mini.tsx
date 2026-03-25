@@ -3,7 +3,7 @@
 import React from "react";
 import {
   Temporal,
-  Root,
+  MonthView,
   Grid,
   GridBody,
   GridHeader,
@@ -22,7 +22,7 @@ import {
 
 export function DatePicker() {
   return (
-    <Root temporal={Temporal} format="object">
+    <MonthView temporal={Temporal} format="object">
       <div>
         <PrevMonthButton>←</PrevMonthButton>
         <MonthYearString />
@@ -38,12 +38,12 @@ export function DatePicker() {
             <RangeSelected />
             <DayCellTemplate>
               <DayButton />
-              <RangeStartDragHandle edge="start" />
-              <RangeEndDragHandle edge="end" />
+              <RangeStartDragHandle />
+              <RangeEndDragHandle />
             </DayCellTemplate>
           </WeekTemplate>
         </GridBody>
       </Grid>
-    </Root>
+    </MonthView>
   );
 }
