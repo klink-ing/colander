@@ -1,5 +1,11 @@
 import { Temporal } from "@js-temporal/polyfill";
 import type { RangeMode, OutsideDays, OverflowBehavior } from "base-ui-cal";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+} from "./components/ui/accordion";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -76,13 +82,13 @@ export function formatTzLabel(tz: string): string {
 const selectClassName =
   "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
 
-const labelClassName = "mb-1.5 block text-sm font-medium text-foreground";
+const propLabelClassName = "mb-1.5 block font-mono text-xs text-foreground";
+
+const displayLabelClassName =
+  "mb-1.5 block text-sm font-medium text-foreground";
 
 const checkboxClassName =
   "flex items-center gap-2 text-sm text-foreground cursor-pointer select-none";
-
-const sectionHeaderClassName =
-  "text-foreground text-xs font-semibold uppercase tracking-wide border-input border-t pt-3 mt-1";
 
 export interface AppControlsProps {
   // Shared (CalendarProvider)
@@ -198,368 +204,437 @@ export function AppControls(props: AppControlsProps) {
   } = props;
 
   return (
-    <div className="flex w-64 shrink-0 flex-col gap-4">
-      <h2 className="text-foreground text-lg font-semibold">Controls</h2>
+    <div className="flex w-64 shrink-0 flex-col">
+      <h2 className="text-foreground mb-2 text-lg font-semibold">Controls</h2>
 
-      {/* ── CalendarProvider Options ── */}
-      <h3 className={sectionHeaderClassName}>CalendarProvider</h3>
+      <Accordion
+        type="multiple"
+        defaultValue={["calendar-provider", "display-options"]}
+      >
+        {/* ── Section 1: CalendarProvider ── */}
+        <AccordionItem value="calendar-provider">
+          <AccordionTrigger>CalendarProvider</AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              {/* selectionMode */}
+              <div>
+                <label htmlFor="selection-mode" className={propLabelClassName}>
+                  selectionMode
+                </label>
+                <select
+                  id="selection-mode"
+                  value={selectionMode}
+                  onChange={(e) =>
+                    setSelectionMode(
+                      e.target.value as "single" | "range" | "multiple",
+                    )
+                  }
+                  className={selectClassName}
+                >
+                  <option value="single">Single (default)</option>
+                  <option value="range">Range</option>
+                  <option value="multiple">Multiple</option>
+                </select>
+              </div>
 
-      {/* Selection mode */}
-      <div>
-        <label htmlFor="selection-mode" className={labelClassName}>
-          Selection Mode
-        </label>
-        <select
-          id="selection-mode"
-          value={selectionMode}
-          onChange={(e) =>
-            setSelectionMode(e.target.value as "single" | "range" | "multiple")
-          }
-          className={selectClassName}
-        >
-          <option value="single">Single (default)</option>
-          <option value="range">Range</option>
-          <option value="multiple">Multiple</option>
-        </select>
-      </div>
+              {/* rangeMode */}
+              {selectionMode === "range" && (
+                <div>
+                  <label htmlFor="range-mode" className={propLabelClassName}>
+                    rangeMode
+                  </label>
+                  <select
+                    id="range-mode"
+                    value={rangeMode}
+                    onChange={(e) => setRangeMode(e.target.value as RangeMode)}
+                    className={selectClassName}
+                  >
+                    <option value="start-end">Start → End (default)</option>
+                    <option value="nearest-end">Nearest (tie: End)</option>
+                    <option value="nearest-start">Nearest (tie: Start)</option>
+                    <option value="adjust-end">Adjust End</option>
+                    <option value="adjust-start">Adjust Start</option>
+                    <option value="reset">Reset to Single Day</option>
+                  </select>
+                </div>
+              )}
 
-      {/* Range mode (range selection only) */}
-      {selectionMode === "range" && (
-        <div>
-          <label htmlFor="range-mode" className={labelClassName}>
-            Range Mode
-          </label>
-          <select
-            id="range-mode"
-            value={rangeMode}
-            onChange={(e) => setRangeMode(e.target.value as RangeMode)}
-            className={selectClassName}
-          >
-            <option value="start-end">Start → End (default)</option>
-            <option value="nearest-end">Nearest (tie: End)</option>
-            <option value="nearest-start">Nearest (tie: Start)</option>
-            <option value="adjust-end">Adjust End</option>
-            <option value="adjust-start">Adjust Start</option>
-            <option value="reset">Reset to Single Day</option>
-          </select>
-        </div>
-      )}
+              {/* preventRangeReversal */}
+              {selectionMode === "range" && (
+                <label className={checkboxClassName}>
+                  <input
+                    type="checkbox"
+                    checked={preventRangeReversal}
+                    onChange={(e) =>
+                      setPreventRangeReversal(e.target.checked)
+                    }
+                  />
+                  <span className="font-mono text-xs">
+                    preventRangeReversal
+                  </span>
+                </label>
+              )}
 
-      {selectionMode === "range" && (
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={preventRangeReversal}
-            onChange={(e) => setPreventRangeReversal(e.target.checked)}
-          />
-          Prevent Range Reversal (drag)
-        </label>
-      )}
+              {/* timeZone */}
+              <div>
+                <label
+                  htmlFor="timezone-select"
+                  className={propLabelClassName}
+                >
+                  timeZone
+                </label>
+                <select
+                  id="timezone-select"
+                  value={timeZone}
+                  onChange={(e) => handleTimeZoneChange(e.target.value)}
+                  className={selectClassName}
+                >
+                  {tzOptions.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Timezone */}
-      <div>
-        <label htmlFor="timezone-select" className={labelClassName}>
-          Timezone
-        </label>
-        <select
-          id="timezone-select"
-          value={timeZone}
-          onChange={(e) => handleTimeZoneChange(e.target.value)}
-          className={selectClassName}
-        >
-          {tzOptions.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      </div>
+              {/* locale */}
+              <div>
+                <label htmlFor="locale-select" className={propLabelClassName}>
+                  locale
+                </label>
+                <select
+                  id="locale-select"
+                  value={locale}
+                  onChange={(e) => setLocale(e.target.value)}
+                  className={selectClassName}
+                >
+                  {LOCALES.map((loc) => (
+                    <option key={loc.value} value={loc.value}>
+                      {loc.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Locale */}
-      <div>
-        <label htmlFor="locale-select" className={labelClassName}>
-          Locale
-        </label>
-        <select
-          id="locale-select"
-          value={locale}
-          onChange={(e) => setLocale(e.target.value)}
-          className={selectClassName}
-        >
-          {LOCALES.map((loc) => (
-            <option key={loc.value} value={loc.value}>
-              {loc.label}
-            </option>
-          ))}
-        </select>
-      </div>
+              {/* weekStartDay */}
+              <div>
+                <label htmlFor="week-start-day" className={propLabelClassName}>
+                  weekStartDay
+                </label>
+                <select
+                  id="week-start-day"
+                  value={weekStartDay}
+                  onChange={(e) =>
+                    setWeekStartDay(
+                      Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+                    )
+                  }
+                  className={selectClassName}
+                >
+                  {WEEK_START_DAYS.map((d) => (
+                    <option key={d.value} value={d.value}>
+                      {d.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Week start day */}
-      <div>
-        <label htmlFor="week-start-day" className={labelClassName}>
-          Week Start Day
-        </label>
-        <select
-          id="week-start-day"
-          value={weekStartDay}
-          onChange={(e) =>
-            setWeekStartDay(
-              Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-            )
-          }
-          className={selectClassName}
-        >
-          {WEEK_START_DAYS.map((d) => (
-            <option key={d.value} value={d.value}>
-              {d.label}
-            </option>
-          ))}
-        </select>
-      </div>
+              {/* min / max */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label htmlFor="min-date" className={propLabelClassName}>
+                    min
+                  </label>
+                  <input
+                    id="min-date"
+                    type="date"
+                    value={toInputValue(minDate)}
+                    onChange={(e) => handleMinChange(e.target.value)}
+                    className={selectClassName}
+                  />
+                </div>
+                <div className="flex-1">
+                  <label htmlFor="max-date" className={propLabelClassName}>
+                    max
+                  </label>
+                  <input
+                    id="max-date"
+                    type="date"
+                    value={toInputValue(maxDate)}
+                    onChange={(e) => handleMaxChange(e.target.value)}
+                    className={selectClassName}
+                  />
+                </div>
+              </div>
 
-      {/* Min/Max dates */}
-      <div className="flex gap-2">
-        <div className="flex-1">
-          <label htmlFor="min-date" className={labelClassName}>
-            Min
-          </label>
-          <input
-            id="min-date"
-            type="date"
-            value={toInputValue(minDate)}
-            onChange={(e) => handleMinChange(e.target.value)}
-            className={selectClassName}
-          />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="max-date" className={labelClassName}>
-            Max
-          </label>
-          <input
-            id="max-date"
-            type="date"
-            value={toInputValue(maxDate)}
-            onChange={(e) => handleMaxChange(e.target.value)}
-            className={selectClassName}
-          />
-        </div>
-      </div>
+              {/* disabled */}
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={disabled}
+                  onChange={(e) => setDisabled(e.target.checked)}
+                />
+                <span className="font-mono text-xs">disabled</span>
+              </label>
 
-      {/* Boolean toggles */}
-      <div className="flex flex-col gap-2">
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={disabled}
-            onChange={(e) => setDisabled(e.target.checked)}
-          />
-          Disabled
-        </label>
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={readOnly}
-            onChange={(e) => setReadOnly(e.target.checked)}
-          />
-          Read Only
-        </label>
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={showWeekNumbers}
-            onChange={(e) => setShowWeekNumbers(e.target.checked)}
-          />
-          Week Numbers
-        </label>
-      </div>
+              {/* readOnly */}
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={readOnly}
+                  onChange={(e) => setReadOnly(e.target.checked)}
+                />
+                <span className="font-mono text-xs">readOnly</span>
+              </label>
 
-      <div>
-        <label htmlFor="disable-dates" className={labelClassName}>
-          Disable Dates
-        </label>
-        <select
-          id="disable-dates"
-          value={disableDateMode}
-          onChange={(e) => setDisableDateMode(e.target.value)}
-          className={selectClassName}
-        >
-          <option value="none">None (default)</option>
-          <option value="weekends">Weekends</option>
-          <option value="past">Past dates</option>
-          <option value="every3rd">Every 3rd day</option>
-        </select>
-      </div>
-
-      {/* ── Month View Options ── */}
-      <h3 className={sectionHeaderClassName}>Month View</h3>
-
-      {/* Number of months */}
-      <div>
-        <label htmlFor="number-of-months" className={labelClassName}>
-          Number of Months
-        </label>
-        <select
-          id="number-of-months"
-          className={selectClassName}
-          value={numberOfMonths}
-          onChange={(e) => setNumberOfMonths(Number(e.target.value))}
-        >
-          <option value={1}>1 (default)</option>
-          <option value={2}>2</option>
-          <option value={3}>3</option>
-        </select>
-      </div>
-
-      {/* Orientation */}
-      <div>
-        <label htmlFor="orientation-select" className={labelClassName}>
-          Orientation
-        </label>
-        <select
-          id="orientation-select"
-          value={orientation}
-          onChange={(e) =>
-            setOrientation(e.target.value as "horizontal" | "vertical")
-          }
-          className={selectClassName}
-        >
-          <option value="horizontal">Horizontal (weeks as rows) (default)</option>
-          <option value="vertical">Vertical (weeks as columns)</option>
-        </select>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={fixedWeeks}
-            onChange={(e) => setFixedWeeks(e.target.checked)}
-          />
-          Fixed Weeks (6 rows)
-        </label>
-        <label className={checkboxClassName}>
-          <input
-            type="checkbox"
-            checked={autoFocus}
-            onChange={(e) => setAutoFocus(e.target.checked)}
-          />
-          Auto Focus
-        </label>
-        <div>
-          <label htmlFor="outside-days" className={labelClassName}>
-            Outside Days
-          </label>
-          <select
-            id="outside-days"
-            value={outsideDays}
-            onChange={(e) => setOutsideDays(e.target.value as OutsideDays)}
-            className={selectClassName}
-          >
-            <option value="enabled">Enabled (default)</option>
-            <option value="readonly">Read-only</option>
-            <option value="disabled">Disabled</option>
-            <option value="hidden">Hidden</option>
-          </select>
-        </div>
-        <div>
-          <label htmlFor="month-overflow" className={labelClassName}>
-            Overflow Behavior
-          </label>
-          <select
-            id="month-overflow"
-            value={monthOverflowBehavior}
-            onChange={(e) => setMonthOverflowBehavior(e.target.value as "unbounded" | "stop")}
-            className={selectClassName}
-          >
-            <option value="unbounded">Unbounded (default)</option>
-            <option value="stop">Stop</option>
-          </select>
-        </div>
-      </div>
-
-      {/* ── Weeks View Options ── */}
-      <h3 className={sectionHeaderClassName}>Weeks View</h3>
-
-      {/* Week count */}
-      <div>
-        <label htmlFor="week-count" className={labelClassName}>
-          Week Count
-        </label>
-        <select
-          id="week-count"
-          className={selectClassName}
-          value={weekCount}
-          onChange={(e) => setWeekCount(Number(e.target.value))}
-        >
-          <option value={4}>4</option>
-          <option value={6}>6 (default)</option>
-          <option value={8}>8</option>
-          <option value={10}>10</option>
-          <option value={12}>12</option>
-        </select>
-      </div>
-
-      {/* Scroll by */}
-      <div>
-        <label htmlFor="scroll-by" className={labelClassName}>
-          Scroll By
-        </label>
-        <select
-          id="scroll-by"
-          className={selectClassName}
-          value={scrollBy}
-          onChange={(e) => setScrollBy(e.target.value as "row" | "page")}
-        >
-          <option value="row">Row (one week) (default)</option>
-          <option value="page">Page (all visible)</option>
-        </select>
-      </div>
-
-      {/* Overflow behavior */}
-      <div>
-        <label htmlFor="overflow-behavior" className={labelClassName}>
-          Overflow Behavior
-        </label>
-        <select
-          id="overflow-behavior"
-          className={selectClassName}
-          value={overflowBehavior}
-          onChange={(e) =>
-            setOverflowBehavior(e.target.value as OverflowBehavior)
-          }
-        >
-          <option value="unbounded">Unbounded (default)</option>
-          <option value="stop">Stop</option>
-          <option value="stop-shrink">Stop + Shrink</option>
-          <option value="snap">Snap</option>
-          <option value="snap-shrink">Snap + Shrink</option>
-        </select>
-      </div>
-
-      <label className={checkboxClassName}>
-        <input
-          type="checkbox"
-          checked={showMonthSeparators}
-          onChange={(e) => setShowMonthSeparators(e.target.checked)}
-        />
-        Month Separators
-      </label>
-
-      {/* ── State Readout ── */}
-      <div className="border-input border-t pt-3">
-        <h3 className="text-foreground mb-2 text-sm font-semibold">State</h3>
-        <div className="text-muted-foreground text-xs">
-          <div className="mb-1">
-            <span className="font-medium">Selection:</span> {selectionDisplay}
-          </div>
-          {lastMonthChange && (
-            <div>
-              <span className="font-medium">Last month change:</span>{" "}
-              {lastMonthChange}
+              {/* isDateDisabled */}
+              <div>
+                <label htmlFor="disable-dates" className={propLabelClassName}>
+                  isDateDisabled
+                </label>
+                <select
+                  id="disable-dates"
+                  value={disableDateMode}
+                  onChange={(e) => setDisableDateMode(e.target.value)}
+                  className={selectClassName}
+                >
+                  <option value="none">None (default)</option>
+                  <option value="weekends">Weekends</option>
+                  <option value="past">Past dates</option>
+                  <option value="every3rd">Every 3rd day</option>
+                </select>
+              </div>
             </div>
-          )}
-        </div>
-      </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ── Section 2: MonthView.Root ── */}
+        <AccordionItem value="month-view">
+          <AccordionTrigger>MonthView.Root</AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              {/* numberOfMonths */}
+              <div>
+                <label
+                  htmlFor="number-of-months"
+                  className={propLabelClassName}
+                >
+                  numberOfMonths
+                </label>
+                <select
+                  id="number-of-months"
+                  className={selectClassName}
+                  value={numberOfMonths}
+                  onChange={(e) => setNumberOfMonths(Number(e.target.value))}
+                >
+                  <option value={1}>1 (default)</option>
+                  <option value={2}>2</option>
+                  <option value={3}>3</option>
+                </select>
+              </div>
+
+              {/* outsideDays */}
+              <div>
+                <label htmlFor="outside-days" className={propLabelClassName}>
+                  outsideDays
+                </label>
+                <select
+                  id="outside-days"
+                  value={outsideDays}
+                  onChange={(e) =>
+                    setOutsideDays(e.target.value as OutsideDays)
+                  }
+                  className={selectClassName}
+                >
+                  <option value="enabled">Enabled (default)</option>
+                  <option value="readonly">Read-only</option>
+                  <option value="disabled">Disabled</option>
+                  <option value="hidden">Hidden</option>
+                </select>
+              </div>
+
+              {/* fixedWeeks */}
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={fixedWeeks}
+                  onChange={(e) => setFixedWeeks(e.target.checked)}
+                />
+                <span className="font-mono text-xs">fixedWeeks</span>
+              </label>
+
+              {/* overflowBehavior (month) */}
+              <div>
+                <label htmlFor="month-overflow" className={propLabelClassName}>
+                  overflowBehavior
+                </label>
+                <select
+                  id="month-overflow"
+                  value={monthOverflowBehavior}
+                  onChange={(e) =>
+                    setMonthOverflowBehavior(
+                      e.target.value as "unbounded" | "stop",
+                    )
+                  }
+                  className={selectClassName}
+                >
+                  <option value="unbounded">Unbounded (default)</option>
+                  <option value="stop">Stop</option>
+                </select>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ── Section 3: WeeksView.Root ── */}
+        <AccordionItem value="weeks-view">
+          <AccordionTrigger>WeeksView.Root</AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              {/* weekCount */}
+              <div>
+                <label htmlFor="week-count" className={propLabelClassName}>
+                  weekCount
+                </label>
+                <select
+                  id="week-count"
+                  className={selectClassName}
+                  value={weekCount}
+                  onChange={(e) => setWeekCount(Number(e.target.value))}
+                >
+                  <option value={4}>4</option>
+                  <option value={6}>6 (default)</option>
+                  <option value={8}>8</option>
+                  <option value={10}>10</option>
+                  <option value={12}>12</option>
+                </select>
+              </div>
+
+              {/* scrollBy */}
+              <div>
+                <label htmlFor="scroll-by" className={propLabelClassName}>
+                  scrollBy
+                </label>
+                <select
+                  id="scroll-by"
+                  className={selectClassName}
+                  value={scrollBy}
+                  onChange={(e) =>
+                    setScrollBy(e.target.value as "row" | "page")
+                  }
+                >
+                  <option value="row">Row (one week) (default)</option>
+                  <option value="page">Page (all visible)</option>
+                </select>
+              </div>
+
+              {/* overflowBehavior (weeks) */}
+              <div>
+                <label
+                  htmlFor="overflow-behavior"
+                  className={propLabelClassName}
+                >
+                  overflowBehavior
+                </label>
+                <select
+                  id="overflow-behavior"
+                  className={selectClassName}
+                  value={overflowBehavior}
+                  onChange={(e) =>
+                    setOverflowBehavior(e.target.value as OverflowBehavior)
+                  }
+                >
+                  <option value="unbounded">Unbounded (default)</option>
+                  <option value="stop">Stop</option>
+                  <option value="stop-shrink">Stop + Shrink</option>
+                  <option value="snap">Snap</option>
+                  <option value="snap-shrink">Snap + Shrink</option>
+                </select>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ── Section 4: Display Options ── */}
+        <AccordionItem value="display-options">
+          <AccordionTrigger>Display Options</AccordionTrigger>
+          <AccordionContent>
+            <div className="flex flex-col gap-4">
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={autoFocus}
+                  onChange={(e) => setAutoFocus(e.target.checked)}
+                />
+                Auto Focus
+              </label>
+
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={showWeekNumbers}
+                  onChange={(e) => setShowWeekNumbers(e.target.checked)}
+                />
+                Show Week Numbers
+              </label>
+
+              <label className={checkboxClassName}>
+                <input
+                  type="checkbox"
+                  checked={showMonthSeparators}
+                  onChange={(e) => setShowMonthSeparators(e.target.checked)}
+                />
+                Show Month Separators
+              </label>
+
+              <div>
+                <label
+                  htmlFor="orientation-select"
+                  className={displayLabelClassName}
+                >
+                  Orientation
+                </label>
+                <select
+                  id="orientation-select"
+                  value={orientation}
+                  onChange={(e) =>
+                    setOrientation(
+                      e.target.value as "horizontal" | "vertical",
+                    )
+                  }
+                  className={selectClassName}
+                >
+                  <option value="horizontal">
+                    Horizontal (weeks as rows) (default)
+                  </option>
+                  <option value="vertical">
+                    Vertical (weeks as columns)
+                  </option>
+                </select>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        {/* ── Section 5: State ── */}
+        <AccordionItem value="state">
+          <AccordionTrigger>State</AccordionTrigger>
+          <AccordionContent>
+            <div className="text-muted-foreground text-xs">
+              <div className="mb-1">
+                <span className="font-medium">Selection:</span>{" "}
+                {selectionDisplay}
+              </div>
+              {lastMonthChange && (
+                <div>
+                  <span className="font-medium">Last month change:</span>{" "}
+                  {lastMonthChange}
+                </div>
+              )}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }
