@@ -27,6 +27,8 @@ export interface ApiSymbol {
   parameters?: SymbolParameter[]
   returnType?: string
   tags?: Record<string, string>
+  defaultElement?: string
+  stateType?: string
 }
 
 const symbols = symbolsJson as ApiSymbol[]
@@ -41,4 +43,10 @@ export function getSymbolsByKind(kind: ApiSymbol['kind']): ApiSymbol[] {
 
 export function getAllSymbols(): ApiSymbol[] {
   return symbols
+}
+
+const symbolNames = new Set(symbols.map((s) => s.name))
+
+export function isKnownSymbol(name: string): boolean {
+  return symbolNames.has(name)
 }

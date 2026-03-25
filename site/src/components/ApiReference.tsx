@@ -1,12 +1,16 @@
 import React from 'react'
-import { getSymbolByName, type ApiSymbol } from '#/lib/api-data'
+import { useRender } from '@base-ui/react/use-render'
+import { getSymbolByName, type ApiSymbol, type SymbolProperty } from '#/lib/api-data'
+import TypeLink from './TypeLink'
+
+const MDN_BASE = 'https://developer.mozilla.org/en-US/docs/Web/HTML/Element'
 
 export default function ApiReference({ symbol: symbolName }: { symbol: string }) {
   const sym = getSymbolByName(symbolName)
 
   if (!sym) {
     return (
-      <div className="my-4 rounded-lg border border-red-300 bg-red-50 p-4 text-sm text-red-700 dark:border-red-800 dark:bg-red-950 dark:text-red-300">
+      <div className="type-body-100 my-4 rounded-lg border border-callout-error-border bg-callout-error-bg p-4 text-callout-error-text">
         Symbol <code>{symbolName}</code> not found in API data.
       </div>
     )
@@ -14,18 +18,8 @@ export default function ApiReference({ symbol: symbolName }: { symbol: string })
 
   return (
     <div className="my-6">
-      <div className="mb-2 flex items-baseline gap-2">
-        <h3 className="text-lg font-semibold text-[var(--sea-ink)]" id={sym.name}>
-          {sym.name}
-        </h3>
-        <span className="rounded-md border border-[var(--chip-line)] bg-[var(--chip-bg)] px-2 py-0.5 text-xs font-medium text-[var(--sea-ink-soft)]">
-          {sym.kind}
-        </span>
-      </div>
-      {sym.description && (
-        <p className="mb-3 text-sm text-[var(--sea-ink-soft)]">{sym.description}</p>
-      )}
-      {sym.properties && sym.properties.length > 0 && <PropsTable symbol={sym} />}
+      {sym.defaultElement && <DefaultElement symbol={sym} />}
+      {(sym.properties?.length || sym.defaultElement) && <PropsTable symbol={sym} />}
       {sym.members && sym.members.length > 0 && <MembersTable symbol={sym} />}
       {sym.kind === 'function' && sym.parameters && <FunctionSignature symbol={sym} />}
       {sym.kind === 'hook' && <HookSignature symbol={sym} />}
@@ -33,34 +27,76 @@ export default function ApiReference({ symbol: symbolName }: { symbol: string })
   )
 }
 
+function DefaultElement({ symbol }: { symbol: ApiSymbol }) {
+  const el = symbol.defaultElement!
+  return (
+    <p className="type-body-100 mb-4 text-fg-muted">
+      Renders as{' '}
+      <a
+        href={`${MDN_BASE}/${el}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="type-code-100 text-accent no-underline hover:underline"
+      >
+        &lt;{el}&gt;
+      </a>
+      {' '}by default. Use the{' '}
+      <Badge render={<a href="https://base-ui.com/react/handbook/styling#the-render-prop" target="_blank" rel="noopener noreferrer" className="no-underline hover:border-accent-border" />}>render</Badge>
+      {' '}prop to override.
+    </p>
+  )
+}
+
+function renderPropType(symbol: ApiSymbol): string {
+  const el = symbol.defaultElement!
+  const state = symbol.stateType!
+  return `ReactElement | ((props: HTMLProps<${el}>, state: ${state}) => ReactElement)`
+}
+
 function PropsTable({ symbol }: { symbol: ApiSymbol }) {
-  const properties = symbol.properties!
+  const ownProps = symbol.properties ?? []
+
+  // Build the render prop entry if this type uses ComponentProps
+  const renderProp: SymbolProperty | null = symbol.defaultElement
+    ? {
+        name: 'render',
+        type: renderPropType(symbol),
+        description: `Custom render function or element. Receives HTML props for <${symbol.defaultElement}> and component state.`,
+        optional: true,
+      }
+    : null
+
+  const allProps = renderProp ? [renderProp, ...ownProps] : ownProps
+
+  if (allProps.length === 0) return null
 
   return (
     <table
-      className="w-full border-collapse overflow-x-auto text-sm [display:grid] [grid-template-columns:auto_1fr_auto_1fr]"
+      className="type-body-100 w-full border-collapse overflow-x-auto [display:grid] [grid-template-columns:auto_1fr_auto_1fr]"
       aria-label={`${symbol.name} props`}
     >
       <thead className="contents">
         <tr className="contents">
-          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Prop</th>
-          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Type</th>
-          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Default</th>
-          <th scope="col" className="border-b border-[var(--line)] pb-1 text-left text-xs font-semibold uppercase tracking-wider text-[var(--sea-ink-soft)]">Description</th>
+          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Prop</th>
+          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Type</th>
+          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Default</th>
+          <th scope="col" className="type-label-200 border-b border-line pb-1 text-left text-fg-muted">Description</th>
         </tr>
       </thead>
       <tbody className="contents">
-        {properties.map((prop) => (
+        {allProps.map((prop) => (
           <tr key={prop.name} className="contents">
-            <td className="border-b border-[var(--line)] py-1.5 pr-4 last:border-0">
+            <td className="border-b border-line py-1.5 pr-4 last:border-0">
               <Badge>
                 {prop.name}
-                {!prop.optional && <span className="ml-0.5 text-[var(--accent)]">*</span>}
+                {!prop.optional && <span className="ml-0.5 text-accent">*</span>}
               </Badge>
             </td>
-            <td className="break-all border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.type}</td>
-            <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.defaultValue || '—'}</td>
-            <td className="border-b border-[var(--line)] py-1.5 text-sm text-[var(--sea-ink-soft)] last:border-0">{prop.description}</td>
+            <td className="type-code-100 break-all border-b border-line py-1.5 pr-4 text-fg-muted last:border-0">
+              <TypeLink type={prop.type} />
+            </td>
+            <td className="type-code-100 border-b border-line py-1.5 pr-4 text-fg-muted last:border-0">{prop.defaultValue || '—'}</td>
+            <td className="type-body-100 border-b border-line py-1.5 text-fg-muted last:border-0">{prop.description}</td>
           </tr>
         ))}
       </tbody>
@@ -71,12 +107,12 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
 function MembersTable({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div>
-      <p className="mb-2 text-sm font-medium text-[var(--sea-ink)]">Members</p>
+      <p className="type-body-100-bold mb-2 text-fg">Members</p>
       <div className="flex flex-wrap gap-2">
         {symbol.members!.map((member) => (
           <code
             key={member}
-            className="rounded-md border border-[var(--chip-line)] bg-[var(--chip-bg)] px-2 py-1 text-xs"
+            className="type-code-100 rounded-md border border-chip-line bg-chip-bg px-2 py-1"
           >
             {member}
           </code>
@@ -89,10 +125,16 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
 function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-4 text-sm">
+      <pre className="type-code-200 rounded-lg border border-line bg-surface p-4">
         <code>
-          {symbol.name}({symbol.parameters?.map((p) => `${p.name}: ${p.type}`).join(', ')}
-          ): {symbol.returnType}
+          {symbol.name}(
+          {symbol.parameters?.map((p, i) => (
+            <React.Fragment key={p.name}>
+              {i > 0 && ', '}
+              {p.name}: <TypeLink type={p.type} />
+            </React.Fragment>
+          ))}
+          ): {symbol.returnType && <TypeLink type={symbol.returnType} />}
         </code>
       </pre>
     </div>
@@ -102,19 +144,31 @@ function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
 function HookSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="rounded-lg border border-[var(--line)] bg-[var(--surface)] p-4 text-sm">
+      <pre className="type-code-200 rounded-lg border border-line bg-surface p-4">
         <code>
-          {symbol.name}(): {symbol.returnType}
+          {symbol.name}(): {symbol.returnType && <TypeLink type={symbol.returnType} />}
         </code>
       </pre>
     </div>
   )
 }
 
-function Badge({ children }: { children: React.ReactNode }) {
-  return (
-    <span className="inline-flex items-center rounded-md border border-[var(--chip-line)] bg-[var(--chip-bg)] px-1.5 py-0.5 font-mono text-xs text-[var(--sea-ink)]">
-      {children}
-    </span>
-  )
+type BadgeState = Record<string, unknown>
+
+function Badge({
+  children,
+  render,
+}: {
+  children: React.ReactNode
+  render?: useRender.RenderProp<BadgeState>
+}) {
+  return useRender<BadgeState, HTMLSpanElement>({
+    render: render ?? <span />,
+    state: {},
+    props: {
+      className: 'type-code-100 inline-flex items-center rounded-md border border-chip-line bg-chip-bg px-1.5 py-0.5 text-fg',
+      children,
+    },
+    defaultTagName: 'span',
+  })
 }

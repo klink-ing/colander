@@ -7,6 +7,12 @@ export interface DocFrontmatter {
   section: string
 }
 
+/** Global variables available in Markdoc content as {% $varName %}. */
+export const markdocVariables: Record<string, string> = {
+  projectName: process.env.VITE_PROJECT_NAME ?? 'Colander',
+  packageName: process.env.VITE_PACKAGE_NAME ?? 'colander',
+}
+
 const apiTag: Schema = {
   render: 'ApiReference',
   selfClosing: true,
@@ -27,6 +33,24 @@ const calloutTag: Schema = {
   },
 }
 
+const exampleTag: Schema = {
+  render: 'ExampleBlock',
+  selfClosing: true,
+  attributes: {
+    file: { type: String, required: true },
+    // These are injected server-side by resolveExamples()
+    tsHtml: { type: String },
+    jsHtml: { type: String },
+    language: { type: String },
+  },
+}
+
+const installCmdTag: Schema = {
+  render: 'InstallCmd',
+  selfClosing: true,
+  attributes: {},
+}
+
 const fenceNode: Schema = {
   render: 'CodeBlock',
   attributes: {
@@ -39,10 +63,23 @@ const config: Config = {
   tags: {
     api: apiTag,
     callout: calloutTag,
+    example: exampleTag,
+    'install-cmd': installCmdTag,
   },
   nodes: {
     fence: fenceNode,
   },
+  variables: markdocVariables,
+}
+
+/**
+ * Interpolate `$varName` references in a string using markdocVariables.
+ * Used for frontmatter values so they can reference global variables.
+ */
+function interpolate(value: string): string {
+  return value.replace(/\$(\w+)/g, (match, name) => {
+    return name in markdocVariables ? markdocVariables[name] : match
+  })
 }
 
 export function parseFrontmatter(raw: string): {
@@ -68,6 +105,8 @@ export function parseFrontmatter(raw: string): {
     let value: string | number = line.slice(colonIdx + 1).trim()
     if (/^\d+$/.test(value)) {
       value = Number.parseInt(value, 10)
+    } else {
+      value = interpolate(value)
     }
     frontmatter[key] = value
   }

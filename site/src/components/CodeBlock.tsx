@@ -8,12 +8,12 @@ export default function CodeBlock({
   return (
     <div className="my-4">
       {language && (
-        <div className="rounded-t-lg border border-b-0 border-[var(--line)] bg-[var(--surface)] px-4 py-1.5 text-xs font-medium text-[var(--sea-ink-soft)]">
+        <div className="type-code-100 rounded-t-lg border border-b-0 border-line bg-surface px-4 py-1.5 text-fg-muted">
           {language}
         </div>
       )}
       <pre
-        className={`overflow-x-auto border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm leading-relaxed ${language ? 'rounded-b-lg' : 'rounded-lg'}`}
+        className={`type-code-200 overflow-x-auto border border-line bg-surface-strong p-4 ${language ? 'rounded-b-lg' : 'rounded-lg'}`}
       >
         <code>{children}</code>
       </pre>

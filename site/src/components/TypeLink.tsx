@@ -1,0 +1,149 @@
+import { Link } from '@tanstack/react-router'
+import { isKnownSymbol, getSymbolByName } from '#/lib/api-data'
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from '#/components/ui/tooltip'
+
+/**
+ * Parses a type string and turns recognized symbol names into links
+ * with VS Code-style hover tooltips showing type details.
+ */
+export default function TypeLink({ type }: { type: string }) {
+  const parts = tokenize(type)
+
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.linked ? (
+          <SymbolLink key={i} name={part.text} />
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
+      )}
+    </>
+  )
+}
+
+function SymbolLink({ name }: { name: string }) {
+  const sym = getSymbolByName(name)
+
+  if (!sym) {
+    return (
+      <Link
+        to="/docs/api/$symbol"
+        params={{ symbol: name }}
+        className="text-accent no-underline hover:underline"
+      >
+        {name}
+      </Link>
+    )
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <Link
+            to="/docs/api/$symbol"
+            params={{ symbol: name }}
+            className="text-accent no-underline hover:underline"
+          />
+        }
+      >
+        {name}
+      </TooltipTrigger>
+      <TooltipContent
+        side="top"
+        align="start"
+        className="max-w-sm rounded-lg border border-line bg-popover p-3 text-popover-foreground shadow-[0_8px_24px_var(--shadow)]"
+      >
+        <TypeTooltipBody symbol={sym} />
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+function TypeTooltipBody({
+  symbol,
+}: {
+  symbol: NonNullable<ReturnType<typeof getSymbolByName>>
+}) {
+  const maxProps = 6
+
+  return (
+    <>
+      <div className="mb-1 flex items-center gap-2">
+        <span className="type-code-100 text-accent">{symbol.kind}</span>
+        <span className="type-code-100 font-semibold text-fg">
+          {symbol.name}
+        </span>
+      </div>
+
+      {symbol.description && (
+        <p className="type-body-100 m-0 mb-2 text-fg-muted">
+          {symbol.description}
+        </p>
+      )}
+
+      {symbol.typeText && !symbol.properties?.length && (
+        <pre className="type-code-100 m-0 whitespace-pre-wrap text-fg-muted">
+          {symbol.typeText}
+        </pre>
+      )}
+
+      {symbol.properties && symbol.properties.length > 0 && (
+        <pre className="type-code-100 m-0 whitespace-pre-wrap text-fg-muted">
+          {'{'}
+          {symbol.properties.slice(0, maxProps).map((p) => (
+            <div key={p.name} className="pl-3">
+              <span className="text-fg">{p.name}</span>
+              {p.optional ? '?' : ''}: {p.type}
+            </div>
+          ))}
+          {symbol.properties.length > maxProps && (
+            <div className="pl-3 text-fg-muted">
+              // ... {symbol.properties.length - maxProps} more
+            </div>
+          )}
+          {'}'}
+        </pre>
+      )}
+
+      {symbol.members && symbol.members.length > 0 && (
+        <pre className="type-code-100 m-0 whitespace-pre-wrap text-fg-muted">
+          {symbol.members.join(' | ')}
+        </pre>
+      )}
+    </>
+  )
+}
+
+interface Token {
+  text: string
+  linked: boolean
+}
+
+/** Split a type string into linkable identifiers and plain text fragments. */
+function tokenize(type: string): Token[] {
+  const regex = /([A-Z][A-Za-z0-9]*)/g
+  const tokens: Token[] = []
+  let lastIndex = 0
+
+  for (const match of type.matchAll(regex)) {
+    const start = match.index!
+    if (start > lastIndex) {
+      tokens.push({ text: type.slice(lastIndex, start), linked: false })
+    }
+    const name = match[1]
+    tokens.push({ text: name, linked: isKnownSymbol(name) })
+    lastIndex = start + name.length
+  }
+
+  if (lastIndex < type.length) {
+    tokens.push({ text: type.slice(lastIndex), linked: false })
+  }
+
+  return tokens
+}

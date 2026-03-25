@@ -1,76 +1,371 @@
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", Georgia, serif;
+
+  --color-fg: var(--text-primary);
+  --color-fg-muted: var(--text-secondary);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-subtle: var(--accent-subtle);
+  --color-accent-subtle-hover: var(--accent-subtle-hover);
+  --color-accent-border: var(--accent-border);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-line: var(--line);
+  --color-inset-glint: var(--inset-glint);
+  --color-kicker: var(--kicker);
+  --color-base: var(--bg-base);
+  --color-header-bg: var(--header-bg);
+  --color-chip-bg: var(--chip-bg);
+  --color-chip-line: var(--chip-line);
+  --color-link-bg-hover: var(--link-bg-hover);
+  --color-shadow: var(--shadow);
+  --color-shadow-soft: var(--shadow-soft);
+  --color-callout-info-bg: var(--callout-info-bg);
+  --color-callout-info-border: var(--callout-info-border);
+  --color-callout-info-text: var(--callout-info-text);
+  --color-callout-warn-bg: var(--callout-warn-bg);
+  --color-callout-warn-border: var(--callout-warn-border);
+  --color-callout-warn-text: var(--callout-warn-text);
+  --color-callout-error-bg: var(--callout-error-bg);
+  --color-callout-error-border: var(--callout-error-border);
+  --color-callout-error-text: var(--callout-error-text);
 }
 
+/* ── Typography tokens ──────────────────────────────────── */
+
 :root {
-  --sea-ink: #173a40;
-  --sea-ink-soft: #416166;
-  --lagoon: #4fb8b2;
-  --lagoon-deep: #328f97;
-  --palm: #2f6a4a;
-  --sand: #e7f0e8;
-  --foam: #f3faf5;
-  --surface: rgba(255, 255, 255, 0.74);
-  --surface-strong: rgba(255, 255, 255, 0.9);
-  --line: rgba(23, 58, 64, 0.14);
-  --inset-glint: rgba(255, 255, 255, 0.82);
-  --kicker: rgba(47, 106, 74, 0.9);
-  --bg-base: #e7f3ec;
-  --header-bg: rgba(251, 255, 248, 0.84);
-  --chip-bg: rgba(255, 255, 255, 0.8);
-  --chip-line: rgba(47, 106, 74, 0.18);
-  --link-bg-hover: rgba(255, 255, 255, 0.9);
-  --hero-a: rgba(79, 184, 178, 0.36);
-  --hero-b: rgba(47, 106, 74, 0.2);
+  --type-display-100-size: 1.875rem;
+  --type-display-100-lh: 1.2;
+  --type-display-100-ls: -0.015em;
+  --type-display-100-weight: 700;
+
+  --type-display-200-size: 2.5rem;
+  --type-display-200-lh: 1.05;
+  --type-display-200-ls: -0.02em;
+  --type-display-200-weight: 700;
+
+  --type-heading-100-size: 1.0625rem;
+  --type-heading-100-lh: 1.3;
+  --type-heading-100-ls: -0.005em;
+  --type-heading-100-weight: 700;
+
+  --type-heading-200-size: 1.25rem;
+  --type-heading-200-lh: 1.3;
+  --type-heading-200-ls: -0.01em;
+  --type-heading-200-weight: 700;
+
+  --type-heading-300-size: 1.5rem;
+  --type-heading-300-lh: 1.25;
+  --type-heading-300-ls: -0.015em;
+  --type-heading-300-weight: 700;
+
+  --type-body-100-size: 0.875rem;
+  --type-body-100-lh: 1.6;
+  --type-body-100-ls: 0;
+
+  --type-body-200-size: 1rem;
+  --type-body-200-lh: 1.7;
+  --type-body-200-ls: 0;
+
+  --type-label-100-size: 0.6875rem;
+  --type-label-100-lh: 1.2;
+  --type-label-100-ls: 0.1em;
+  --type-label-100-weight: 700;
+
+  --type-label-200-size: 0.75rem;
+  --type-label-200-lh: 1.4;
+  --type-label-200-ls: 0.06em;
+  --type-label-200-weight: 600;
+
+  --type-code-100-size: 0.75rem;
+  --type-code-100-lh: 1.5;
+  --type-code-100-ls: 0;
+
+  --type-code-200-size: 0.875rem;
+  --type-code-200-lh: 1.6;
+  --type-code-200-ls: 0;
+
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+  --radius: 0.625rem;
+}
+
+/* ── Typography utilities ──────────────────────────────── */
+
+@utility type-display-100 {
+  font-family: var(--font-display);
+  font-size: var(--type-display-100-size);
+  line-height: var(--type-display-100-lh);
+  letter-spacing: var(--type-display-100-ls);
+  font-weight: var(--type-display-100-weight);
+}
+
+@utility type-display-200 {
+  font-family: var(--font-display);
+  font-size: var(--type-display-200-size);
+  line-height: var(--type-display-200-lh);
+  letter-spacing: var(--type-display-200-ls);
+  font-weight: var(--type-display-200-weight);
+}
+
+@utility type-heading-100 {
+  font-family: var(--font-sans);
+  font-size: var(--type-heading-100-size);
+  line-height: var(--type-heading-100-lh);
+  letter-spacing: var(--type-heading-100-ls);
+  font-weight: var(--type-heading-100-weight);
+}
+
+@utility type-heading-200 {
+  font-family: var(--font-sans);
+  font-size: var(--type-heading-200-size);
+  line-height: var(--type-heading-200-lh);
+  letter-spacing: var(--type-heading-200-ls);
+  font-weight: var(--type-heading-200-weight);
+}
+
+@utility type-heading-300 {
+  font-family: var(--font-sans);
+  font-size: var(--type-heading-300-size);
+  line-height: var(--type-heading-300-lh);
+  letter-spacing: var(--type-heading-300-ls);
+  font-weight: var(--type-heading-300-weight);
+}
+
+@utility type-body-100 {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-100-size);
+  line-height: var(--type-body-100-lh);
+  letter-spacing: var(--type-body-100-ls);
+}
+
+@utility type-body-100-bold {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-100-size);
+  line-height: var(--type-body-100-lh);
+  letter-spacing: var(--type-body-100-ls);
+  font-weight: 600;
+}
+
+@utility type-body-100-italic {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-100-size);
+  line-height: var(--type-body-100-lh);
+  letter-spacing: var(--type-body-100-ls);
+  font-style: italic;
+}
+
+@utility type-body-200 {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-200-size);
+  line-height: var(--type-body-200-lh);
+  letter-spacing: var(--type-body-200-ls);
+}
+
+@utility type-body-200-bold {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-200-size);
+  line-height: var(--type-body-200-lh);
+  letter-spacing: var(--type-body-200-ls);
+  font-weight: 600;
+}
+
+@utility type-body-200-italic {
+  font-family: var(--font-sans);
+  font-size: var(--type-body-200-size);
+  line-height: var(--type-body-200-lh);
+  letter-spacing: var(--type-body-200-ls);
+  font-style: italic;
+}
+
+@utility type-label-100 {
+  font-family: var(--font-sans);
+  font-size: var(--type-label-100-size);
+  line-height: var(--type-label-100-lh);
+  letter-spacing: var(--type-label-100-ls);
+  font-weight: var(--type-label-100-weight);
+  text-transform: uppercase;
+}
+
+@utility type-label-200 {
+  font-family: var(--font-sans);
+  font-size: var(--type-label-200-size);
+  line-height: var(--type-label-200-lh);
+  letter-spacing: var(--type-label-200-ls);
+  font-weight: var(--type-label-200-weight);
+  text-transform: uppercase;
+}
+
+@utility type-code-100 {
+  font-family: var(--font-mono);
+  font-size: var(--type-code-100-size);
+  line-height: var(--type-code-100-lh);
+  letter-spacing: var(--type-code-100-ls);
+}
+
+@utility type-code-200 {
+  font-family: var(--font-mono);
+  font-size: var(--type-code-200-size);
+  line-height: var(--type-code-200-lh);
+  letter-spacing: var(--type-code-200-ls);
+}
+
+/* ── Color tokens ───────────────────────────────────────── */
+
+:root {
+  --text-primary: #1a1a1a;
+  --text-secondary: #555555;
+  --accent: #0e8a84;
+  --accent-hover: #0a6e69;
+  --accent-subtle: rgba(14, 138, 132, 0.1);
+  --accent-subtle-hover: rgba(14, 138, 132, 0.18);
+  --accent-border: rgba(14, 138, 132, 0.3);
+  --surface: rgba(255, 255, 255, 0.7);
+  --surface-strong: rgba(255, 255, 255, 0.88);
+  --line: rgba(0, 0, 0, 0.1);
+  --inset-glint: rgba(255, 255, 255, 0.8);
+  --kicker: rgba(14, 138, 132, 0.8);
+  --bg-base: #f5f5f5;
+  --header-bg: rgba(245, 245, 245, 0.85);
+  --chip-bg: rgba(0, 0, 0, 0.04);
+  --chip-line: rgba(0, 0, 0, 0.12);
+  --link-bg-hover: rgba(0, 0, 0, 0.04);
+  --shadow: rgba(0, 0, 0, 0.1);
+  --shadow-soft: rgba(0, 0, 0, 0.06);
+  --background: #f5f5f5;
+  --foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --border: rgba(0, 0, 0, 0.1);
+  --ring: rgba(14, 138, 132, 0.4);
+  --primary: #1a1a1a;
+  --primary-foreground: #f5f5f5;
+  --secondary: #e8e8e8;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e0e0e0;
+  --muted-foreground: #666666;
+  --accent-shadcn: #f0f0f0;
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc2626;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --input: rgba(0, 0, 0, 0.12);
+  --callout-info-bg: rgba(59, 130, 246, 0.08);
+  --callout-info-border: rgba(59, 130, 246, 0.3);
+  --callout-info-text: #1e40af;
+  --callout-warn-bg: rgba(245, 158, 11, 0.08);
+  --callout-warn-border: rgba(245, 158, 11, 0.3);
+  --callout-warn-text: #92400e;
+  --callout-error-bg: rgba(239, 68, 68, 0.08);
+  --callout-error-border: rgba(239, 68, 68, 0.3);
+  --callout-error-text: #991b1b;
 }
 
 :root[data-theme="dark"] {
-  --sea-ink: #d7ece8;
-  --sea-ink-soft: #afcdc8;
-  --lagoon: #60d7cf;
-  --lagoon-deep: #8de5db;
-  --palm: #6ec89a;
-  --sand: #0f1a1e;
-  --foam: #101d22;
-  --surface: rgba(16, 30, 34, 0.8);
-  --surface-strong: rgba(15, 27, 31, 0.92);
-  --line: rgba(141, 229, 219, 0.18);
-  --inset-glint: rgba(194, 247, 238, 0.14);
-  --kicker: #b8efe5;
-  --bg-base: #0a1418;
-  --header-bg: rgba(10, 20, 24, 0.8);
-  --chip-bg: rgba(13, 28, 32, 0.9);
-  --chip-line: rgba(141, 229, 219, 0.24);
-  --link-bg-hover: rgba(24, 44, 49, 0.8);
-  --hero-a: rgba(96, 215, 207, 0.18);
-  --hero-b: rgba(110, 200, 154, 0.12);
+  --text-primary: #e8e8e8;
+  --text-secondary: #a0a0a0;
+  --accent: #60d7cf;
+  --accent-hover: #8de5db;
+  --accent-subtle: rgba(96, 215, 207, 0.14);
+  --accent-subtle-hover: rgba(96, 215, 207, 0.24);
+  --accent-border: rgba(96, 215, 207, 0.3);
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.1);
+  --line: rgba(255, 255, 255, 0.12);
+  --inset-glint: rgba(255, 255, 255, 0.08);
+  --kicker: rgba(96, 215, 207, 0.8);
+  --bg-base: #1a1a1a;
+  --header-bg: rgba(26, 26, 26, 0.85);
+  --chip-bg: rgba(255, 255, 255, 0.08);
+  --chip-line: rgba(255, 255, 255, 0.16);
+  --link-bg-hover: rgba(255, 255, 255, 0.08);
+  --shadow: rgba(0, 0, 0, 0.25);
+  --shadow-soft: rgba(0, 0, 0, 0.15);
+  --background: #1a1a1a;
+  --foreground: #e8e8e8;
+  --popover: #252525;
+  --popover-foreground: #e8e8e8;
+  --border: rgba(255, 255, 255, 0.12);
+  --ring: rgba(96, 215, 207, 0.4);
+  --primary: #e8e8e8;
+  --primary-foreground: #1a1a1a;
+  --secondary: #2a2a2a;
+  --secondary-foreground: #e8e8e8;
+  --muted: #2a2a2a;
+  --muted-foreground: #a0a0a0;
+  --accent-shadcn: #2a2a2a;
+  --accent-foreground: #e8e8e8;
+  --destructive: #ef4444;
+  --card: #252525;
+  --card-foreground: #e8e8e8;
+  --input: rgba(255, 255, 255, 0.15);
+  --callout-info-bg: rgba(96, 165, 250, 0.1);
+  --callout-info-border: rgba(96, 165, 250, 0.3);
+  --callout-info-text: #93c5fd;
+  --callout-warn-bg: rgba(251, 191, 36, 0.1);
+  --callout-warn-border: rgba(251, 191, 36, 0.3);
+  --callout-warn-text: #fcd34d;
+  --callout-error-bg: rgba(248, 113, 113, 0.1);
+  --callout-error-border: rgba(248, 113, 113, 0.3);
+  --callout-error-text: #fca5a5;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --sea-ink: #d7ece8;
-    --sea-ink-soft: #afcdc8;
-    --lagoon: #60d7cf;
-    --lagoon-deep: #8de5db;
-    --palm: #6ec89a;
-    --sand: #0f1a1e;
-    --foam: #101d22;
-    --surface: rgba(16, 30, 34, 0.8);
-    --surface-strong: rgba(15, 27, 31, 0.92);
-    --line: rgba(141, 229, 219, 0.18);
-    --inset-glint: rgba(194, 247, 238, 0.14);
-    --kicker: #b8efe5;
-    --bg-base: #0a1418;
-    --header-bg: rgba(10, 20, 24, 0.8);
-    --chip-bg: rgba(13, 28, 32, 0.9);
-    --chip-line: rgba(141, 229, 219, 0.24);
-    --link-bg-hover: rgba(24, 44, 49, 0.8);
-    --hero-a: rgba(96, 215, 207, 0.18);
-    --hero-b: rgba(110, 200, 154, 0.12);
+    --text-primary: #e8e8e8;
+    --text-secondary: #a0a0a0;
+    --accent: #60d7cf;
+    --accent-hover: #8de5db;
+    --accent-subtle: rgba(96, 215, 207, 0.14);
+    --accent-subtle-hover: rgba(96, 215, 207, 0.24);
+    --accent-border: rgba(96, 215, 207, 0.3);
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-strong: rgba(255, 255, 255, 0.1);
+    --line: rgba(255, 255, 255, 0.12);
+    --inset-glint: rgba(255, 255, 255, 0.08);
+    --kicker: rgba(96, 215, 207, 0.8);
+    --bg-base: #1a1a1a;
+    --header-bg: rgba(26, 26, 26, 0.85);
+    --chip-bg: rgba(255, 255, 255, 0.08);
+    --chip-line: rgba(255, 255, 255, 0.16);
+    --link-bg-hover: rgba(255, 255, 255, 0.08);
+    --shadow: rgba(0, 0, 0, 0.25);
+    --shadow-soft: rgba(0, 0, 0, 0.15);
+    --background: #1a1a1a;
+    --foreground: #e8e8e8;
+    --popover: #252525;
+    --popover-foreground: #e8e8e8;
+    --border: rgba(255, 255, 255, 0.12);
+    --ring: rgba(96, 215, 207, 0.4);
+    --callout-info-bg: rgba(96, 165, 250, 0.1);
+    --callout-info-border: rgba(96, 165, 250, 0.3);
+    --callout-info-text: #93c5fd;
+    --callout-warn-bg: rgba(251, 191, 36, 0.1);
+    --callout-warn-border: rgba(251, 191, 36, 0.3);
+    --callout-warn-text: #fcd34d;
+    --primary: #e8e8e8;
+    --primary-foreground: #1a1a1a;
+    --secondary: #2a2a2a;
+    --secondary-foreground: #e8e8e8;
+    --muted: #2a2a2a;
+    --muted-foreground: #a0a0a0;
+    --accent-shadcn: #2a2a2a;
+    --accent-foreground: #e8e8e8;
+    --destructive: #ef4444;
+    --card: #252525;
+    --card-foreground: #e8e8e8;
+    --input: rgba(255, 255, 255, 0.15);
+    --callout-error-bg: rgba(248, 113, 113, 0.1);
+    --callout-error-border: rgba(248, 113, 113, 0.3);
+    --callout-error-text: #fca5a5;
   }
 }
 
@@ -86,59 +381,26 @@ body,
 
 body {
   margin: 0;
-  color: var(--sea-ink);
+  color: var(--text-primary);
   font-family: var(--font-sans);
-  background-color: var(--bg-base);
-  background:
-    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
-    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    radial-gradient(720px 380px at 50% 115%, rgba(79, 184, 178, 0.1), transparent 68%),
-    linear-gradient(180deg, color-mix(in oklab, var(--sand) 68%, white) 0%, var(--foam) 44%, var(--bg-base) 100%);
+  background: var(--bg-base);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.28;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
-    radial-gradient(circle at 78% 26%, rgba(79, 184, 178, 0.2), transparent 42%),
-    radial-gradient(circle at 42% 82%, rgba(47, 106, 74, 0.14), transparent 36%);
-}
-
-body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: -1;
-  opacity: 0.14;
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
-  background-size: 28px 28px;
-  mask-image: radial-gradient(circle at 50% 30%, black, transparent 78%);
-}
-
 a {
-  color: var(--lagoon-deep);
-  text-decoration-color: rgba(50, 143, 151, 0.4);
+  color: var(--accent);
+  text-decoration-color: var(--accent-border);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
 a:hover {
-  color: #246f76;
+  color: var(--accent-hover);
 }
 
 code {
-  font-size: 0.9em;
   border: 1px solid var(--line);
   background: color-mix(in oklab, var(--surface-strong) 82%, white 18%);
   border-radius: 7px;
@@ -150,8 +412,6 @@ pre code {
   background: transparent;
   padding: 0;
   border-radius: 0;
-  font-size: inherit;
-  color: inherit;
 }
 
 .page-wrap {
@@ -159,17 +419,13 @@ pre code {
   margin-inline: auto;
 }
 
-.display-title {
-  font-family: "Fraunces", Georgia, serif;
-}
-
 .island-shell {
   border: 1px solid var(--line);
   background: linear-gradient(165deg, var(--surface-strong), var(--surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
-    0 22px 44px rgba(30, 90, 72, 0.1),
-    0 6px 18px rgba(23, 58, 64, 0.08);
+    0 22px 44px var(--shadow),
+    0 6px 18px var(--shadow-soft);
   backdrop-filter: blur(4px);
 }
 
@@ -177,13 +433,13 @@ pre code {
   background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 93%, white 7%), var(--surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
-    0 18px 34px rgba(30, 90, 72, 0.1),
-    0 4px 14px rgba(23, 58, 64, 0.06);
+    0 18px 34px var(--shadow),
+    0 4px 14px var(--shadow-soft);
 }
 
 .feature-card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--lagoon-deep) 35%, var(--line));
+  border-color: var(--accent-border);
 }
 
 button,
@@ -193,20 +449,12 @@ a {
     transform 180ms ease;
 }
 
-.island-kicker {
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  font-weight: 700;
-  font-size: 0.69rem;
-  color: var(--kicker);
-}
-
 .nav-link {
   position: relative;
   display: inline-flex;
   align-items: center;
   text-decoration: none;
-  color: var(--sea-ink-soft);
+  color: var(--text-secondary);
 }
 
 .nav-link::after {
@@ -218,13 +466,13 @@ a {
   height: 2px;
   transform: scaleX(0);
   transform-origin: left;
-  background: linear-gradient(90deg, var(--lagoon), #7ed3bf);
+  background: var(--accent);
   transition: transform 170ms ease;
 }
 
 .nav-link:hover,
 .nav-link.is-active {
-  color: var(--sea-ink);
+  color: var(--text-primary);
 }
 
 .nav-link:hover::after,
@@ -257,3 +505,28 @@ a {
     transform: translateY(0);
   }
 }
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-border: var(--border);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+}
+

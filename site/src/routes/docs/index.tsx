@@ -6,15 +6,15 @@ export const Route = createFileRoute('/docs/')({
 })
 
 function DocsIndex() {
-  const entries = docsRoute.useLoaderData()
+  const { entries } = docsRoute.useLoaderData()
 
   return (
     <div>
-      <h1 className="display-title mb-4 text-3xl font-bold text-[var(--sea-ink)]">
+      <h1 className="type-display-100 mb-4 text-fg">
         Documentation
       </h1>
-      <p className="mb-8 text-[var(--sea-ink-soft)]">
-        Learn how to use base-ui-cal to build accessible, customizable calendar components.
+      <p className="type-body-200 mb-8 text-fg-muted">
+        Learn how to use {import.meta.env.VITE_PROJECT_NAME}{' '}to build accessible, customizable calendar components.
       </p>
       <div className="grid gap-4 sm:grid-cols-2">
         {entries.map((entry) => (
@@ -24,10 +24,10 @@ function DocsIndex() {
             params={{ slug: entry.slug }}
             className="island-shell feature-card block rounded-2xl p-5 no-underline"
           >
-            <h2 className="mb-1 text-base font-semibold text-[var(--sea-ink)]">
+            <h2 className="type-body-200-bold mb-1 text-fg">
               {entry.frontmatter.title}
             </h2>
-            <p className="m-0 text-sm text-[var(--sea-ink-soft)]">
+            <p className="type-body-100 m-0 text-fg-muted">
               {entry.frontmatter.description || ''}
             </p>
           </Link>

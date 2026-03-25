@@ -13,6 +13,7 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
 import { Route as DocsSlugRouteImport } from './routes/docs/$slug'
+import { Route as DocsApiSymbolRouteImport } from './routes/docs/api/$symbol'
 
 const DocsRoute = DocsRouteImport.update({
   id: '/docs',
@@ -34,17 +35,24 @@ const DocsSlugRoute = DocsSlugRouteImport.update({
   path: '/$slug',
   getParentRoute: () => DocsRoute,
 } as any)
+const DocsApiSymbolRoute = DocsApiSymbolRouteImport.update({
+  id: '/api/$symbol',
+  path: '/api/$symbol',
+  getParentRoute: () => DocsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/docs': typeof DocsRouteWithChildren
   '/docs/$slug': typeof DocsSlugRoute
   '/docs/': typeof DocsIndexRoute
+  '/docs/api/$symbol': typeof DocsApiSymbolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/docs/$slug': typeof DocsSlugRoute
   '/docs': typeof DocsIndexRoute
+  '/docs/api/$symbol': typeof DocsApiSymbolRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -52,13 +60,20 @@ export interface FileRoutesById {
   '/docs': typeof DocsRouteWithChildren
   '/docs/$slug': typeof DocsSlugRoute
   '/docs/': typeof DocsIndexRoute
+  '/docs/api/$symbol': typeof DocsApiSymbolRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/docs' | '/docs/$slug' | '/docs/'
+  fullPaths: '/' | '/docs' | '/docs/$slug' | '/docs/' | '/docs/api/$symbol'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/docs/$slug' | '/docs'
-  id: '__root__' | '/' | '/docs' | '/docs/$slug' | '/docs/'
+  to: '/' | '/docs/$slug' | '/docs' | '/docs/api/$symbol'
+  id:
+    | '__root__'
+    | '/'
+    | '/docs'
+    | '/docs/$slug'
+    | '/docs/'
+    | '/docs/api/$symbol'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -96,17 +111,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsSlugRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/docs/api/$symbol': {
+      id: '/docs/api/$symbol'
+      path: '/api/$symbol'
+      fullPath: '/docs/api/$symbol'
+      preLoaderRoute: typeof DocsApiSymbolRouteImport
+      parentRoute: typeof DocsRoute
+    }
   }
 }
 
 interface DocsRouteChildren {
   DocsSlugRoute: typeof DocsSlugRoute
   DocsIndexRoute: typeof DocsIndexRoute
+  DocsApiSymbolRoute: typeof DocsApiSymbolRoute
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
   DocsSlugRoute: DocsSlugRoute,
   DocsIndexRoute: DocsIndexRoute,
+  DocsApiSymbolRoute: DocsApiSymbolRoute,
 }
 
 const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)

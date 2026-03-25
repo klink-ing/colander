@@ -2,21 +2,21 @@ import type { ReactNode } from 'react'
 
 const styles = {
   info: {
-    border: 'border-blue-300 dark:border-blue-800',
-    bg: 'bg-blue-50 dark:bg-blue-950',
-    text: 'text-blue-800 dark:text-blue-200',
+    border: 'border-callout-info-border',
+    bg: 'bg-callout-info-bg',
+    text: 'text-callout-info-text',
     icon: 'i',
   },
   warning: {
-    border: 'border-amber-300 dark:border-amber-800',
-    bg: 'bg-amber-50 dark:bg-amber-950',
-    text: 'text-amber-800 dark:text-amber-200',
+    border: 'border-callout-warn-border',
+    bg: 'bg-callout-warn-bg',
+    text: 'text-callout-warn-text',
     icon: '!',
   },
   error: {
-    border: 'border-red-300 dark:border-red-800',
-    bg: 'bg-red-50 dark:bg-red-950',
-    text: 'text-red-800 dark:text-red-200',
+    border: 'border-callout-error-border',
+    bg: 'bg-callout-error-bg',
+    text: 'text-callout-error-text',
     icon: '!!',
   },
 } as const
@@ -30,7 +30,7 @@ export default function Callout({
 }) {
   const s = styles[type]
   return (
-    <div className={`my-4 rounded-lg border ${s.border} ${s.bg} p-4 text-sm ${s.text}`}>
+    <div className={`type-body-100 my-4 rounded-lg border ${s.border} ${s.bg} p-4 ${s.text}`}>
       {children}
     </div>
   )

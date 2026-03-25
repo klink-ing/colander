@@ -4,6 +4,7 @@ import * as fs from 'node:fs'
 import * as path from 'node:path'
 import MarkdocRenderer from '#/components/MarkdocRenderer'
 import { type DocFrontmatter, parseFrontmatter, parseMarkdoc } from '#/lib/markdoc'
+import { resolveExamples } from '#/lib/resolve-examples'
 
 const getDocContent = createServerFn()
   .inputValidator((slug: unknown) => slug as string)
@@ -18,6 +19,8 @@ const getDocContent = createServerFn()
       const raw = fs.readFileSync(filePath, 'utf-8')
       const { frontmatter, content } = parseFrontmatter(raw)
       const transformed = parseMarkdoc(content)
+      // Inject formatted, highlighted example code into ExampleBlock nodes
+      await resolveExamples(transformed)
 
       return {
         frontmatter,
@@ -36,26 +39,28 @@ const getDocContent = createServerFn()
     }
   })
 
-export const Route = createFileRoute('/docs/$slug')({
+export const Route = createFileRoute("/docs/$slug")({
   loader: ({ params }) => getDocContent({ data: params.slug }),
   notFoundComponent: () => (
     <div className="py-12 text-center">
-      <h1 className="mb-2 text-2xl font-bold text-[var(--sea-ink)]">Page not found</h1>
-      <p className="text-[var(--sea-ink-soft)]">
+      <h1 className="type-heading-300 mb-2 text-fg">
+        Page not found
+      </h1>
+      <p className="type-body-200 text-fg-muted">
         The documentation page you requested does not exist.
       </p>
     </div>
   ),
   head: ({ loaderData }) => ({
     meta: [
-      { title: `${loaderData?.frontmatter.title} - base-ui-cal` },
+      { title: `${loaderData?.frontmatter.title} - ${import.meta.env.VITE_PROJECT_NAME}` },
       ...(loaderData?.frontmatter.description
-        ? [{ name: 'description', content: loaderData.frontmatter.description }]
+        ? [{ name: "description", content: loaderData.frontmatter.description }]
         : []),
     ],
   }),
   component: DocPage,
-})
+});
 
 function DocPage() {
   const { frontmatter, content } = Route.useLoaderData() as {
@@ -66,15 +71,17 @@ function DocPage() {
   return (
     <div>
       <div className="mb-6">
-        <p className="island-kicker mb-1">{frontmatter.section}</p>
-        <h1 className="display-title mb-2 text-3xl font-bold text-[var(--sea-ink)]">
+        <p className="type-label-100 text-kicker mb-1">{frontmatter.section}</p>
+        <h1 className="type-display-100 mb-2 text-fg">
           {frontmatter.title}
         </h1>
         {frontmatter.description && (
-          <p className="text-[var(--sea-ink-soft)]">{frontmatter.description}</p>
+          <p className="type-body-200 text-fg-muted">
+            {frontmatter.description}
+          </p>
         )}
       </div>
       <MarkdocRenderer content={content} />
     </div>
-  )
+  );
 }

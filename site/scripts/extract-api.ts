@@ -45,6 +45,10 @@ interface ExtractedSymbol {
   members?: string[];
   typeText?: string;
   tags?: Record<string, string>;
+  /** For types using useRender.ComponentProps<"element", State> */
+  defaultElement?: string;
+  /** The state type name passed to ComponentProps */
+  stateType?: string;
 }
 
 // ---------------------------------------------------------------------------
@@ -190,9 +194,47 @@ function extract(): ExtractedSymbol[] {
       const type = alias.getType();
       symbol.typeText = resolveTypeText(type);
 
-      // If it's an object type, extract properties
-      if (type.isObject() && !type.isArray()) {
-        const props = extractPropertiesFromType(type);
+      // Extract defaultElement and stateType from useRender.ComponentProps<"el", State>
+      const aliasText = alias.getText();
+      const cpMatch = aliasText.match(/useRender\.ComponentProps<"(\w+)",\s*(\w+)/);
+      if (cpMatch) {
+        symbol.defaultElement = cpMatch[1];
+        symbol.stateType = cpMatch[2];
+      }
+
+      // Extract properties from object, intersection, or union types
+      if ((type.isObject() || type.isIntersection() || type.isUnion()) && !type.isArray()) {
+        let props: ExtractedProperty[] = [];
+
+        if (type.isIntersection()) {
+          // For intersection types (e.g. ComponentProps<"table", State> & GridOwnProps),
+          // only extract from members whose declarations are in our own source files.
+          // This gives us the OwnProps without flooding with 200+ React HTML attributes.
+          const seen = new Set<string>();
+          for (const member of type.getIntersectionTypes()) {
+            const memberSymbol = member.getSymbol() ?? member.getAliasSymbol();
+            const memberDecl = memberSymbol?.getDeclarations()?.[0];
+            const memberFile = memberDecl?.getSourceFile().getFilePath() ?? "";
+            const isLocal = memberFile.includes("/src/");
+
+            if (isLocal) {
+              for (const p of extractPropertiesFromType(member)) {
+                if (!seen.has(p.name)) {
+                  seen.add(p.name);
+                  props.push(p);
+                }
+              }
+            }
+          }
+        } else if (type.isUnion()) {
+          // For discriminated unions (e.g. CalendarProviderProps = Base & (A | B | C)),
+          // TS flattens into a union of intersections. type.getProperties() returns
+          // the properties common to all union members.
+          props = extractPropertiesFromType(type);
+        } else {
+          props = extractPropertiesFromType(type);
+        }
+
         if (props.length > 0) {
           symbol.properties = props;
         }

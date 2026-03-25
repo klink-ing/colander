@@ -96,7 +96,106 @@
     "description": "Props accepted by `CalendarProvider`.",
     "filePath": "src/calendar-types.ts",
     "lineNumber": 153,
-    "typeText": "CalendarProviderProps<F>"
+    "typeText": "CalendarProviderProps<F>",
+    "properties": [
+      {
+        "name": "format",
+        "type": "F | undefined",
+        "description": "The value format used for date serialization. Determines the type of\n`value`, `defaultValue`, `min`, `max`, and callback parameters.",
+        "optional": true,
+        "defaultValue": "\"PlainDate\""
+      },
+      {
+        "name": "min",
+        "type": "RawValueForFormat<F> | undefined",
+        "description": "Earliest selectable date. Dates before this are disabled.",
+        "optional": true
+      },
+      {
+        "name": "max",
+        "type": "RawValueForFormat<F> | undefined",
+        "description": "Latest selectable date. Dates after this are disabled.",
+        "optional": true
+      },
+      {
+        "name": "disabled",
+        "type": "boolean | undefined",
+        "description": "When `true`, the entire calendar is disabled.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "readOnly",
+        "type": "boolean | undefined",
+        "description": "When `true`, the calendar is read-only. Keyboard navigation still works\nbut selection is prevented.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "isDateDisabled",
+        "type": "((date: PlainDate) => boolean) | undefined",
+        "description": "Callback to disable individual dates. Return `true` to disable a date.\nCalled in addition to `min`/`max` bounds checking.",
+        "optional": true
+      },
+      {
+        "name": "timeZone",
+        "type": "string | undefined",
+        "description": "IANA time zone identifier used for date/time conversions.",
+        "optional": true,
+        "defaultValue": "The system's current time zone."
+      },
+      {
+        "name": "locale",
+        "type": "string | undefined",
+        "description": "BCP 47 locale string used for formatting month names, weekday labels,\nand other locale-sensitive output.",
+        "optional": true,
+        "defaultValue": "\"en-US\""
+      },
+      {
+        "name": "temporal",
+        "type": "TemporalNamespace | undefined",
+        "description": "Custom Temporal namespace for environments without native Temporal support.",
+        "optional": true
+      },
+      {
+        "name": "weekStartDay",
+        "type": "WeekStartDay | undefined",
+        "description": "Day of the week the calendar grid starts on.\n`0` = Sunday, `1` = Monday, ..., `6` = Saturday.",
+        "optional": true,
+        "defaultValue": "0"
+      },
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "React children.",
+        "optional": true
+      },
+      {
+        "name": "selectionMode",
+        "type": "\"single\" | \"range\" | \"multiple\" | undefined",
+        "description": "",
+        "optional": true,
+        "defaultValue": "\"single\""
+      },
+      {
+        "name": "value",
+        "type": "RawValueForFormat<F> | DateRange<F> | RawValueForFormat<F>[] | null | undefined",
+        "description": "The controlled selected date. Pass `null` to clear.",
+        "optional": true
+      },
+      {
+        "name": "defaultValue",
+        "type": "RawValueForFormat<F> | DateRange<F> | RawValueForFormat<F>[] | undefined",
+        "description": "",
+        "optional": true
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: RawValueForFormat<F> | null, meta: ValueChangeMeta<RawValueForFormat<F> | null>) => void) | ((value: RawValueForFormat<F> | null, meta: ValueChangeMeta<RawValueForFormat<F> | null>) => void) | ((value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void) | ((value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void) | ((value: RawValueForFormat<F>[], meta: ValueChangeMeta<RawValueForFormat<F>[]>) => void) | ((value: RawValueForFormat<F>[], meta: ValueChangeMeta<RawValueForFormat<F>[]>) => void) | undefined",
+        "description": "",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "CalendarStableContextValue",
@@ -421,7 +520,23 @@
     "description": "Full props for the `DateString` component.",
     "filePath": "src/types.ts",
     "lineNumber": 496,
-    "typeText": "DateStringProps<F>"
+    "typeText": "DateStringProps<F>",
+    "defaultElement": "span",
+    "stateType": "DateStringState",
+    "properties": [
+      {
+        "name": "locales",
+        "type": "string | string[] | undefined",
+        "description": "BCP 47 locale(s) for date formatting. Falls back to the Root `locale`.",
+        "optional": true
+      },
+      {
+        "name": "options",
+        "type": "Intl.DateTimeFormatOptions | undefined",
+        "description": "`Intl.DateTimeFormat` options for customizing the output.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "DateStringState",
@@ -463,7 +578,21 @@
     "description": "Tagged union of all supported date value formats and their runtime values.",
     "filePath": "src/types.ts",
     "lineNumber": 68,
-    "typeText": "DateValueObject"
+    "typeText": "DateValueObject",
+    "properties": [
+      {
+        "name": "format",
+        "type": "\"object\" | \"PlainDate\" | \"PlainDateTime\" | \"PlainMonthDay\" | \"PlainTime\" | \"PlainYearMonth\" | \"ZonedDateTime\" | \"Date\"",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "value",
+        "type": "PlainDate | ZonedDateTime | Date | PlainDateTime | Temporal.PlainMonthDay | Temporal.PlainTime | PlainYearMonth | PlainDateObject",
+        "description": "",
+        "optional": false
+      }
+    ]
   },
   {
     "name": "DayButtonProps",
@@ -471,7 +600,17 @@
     "description": "Full props for the `DayButton` component.",
     "filePath": "src/types.ts",
     "lineNumber": 695,
-    "typeText": "DayButtonProps<F>"
+    "typeText": "DayButtonProps<F>",
+    "defaultElement": "button",
+    "stateType": "DayButtonState",
+    "properties": [
+      {
+        "name": "date",
+        "type": "PlainDate | undefined",
+        "description": "Explicit date for a standalone `DayButton`. Normally inherited from `DayCellTemplate`.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "DayButtonState",
@@ -645,7 +784,17 @@
     "description": "Full props for the `DayCellTemplate` component.",
     "filePath": "src/types.ts",
     "lineNumber": 684,
-    "typeText": "DayCellTemplateProps<F>"
+    "typeText": "DayCellTemplateProps<F>",
+    "defaultElement": "td",
+    "stateType": "DayCellTemplateState",
+    "properties": [
+      {
+        "name": "date",
+        "type": "PlainDate | undefined",
+        "description": "Explicit date to render. When omitted, iterates over the current week's days.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "DayCellTemplateState",
@@ -880,7 +1029,27 @@
     "description": "A flexible specifier for a calendar week. Accepts a `Temporal.PlainDate`,\na native `Date`, an ISO week number, a week-of-year, or a month/day pair.",
     "filePath": "src/resolve-first-week.ts",
     "lineNumber": 8,
-    "typeText": "FirstWeekSpec"
+    "typeText": "FirstWeekSpec",
+    "properties": [
+      {
+        "name": "toLocaleString",
+        "type": "((locales?: string | string[] | undefined, options?: Intl.DateTimeFormatOptions | undefined) => string) | { (): string; (locales?: string | string[] | undefined, options?: Intl.DateTimeFormatOptions | undefined): string; (locales?: Intl.LocalesArgument, options?: Intl.DateTimeFormatOptions | undefined): string; } | (() => string)",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toString",
+        "type": "((options?: Temporal.ShowCalendarOption | undefined) => string) | (() => string) | (() => string)",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "(() => never) | (() => number) | (() => Object)",
+        "description": "",
+        "optional": false
+      }
+    ]
   },
   {
     "name": "GridBodyProps",
@@ -888,7 +1057,9 @@
     "description": "Full props for the `GridBody` component.",
     "filePath": "src/types.ts",
     "lineNumber": 591,
-    "typeText": "GridBodyProps<F>"
+    "typeText": "GridBodyProps<F>",
+    "defaultElement": "tbody",
+    "stateType": "GridBodyState"
   },
   {
     "name": "GridBodyState",
@@ -912,7 +1083,17 @@
     "description": "Full props for the `GridHeaderCell` component.",
     "filePath": "src/types.ts",
     "lineNumber": 572,
-    "typeText": "GridHeaderCellProps<F>"
+    "typeText": "GridHeaderCellProps<F>",
+    "defaultElement": "th",
+    "stateType": "GridHeaderCellState",
+    "properties": [
+      {
+        "name": "index",
+        "type": "number | undefined",
+        "description": "0-based column index. When omitted, all 7 weekday headers are rendered.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "GridHeaderCellState",
@@ -960,7 +1141,9 @@
     "description": "Full props for the `GridHeader` component.",
     "filePath": "src/types.ts",
     "lineNumber": 582,
-    "typeText": "GridHeaderProps<F>"
+    "typeText": "GridHeaderProps<F>",
+    "defaultElement": "thead",
+    "stateType": "GridHeaderState"
   },
   {
     "name": "GridHeaderState",
@@ -984,7 +1167,37 @@
     "description": "Full props for the `Grid` component.",
     "filePath": "src/types.ts",
     "lineNumber": 615,
-    "typeText": "GridProps<F>"
+    "typeText": "GridProps<F>",
+    "defaultElement": "table",
+    "stateType": "GridState",
+    "properties": [
+      {
+        "name": "mode",
+        "type": "\"grid\" | undefined",
+        "description": "Interaction mode. Currently only `\"grid\"` is supported.",
+        "optional": true
+      },
+      {
+        "name": "orientation",
+        "type": "GridOrientation | undefined",
+        "description": "Layout direction for keyboard navigation.",
+        "optional": true,
+        "defaultValue": "\"horizontal\""
+      },
+      {
+        "name": "autoFocus",
+        "type": "boolean | undefined",
+        "description": "When `true`, the grid auto-focuses the tab-target cell on mount.",
+        "optional": true
+      },
+      {
+        "name": "monthIndex",
+        "type": "number | undefined",
+        "description": "Which visible month this grid displays (0-based).",
+        "optional": true,
+        "defaultValue": "0"
+      }
+    ]
   },
   {
     "name": "GridState",
@@ -1054,6 +1267,320 @@
     "filePath": "src/overflow.ts",
     "lineNumber": 11,
     "typeText": "MonthOverflowBehavior",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions | undefined): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number | undefined, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number | undefined): string[]; (splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string | undefined): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replaceAll",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "at",
+        "type": "(index: number) => string | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "isWellFormed",
+        "type": "() => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toWellFormed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "__@iterator@342",
+        "type": "() => StringIterator<string>",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "\"stop\"",
       "\"unbounded\""
@@ -1141,7 +1668,152 @@
     "description": "",
     "filePath": "src/month-view.tsx",
     "lineNumber": 367,
-    "typeText": "MonthViewProps<F>"
+    "typeText": "MonthViewProps<F>",
+    "properties": [
+      {
+        "name": "format",
+        "type": "F | undefined",
+        "description": "The value format used for date serialization. Determines the type of\n`value`, `defaultValue`, `min`, `max`, and callback parameters.",
+        "optional": true,
+        "defaultValue": "\"PlainDate\""
+      },
+      {
+        "name": "min",
+        "type": "RawValueForFormat<F> | undefined",
+        "description": "Earliest selectable date. Dates before this are disabled.",
+        "optional": true
+      },
+      {
+        "name": "max",
+        "type": "RawValueForFormat<F> | undefined",
+        "description": "Latest selectable date. Dates after this are disabled.",
+        "optional": true
+      },
+      {
+        "name": "disabled",
+        "type": "boolean | undefined",
+        "description": "When `true`, the entire calendar is disabled.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "readOnly",
+        "type": "boolean | undefined",
+        "description": "When `true`, the calendar is read-only. Keyboard navigation still works\nbut selection is prevented.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "isDateDisabled",
+        "type": "((date: PlainDate) => boolean) | undefined",
+        "description": "Callback to disable individual dates. Return `true` to disable a date.\nCalled in addition to `min`/`max` bounds checking.",
+        "optional": true
+      },
+      {
+        "name": "timeZone",
+        "type": "string | undefined",
+        "description": "IANA time zone identifier used for date/time conversions.",
+        "optional": true,
+        "defaultValue": "The system's current time zone."
+      },
+      {
+        "name": "locale",
+        "type": "string | undefined",
+        "description": "BCP 47 locale string used for formatting month names, weekday labels,\nand other locale-sensitive output.",
+        "optional": true,
+        "defaultValue": "\"en-US\""
+      },
+      {
+        "name": "temporal",
+        "type": "TemporalNamespace | undefined",
+        "description": "Custom Temporal namespace for environments without native Temporal support.",
+        "optional": true
+      },
+      {
+        "name": "weekStartDay",
+        "type": "WeekStartDay | undefined",
+        "description": "Day of the week the calendar grid starts on.\n`0` = Sunday, `1` = Monday, ..., `6` = Saturday.",
+        "optional": true,
+        "defaultValue": "0"
+      },
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "React children.",
+        "optional": true
+      },
+      {
+        "name": "selectionMode",
+        "type": "\"single\" | \"range\" | \"multiple\" | undefined",
+        "description": "",
+        "optional": true,
+        "defaultValue": "\"single\""
+      },
+      {
+        "name": "value",
+        "type": "RawValueForFormat<F> | DateRange<F> | RawValueForFormat<F>[] | null | undefined",
+        "description": "The controlled selected date. Pass `null` to clear.",
+        "optional": true
+      },
+      {
+        "name": "defaultValue",
+        "type": "RawValueForFormat<F> | DateRange<F> | RawValueForFormat<F>[] | undefined",
+        "description": "",
+        "optional": true
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: RawValueForFormat<F> | null, meta: ValueChangeMeta<RawValueForFormat<F> | null>) => void) | ((value: RawValueForFormat<F> | null, meta: ValueChangeMeta<RawValueForFormat<F> | null>) => void) | ((value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void) | ((value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void) | ((value: RawValueForFormat<F>[], meta: ValueChangeMeta<RawValueForFormat<F>[]>) => void) | ((value: RawValueForFormat<F>[], meta: ValueChangeMeta<RawValueForFormat<F>[]>) => void) | undefined",
+        "description": "",
+        "optional": true
+      },
+      {
+        "name": "numberOfMonths",
+        "type": "number | undefined",
+        "description": "Number of months to display simultaneously (1–12).",
+        "optional": true,
+        "defaultValue": "1"
+      },
+      {
+        "name": "fixedWeeks",
+        "type": "boolean | undefined",
+        "description": "When `true`, always render 6 week rows per month grid.\nPrevents layout shifts when navigating between months.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "outsideDays",
+        "type": "OutsideDays | undefined",
+        "description": "Controls how days from adjacent months are displayed.",
+        "optional": true,
+        "defaultValue": "\"enabled\""
+      },
+      {
+        "name": "overflowBehavior",
+        "type": "MonthOverflowBehavior | undefined",
+        "description": "How month navigation behaves at `min`/`max` bounds.\n- `\"unbounded\"` — navigation is always allowed.\n- `\"stop\"` — navigation buttons disable at the boundary.",
+        "optional": true,
+        "defaultValue": "\"unbounded\""
+      },
+      {
+        "name": "month",
+        "type": "PlainYearMonth | undefined",
+        "description": "The controlled visible month. When provided, the component is controlled.",
+        "optional": true
+      },
+      {
+        "name": "defaultMonth",
+        "type": "PlainYearMonth | undefined",
+        "description": "The initial visible month (uncontrolled).",
+        "optional": true
+      },
+      {
+        "name": "onMonthChange",
+        "type": "((month: PlainYearMonth) => void) | undefined",
+        "description": "Called when the visible month changes via navigation or focus movement.\nNot called on initial mount.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "MonthViewRootProps",
@@ -1312,7 +1984,30 @@
     "description": "Full props for the `MonthYearString` component.",
     "filePath": "src/types.ts",
     "lineNumber": 537,
-    "typeText": "MonthYearStringProps<F>"
+    "typeText": "MonthYearStringProps<F>",
+    "defaultElement": "span",
+    "stateType": "MonthYearStringState",
+    "properties": [
+      {
+        "name": "locales",
+        "type": "string | string[] | undefined",
+        "description": "BCP 47 locale(s) for month/year formatting. Falls back to the Root `locale`.",
+        "optional": true
+      },
+      {
+        "name": "options",
+        "type": "Intl.DateTimeFormatOptions | undefined",
+        "description": "`Intl.DateTimeFormat` options for customizing the output.",
+        "optional": true
+      },
+      {
+        "name": "monthIndex",
+        "type": "number | undefined",
+        "description": "Which visible month to display (0-based).",
+        "optional": true,
+        "defaultValue": "0"
+      }
+    ]
   },
   {
     "name": "MonthYearStringState",
@@ -1382,7 +2077,9 @@
     "description": "Full props for the `NextMonthButton` component.",
     "filePath": "src/types.ts",
     "lineNumber": 553,
-    "typeText": "NextMonthButtonProps<F>"
+    "typeText": "NextMonthButtonProps<F>",
+    "defaultElement": "button",
+    "stateType": "NavButtonState"
   },
   {
     "name": "NextWeeksButtonProps",
@@ -1390,7 +2087,17 @@
     "description": "Full props for the `NextWeeksButton` component.",
     "filePath": "src/weeks-navigation.tsx",
     "lineNumber": 31,
-    "typeText": "NextWeeksButtonProps"
+    "typeText": "NextWeeksButtonProps",
+    "defaultElement": "button",
+    "stateType": "WeeksNavButtonState",
+    "properties": [
+      {
+        "name": "shiftBy",
+        "type": "number | undefined",
+        "description": "Overrides weekCount as the shift amount. Must be a positive integer.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "OutsideDays",
@@ -1399,6 +2106,320 @@
     "filePath": "src/types.ts",
     "lineNumber": 15,
     "typeText": "OutsideDays",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions | undefined): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number | undefined, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number | undefined): string[]; (splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string | undefined): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replaceAll",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "at",
+        "type": "(index: number) => string | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "isWellFormed",
+        "type": "() => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toWellFormed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "__@iterator@342",
+        "type": "() => StringIterator<string>",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "\"hidden\"",
       "\"disabled\"",
@@ -1413,6 +2434,320 @@
     "filePath": "src/overflow.ts",
     "lineNumber": 4,
     "typeText": "OverflowBehavior",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions | undefined): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number | undefined, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number | undefined): string[]; (splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string | undefined): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replaceAll",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "at",
+        "type": "(index: number) => string | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "isWellFormed",
+        "type": "() => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toWellFormed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "__@iterator@342",
+        "type": "() => StringIterator<string>",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "\"stop\"",
       "\"unbounded\"",
@@ -1478,7 +2813,9 @@
     "description": "Full props for the `PrevMonthButton` component.",
     "filePath": "src/types.ts",
     "lineNumber": 550,
-    "typeText": "PrevMonthButtonProps<F>"
+    "typeText": "PrevMonthButtonProps<F>",
+    "defaultElement": "button",
+    "stateType": "NavButtonState"
   },
   {
     "name": "PrevWeeksButtonProps",
@@ -1486,7 +2823,17 @@
     "description": "Full props for the `PrevWeeksButton` component.",
     "filePath": "src/weeks-navigation.tsx",
     "lineNumber": 26,
-    "typeText": "PrevWeeksButtonProps"
+    "typeText": "PrevWeeksButtonProps",
+    "defaultElement": "button",
+    "stateType": "WeeksNavButtonState",
+    "properties": [
+      {
+        "name": "shiftBy",
+        "type": "number | undefined",
+        "description": "Overrides weekCount as the shift amount. Must be a positive integer.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "RangeEndDragHandleProps",
@@ -3197,6 +4544,320 @@
     "filePath": "src/types.ts",
     "lineNumber": 26,
     "typeText": "RangeMode",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions | undefined): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number | undefined, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number | undefined): string[]; (splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string | undefined): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replaceAll",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "at",
+        "type": "(index: number) => string | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "isWellFormed",
+        "type": "() => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toWellFormed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "__@iterator@342",
+        "type": "() => StringIterator<string>",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "\"reset\"",
       "\"start-end\"",
@@ -3302,7 +4963,9 @@
     "description": "Full props for the `RangeSelected` component.",
     "filePath": "src/types.ts",
     "lineNumber": 715,
-    "typeText": "RangeSelectedProps<F>"
+    "typeText": "RangeSelectedProps<F>",
+    "defaultElement": "td",
+    "stateType": "RangeSelectedState"
   },
   {
     "name": "RangeSelectedState",
@@ -5173,6 +6836,320 @@
     "filePath": "src/resolve-first-week.ts",
     "lineNumber": 16,
     "typeText": "ScrollToWeekSnap",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions | undefined): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number | undefined, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number | undefined): string[]; (splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string | undefined): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replaceAll",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "at",
+        "type": "(index: number) => string | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "isWellFormed",
+        "type": "() => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toWellFormed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "__@iterator@342",
+        "type": "() => StringIterator<string>",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "\"center\"",
       "\"start\"",
@@ -5226,7 +7203,23 @@
     "description": "Full props for the `TimeString` component.",
     "filePath": "src/types.ts",
     "lineNumber": 516,
-    "typeText": "TimeStringProps<F>"
+    "typeText": "TimeStringProps<F>",
+    "defaultElement": "span",
+    "stateType": "TimeStringState",
+    "properties": [
+      {
+        "name": "locales",
+        "type": "string | string[] | undefined",
+        "description": "BCP 47 locale(s) for time formatting. Falls back to the Root `locale`.",
+        "optional": true
+      },
+      {
+        "name": "options",
+        "type": "Intl.DateTimeFormatOptions | undefined",
+        "description": "`Intl.DateTimeFormat` options for customizing the output.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "TimeStringState",
@@ -5292,7 +7285,21 @@
     "description": "Extracts the {@link DateValueObject} variant matching a given format `F`.",
     "filePath": "src/types.ts",
     "lineNumber": 82,
-    "typeText": "ValueForFormat<F>"
+    "typeText": "ValueForFormat<F>",
+    "properties": [
+      {
+        "name": "format",
+        "type": "F",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "value",
+        "type": "PlainDate | ZonedDateTime | Date | PlainDateTime | Temporal.PlainMonthDay | Temporal.PlainTime | PlainYearMonth | PlainDateObject",
+        "description": "",
+        "optional": false
+      }
+    ]
   },
   {
     "name": "ValueFormat",
@@ -5301,6 +7308,320 @@
     "filePath": "src/types.ts",
     "lineNumber": 79,
     "typeText": "\"object\" | \"PlainDate\" | \"PlainDateTime\" | \"PlainMonthDay\" | \"PlainTime\" | \"PlainYearMonth\" | \"ZonedDateTime\" | \"Date\"",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charAt",
+        "type": "(pos: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "charCodeAt",
+        "type": "(index: number) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "concat",
+        "type": "(...strings: string[]) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "indexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "lastIndexOf",
+        "type": "(searchString: string, position?: number | undefined) => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "localeCompare",
+        "type": "{ (that: string): number; (that: string, locales?: string | string[] | undefined, options?: Intl.CollatorOptions | undefined): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions | undefined): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "match",
+        "type": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replace",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: string, replacer: (substring: string, ...args: any[]) => string): string; }, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "search",
+        "type": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "slice",
+        "type": "(start?: number | undefined, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "split",
+        "type": "{ (separator: string | RegExp, limit?: number | undefined): string[]; (splitter: { [Symbol.split](string: string, limit?: number | undefined): string[]; }, limit?: number | undefined): string[]; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substring",
+        "type": "(start: number, end?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLowerCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleLowerCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toUpperCase",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleUpperCase",
+        "type": "{ (locales?: string | string[] | undefined): string; (locales?: Intl.LocalesArgument): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trim",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "length",
+        "type": "number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "substr",
+        "type": "(from: number, length?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "codePointAt",
+        "type": "(pos: number) => number | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "includes",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "endsWith",
+        "type": "(searchString: string, endPosition?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "normalize",
+        "type": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string | undefined): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "repeat",
+        "type": "(count: number) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "startsWith",
+        "type": "(searchString: string, position?: number | undefined) => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "anchor",
+        "type": "(name: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "big",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "blink",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "bold",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fixed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontcolor",
+        "type": "(color: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "fontsize",
+        "type": "{ (size: number): string; (size: string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "italics",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "link",
+        "type": "(url: string) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "small",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "strike",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sub",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "sup",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padStart",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "padEnd",
+        "type": "(maxLength: number, fillString?: string | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimEnd",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimStart",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimLeft",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "trimRight",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "matchAll",
+        "type": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "replaceAll",
+        "type": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "at",
+        "type": "(index: number) => string | undefined",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "isWellFormed",
+        "type": "() => boolean",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toWellFormed",
+        "type": "() => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "__@iterator@342",
+        "type": "() => StringIterator<string>",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "\"object\"",
       "\"PlainDate\"",
@@ -5384,7 +7705,9 @@
     "description": "Full props for the `WeeksView.WeekCount` component.",
     "filePath": "src/weeks-navigation.tsx",
     "lineNumber": 41,
-    "typeText": "WeekCountProps"
+    "typeText": "WeekCountProps",
+    "defaultElement": "span",
+    "stateType": "WeekCountState"
   },
   {
     "name": "WeekCountState",
@@ -5447,7 +7770,9 @@
     "description": "Full props for the `WeekNumberCell` component.",
     "filePath": "src/types.ts",
     "lineNumber": 767,
-    "typeText": "WeekNumberCellProps<F>"
+    "typeText": "WeekNumberCellProps<F>",
+    "defaultElement": "td",
+    "stateType": "WeekNumberCellState"
   },
   {
     "name": "WeekNumberCellState",
@@ -5477,7 +7802,9 @@
     "description": "Full props for the `WeekNumberHeader` component.",
     "filePath": "src/types.ts",
     "lineNumber": 776,
-    "typeText": "WeekNumberHeaderProps<F>"
+    "typeText": "WeekNumberHeaderProps<F>",
+    "defaultElement": "th",
+    "stateType": "WeekNumberHeaderState"
   },
   {
     "name": "WeekNumberHeaderState",
@@ -5539,6 +7866,44 @@
     "filePath": "src/types.ts",
     "lineNumber": 6,
     "typeText": "WeekStartDay",
+    "properties": [
+      {
+        "name": "toString",
+        "type": "(radix?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toFixed",
+        "type": "(fractionDigits?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toExponential",
+        "type": "(fractionDigits?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toPrecision",
+        "type": "(precision?: number | undefined) => string",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "valueOf",
+        "type": "() => number",
+        "description": "",
+        "optional": false
+      },
+      {
+        "name": "toLocaleString",
+        "type": "{ (locales?: string | string[] | undefined, options?: Intl.NumberFormatOptions | undefined): string; (locales?: Intl.LocalesArgument, options?: Intl.NumberFormatOptions | undefined): string; }",
+        "description": "",
+        "optional": false
+      }
+    ],
     "members": [
       "0",
       "1",
@@ -5555,7 +7920,150 @@
     "description": "",
     "filePath": "src/weeks-view.tsx",
     "lineNumber": 50,
-    "typeText": "WeeksViewProps<F>"
+    "typeText": "WeeksViewProps<F>",
+    "properties": [
+      {
+        "name": "format",
+        "type": "F | undefined",
+        "description": "The value format used for date serialization. Determines the type of\n`value`, `defaultValue`, `min`, `max`, and callback parameters.",
+        "optional": true,
+        "defaultValue": "\"PlainDate\""
+      },
+      {
+        "name": "min",
+        "type": "RawValueForFormat<F> | undefined",
+        "description": "Earliest selectable date. Dates before this are disabled.",
+        "optional": true
+      },
+      {
+        "name": "max",
+        "type": "RawValueForFormat<F> | undefined",
+        "description": "Latest selectable date. Dates after this are disabled.",
+        "optional": true
+      },
+      {
+        "name": "disabled",
+        "type": "boolean | undefined",
+        "description": "When `true`, the entire calendar is disabled.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "readOnly",
+        "type": "boolean | undefined",
+        "description": "When `true`, the calendar is read-only. Keyboard navigation still works\nbut selection is prevented.",
+        "optional": true,
+        "defaultValue": "false"
+      },
+      {
+        "name": "isDateDisabled",
+        "type": "((date: PlainDate) => boolean) | undefined",
+        "description": "Callback to disable individual dates. Return `true` to disable a date.\nCalled in addition to `min`/`max` bounds checking.",
+        "optional": true
+      },
+      {
+        "name": "timeZone",
+        "type": "string | undefined",
+        "description": "IANA time zone identifier used for date/time conversions.",
+        "optional": true,
+        "defaultValue": "The system's current time zone."
+      },
+      {
+        "name": "locale",
+        "type": "string | undefined",
+        "description": "BCP 47 locale string used for formatting month names, weekday labels,\nand other locale-sensitive output.",
+        "optional": true,
+        "defaultValue": "\"en-US\""
+      },
+      {
+        "name": "temporal",
+        "type": "TemporalNamespace | undefined",
+        "description": "Custom Temporal namespace for environments without native Temporal support.",
+        "optional": true
+      },
+      {
+        "name": "weekStartDay",
+        "type": "WeekStartDay | undefined",
+        "description": "Day of the week the calendar grid starts on.\n`0` = Sunday, `1` = Monday, ..., `6` = Saturday.",
+        "optional": true,
+        "defaultValue": "0"
+      },
+      {
+        "name": "children",
+        "type": "React.ReactNode",
+        "description": "React children.",
+        "optional": true
+      },
+      {
+        "name": "selectionMode",
+        "type": "\"single\" | \"range\" | \"multiple\" | undefined",
+        "description": "",
+        "optional": true,
+        "defaultValue": "\"single\""
+      },
+      {
+        "name": "value",
+        "type": "RawValueForFormat<F> | DateRange<F> | RawValueForFormat<F>[] | null | undefined",
+        "description": "The controlled selected date. Pass `null` to clear.",
+        "optional": true
+      },
+      {
+        "name": "defaultValue",
+        "type": "RawValueForFormat<F> | DateRange<F> | RawValueForFormat<F>[] | undefined",
+        "description": "",
+        "optional": true
+      },
+      {
+        "name": "onValueChange",
+        "type": "((value: RawValueForFormat<F> | null, meta: ValueChangeMeta<RawValueForFormat<F> | null>) => void) | ((value: RawValueForFormat<F> | null, meta: ValueChangeMeta<RawValueForFormat<F> | null>) => void) | ((value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void) | ((value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void) | ((value: RawValueForFormat<F>[], meta: ValueChangeMeta<RawValueForFormat<F>[]>) => void) | ((value: RawValueForFormat<F>[], meta: ValueChangeMeta<RawValueForFormat<F>[]>) => void) | undefined",
+        "description": "",
+        "optional": true
+      },
+      {
+        "name": "weekCount",
+        "type": "number",
+        "description": "Number of week rows to display simultaneously.",
+        "optional": false
+      },
+      {
+        "name": "firstWeek",
+        "type": "FirstWeekSpec | undefined",
+        "description": "The controlled first visible week. When provided, the component is controlled.",
+        "optional": true
+      },
+      {
+        "name": "defaultFirstWeek",
+        "type": "FirstWeekSpec | undefined",
+        "description": "The initial first visible week (uncontrolled).",
+        "optional": true
+      },
+      {
+        "name": "onFirstWeekChange",
+        "type": "((date: PlainDate) => void) | undefined",
+        "description": "Called when the first visible week changes via navigation or focus movement.",
+        "optional": true
+      },
+      {
+        "name": "scrollBy",
+        "type": "\"row\" | \"page\" | undefined",
+        "description": "How much to scroll per navigation step.\n- `\"row\"` — scroll one week row at a time.\n- `\"page\"` — scroll a full page (all visible rows) at a time.",
+        "optional": true,
+        "defaultValue": "\"row\""
+      },
+      {
+        "name": "overflowBehavior",
+        "type": "OverflowBehavior | undefined",
+        "description": "How navigation behaves at `min`/`max` bounds.",
+        "optional": true,
+        "defaultValue": "\"unbounded\""
+      },
+      {
+        "name": "onWindowChange",
+        "type": "((info: WindowInfo) => void) | undefined",
+        "description": "Called when the visible window changes.",
+        "optional": true
+      }
+    ]
   },
   {
     "name": "WeeksViewRootHandle",
@@ -5733,7 +8241,9 @@
     "description": "Full props for the `WeekTemplate` component.",
     "filePath": "src/types.ts",
     "lineNumber": 627,
-    "typeText": "WeekTemplateProps<F>"
+    "typeText": "WeekTemplateProps<F>",
+    "defaultElement": "tr",
+    "stateType": "WeekTemplateState"
   },
   {
     "name": "WeekTemplateState",

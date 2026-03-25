@@ -6,7 +6,36 @@ export interface SidebarEntry {
   frontmatter: DocFrontmatter
 }
 
-export default function Sidebar({ entries }: { entries: SidebarEntry[] }) {
+export interface ApiSidebarEntry {
+  name: string
+  kind: string
+}
+
+const kindOrder: Record<string, number> = {
+  component: 0,
+  hook: 1,
+  interface: 2,
+  function: 3,
+  context: 4,
+  const: 5,
+}
+
+const kindLabels: Record<string, string> = {
+  component: 'Components',
+  hook: 'Hooks',
+  interface: 'Types',
+  function: 'Functions',
+  context: 'Contexts',
+  const: 'Constants',
+}
+
+export default function Sidebar({
+  entries,
+  apiEntries,
+}: {
+  entries: SidebarEntry[]
+  apiEntries: ApiSidebarEntry[]
+}) {
   const location = useLocation()
 
   const grouped = new Map<string, SidebarEntry[]>()
@@ -18,17 +47,30 @@ export default function Sidebar({ entries }: { entries: SidebarEntry[] }) {
     grouped.get(section)!.push(entry)
   }
 
-  // Sort entries within each group by order
   for (const entries of grouped.values()) {
     entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order)
   }
 
+  // Group API entries by kind
+  const apiGrouped = new Map<string, ApiSidebarEntry[]>()
+  for (const entry of apiEntries) {
+    const kind = entry.kind
+    if (!apiGrouped.has(kind)) {
+      apiGrouped.set(kind, [])
+    }
+    apiGrouped.get(kind)!.push(entry)
+  }
+
+  const sortedApiKinds = [...apiGrouped.keys()].sort(
+    (a, b) => (kindOrder[a] ?? 99) - (kindOrder[b] ?? 99),
+  )
+
   return (
     <nav className="w-56 shrink-0 pr-6" aria-label="Documentation navigation">
-      <div className="sticky top-20">
+      <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
         {Array.from(grouped.entries()).map(([section, entries]) => (
           <div key={section} className="mb-5">
-            <h4 className="island-kicker mb-2 text-[10px]">{section}</h4>
+            <h4 className="type-label-100 mb-2 text-kicker">{section}</h4>
             <ul className="m-0 list-none space-y-0.5 p-0">
               {entries.map((entry) => {
                 const path = `/docs/${entry.slug}`
@@ -38,10 +80,10 @@ export default function Sidebar({ entries }: { entries: SidebarEntry[] }) {
                     <Link
                       to={path}
                       aria-current={isActive ? 'page' : undefined}
-                      className={`block rounded-lg px-3 py-1.5 text-sm no-underline transition ${
+                      className={`type-body-100 block rounded-lg px-3 py-1.5 no-underline transition ${
                         isActive
-                          ? 'bg-[rgba(79,184,178,0.14)] font-semibold text-[var(--lagoon-deep)]'
-                          : 'text-[var(--sea-ink-soft)] hover:bg-[var(--link-bg-hover)] hover:text-[var(--sea-ink)]'
+                          ? 'bg-accent-subtle font-semibold text-accent'
+                          : 'text-fg-muted hover:bg-link-bg-hover hover:text-fg'
                       }`}
                     >
                       {entry.frontmatter.title}
@@ -52,6 +94,39 @@ export default function Sidebar({ entries }: { entries: SidebarEntry[] }) {
             </ul>
           </div>
         ))}
+
+        {sortedApiKinds.map((kind) => {
+          const items = apiGrouped.get(kind)!
+          return (
+            <div key={kind} className="mb-5">
+              <h4 className="type-label-100 mb-2 text-kicker">
+                {kindLabels[kind] ?? kind}
+              </h4>
+              <ul className="m-0 list-none space-y-0.5 p-0">
+                {items.map((item) => {
+                  const path = `/docs/api/${item.name}`
+                  const isActive = location.pathname === path
+                  return (
+                    <li key={item.name}>
+                      <Link
+                        to="/docs/api/$symbol"
+                        params={{ symbol: item.name }}
+                        aria-current={isActive ? 'page' : undefined}
+                        className={`type-code-100 block rounded-lg px-3 py-1.5 no-underline transition ${
+                          isActive
+                            ? 'bg-accent-subtle font-semibold text-accent'
+                            : 'text-fg-muted hover:bg-link-bg-hover hover:text-fg'
+                        }`}
+                      >
+                        {item.name}
+                      </Link>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          )
+        })}
       </div>
     </nav>
   )
