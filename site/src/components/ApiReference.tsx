@@ -52,13 +52,15 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
       <tbody className="contents">
         {properties.map((prop) => (
           <tr key={prop.name} className="contents">
-            <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink)] last:border-0">
-              {prop.name}
-              {!prop.optional && <span className="ml-0.5 text-[var(--accent)]">*</span>}
+            <td className="border-b border-[var(--line)] py-1.5 pr-4 last:border-0">
+              <Badge>
+                {prop.name}
+                {!prop.optional && <span className="ml-0.5 text-[var(--accent)]">*</span>}
+              </Badge>
             </td>
             <td className="break-all border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.type}</td>
             <td className="border-b border-[var(--line)] py-1.5 pr-4 font-mono text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.defaultValue || '—'}</td>
-            <td className="border-b border-[var(--line)] py-1.5 text-xs text-[var(--sea-ink-soft)] last:border-0">{prop.description}</td>
+            <td className="border-b border-[var(--line)] py-1.5 text-sm text-[var(--sea-ink-soft)] last:border-0">{prop.description}</td>
           </tr>
         ))}
       </tbody>
@@ -106,5 +108,13 @@ function HookSignature({ symbol }: { symbol: ApiSymbol }) {
         </code>
       </pre>
     </div>
+  )
+}
+
+function Badge({ children }: { children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center rounded-md border border-[var(--chip-line)] bg-[var(--chip-bg)] px-1.5 py-0.5 font-mono text-xs text-[var(--sea-ink)]">
+      {children}
+    </span>
   )
 }
