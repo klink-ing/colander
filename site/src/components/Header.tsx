@@ -63,14 +63,13 @@ export default function Header() {
           >
             About
           </Link>
-          <a
-            href="https://tanstack.com/start/latest/docs/framework/react/overview"
+          <Link
+            to="/docs"
             className="nav-link"
-            target="_blank"
-            rel="noreferrer"
+            activeProps={{ className: 'nav-link is-active' }}
           >
             Docs
-          </a>
+          </Link>
         </div>
       </nav>
     </header>
