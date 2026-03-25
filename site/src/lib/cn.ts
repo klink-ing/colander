@@ -36,7 +36,8 @@ export const twMerge = extendTailwindMerge<'type-style'>({
       'type-style': [...typeClasses],
     },
     conflictingClassGroups: {
-      // type-* wins over individual typography utilities
+      // type-* creates conflicts and therefore removes preceding
+      // Tailwind typography utilities when both are present.
       'type-style': [
         'font-size',
         'font-family',
@@ -46,18 +47,12 @@ export const twMerge = extendTailwindMerge<'type-style'>({
         'font-style',
         'text-transform',
       ],
-      // individual typography utilities win over type-*
-      'font-size': ['type-style'],
-      'font-family': ['type-style'],
-      leading: ['type-style'],
-      tracking: ['type-style'],
-      'font-weight': ['type-style'],
-      'font-style': ['type-style'],
-      'text-transform': ['type-style'],
     },
   },
 })
 
 export function cn(...inputs: ClassValue[]) {
+  // Preserve caller order. We rely on asymmetric `conflictingClassGroups`
+  // so that later utilities override earlier ones when they overlap.
   return twMerge(clsx(inputs))
 }

@@ -100,8 +100,10 @@
 
 /* ── Typography utilities ──────────────────────────────── */
 
+@layer components {
+
 @utility type-display-100 {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-size: var(--type-display-100-size);
   line-height: var(--type-display-100-lh);
   letter-spacing: var(--type-display-100-ls);
@@ -111,7 +113,7 @@
 }
 
 @utility type-display-200 {
-  font-family: var(--font-display);
+  font-family: var(--font-heading);
   font-size: var(--type-display-200-size);
   line-height: var(--type-display-200-lh);
   letter-spacing: var(--type-display-200-ls);
@@ -250,6 +252,8 @@
   text-transform: none;
 }
 
+}
+
 /* ── Site tokens ────────────────────────────────────────── */
 
 :root {
@@ -369,20 +373,20 @@ pre code {
 }
 
 .dark {
-  --background: oklch(0.147 0.004 49.25);
+  --background: oklch(0.1 0 274);
   --foreground: oklch(0.985 0.001 106.423);
-  --card: oklch(0.216 0.006 56.043);
+  --card: oklch(0.26 0.006 274);
   --card-foreground: oklch(0.985 0.001 106.423);
   --popover: oklch(0.216 0.006 56.043);
-  --popover-foreground: oklch(0.985 0.001 106.423);
+  --popover-foreground: oklch(0.985 0.001 274);
   --primary: oklch(0.795 0.184 86.047);
-  --primary-foreground: oklch(0.421 0.095 57.708);
-  --secondary: oklch(0.274 0.006 286.033);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.268 0.007 34.298);
-  --muted-foreground: oklch(0.709 0.01 56.259);
-  --accent: oklch(0.268 0.007 34.298);
-  --accent-foreground: oklch(0.985 0.001 106.423);
+  --primary-foreground: oklch(0.2 0.03 274);
+  --secondary: oklch(0.274 0.006 274);
+  --secondary-foreground: oklch(0.985 0 274);
+  --muted: oklch(0.268 0.007 274);
+  --muted-foreground: oklch(0.809 0.01 274);
+  --accent: oklch(0.21 0.006 274);
+  --accent-foreground: oklch(0.985 0.001 274);
   --destructive: oklch(0.704 0.191 22.216);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
