@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, notFound } from '@tanstack/react-router'
 import { createServerFn } from '@tanstack/react-start'
 import * as fs from 'node:fs'
 import * as path from 'node:path'
@@ -10,22 +10,42 @@ const getDocContent = createServerFn()
   .handler(async ({ data: slug }) => {
     const filePath = path.resolve(process.cwd(), 'content/docs', `${slug}.md`)
 
-    if (!fs.existsSync(filePath)) {
-      throw new Error(`Doc not found: ${slug}`)
-    }
+    try {
+      if (!fs.existsSync(filePath)) {
+        throw notFound()
+      }
 
-    const raw = fs.readFileSync(filePath, 'utf-8')
-    const { frontmatter, content } = parseFrontmatter(raw)
-    const transformed = parseMarkdoc(content)
+      const raw = fs.readFileSync(filePath, 'utf-8')
+      const { frontmatter, content } = parseFrontmatter(raw)
+      const transformed = parseMarkdoc(content)
 
-    return {
-      frontmatter,
-      content: JSON.parse(JSON.stringify(transformed)),
+      return {
+        frontmatter,
+        // Markdoc's RenderableTreeNode contains non-serializable properties;
+        // round-tripping through JSON strips them so the data can cross the
+        // server/client boundary.
+        content: JSON.parse(JSON.stringify(transformed)),
+      }
+    } catch (error) {
+      // Re-throw notFound errors so TanStack Router handles them
+      if (error && typeof error === 'object' && 'isNotFound' in error) {
+        throw error
+      }
+      console.error(`Failed to load doc "${slug}":`, error)
+      throw notFound()
     }
   })
 
 export const Route = createFileRoute('/docs/$slug')({
   loader: ({ params }) => getDocContent({ data: params.slug }),
+  notFoundComponent: () => (
+    <div className="py-12 text-center">
+      <h1 className="mb-2 text-2xl font-bold text-[var(--sea-ink)]">Page not found</h1>
+      <p className="text-[var(--sea-ink-soft)]">
+        The documentation page you requested does not exist.
+      </p>
+    </div>
+  ),
   head: ({ loaderData }) => ({
     meta: [
       { title: `${loaderData?.frontmatter.title} - base-ui-cal` },

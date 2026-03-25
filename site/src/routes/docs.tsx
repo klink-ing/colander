@@ -6,18 +6,23 @@ import Sidebar, { type SidebarEntry } from '#/components/Sidebar'
 import { parseFrontmatter } from '#/lib/markdoc'
 
 const getDocEntries = createServerFn().handler(async () => {
-  const contentDir = path.resolve(process.cwd(), 'content/docs')
-  const files = fs.readdirSync(contentDir).filter((f) => f.endsWith('.md'))
+  try {
+    const contentDir = path.resolve(process.cwd(), 'content/docs')
+    const files = fs.readdirSync(contentDir).filter((f) => f.endsWith('.md'))
 
-  const entries: SidebarEntry[] = files.map((file) => {
-    const slug = file.replace(/\.md$/, '')
-    const raw = fs.readFileSync(path.join(contentDir, file), 'utf-8')
-    const { frontmatter } = parseFrontmatter(raw)
-    return { slug, frontmatter }
-  })
+    const entries: SidebarEntry[] = files.map((file) => {
+      const slug = file.replace(/\.md$/, '')
+      const raw = fs.readFileSync(path.join(contentDir, file), 'utf-8')
+      const { frontmatter } = parseFrontmatter(raw)
+      return { slug, frontmatter }
+    })
 
-  entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order)
-  return entries
+    entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order)
+    return entries
+  } catch (error) {
+    console.error('Failed to load doc entries:', error)
+    return []
+  }
 })
 
 export const Route = createFileRoute('/docs')({
@@ -37,4 +42,3 @@ function DocsLayout() {
     </main>
   )
 }
-

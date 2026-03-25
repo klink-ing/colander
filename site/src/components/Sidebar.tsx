@@ -24,7 +24,7 @@ export default function Sidebar({ entries }: { entries: SidebarEntry[] }) {
   }
 
   return (
-    <nav className="w-56 shrink-0 pr-6">
+    <nav className="w-56 shrink-0 pr-6" aria-label="Documentation navigation">
       <div className="sticky top-20">
         {Array.from(grouped.entries()).map(([section, entries]) => (
           <div key={section} className="mb-5">
@@ -37,6 +37,7 @@ export default function Sidebar({ entries }: { entries: SidebarEntry[] }) {
                   <li key={entry.slug}>
                     <Link
                       to={path}
+                      aria-current={isActive ? 'page' : undefined}
                       className={`block rounded-lg px-3 py-1.5 text-sm no-underline transition ${
                         isActive
                           ? 'bg-[rgba(79,184,178,0.14)] font-semibold text-[var(--lagoon-deep)]'
