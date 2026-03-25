@@ -59,6 +59,9 @@ function WeeksViewHeader() {
 export default function App() {
   const systemTz = useMemo(() => Temporal.Now.timeZoneId(), []);
 
+  // ── View mode ──
+  const [viewMode, setViewMode] = useState<"month" | "weeks">("month");
+
   // ── CalendarProvider options ──
   const [selectionMode, setSelectionMode] = useState<
     "single" | "range" | "multiple"
@@ -425,6 +428,8 @@ export default function App() {
         {/* Controls panel */}
         <AppControls
           {...{
+            viewMode,
+            setViewMode,
             selectionMode,
             setSelectionMode,
             rangeMode,
@@ -492,7 +497,7 @@ export default function App() {
               isDateDisabled={isDateDisabled}
             >
               {/* Month View */}
-              <div>
+              {viewMode === "month" && <div>
                 <h3 className="text-foreground mb-3 text-sm font-semibold">
                   Month View
                 </h3>
@@ -527,10 +532,10 @@ export default function App() {
                     </div>
                   </div>
                 </MonthView.Root>
-              </div>
+              </div>}
 
               {/* Weeks View */}
-              <div>
+              {viewMode === "weeks" && <div>
                 <h3 className="text-foreground mb-3 text-sm font-semibold">
                   Weeks View
                 </h3>
@@ -668,7 +673,7 @@ export default function App() {
                     </StyledGrid>
                   </div>
                 </WeeksView.Root>
-              </div>
+              </div>}
             </CalendarProvider>
           </div>
 

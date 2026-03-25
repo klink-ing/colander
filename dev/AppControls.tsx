@@ -92,6 +92,9 @@ const checkboxClassName =
   "flex items-center gap-2 text-sm text-foreground cursor-pointer select-none";
 
 export interface AppControlsProps {
+  // View mode
+  viewMode: "month" | "weeks";
+  setViewMode: (v: "month" | "weeks") => void;
   // Shared (CalendarProvider)
   selectionMode: "single" | "range" | "multiple";
   setSelectionMode: (v: "single" | "range" | "multiple") => void;
@@ -155,6 +158,8 @@ const toInputValue = (zdt: Temporal.ZonedDateTime) =>
 
 export function AppControls(props: AppControlsProps) {
   const {
+    viewMode,
+    setViewMode,
     selectionMode,
     setSelectionMode,
     rangeMode,
@@ -207,6 +212,17 @@ export function AppControls(props: AppControlsProps) {
   return (
     <div className="flex w-64 shrink-0 flex-col">
       <h2 className="text-foreground mb-2 text-lg font-semibold">Controls</h2>
+
+      <div className="mb-3">
+        <div className={displayLabelClassName}>View</div>
+        <RadioGroup
+          value={viewMode}
+          onValueChange={(v) => setViewMode(v as "month" | "weeks")}
+        >
+          <RadioGroupItem value="month" label="MonthView" />
+          <RadioGroupItem value="weeks" label="WeeksView" />
+        </RadioGroup>
+      </div>
 
       <Accordion
         type="multiple"
@@ -398,7 +414,7 @@ export function AppControls(props: AppControlsProps) {
         </AccordionItem>
 
         {/* ── Section 2: MonthView.Root ── */}
-        <AccordionItem value="month-view">
+        {viewMode === "month" && <AccordionItem value="month-view">
           <AccordionTrigger>MonthView.Root</AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-4">
@@ -452,10 +468,10 @@ export function AppControls(props: AppControlsProps) {
               </div>
             </div>
           </AccordionContent>
-        </AccordionItem>
+        </AccordionItem>}
 
         {/* ── Section 3: WeeksView.Root ── */}
-        <AccordionItem value="weeks-view">
+        {viewMode === "weeks" && <AccordionItem value="weeks-view">
           <AccordionTrigger>WeeksView.Root</AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-4">
@@ -515,7 +531,7 @@ export function AppControls(props: AppControlsProps) {
               </div>
             </div>
           </AccordionContent>
-        </AccordionItem>
+        </AccordionItem>}
 
         {/* ── Section 4: Display Options ── */}
         <AccordionItem value="display-options">
