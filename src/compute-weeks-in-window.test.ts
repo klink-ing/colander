@@ -78,6 +78,8 @@ describe("computeWeeksInWindow", () => {
 
   it("populates weekIndex sequentially from 0", () => {
     const weeks = computeWeeksInWindow(T.PlainDate.from("2026-03-01"), 5, 0, T);
-    weeks.forEach((w, i) => expect(w.weekIndex).toBe(i));
+    weeks.forEach((w, i) => {
+      expect(w.weekIndex).toBe(i);
+    });
   });
 });

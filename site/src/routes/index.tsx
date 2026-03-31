@@ -1,5 +1,5 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { LinkInline } from "#/components/LinkInline";
+import { cn } from "#/lib/cn";
 
 export const Route = createFileRoute("/")({ component: App });
 
@@ -9,12 +9,12 @@ function App() {
       <section className="rise-in relative overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-10 shadow-lg sm:px-10 sm:py-14">
         <p className="mb-3 type-label-100 text-muted-foreground">
           Accessible calendar components for React
-        </p>{" "}
-        <LinkInline to="/docs" className="type-body-200">
-          Go somewheres
-        </LinkInline>
-        NOW
-        <h1 className="mb-5 max-w-3xl type-display-200 text-foreground">
+        </p>
+        <h1
+          className={cn(
+            "mb-5 max-w-3xl font-extrabold text-foreground italic type-display-100 ",
+          )}
+        >
           {import.meta.env.VITE_PROJECT_NAME}
         </h1>
         <p className="mb-8 max-w-2xl type-body-200 text-muted-foreground">

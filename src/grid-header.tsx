@@ -97,7 +97,6 @@ export function GridHeaderCell<F extends ValueFormat = ValueFormat>(
   return (
     <>
       {Array.from({ length: daysInWeek }, (_, i) => (
-        // biome-ignore lint/suspicious/noArrayIndexKey: fixed-length weekday headers never reorder
         <Instance key={i} {...restProps} index={i} />
       ))}
     </>

@@ -25,24 +25,27 @@ export default function Header() {
         <NavigationMenu viewport={false} className="order-3 sm:order-2">
           <NavigationMenuList className="gap-0.5">
             <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/" className={navigationMenuTriggerStyle()}>
-                  Home
-                </Link>
+              <NavigationMenuLink
+                render={<Link to="/" />}
+                className={navigationMenuTriggerStyle()}
+              >
+                Home
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/docs" className={navigationMenuTriggerStyle()}>
-                  Docs
-                </Link>
+              <NavigationMenuLink
+                render={<Link to="/docs" />}
+                className={navigationMenuTriggerStyle()}
+              >
+                Docs
               </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link to="/demo" className={navigationMenuTriggerStyle()}>
-                  Demo
-                </Link>
+              <NavigationMenuLink
+                render={<Link to="/demo" />}
+                className={navigationMenuTriggerStyle()}
+              >
+                Demo
               </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>

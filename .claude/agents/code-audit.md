@@ -24,13 +24,14 @@ When given a directory or set of files to audit, you:
 Run these commands and collect all output:
 
 - `npx tsc --noEmit` — TypeScript type checking
-- `npx biome check <path>` — Linting and formatting (use `npx biome check --write <path>` to auto-fix)
+- `npx oxlint --fix <path>` — Linting (auto-fixes where possible)
+- `npx oxfmt <path>` — Formatting
 - `npx vitest run <path>` — Run relevant test files
 
 If any check fails, **analyze the failure before fixing**:
 
 - **TypeScript errors**: Fix the code to match the types, not the other way around (unless the type is clearly wrong).
-- **Lint errors**: Auto-fix with `npx biome check --write`. Report anything that couldn't be auto-fixed.
+- **Lint errors**: Auto-fix with `npx oxlint --fix`. Report anything that couldn't be auto-fixed.
 - **Test failures**: This is critical — see Step 2.
 
 ### Step 2: Analyze Test Failures

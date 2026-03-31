@@ -15,6 +15,7 @@ import { extendTailwindMerge } from "tailwind-merge";
 const typeClasses = [
   "type-display-100",
   "type-display-200",
+  "type-display-300",
   "type-heading-100",
   "type-heading-200",
   "type-heading-300",

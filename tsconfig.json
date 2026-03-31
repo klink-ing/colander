@@ -13,7 +13,6 @@
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
-    "baseUrl": ".",
     "types": [],
     "paths": {
       "colander": ["./src/index.ts"]
