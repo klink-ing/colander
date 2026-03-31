@@ -24,9 +24,7 @@ function getDayButton(page: Page, day: string): Locator {
  * Get the visible drag handle for a specific edge.
  */
 function getDragHandle(page: Page, edge: "start" | "end"): Locator {
-  return page.locator(
-    `[data-testid="drag-handle-${edge}"][data-active]`,
-  );
+  return page.locator(`[data-testid="drag-handle-${edge}"][data-active]`);
 }
 
 /**
@@ -122,10 +120,7 @@ test.describe("Drag Range Handles", () => {
       "aria-roledescription",
       "drag handle",
     );
-    await expect(startHandle).toHaveAttribute(
-      "aria-label",
-      "Range start date",
-    );
+    await expect(startHandle).toHaveAttribute("aria-label", "Range start date");
     await expect(endHandle).toHaveAttribute("aria-label", "Range end date");
   });
 
@@ -195,9 +190,7 @@ test.describe("Drag Range Handles", () => {
     await expect(rangeIndicator.first()).toBeVisible();
   });
 
-  test("single-day range shows both handles on same cell", async ({
-    page,
-  }) => {
+  test("single-day range shows both handles on same cell", async ({ page }) => {
     // Use "start-end" range mode so clicking same day twice creates a single-day range
     await page.locator("#selection-mode").selectOption("range");
     await page.locator("#range-mode").selectOption("start-end");

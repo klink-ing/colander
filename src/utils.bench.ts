@@ -1,5 +1,5 @@
-import { bench, describe } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
+import { bench, describe } from "vitest";
 import type { TemporalNamespace } from "./types";
 import {
   getMonthWeeks,

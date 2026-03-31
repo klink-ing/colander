@@ -1,19 +1,18 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
+import {
+  MonthViewStableContext,
+  MonthViewStateContext,
+} from "./month-view-context";
 import type {
   MonthViewRootProps,
   MonthViewStableContextValue,
   MonthViewStateContextValue,
 } from "./month-view-types";
 import type { MonthData, RootState, ValueFormat } from "./types";
-import { CalendarProvider } from "./calendar-provider";
-import { useCalendarStable, useCalendarState } from "./calendar-context";
-import {
-  MonthViewStableContext,
-  MonthViewStateContext,
-} from "./month-view-context";
-import { ViewContext, type ViewContextValue } from "./view-context";
 import {
   calendarForLocale,
   computeAdjacentMonth,
@@ -23,6 +22,7 @@ import {
   selectedToZdt,
   toZonedDateTime,
 } from "./utils";
+import { ViewContext, type ViewContextValue } from "./view-context";
 
 // ---------------------------------------------------------------------------
 // MonthView.Root — placed inside CalendarProvider

@@ -1,7 +1,5 @@
 import { useContext } from "react";
 
-import { cn } from "#/lib/cn";
-import { DragHandle, DragDayButton } from "#/lib/drag-components";
 import {
   Grid,
   GridBody,
@@ -34,6 +32,8 @@ import type {
   RangeSelectedProps,
   RangePreviewProps,
 } from "colander";
+import { cn } from "#/lib/cn";
+import { DragHandle, DragDayButton } from "#/lib/drag-components";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,
@@ -207,7 +207,7 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
             {isFirstOfMonth && (
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-y-0 left-0 w-0 -ml-px border-l border-muted-foreground"
+                className="pointer-events-none absolute inset-y-0 left-0 -ml-px w-0 border-l border-muted-foreground"
               />
             )}
             <StyledDayButton
@@ -224,7 +224,6 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
 export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   className,
   date,
-  children,
   preventRangeReversal,
   ...props
 }: DayButtonProps<F> & {

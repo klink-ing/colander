@@ -100,7 +100,7 @@
 
 /* ── Typography utilities ──────────────────────────────── */
 
-@layer components {
+/* @layer components { */
 
 @utility type-display-100 {
   font-family: var(--font-heading);
@@ -252,7 +252,7 @@
   text-transform: none;
 }
 
-}
+/* } */
 
 /* ── Site tokens ────────────────────────────────────────── */
 
@@ -305,7 +305,6 @@ pre code {
   width: min(1080px, calc(100% - 2rem));
   margin-inline: auto;
 }
-
 
 .rise-in {
   animation: rise-in 700ms cubic-bezier(0.16, 1, 0.3, 1) both;

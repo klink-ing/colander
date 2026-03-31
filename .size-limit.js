@@ -2,7 +2,7 @@ import path from "node:path";
 
 /** Resolve `colander` → `./dist/index.js` so esbuild can find the built output. */
 function withAlias(config) {
-  config.alias = { "colander": path.resolve("dist/index.js") };
+  config.alias = { colander: path.resolve("dist/index.js") };
   return config;
 }
 

@@ -1,23 +1,23 @@
-import { AInline, LinkInline } from "#/components/LinkInline";
 import { Link, createFileRoute } from "@tanstack/react-router";
+import { LinkInline } from "#/components/LinkInline";
 
 export const Route = createFileRoute("/")({ component: App });
 
 function App() {
   return (
     <main className="page-wrap px-4 pt-14 pb-8">
-      <section className="rise-in border-border bg-card relative overflow-hidden rounded-[2rem] border px-6 py-10 shadow-lg sm:px-10 sm:py-14">
-        <p className="type-label-100 text-muted-foreground mb-3">
+      <section className="rise-in relative overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-10 shadow-lg sm:px-10 sm:py-14">
+        <p className="mb-3 type-label-100 text-muted-foreground">
           Accessible calendar components for React
         </p>{" "}
         <LinkInline to="/docs" className="type-body-200">
           Go somewheres
         </LinkInline>
         NOW
-        <h1 className="type-display-200 text-foreground mb-5 max-w-3xl">
+        <h1 className="mb-5 max-w-3xl type-display-200 text-foreground">
           {import.meta.env.VITE_PROJECT_NAME}
         </h1>
-        <p className="type-body-200 text-muted-foreground mb-8 max-w-2xl">
+        <p className="mb-8 max-w-2xl type-body-200 text-muted-foreground">
           Accessible, customizable calendar components for React. Built on Base
           UI and the Temporal API.
         </p>
@@ -25,7 +25,7 @@ function App() {
           <Link
             to="/docs/$slug"
             params={{ slug: "getting-started" }}
-            className="type-body-100-bold border-primary bg-accent text-accent-foreground hover:bg-primary/10 rounded-full border px-5 py-2.5 no-underline transition hover:-translate-y-0.5"
+            className="rounded-full border border-primary bg-accent px-5 py-2.5 type-body-100-bold text-accent-foreground no-underline transition hover:-translate-y-0.5 hover:bg-primary/10"
           >
             Get Started
           </Link>
@@ -33,7 +33,7 @@ function App() {
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="type-body-100-bold border-border bg-secondary text-foreground rounded-full border px-5 py-2.5 no-underline transition hover:-translate-y-0.5"
+            className="rounded-full border border-border bg-secondary px-5 py-2.5 type-body-100-bold text-foreground no-underline transition hover:-translate-y-0.5"
           >
             GitHub
           </a>
@@ -62,11 +62,11 @@ function App() {
         ].map(([title, desc], index) => (
           <article
             key={title}
-            className="rise-in border-border bg-card rounded-2xl border p-5 shadow-md transition hover:-translate-y-0.5"
+            className="rise-in rounded-2xl border border-border bg-card p-5 shadow-md transition hover:-translate-y-0.5"
             style={{ animationDelay: `${index * 90 + 80}ms` }}
           >
-            <h2 className="type-body-200-bold text-foreground mb-2">{title}</h2>
-            <p className="type-body-100 text-muted-foreground m-0">{desc}</p>
+            <h2 className="mb-2 type-body-200-bold text-foreground">{title}</h2>
+            <p className="m-0 type-body-100 text-muted-foreground">{desc}</p>
           </article>
         ))}
       </section>

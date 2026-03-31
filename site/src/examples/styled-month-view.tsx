@@ -1,4 +1,7 @@
+import type { Temporal } from "@js-temporal/polyfill";
 import { MonthView, WeekNumberCell, WeekNumberHeader } from "colander";
+import type { OutsideDays } from "colander";
+import { cn } from "#/lib/cn";
 import {
   StyledPrevMonthButton,
   StyledNextMonthButton,
@@ -12,9 +15,6 @@ import {
   StyledRangeSelected,
   StyledRangePreview,
 } from "./date-picker-styled";
-import { cn } from "#/lib/cn";
-import type { Temporal } from "@js-temporal/polyfill";
-import type { OutsideDays } from "colander";
 
 interface MonthGridProps {
   monthIndex: number;
@@ -157,7 +157,7 @@ export function StyledMonthView({
 }: StyledMonthViewProps) {
   return (
     <div>
-      <h3 className="text-foreground mb-3 text-sm font-semibold">Month View</h3>
+      <h3 className="mb-3 text-sm font-semibold text-foreground">Month View</h3>
       <MonthView.Root
         numberOfMonths={numberOfMonths}
         fixedWeeks={fixedWeeks}

@@ -8,10 +8,14 @@
  * renders `RangeStartDragHandle` / `RangeEndDragHandle` and day buttons.
  */
 
-import { useContext, useEffect, useRef, useState } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
-import { useCalendarStable, useCalendarState, DayCellDataContext } from "colander";
+import {
+  useCalendarStable,
+  useCalendarState,
+  DayCellDataContext,
+} from "colander";
 import type { TemporalNamespace } from "colander";
+import { useContext, useEffect, useRef, useState } from "react";
 
 export const DRAG_TYPE = "date-range-handle";
 

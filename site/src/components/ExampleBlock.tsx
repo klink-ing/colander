@@ -1,4 +1,4 @@
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '#/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
 
 export default function ExampleBlock({
   file,
@@ -6,23 +6,23 @@ export default function ExampleBlock({
   jsHtml,
   language,
 }: {
-  file: string
-  tsHtml: string
-  jsHtml: string
-  language: string
+  file: string;
+  tsHtml: string;
+  jsHtml: string;
+  language: string;
 }) {
-  const jsLang = language.replace('ts', 'js')
-  const jsFile = file.replace(/\.tsx?$/, jsLang === 'jsx' ? '.jsx' : '.js')
+  const jsLang = language.replace("ts", "js");
+  const jsFile = file.replace(/\.tsx?$/, jsLang === "jsx" ? ".jsx" : ".js");
 
   return (
     <div className="my-6">
       <Tabs defaultValue="ts" className="gap-0">
         <div className="flex items-center rounded-t-lg border border-b-0 border-border bg-card">
           <TabsList variant="line" className="h-auto p-0">
-            <TabsTrigger value="ts" className="type-body-100-bold px-4 py-2">
+            <TabsTrigger value="ts" className="px-4 py-2 type-body-100-bold">
               TypeScript
             </TabsTrigger>
-            <TabsTrigger value="js" className="type-body-100-bold px-4 py-2">
+            <TabsTrigger value="js" className="px-4 py-2 type-body-100-bold">
               JavaScript
             </TabsTrigger>
           </TabsList>
@@ -30,7 +30,9 @@ export default function ExampleBlock({
             <span className="type-code-100 text-muted-foreground">{file}</span>
           </TabsContent>
           <TabsContent value="js" className="ml-auto pr-4">
-            <span className="type-code-100 text-muted-foreground">{jsFile}</span>
+            <span className="type-code-100 text-muted-foreground">
+              {jsFile}
+            </span>
           </TabsContent>
         </div>
         <TabsContent value="ts">
@@ -47,5 +49,5 @@ export default function ExampleBlock({
         </TabsContent>
       </Tabs>
     </div>
-  )
+  );
 }

@@ -8,15 +8,18 @@ import {
   WeekTemplate,
   DayCellTemplate,
   DayButton,
-} from 'colander'
-import type { ValueFormat, DateRange } from 'colander'
+} from "colander";
+import type { ValueFormat, DateRange } from "colander";
 
 interface CalendarProps {
-  format?: ValueFormat
-  onSelect?: (value: DateRange | null) => void
+  format?: ValueFormat;
+  onSelect?: (value: DateRange | null) => void;
 }
 
-export function BasicCalendar({ format = 'PlainDate', onSelect }: CalendarProps) {
+export function BasicCalendar({
+  format = "PlainDate",
+  onSelect,
+}: CalendarProps) {
   return (
     <CalendarProvider format={format} onValueChange={onSelect}>
       <MonthView>
@@ -34,5 +37,5 @@ export function BasicCalendar({ format = 'PlainDate', onSelect }: CalendarProps)
         </Grid>
       </MonthView>
     </CalendarProvider>
-  )
+  );
 }

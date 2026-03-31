@@ -1,10 +1,10 @@
+import { Temporal } from "@js-temporal/polyfill";
+import { render, act, fireEvent } from "@testing-library/react";
+import { Profiler, type ProfilerOnRenderCallback } from "react";
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from "vitest";
-import { Profiler, type ProfilerOnRenderCallback } from "react";
-import { render, act, fireEvent } from "@testing-library/react";
-import { Temporal } from "@js-temporal/polyfill";
-import { MonthView } from "./month-view";
 import { Grid } from "./grid";
+import { MonthView } from "./month-view";
 
 type RenderEntry = {
   id: string;

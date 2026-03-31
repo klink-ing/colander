@@ -1,13 +1,14 @@
 export default function Footer() {
-  const year = new Date().getFullYear()
+  const year = new Date().getFullYear();
 
   return (
-    <footer className="mt-20 border-t border-border px-4 pb-14 pt-10 text-muted-foreground">
+    <footer className="mt-20 border-t border-border px-4 pt-10 pb-14 text-muted-foreground">
       <div className="page-wrap flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
-        <p className="type-body-100 m-0">
-          &copy; {year} {import.meta.env.VITE_PROJECT_NAME}{' '}contributors. All rights reserved.
+        <p className="m-0 type-body-100">
+          &copy; {year} {import.meta.env.VITE_PROJECT_NAME} contributors. All
+          rights reserved.
         </p>
-        <p className="type-label-100 m-0 text-muted-foreground">MIT License</p>
+        <p className="m-0 type-label-100 text-muted-foreground">MIT License</p>
       </div>
       <div className="mt-4 flex justify-center gap-4">
         <a
@@ -26,5 +27,5 @@ export default function Footer() {
         </a>
       </div>
     </footer>
-  )
+  );
 }

@@ -1,7 +1,7 @@
+import { Temporal } from "@js-temporal/polyfill";
 // Minimal unstyled date picker with drag-and-drop range handles.
 // Measures the bundle cost of native drag-and-drop hooks without styling overhead.
 import React from "react";
-import { Temporal } from "@js-temporal/polyfill";
 import {
   MonthView,
   Grid,
@@ -16,7 +16,11 @@ import {
   NextMonthButton,
   RangeSelected,
 } from "../dist/index.js";
-import { DragHandleStart, DragHandleEnd, DragDayButton } from "../site/src/lib/drag-components";
+import {
+  DragHandleStart,
+  DragHandleEnd,
+  DragDayButton,
+} from "../site/src/lib/drag-components";
 
 export function DatePicker() {
   return (

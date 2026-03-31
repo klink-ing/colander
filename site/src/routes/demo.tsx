@@ -1,6 +1,5 @@
-import { useState, useMemo, useCallback } from "react";
-import { createFileRoute } from "@tanstack/react-router";
 import { Temporal } from "@js-temporal/polyfill";
+import { createFileRoute } from "@tanstack/react-router";
 import {
   CalendarProvider,
   type DateRange,
@@ -8,15 +7,20 @@ import {
   type OutsideDays,
   type OverflowBehavior,
 } from "colander";
+import { useState, useMemo, useCallback } from "react";
+import {
+  AppControls,
+  TIMEZONES,
+  formatTzLabel,
+} from "#/components/demo/AppControls";
 import { StyledMonthView } from "#/examples/styled-month-view";
 import { StyledWeeksView } from "#/examples/styled-weeks-view";
-import { AppControls, TIMEZONES, formatTzLabel } from "#/components/demo/AppControls";
 
 export const Route = createFileRoute("/demo")({ component: DemoPage });
 
 function DemoPage() {
   return (
-    <main className="page-wrap px-4 pb-8 pt-8">
+    <main className="page-wrap px-4 pt-8 pb-8">
       <DemoApp />
     </main>
   );
@@ -56,7 +60,9 @@ function DemoApp() {
   const [showMonthSeparators, setShowMonthSeparators] = useState(true);
 
   const [disableDateMode, setDisableDateMode] = useState<string>("none");
-  const [monthOverflowBehavior, setMonthOverflowBehavior] = useState<"unbounded" | "stop">("unbounded");
+  const [monthOverflowBehavior, setMonthOverflowBehavior] = useState<
+    "unbounded" | "stop"
+  >("unbounded");
 
   interface EventLogEntry {
     timestamp: string;
@@ -375,7 +381,7 @@ function DemoApp() {
         <div className="w-full pt-4">
           <textarea
             readOnly
-            className="text-muted-foreground border-input bg-background w-full rounded-md border px-3 py-2 font-mono text-xs"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
             rows={4}
             value={JSON.stringify(
               selectionMode === "range"
@@ -394,7 +400,7 @@ function DemoApp() {
         <div className="w-full pt-2">
           <textarea
             readOnly
-            className="text-muted-foreground border-input bg-background w-full rounded-md border px-3 py-2 font-mono text-xs"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
             rows={6}
             value={JSON.stringify(
               eventLog,

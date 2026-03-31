@@ -17,7 +17,7 @@ export function computeWeeksInWindow(
   firstWeek: Temporal.PlainDate,
   weekCount: number,
   weekStartDay: WeekStartDay,
-  T: TemporalNamespace,
+  _T: TemporalNamespace,
 ): WeekDescriptor[] {
   // Snap firstWeek back to the start of its week
   const dow = firstWeek.dayOfWeek % 7; // 0=Sun

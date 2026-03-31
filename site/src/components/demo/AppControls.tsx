@@ -6,8 +6,8 @@ import {
   AccordionTrigger,
   AccordionContent,
 } from "#/components/ui/accordion";
-import { RadioGroup, RadioGroupItem } from "#/components/ui/radio-group";
 import { Label } from "#/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "#/components/ui/radio-group";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -147,13 +147,19 @@ export interface AppControlsProps {
 const toInputValue = (zdt: Temporal.ZonedDateTime) =>
   zdt.toPlainDate().toString();
 
-function Radio({ value, children }: { value: string; children: React.ReactNode }) {
+function Radio({
+  value,
+  children,
+}: {
+  value: string;
+  children: React.ReactNode;
+}) {
   return (
     <Label>
       <RadioGroupItem value={value} />
       {children}
     </Label>
-  )
+  );
 }
 
 export function AppControls(props: AppControlsProps) {
@@ -211,7 +217,7 @@ export function AppControls(props: AppControlsProps) {
 
   return (
     <div className="flex w-64 shrink-0 flex-col">
-      <h2 className="text-foreground mb-2 text-lg font-semibold">Controls</h2>
+      <h2 className="mb-2 text-lg font-semibold text-foreground">Controls</h2>
 
       <div className="mb-3">
         <div className={displayLabelClassName}>View</div>
@@ -224,9 +230,7 @@ export function AppControls(props: AppControlsProps) {
         </RadioGroup>
       </div>
 
-      <Accordion
-        defaultValue={["calendar-provider", "display-options"]}
-      >
+      <Accordion defaultValue={["calendar-provider", "display-options"]}>
         {/* ── Section 1: CalendarProvider ── */}
         <AccordionItem value="calendar-provider">
           <AccordionTrigger>CalendarProvider</AccordionTrigger>
@@ -236,7 +240,9 @@ export function AppControls(props: AppControlsProps) {
                 <div className={propLabelClassName}>selectionMode</div>
                 <RadioGroup
                   value={selectionMode}
-                  onValueChange={(v) => setSelectionMode(v as "single" | "range" | "multiple")}
+                  onValueChange={(v) =>
+                    setSelectionMode(v as "single" | "range" | "multiple")
+                  }
                 >
                   <Radio value="single">single (default)</Radio>
                   <Radio value="range">range</Radio>
@@ -270,9 +276,7 @@ export function AppControls(props: AppControlsProps) {
                   <input
                     type="checkbox"
                     checked={preventRangeReversal}
-                    onChange={(e) =>
-                      setPreventRangeReversal(e.target.checked)
-                    }
+                    onChange={(e) => setPreventRangeReversal(e.target.checked)}
                   />
                   <span className="font-mono text-xs">
                     preventRangeReversal
@@ -281,10 +285,7 @@ export function AppControls(props: AppControlsProps) {
               )}
 
               <div>
-                <label
-                  htmlFor="timezone-select"
-                  className={propLabelClassName}
-                >
+                <label htmlFor="timezone-select" className={propLabelClassName}>
                   timeZone
                 </label>
                 <select
@@ -403,122 +404,134 @@ export function AppControls(props: AppControlsProps) {
           </AccordionContent>
         </AccordionItem>
 
-        {viewMode === "month" && <AccordionItem value="month-view">
-          <AccordionTrigger>MonthView.Root</AccordionTrigger>
-          <AccordionContent>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label htmlFor="number-of-months" className={propLabelClassName}>
-                  numberOfMonths
+        {viewMode === "month" && (
+          <AccordionItem value="month-view">
+            <AccordionTrigger>MonthView.Root</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label
+                    htmlFor="number-of-months"
+                    className={propLabelClassName}
+                  >
+                    numberOfMonths
+                  </label>
+                  <input
+                    id="number-of-months"
+                    type="number"
+                    min={1}
+                    step={1}
+                    value={numberOfMonths}
+                    onChange={(e) => {
+                      const v = Math.max(
+                        1,
+                        Math.floor(Number(e.target.value) || 1),
+                      );
+                      setNumberOfMonths(v);
+                    }}
+                    className={selectClassName}
+                  />
+                </div>
+
+                <div>
+                  <div className={propLabelClassName}>outsideDays</div>
+                  <RadioGroup
+                    value={outsideDays}
+                    onValueChange={(v) => setOutsideDays(v as OutsideDays)}
+                  >
+                    <Radio value="enabled">enabled (default)</Radio>
+                    <Radio value="readonly">readonly</Radio>
+                    <Radio value="disabled">disabled</Radio>
+                    <Radio value="hidden">hidden</Radio>
+                  </RadioGroup>
+                </div>
+
+                <label className={checkboxClassName}>
+                  <input
+                    type="checkbox"
+                    checked={fixedWeeks}
+                    onChange={(e) => setFixedWeeks(e.target.checked)}
+                  />
+                  <span className="font-mono text-xs">fixedWeeks</span>
                 </label>
-                <input
-                  id="number-of-months"
-                  type="number"
-                  min={1}
-                  step={1}
-                  value={numberOfMonths}
-                  onChange={(e) => {
-                    const v = Math.max(1, Math.floor(Number(e.target.value) || 1));
-                    setNumberOfMonths(v);
-                  }}
-                  className={selectClassName}
-                />
-              </div>
 
-              <div>
-                <div className={propLabelClassName}>outsideDays</div>
-                <RadioGroup
-                  value={outsideDays}
-                  onValueChange={(v) => setOutsideDays(v as OutsideDays)}
-                >
-                  <Radio value="enabled">enabled (default)</Radio>
-                  <Radio value="readonly">readonly</Radio>
-                  <Radio value="disabled">disabled</Radio>
-                  <Radio value="hidden">hidden</Radio>
-                </RadioGroup>
+                <div>
+                  <div className={propLabelClassName}>overflowBehavior</div>
+                  <RadioGroup
+                    value={monthOverflowBehavior}
+                    onValueChange={(v) =>
+                      setMonthOverflowBehavior(v as "unbounded" | "stop")
+                    }
+                  >
+                    <Radio value="unbounded">unbounded (default)</Radio>
+                    <Radio value="stop">stop</Radio>
+                  </RadioGroup>
+                </div>
               </div>
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
-              <label className={checkboxClassName}>
-                <input
-                  type="checkbox"
-                  checked={fixedWeeks}
-                  onChange={(e) => setFixedWeeks(e.target.checked)}
-                />
-                <span className="font-mono text-xs">fixedWeeks</span>
-              </label>
+        {viewMode === "weeks" && (
+          <AccordionItem value="weeks-view">
+            <AccordionTrigger>WeeksView.Root</AccordionTrigger>
+            <AccordionContent>
+              <div className="flex flex-col gap-4">
+                <div>
+                  <label htmlFor="week-count" className={propLabelClassName}>
+                    weekCount
+                  </label>
+                  <select
+                    id="week-count"
+                    className={selectClassName}
+                    value={weekCount}
+                    onChange={(e) => setWeekCount(Number(e.target.value))}
+                  >
+                    <option value={4}>4</option>
+                    <option value={6}>6 (default)</option>
+                    <option value={8}>8</option>
+                    <option value={10}>10</option>
+                    <option value={12}>12</option>
+                  </select>
+                </div>
 
-              <div>
-                <div className={propLabelClassName}>overflowBehavior</div>
-                <RadioGroup
-                  value={monthOverflowBehavior}
-                  onValueChange={(v) => setMonthOverflowBehavior(v as "unbounded" | "stop")}
-                >
-                  <Radio value="unbounded">unbounded (default)</Radio>
-                  <Radio value="stop">stop</Radio>
-                </RadioGroup>
+                <div>
+                  <div className={propLabelClassName}>scrollBy</div>
+                  <RadioGroup
+                    value={scrollBy}
+                    onValueChange={(v) => setScrollBy(v as "row" | "page")}
+                  >
+                    <Radio value="row">row (default)</Radio>
+                    <Radio value="page">page</Radio>
+                  </RadioGroup>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="overflow-behavior"
+                    className={propLabelClassName}
+                  >
+                    overflowBehavior
+                  </label>
+                  <select
+                    id="overflow-behavior"
+                    className={selectClassName}
+                    value={overflowBehavior}
+                    onChange={(e) =>
+                      setOverflowBehavior(e.target.value as OverflowBehavior)
+                    }
+                  >
+                    <option value="unbounded">Unbounded (default)</option>
+                    <option value="stop">Stop</option>
+                    <option value="stop-shrink">Stop + Shrink</option>
+                    <option value="snap">Snap</option>
+                    <option value="snap-shrink">Snap + Shrink</option>
+                  </select>
+                </div>
               </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>}
-
-        {viewMode === "weeks" && <AccordionItem value="weeks-view">
-          <AccordionTrigger>WeeksView.Root</AccordionTrigger>
-          <AccordionContent>
-            <div className="flex flex-col gap-4">
-              <div>
-                <label htmlFor="week-count" className={propLabelClassName}>
-                  weekCount
-                </label>
-                <select
-                  id="week-count"
-                  className={selectClassName}
-                  value={weekCount}
-                  onChange={(e) => setWeekCount(Number(e.target.value))}
-                >
-                  <option value={4}>4</option>
-                  <option value={6}>6 (default)</option>
-                  <option value={8}>8</option>
-                  <option value={10}>10</option>
-                  <option value={12}>12</option>
-                </select>
-              </div>
-
-              <div>
-                <div className={propLabelClassName}>scrollBy</div>
-                <RadioGroup
-                  value={scrollBy}
-                  onValueChange={(v) => setScrollBy(v as "row" | "page")}
-                >
-                  <Radio value="row">row (default)</Radio>
-                  <Radio value="page">page</Radio>
-                </RadioGroup>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="overflow-behavior"
-                  className={propLabelClassName}
-                >
-                  overflowBehavior
-                </label>
-                <select
-                  id="overflow-behavior"
-                  className={selectClassName}
-                  value={overflowBehavior}
-                  onChange={(e) =>
-                    setOverflowBehavior(e.target.value as OverflowBehavior)
-                  }
-                >
-                  <option value="unbounded">Unbounded (default)</option>
-                  <option value="stop">Stop</option>
-                  <option value="stop-shrink">Stop + Shrink</option>
-                  <option value="snap">Snap</option>
-                  <option value="snap-shrink">Snap + Shrink</option>
-                </select>
-              </div>
-            </div>
-          </AccordionContent>
-        </AccordionItem>}
+            </AccordionContent>
+          </AccordionItem>
+        )}
 
         <AccordionItem value="display-options">
           <AccordionTrigger>Display Options</AccordionTrigger>
@@ -555,7 +568,9 @@ export function AppControls(props: AppControlsProps) {
                 <div className={propLabelClassName}>Grid.orientation</div>
                 <RadioGroup
                   value={orientation}
-                  onValueChange={(v) => setOrientation(v as "horizontal" | "vertical")}
+                  onValueChange={(v) =>
+                    setOrientation(v as "horizontal" | "vertical")
+                  }
                 >
                   <Radio value="horizontal">Horizontal (default)</Radio>
                   <Radio value="vertical">Vertical</Radio>
@@ -568,7 +583,7 @@ export function AppControls(props: AppControlsProps) {
         <AccordionItem value="state">
           <AccordionTrigger>State</AccordionTrigger>
           <AccordionContent>
-            <div className="text-muted-foreground text-xs">
+            <div className="text-xs text-muted-foreground">
               <div className="mb-1">
                 <span className="font-medium">Selection:</span>{" "}
                 {selectionDisplay}

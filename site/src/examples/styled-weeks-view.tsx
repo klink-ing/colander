@@ -1,3 +1,4 @@
+import type { Temporal } from "@js-temporal/polyfill";
 import {
   WeeksView,
   PrevWeeksButton,
@@ -9,7 +10,7 @@ import {
   useCalendarStable,
   type OverflowBehavior,
 } from "colander";
-import type { Temporal } from "@js-temporal/polyfill";
+import { cn } from "#/lib/cn";
 import {
   StyledGrid,
   StyledGridHeader,
@@ -20,7 +21,6 @@ import {
   StyledRangeSelected,
   StyledRangePreview,
 } from "./date-picker-styled";
-import { cn } from "#/lib/cn";
 
 function WeeksViewHeader() {
   const { windowInfo } = useWeeksViewState();
@@ -78,7 +78,7 @@ export function StyledWeeksView({
 }: StyledWeeksViewProps) {
   return (
     <div>
-      <h3 className="text-foreground mb-3 text-sm font-semibold">Weeks View</h3>
+      <h3 className="mb-3 text-sm font-semibold text-foreground">Weeks View</h3>
       <WeeksView.Root
         weekCount={weekCount}
         scrollBy={scrollBy}
@@ -109,7 +109,7 @@ export function StyledWeeksView({
             <StyledGridHeader>
               {showWeekNumbers && (
                 <WeekNumberHeader
-                  className="text-muted-foreground w-8 p-1 text-center text-[0.7rem] font-normal"
+                  className="w-8 p-1 text-center text-[0.7rem] font-normal text-muted-foreground"
                   render={({ children, ...props }: any) => (
                     <th {...props}>
                       <span className="inline-block w-[2ch] text-right">
@@ -138,7 +138,7 @@ export function StyledWeeksView({
                           {state.firstDayVisible && (
                             <div
                               aria-hidden
-                              className="border-muted-foreground pointer-events-none relative z-10 -mt-px mb-(--radius-md) -ml-px rounded-tl-[calc(var(--radius-md)+1px)] border-t border-l"
+                              className="pointer-events-none relative z-10 -mt-px mb-(--radius-md) -ml-px rounded-tl-[calc(var(--radius-md)+1px)] border-t border-l border-muted-foreground"
                               style={{
                                 gridColumn: `${borderFromCol} / -1`,
                                 gridRow: `${state.gridRowStart} / span 1`,
@@ -147,7 +147,7 @@ export function StyledWeeksView({
                           )}
                           {showLabel && (
                             <div
-                              className="text-foreground flex h-full items-start justify-center px-0.5 pt-2 text-[0.8rem] font-semibold"
+                              className="flex h-full items-start justify-center px-0.5 pt-2 text-[0.8rem] font-semibold text-foreground"
                               style={{
                                 gridColumn: "-2 / -1",
                                 gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
@@ -176,7 +176,7 @@ export function StyledWeeksView({
               <StyledWeekTemplate>
                 {showWeekNumbers && (
                   <WeekNumberCell
-                    className="text-muted-foreground w-8 p-1 text-center text-[0.7rem] tabular-nums"
+                    className="w-8 p-1 text-center text-[0.7rem] text-muted-foreground tabular-nums"
                     render={({ children, ...props }: any) => (
                       <td {...props}>
                         <span className="inline-block w-[2ch] text-right">

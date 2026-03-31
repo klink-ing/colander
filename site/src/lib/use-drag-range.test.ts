@@ -3,8 +3,8 @@
  * Tests the core range adjustment algorithm independently of the DnD library.
  */
 
-import { describe, it, expect } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
+import { describe, it, expect } from "vitest";
 
 type Edge = "start" | "end";
 
@@ -78,7 +78,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-08",
         allowRangeReversal: false,
-        expected: { start: "2024-03-08", end: "2024-03-15", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-08",
+          end: "2024-03-15",
+          edge: "start" as Edge,
+        },
       },
       {
         description: "move start later within range",
@@ -87,7 +91,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-12",
         allowRangeReversal: false,
-        expected: { start: "2024-03-12", end: "2024-03-15", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-12",
+          end: "2024-03-15",
+          edge: "start" as Edge,
+        },
       },
       {
         description: "move start to same as end (single day range)",
@@ -96,7 +104,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-15",
         allowRangeReversal: false,
-        expected: { start: "2024-03-15", end: "2024-03-15", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-15",
+          end: "2024-03-15",
+          edge: "start" as Edge,
+        },
       },
       {
         description: "move start past end WITHOUT reversal (clamps to end)",
@@ -105,7 +117,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-20",
         allowRangeReversal: false,
-        expected: { start: "2024-03-15", end: "2024-03-15", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-15",
+          end: "2024-03-15",
+          edge: "start" as Edge,
+        },
       },
       {
         description: "move start past end WITH reversal (swaps edge to end)",
@@ -114,7 +130,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-20",
         allowRangeReversal: true,
-        expected: { start: "2024-03-15", end: "2024-03-20", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-15",
+          end: "2024-03-20",
+          edge: "end" as Edge,
+        },
       },
     ])("$description", (testCase) => {
       const result = computeDragResult(testCase);
@@ -131,7 +151,11 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-03-20",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-20", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-20",
+          edge: "end" as Edge,
+        },
       },
       {
         description: "move end earlier within range",
@@ -140,7 +164,11 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-03-12",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-12", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-12",
+          edge: "end" as Edge,
+        },
       },
       {
         description: "move end to same as start (single day range)",
@@ -149,7 +177,11 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-03-10",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-10", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-10",
+          edge: "end" as Edge,
+        },
       },
       {
         description: "move end before start WITHOUT reversal (clamps to start)",
@@ -158,16 +190,25 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-03-05",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-10", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-10",
+          edge: "end" as Edge,
+        },
       },
       {
-        description: "move end before start WITH reversal (swaps edge to start)",
+        description:
+          "move end before start WITH reversal (swaps edge to start)",
         start: "2024-03-10",
         end: "2024-03-15",
         edge: "end" as Edge,
         target: "2024-03-05",
         allowRangeReversal: true,
-        expected: { start: "2024-03-05", end: "2024-03-10", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-05",
+          end: "2024-03-10",
+          edge: "start" as Edge,
+        },
       },
     ])("$description", (testCase) => {
       const result = computeDragResult(testCase);
@@ -184,7 +225,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-10",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-15", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-15",
+          edge: "start" as Edge,
+        },
       },
       {
         description: "target same as current end (no-op)",
@@ -193,7 +238,11 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-03-15",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-15", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-15",
+          edge: "end" as Edge,
+        },
       },
       {
         description: "single day range, drag start earlier",
@@ -202,7 +251,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-05",
         allowRangeReversal: false,
-        expected: { start: "2024-03-05", end: "2024-03-10", edge: "start" as Edge },
+        expected: {
+          start: "2024-03-05",
+          end: "2024-03-10",
+          edge: "start" as Edge,
+        },
       },
       {
         description: "single day range, drag end later",
@@ -211,7 +264,11 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-03-15",
         allowRangeReversal: false,
-        expected: { start: "2024-03-10", end: "2024-03-15", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-15",
+          edge: "end" as Edge,
+        },
       },
       {
         description: "single day range, drag start past end with reversal",
@@ -220,7 +277,11 @@ describe("drag range adjustment logic", () => {
         edge: "start" as Edge,
         target: "2024-03-15",
         allowRangeReversal: true,
-        expected: { start: "2024-03-10", end: "2024-03-15", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-10",
+          end: "2024-03-15",
+          edge: "end" as Edge,
+        },
       },
       {
         description: "cross-month drag",
@@ -229,7 +290,11 @@ describe("drag range adjustment logic", () => {
         edge: "end" as Edge,
         target: "2024-04-05",
         allowRangeReversal: false,
-        expected: { start: "2024-03-28", end: "2024-04-05", edge: "end" as Edge },
+        expected: {
+          start: "2024-03-28",
+          end: "2024-04-05",
+          edge: "end" as Edge,
+        },
       },
     ])("$description", (testCase) => {
       const result = computeDragResult(testCase);

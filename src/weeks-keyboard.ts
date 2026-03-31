@@ -3,7 +3,12 @@ import type { TemporalNamespace, WeekStartDay } from "./types";
 
 /** Result of a weeks-view keyboard navigation action. */
 export type WeeksKeyNavResult =
-  | { action: "move"; date: Temporal.PlainDate; windowShift: number; followFocus: boolean }
+  | {
+      action: "move";
+      date: Temporal.PlainDate;
+      windowShift: number;
+      followFocus: boolean;
+    }
   | { action: "select"; windowShift: number; followFocus: boolean }
   | { action: "none"; windowShift: number; followFocus: boolean };
 
@@ -37,7 +42,11 @@ export interface WeeksKeyNavInput {
   weekStartDay: WeekStartDay;
 }
 
-const NONE: WeeksKeyNavResult = { action: "none", windowShift: 0, followFocus: false };
+const NONE: WeeksKeyNavResult = {
+  action: "none",
+  windowShift: 0,
+  followFocus: false,
+};
 
 /**
  * Pure function that maps a keyboard event to a weeks-view navigation result.
@@ -90,8 +99,10 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
     followFocus: boolean,
   ): WeeksKeyNavResult {
     let clamped = target;
-    if (minValue && T.PlainDate.compare(clamped, minValue) < 0) clamped = minValue;
-    if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0) clamped = maxValue;
+    if (minValue && T.PlainDate.compare(clamped, minValue) < 0)
+      clamped = minValue;
+    if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0)
+      clamped = maxValue;
     if (T.PlainDate.compare(clamped, focusedDate) === 0) return NONE;
     return { action: "move", date: clamped, windowShift, followFocus };
   }

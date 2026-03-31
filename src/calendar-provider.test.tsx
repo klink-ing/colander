@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, act, cleanup } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
-import { CalendarProvider } from "./calendar-provider";
+import { render, act, cleanup } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { CalendarProvider } from "./calendar-provider";
 
 afterEach(cleanup);
 

@@ -1,10 +1,8 @@
+import { Temporal } from "@js-temporal/polyfill";
+import { render } from "@testing-library/react";
+import { Profiler, type ProfilerOnRenderCallback } from "react";
 // @vitest-environment jsdom
 import { describe, it, expect, beforeAll } from "vitest";
-import { Profiler, type ProfilerOnRenderCallback } from "react";
-import { render } from "@testing-library/react";
-import { Temporal } from "@js-temporal/polyfill";
-import { MonthView } from "./month-view";
-import { useMonthViewState } from "./month-view-context";
 import { WeekDataContext } from "./context";
 import {
   Grid,
@@ -14,6 +12,8 @@ import {
   DayCellTemplate,
   DayButton,
 } from "./grid";
+import { MonthView } from "./month-view";
+import { useMonthViewState } from "./month-view-context";
 
 type RenderEntry = {
   id: string;

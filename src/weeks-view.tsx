@@ -1,15 +1,15 @@
 import React, { forwardRef, useImperativeHandle } from "react";
+import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
-import type { WeeksViewRootProps } from "./weeks-view-types";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { ValueFormat } from "./types";
-import { CalendarProvider } from "./calendar-provider";
+import { ViewContext } from "./view-context";
 import {
   WeeksViewStableContext,
   WeeksViewStateContext,
 } from "./weeks-view-context";
-import { ViewContext } from "./view-context";
 import { useWeeksViewRootState } from "./weeks-view-state";
+import type { WeeksViewRootProps } from "./weeks-view-types";
 
 // ---------------------------------------------------------------------------
 // WeeksView.Root — placed inside CalendarProvider
@@ -84,10 +84,9 @@ const WeeksView = forwardRef<WeeksViewRootHandle, WeeksViewProps>(
 ) as WeeksViewComponent;
 
 // Attach Root as a static property
-interface WeeksViewComponent
-  extends React.ForwardRefExoticComponent<
-    WeeksViewProps & React.RefAttributes<WeeksViewRootHandle>
-  > {
+interface WeeksViewComponent extends React.ForwardRefExoticComponent<
+  WeeksViewProps & React.RefAttributes<WeeksViewRootHandle>
+> {
   Root: typeof WeeksViewRoot;
 }
 

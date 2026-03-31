@@ -1,12 +1,12 @@
-import { Link } from '@tanstack/react-router'
-import ThemeToggle from './ThemeToggle'
+import { Link } from "@tanstack/react-router";
 import {
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuItem,
   NavigationMenuLink,
   navigationMenuTriggerStyle,
-} from '#/components/ui/navigation-menu'
+} from "#/components/ui/navigation-menu";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
@@ -15,7 +15,7 @@ export default function Header() {
         <h2 className="m-0 shrink-0">
           <Link
             to="/"
-            className="type-body-100-bold inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 text-foreground no-underline shadow-md sm:px-4 sm:py-2"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 type-body-100-bold text-foreground no-underline shadow-md sm:px-4 sm:py-2"
           >
             <span className="h-2 w-2 rounded-full bg-accent" />
             {import.meta.env.VITE_PROJECT_NAME}
@@ -68,5 +68,5 @@ export default function Header() {
         </div>
       </nav>
     </header>
-  )
+  );
 }

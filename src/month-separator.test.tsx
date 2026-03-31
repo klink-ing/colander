@@ -1,5 +1,5 @@
-import { describe, it, expect, afterEach } from "vitest";
 import { render, cleanup, within } from "@testing-library/react";
+import { describe, it, expect, afterEach } from "vitest";
 import {
   MonthSeparator,
   MonthSeparatorDataContext,
@@ -109,9 +109,21 @@ describe("MonthSeparator", () => {
 
 describe("MonthSeparator.Month", () => {
   it.each([
-    { description: "January", data: { ...mockData, month: 1 }, expected: { text: "January" } },
-    { description: "June", data: { ...mockData, month: 6 }, expected: { text: "June" } },
-    { description: "December", data: { ...mockData, month: 12 }, expected: { text: "December" } },
+    {
+      description: "January",
+      data: { ...mockData, month: 1 },
+      expected: { text: "January" },
+    },
+    {
+      description: "June",
+      data: { ...mockData, month: 6 },
+      expected: { text: "June" },
+    },
+    {
+      description: "December",
+      data: { ...mockData, month: 12 },
+      expected: { text: "December" },
+    },
   ])("renders $description", ({ data, expected }) => {
     const { container } = renderInTable(
       <MonthSeparator>

@@ -44,6 +44,7 @@ The existing `Root` component is removed and replaced by `MonthView`. This is a 
 ### Component Ownership
 
 **Shared (both views):**
+
 - CalendarProvider
 - Grid (delegates internally to MonthGrid or WeeksGrid based on view context)
 - GridBody
@@ -56,11 +57,13 @@ The existing `Root` component is removed and replaced by `MonthView`. This is a 
 - DateString / TimeString / MonthYearString
 
 **Month view only:**
+
 - MonthView (convenience wrapper)
 - MonthView.Root
 - PrevMonthButton / NextMonthButton
 
 **Weeks view only (new):**
+
 - WeeksView (convenience wrapper)
 - WeeksView.Root
 - PrevWeeksButton / NextWeeksButton
@@ -139,11 +142,11 @@ Five ways to specify the starting week. All resolve to "the week containing this
 
 ```ts
 type FirstWeekSpec =
-  | Temporal.PlainDate                          // week containing this date
-  | Date                                        // native JS Date, week containing it
-  | { isoWeek: number; isoYear: number }        // ISO 8601 week (always Monday-start)
-  | { week: number; year: number }              // week-of-year relative to weekStartDay (see below)
-  | { month: number; year: number; day?: number } // month + optional day
+  | Temporal.PlainDate // week containing this date
+  | Date // native JS Date, week containing it
+  | { isoWeek: number; isoYear: number } // ISO 8601 week (always Monday-start)
+  | { week: number; year: number } // week-of-year relative to weekStartDay (see below)
+  | { month: number; year: number; day?: number }; // month + optional day
 ```
 
 For the `{ month, year, day? }` form: when `day` is specified, picks the week containing that day. Without `day`, picks the first week containing a day in that month.
@@ -156,12 +159,12 @@ Provided to `onWindowChange` and exposed via `useWeeksViewState()`.
 
 ```ts
 interface WindowInfo {
-  windowStart: Temporal.PlainDate   // first day of first visible week
-  windowEnd: Temporal.PlainDate     // last day of last visible week
-  weekCount: number                 // actual weeks displayed (may differ in shrink modes)
-  dayCount: number                  // total days in window
-  enabledWeekCount: number          // weeks with ≥1 enabled day
-  enabledDayCount: number           // days not disabled by isDateDisabled/min/max
+  windowStart: Temporal.PlainDate; // first day of first visible week
+  windowEnd: Temporal.PlainDate; // last day of last visible week
+  weekCount: number; // actual weeks displayed (may differ in shrink modes)
+  dayCount: number; // total days in window
+  enabledWeekCount: number; // weeks with ≥1 enabled day
+  enabledDayCount: number; // days not disabled by isDateDisabled/min/max
 }
 ```
 
@@ -188,6 +191,7 @@ scrollToWeek(
 ```
 
 Snap modes:
+
 - **`"start"`** (default) — the week containing `target` becomes the first visible row.
 - **`"center"`** — the target week is centered vertically in the window.
 - **`"end"`** — the target week becomes the last visible row.
@@ -204,8 +208,8 @@ function resolveFirstWeek(
   currentFirstWeek: Temporal.PlainDate,
   weekCount: number,
   target: Temporal.PlainDate,
-  options?: { snap?: "start" | "center" | "end" | "nearest" }
-): Temporal.PlainDate
+  options?: { snap?: "start" | "center" | "end" | "nearest" },
+): Temporal.PlainDate;
 ```
 
 Returns the `PlainDate` of the first day of the resolved first week. Does not consider `overflowBehavior` — it computes the ideal position. Overflow adjustment is applied separately by the component when it receives the new `firstWeek`.
@@ -234,16 +238,17 @@ A single component rendered at every month boundary within the weeks view window
 
 ```ts
 interface MonthSeparatorState {
-  month: number                // 1-12
-  year: number
-  firstOfYear: boolean         // true when this is the first month of a new year in the window
-  firstVisible: boolean        // true for the separator at the top of the window
-  weeksVisibleBefore: number   // weeks of the previous month visible above this separator
-  weeksVisibleAfter: number    // weeks of the new month visible below this separator
+  month: number; // 1-12
+  year: number;
+  firstOfYear: boolean; // true when this is the first month of a new year in the window
+  firstVisible: boolean; // true for the separator at the top of the window
+  weeksVisibleBefore: number; // weeks of the previous month visible above this separator
+  weeksVisibleAfter: number; // weeks of the new month visible below this separator
 }
 ```
 
 Data attributes on the rendered element:
+
 - `data-month="3"`, `data-year="2026"`
 - `data-first-of-year` (present when true)
 - `data-first-visible` (present when true)
@@ -264,17 +269,17 @@ A standalone component that renders the current actual week count of the visible
 
 ### Weeks view behavior
 
-| Key | Action |
-|-----|--------|
-| Arrow Left/Right | ±1 day, window follows if focus exits visible area* |
-| Arrow Up/Down | ±1 week, window follows if focus exits visible area* |
-| PageUp/PageDown | Focus ±`weekCount` weeks, window shifts by `weekCount` |
-| Shift+PageUp/PageDown | Focus ±1 year, window follows |
-| Home | Focus first day of visible window (no window shift) |
-| End | Focus last day of visible window (no window shift) |
-| Enter/Space | Select focused day (if not disabled/readOnly) |
+| Key                   | Action                                                 |
+| --------------------- | ------------------------------------------------------ |
+| Arrow Left/Right      | ±1 day, window follows if focus exits visible area\*   |
+| Arrow Up/Down         | ±1 week, window follows if focus exits visible area\*  |
+| PageUp/PageDown       | Focus ±`weekCount` weeks, window shifts by `weekCount` |
+| Shift+PageUp/PageDown | Focus ±1 year, window follows                          |
+| Home                  | Focus first day of visible window (no window shift)    |
+| End                   | Focus last day of visible window (no window shift)     |
+| Enter/Space           | Select focused day (if not disabled/readOnly)          |
 
-*How the window follows depends on `scrollBy` — see below.
+\*How the window follows depends on `scrollBy` — see below.
 
 ### `scrollBy` prop
 
@@ -319,12 +324,12 @@ Default for both `MonthView.Root` and `WeeksView.Root` is `"unbounded"`.
 
 ### Edge cases
 
-| Case | Behavior |
-|------|----------|
-| No min/max set | All modes behave like `unbounded` |
-| min == max (single day) | Shrink modes: 1 week. Non-shrink modes: `weekCount` weeks. |
+| Case                              | Behavior                                                                        |
+| --------------------------------- | ------------------------------------------------------------------------------- |
+| No min/max set                    | All modes behave like `unbounded`                                               |
+| min == max (single day)           | Shrink modes: 1 week. Non-shrink modes: `weekCount` weeks.                      |
 | weekCount exceeds available weeks | Shrink modes: show only valid weeks. Non-shrink modes: fill with disabled rows. |
-| Focus target is disabled | Receives roving tabindex, can't be selected. |
+| Focus target is disabled          | Receives roving tabindex, can't be selected.                                    |
 
 ## Controlled Props
 
@@ -338,14 +343,14 @@ This applies to all controlled/uncontrolled prop pairs: `value`/`defaultValue`, 
 
 Six hooks, maintaining the stable/volatile separation for render performance:
 
-| Hook | Contents |
-|------|----------|
-| `useCalendarStable()` | locale, T, timeZone, weekStartDay, onChange, min, max, isDateDisabled, selectionMode, rangeMode, valueFormat, disabled, readOnly |
-| `useCalendarState()` | value |
-| `useMonthViewStable()` | numberOfMonths, fixedWeeks, outsideDays, overflowBehavior, goNextMonth, goPrevMonth |
-| `useMonthViewState()` | currentMonth, focusedDate |
-| `useWeeksViewStable()` | weekCount (prop), scrollBy, overflowBehavior, goNext, goPrev, scrollToWeek |
-| `useWeeksViewState()` | focusedDate, windowInfo: WindowInfo (nested object containing windowStart, windowEnd, weekCount, dayCount, enabledWeekCount, enabledDayCount) |
+| Hook                   | Contents                                                                                                                                      |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `useCalendarStable()`  | locale, T, timeZone, weekStartDay, onChange, min, max, isDateDisabled, selectionMode, rangeMode, valueFormat, disabled, readOnly              |
+| `useCalendarState()`   | value                                                                                                                                         |
+| `useMonthViewStable()` | numberOfMonths, fixedWeeks, outsideDays, overflowBehavior, goNextMonth, goPrevMonth                                                           |
+| `useMonthViewState()`  | currentMonth, focusedDate                                                                                                                     |
+| `useWeeksViewStable()` | weekCount (prop), scrollBy, overflowBehavior, goNext, goPrev, scrollToWeek                                                                    |
+| `useWeeksViewState()`  | focusedDate, windowInfo: WindowInfo (nested object containing windowStart, windowEnd, weekCount, dayCount, enabledWeekCount, enabledDayCount) |
 
 The existing `useDatePickerStable` / `useDatePickerState` are removed (breaking change).
 

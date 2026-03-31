@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
+import { describe, it, expect } from "vitest";
 import { computeWeeksInWindow } from "./compute-weeks-in-window";
 
 const T = Temporal;
@@ -63,29 +63,21 @@ describe("computeWeeksInWindow", () => {
     expect(weeks).toHaveLength(expected.length);
     expect(weeks[0].startDate.toString()).toBe(expected.firstStart);
     expect(weeks[0].endDate.toString()).toBe(expected.firstEnd);
-    expect(weeks[weeks.length - 1].startDate.toString()).toBe(expected.lastStart);
+    expect(weeks[weeks.length - 1].startDate.toString()).toBe(
+      expected.lastStart,
+    );
     expect(weeks[weeks.length - 1].endDate.toString()).toBe(expected.lastEnd);
   });
 
   it("assigns correct month/year to each week based on start date", () => {
-    const weeks = computeWeeksInWindow(
-      T.PlainDate.from("2026-03-29"),
-      1,
-      0,
-      T,
-    );
+    const weeks = computeWeeksInWindow(T.PlainDate.from("2026-03-29"), 1, 0, T);
     expect(weeks[0].startDate.toString()).toBe("2026-03-29");
     expect(weeks[0].month).toBe(3);
     expect(weeks[0].year).toBe(2026);
   });
 
   it("populates weekIndex sequentially from 0", () => {
-    const weeks = computeWeeksInWindow(
-      T.PlainDate.from("2026-03-01"),
-      5,
-      0,
-      T,
-    );
+    const weeks = computeWeeksInWindow(T.PlainDate.from("2026-03-01"), 5, 0, T);
     weeks.forEach((w, i) => expect(w.weekIndex).toBe(i));
   });
 });

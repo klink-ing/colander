@@ -1,7 +1,7 @@
-import { cn } from "#/lib/cn";
 import { useRender } from "@base-ui/react/use-render";
 import { Link, type LinkProps } from "@tanstack/react-router";
-import type { ComponentProps, ComponentPropsWithRef } from "react";
+import type { ComponentPropsWithRef } from "react";
+import { cn } from "#/lib/cn";
 
 const LINK_CLASSNAME =
   "text-link underline decoration-link/40 hover:text-link-hover hover:decoration-link-hover visited:text-link-visited px-1 -mx-1";

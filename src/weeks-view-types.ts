@@ -80,7 +80,10 @@ export interface WeeksViewStableContextValue {
   /** Navigate to the previous week(s). Optionally override the shift amount (in weeks). */
   goPrev: (shiftBy?: number) => void;
   /** Imperatively scroll so that the target week is visible at the given snap position. */
-  scrollToWeek: (target: FirstWeekSpec, options?: { snap?: ScrollToWeekSnap }) => void;
+  scrollToWeek: (
+    target: FirstWeekSpec,
+    options?: { snap?: ScrollToWeekSnap },
+  ) => void;
   /** Ref tracking whether the grid currently holds DOM focus (avoids state re-renders). */
   gridFocusedRef: React.MutableRefObject<boolean>;
   /** Register (or clear) the id of a label element for `aria-labelledby`. */

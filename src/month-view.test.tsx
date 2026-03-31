@@ -1,18 +1,18 @@
+import { Temporal } from "@js-temporal/polyfill";
+import { render, act } from "@testing-library/react";
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
-import { render, act } from "@testing-library/react";
-import { Temporal } from "@js-temporal/polyfill";
-import { MonthView } from "./month-view";
 import { useCalendarStable } from "./calendar-context";
-import { useMonthViewState } from "./month-view-context";
-import { useViewContext } from "./view-context";
 import { Grid } from "./grid";
+import { MonthView } from "./month-view";
+import { useMonthViewState } from "./month-view-context";
 import {
   MonthYearString,
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
 import type { DateRange, ValueChangeMeta, MonthData } from "./types";
+import { useViewContext } from "./view-context";
 
 const temporal = {
   Now: Temporal.Now,
@@ -1218,7 +1218,11 @@ describe("outsideDays", () => {
   describe('outsideDays="readonly"', () => {
     it("outside-month buttons render but are disabled", () => {
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} outsideDays="readonly">
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          outsideDays="readonly"
+        >
           <Grid />
         </MonthView>,
       );
@@ -1307,7 +1311,11 @@ describe("outsideDays", () => {
   describe('outsideDays="hidden"', () => {
     it("outside-month cells are empty with data-hidden and aria-hidden", () => {
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} outsideDays="hidden">
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          outsideDays="hidden"
+        >
           <Grid />
         </MonthView>,
       );

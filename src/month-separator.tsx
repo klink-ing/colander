@@ -1,7 +1,7 @@
-import { createContext, useContext, forwardRef, useMemo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { createContext, useContext, forwardRef, useMemo } from "react";
 
 /** State exposed by the MonthSeparator component and its children. */
 export type MonthSeparatorState = {
@@ -59,8 +59,11 @@ const stateAttributesMapping = {
   weeksVisibleAfter: () => null,
   firstDayColumn: (v: number) => ({ "data-first-day-column": String(v) }),
   totalColumns: (v: number) => ({ "data-total-columns": String(v) }),
-  firstDayVisible: (v: boolean) => (v ? { "data-first-day-visible": "" } : null),
-  fullWeeksVisibleAfter: (v: number) => ({ "data-full-weeks-visible-after": String(v) }),
+  firstDayVisible: (v: boolean) =>
+    v ? { "data-first-day-visible": "" } : null,
+  fullWeeksVisibleAfter: (v: number) => ({
+    "data-full-weeks-visible-after": String(v),
+  }),
   gridRowStart: (v: number) => ({ "data-grid-row-start": String(v) }),
 } as const satisfies StateAttributesMapping<MonthSeparatorState>;
 
@@ -76,7 +79,13 @@ type MonthChildProps = useRender.ComponentProps<"span", MonthSeparatorState> & {
 function MonthSeparatorMonth(
   props: MonthChildProps & { ref?: React.Ref<HTMLSpanElement> },
 ) {
-  const { ref, render, locale = "en-US", format = "long", ...otherProps } = props;
+  const {
+    ref,
+    render,
+    locale = "en-US",
+    format = "long",
+    ...otherProps
+  } = props;
   const data = useMonthSeparatorData();
 
   const monthName = useMemo(() => {
@@ -133,10 +142,7 @@ function MonthSeparatorWeekCount(
     ref: ref ? [ref] : [],
     state: data,
     stateAttributesMapping,
-    props: mergeProps<"span">(
-      { children: data.weeksVisibleAfter },
-      otherProps,
-    ),
+    props: mergeProps<"span">({ children: data.weeksVisibleAfter }, otherProps),
   });
 }
 
@@ -197,10 +203,7 @@ function MonthSeparatorCellInner(
 
 // ─── MonthSeparator (convenience) ───────────────────────────────────
 
-type MonthSeparatorProps = useRender.ComponentProps<
-  "tr",
-  MonthSeparatorState
->;
+type MonthSeparatorProps = useRender.ComponentProps<"tr", MonthSeparatorState>;
 
 /**
  * Convenience component: `<tr><td colspan="7">children</td></tr>`.
@@ -226,9 +229,7 @@ const MonthSeparatorConvenience = forwardRef<
           <td colSpan={7}>
             {children ?? (
               <>
-                <MonthSeparatorMonth />
-                {" "}
-                <MonthSeparatorYear />
+                <MonthSeparatorMonth /> <MonthSeparatorYear />
               </>
             )}
           </td>

@@ -1,7 +1,7 @@
+import { Temporal } from "@js-temporal/polyfill";
 // Minimal unstyled date picker component for realistic tree-shaking measurement.
 // Represents what a consumer would actually import and render.
 import React from "react";
-import { Temporal } from "@js-temporal/polyfill";
 import {
   MonthView,
   Grid,

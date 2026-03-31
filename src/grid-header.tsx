@@ -1,10 +1,9 @@
-import { useMemo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { useMonthViewState } from "./month-view-context";
-import { getWeekdayNames, getReferenceWeekStart } from "./utils";
 import type {
   ValueFormat,
   GridHeaderCellProps,
@@ -12,6 +11,7 @@ import type {
   GridHeaderProps,
   GridHeaderCellState,
 } from "./types";
+import { getWeekdayNames, getReferenceWeekStart } from "./utils";
 
 function useGridHeaderCellState<F extends ValueFormat = ValueFormat>(
   index: number,

@@ -6,10 +6,10 @@
  * Usage: npx tsx site/scripts/extract-api.ts
  */
 
-import { Project, type Symbol, type Type, SyntaxKind, type JSDoc, type Node } from "ts-morph";
-import * as path from "node:path";
 import * as fs from "node:fs";
+import * as path from "node:path";
 import { fileURLToPath } from "node:url";
+import { Project, type Type, SyntaxKind, type Node } from "ts-morph";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +35,14 @@ interface ExtractedParam {
 
 interface ExtractedSymbol {
   name: string;
-  kind: "component" | "hook" | "type" | "interface" | "function" | "const" | "context";
+  kind:
+    | "component"
+    | "hook"
+    | "type"
+    | "interface"
+    | "function"
+    | "const"
+    | "context";
   description: string;
   filePath: string;
   lineNumber: number;
@@ -108,7 +115,10 @@ function extractPropertiesFromType(type: Type): ExtractedProperty[] {
   return properties;
 }
 
-function classifySymbol(name: string, declarations: Node[]): ExtractedSymbol["kind"] {
+function classifySymbol(
+  name: string,
+  declarations: Node[],
+): ExtractedSymbol["kind"] {
   // Hooks start with "use"
   if (name.startsWith("use")) return "hook";
 
@@ -118,7 +128,10 @@ function classifySymbol(name: string, declarations: Node[]): ExtractedSymbol["ki
   for (const decl of declarations) {
     const kind = decl.getKind();
     // Type aliases and interfaces
-    if (kind === SyntaxKind.TypeAliasDeclaration || kind === SyntaxKind.InterfaceDeclaration) {
+    if (
+      kind === SyntaxKind.TypeAliasDeclaration ||
+      kind === SyntaxKind.InterfaceDeclaration
+    ) {
       return "interface";
     }
     // Functions
@@ -128,7 +141,10 @@ function classifySymbol(name: string, declarations: Node[]): ExtractedSymbol["ki
     // Variable declarations (components, constants)
     if (kind === SyntaxKind.VariableDeclaration) {
       // Check if it's a component (starts with uppercase)
-      if (name[0] === name[0].toUpperCase() && name[0] !== name[0].toLowerCase()) {
+      if (
+        name[0] === name[0].toUpperCase() &&
+        name[0] !== name[0].toLowerCase()
+      ) {
         return "component";
       }
       return "const";
@@ -169,7 +185,10 @@ function extract(): ExtractedSymbol[] {
     const sourceFile = decl.getSourceFile();
     const filePath = path.relative(rootDir, sourceFile.getFilePath());
     const lineNumber = decl.getStartLineNumber();
-    const kind = classifySymbol(name, declarations.map(d => d));
+    const kind = classifySymbol(
+      name,
+      declarations.map((d) => d),
+    );
     const description = getJSDocDescription(decl);
     const tags = getJSDocTags(decl);
 
@@ -196,14 +215,19 @@ function extract(): ExtractedSymbol[] {
 
       // Extract defaultElement and stateType from useRender.ComponentProps<"el", State>
       const aliasText = alias.getText();
-      const cpMatch = aliasText.match(/useRender\.ComponentProps<"(\w+)",\s*(\w+)/);
+      const cpMatch = aliasText.match(
+        /useRender\.ComponentProps<"(\w+)",\s*(\w+)/,
+      );
       if (cpMatch) {
         symbol.defaultElement = cpMatch[1];
         symbol.stateType = cpMatch[2];
       }
 
       // Extract properties from object, intersection, or union types
-      if ((type.isObject() || type.isIntersection() || type.isUnion()) && !type.isArray()) {
+      if (
+        (type.isObject() || type.isIntersection() || type.isUnion()) &&
+        !type.isArray()
+      ) {
         let props: ExtractedProperty[] = [];
 
         if (type.isIntersection()) {

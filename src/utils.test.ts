@@ -1,5 +1,7 @@
-import { describe, it, expect } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
+import { describe, it, expect } from "vitest";
+import { temporalVariants } from "./test-temporal";
+import type { TemporalNamespace } from "./types";
 import {
   calendarForLocale,
   resolveTemporal,
@@ -20,8 +22,6 @@ import {
   getWeekdayNames,
   getISOWeekNumber,
 } from "./utils";
-import type { TemporalNamespace } from "./types";
-import { temporalVariants } from "./test-temporal";
 
 const T: TemporalNamespace = {
   Now: Temporal.Now,

@@ -24,7 +24,10 @@ function weekHasValidDay(
   // Week spans [weekStart, weekStart+6]. Overlaps with [min, max] iff
   // weekStart <= max AND weekStart+6 >= min.
   const weekEnd = weekStart.add({ days: 6 });
-  return T.PlainDate.compare(weekStart, max) <= 0 && T.PlainDate.compare(weekEnd, min) >= 0;
+  return (
+    T.PlainDate.compare(weekStart, max) <= 0 &&
+    T.PlainDate.compare(weekEnd, min) >= 0
+  );
 }
 
 /**
@@ -34,7 +37,7 @@ function weekHasValidDay(
 function weekStartContaining(
   date: Temporal.PlainDate,
   weekStartDay: WeekStartDay,
-  T: TemporalNamespace,
+  _T: TemporalNamespace,
 ): Temporal.PlainDate {
   const dow = date.dayOfWeek % 7; // Sun=0…Sat=6
   const daysFromStart = (dow - weekStartDay + 7) % 7;

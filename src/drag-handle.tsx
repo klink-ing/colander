@@ -1,10 +1,10 @@
-import { useContext, useMemo, useRef } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useContext, useMemo, useRef } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
-import { useMonthViewState } from "./month-view-context";
 import { DayCellDataContext, GridContext } from "./context";
+import { useMonthViewState } from "./month-view-context";
 import type {
   ValueFormat,
   DragHandleState,
@@ -25,7 +25,12 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
   { dragging: draggingProp }: { dragging?: boolean },
 ) {
-  const { temporal: T, setHoveredDate, readOnly, disabled } = useCalendarStable();
+  const {
+    temporal: T,
+    setHoveredDate,
+    readOnly,
+    disabled,
+  } = useCalendarStable();
   const { rangeStart, rangeEnd } = useCalendarState();
   const { rootState } = useMonthViewState();
   const cellData = useContext(DayCellDataContext);
@@ -33,11 +38,12 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   const date = cellData?.date;
   const outsideDisabled = cellData?.outsideDisabled ?? false;
 
-  const isActive = readOnly || disabled || outsideDisabled
-    ? false
-    : edge === "start"
-      ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
-      : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
+  const isActive =
+    readOnly || disabled || outsideDisabled
+      ? false
+      : edge === "start"
+        ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
+        : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
 
   const isDragging = (draggingProp ?? false) && isActive;
 

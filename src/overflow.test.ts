@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
+import { describe, it, expect } from "vitest";
 import { applyOverflow, canShift, type OverflowBehavior } from "./overflow";
 
 const T = Temporal;
@@ -67,19 +67,22 @@ describe("applyOverflow", () => {
       useMinMax: false,
       expected: { firstWeek: "2026-06-01", weekCount: 8 },
     },
-  ])("$description", ({ targetFirstWeek, weekCount, behavior, useMinMax, expected }) => {
-    const result = applyOverflow({
-      targetFirstWeek,
-      weekCount,
-      behavior,
-      min: useMinMax ? min : undefined,
-      max: useMinMax ? max : undefined,
-      weekStartDay: 0,
-      T,
-    });
-    expect(result.firstWeek.toString()).toBe(expected.firstWeek);
-    expect(result.weekCount).toBe(expected.weekCount);
-  });
+  ])(
+    "$description",
+    ({ targetFirstWeek, weekCount, behavior, useMinMax, expected }) => {
+      const result = applyOverflow({
+        targetFirstWeek,
+        weekCount,
+        behavior,
+        min: useMinMax ? min : undefined,
+        max: useMinMax ? max : undefined,
+        weekStartDay: 0,
+        T,
+      });
+      expect(result.firstWeek.toString()).toBe(expected.firstWeek);
+      expect(result.weekCount).toBe(expected.weekCount);
+    },
+  );
 });
 
 describe("canShift", () => {

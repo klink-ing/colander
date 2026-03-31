@@ -1,5 +1,5 @@
-import { createContext } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
+import { createContext } from "react";
 
 /** @internal Provides the days and index of the current week row to child components. */
 export const WeekDataContext = createContext<{

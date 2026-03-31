@@ -1,5 +1,5 @@
-import { createContext, useContext } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
+import { createContext, useContext } from "react";
 
 /** Shared context provided by both MonthView.Root and WeeksView.Root. */
 export interface ViewContextValue {

@@ -1,5 +1,5 @@
-import type { Temporal } from "@js-temporal/polyfill";
 import type { useRender } from "@base-ui/react/use-render";
+import type { Temporal } from "@js-temporal/polyfill";
 import { GridOrientation } from "./context";
 
 /** Day of the week represented as a number: `0` = Sunday through `6` = Saturday. */

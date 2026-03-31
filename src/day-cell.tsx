@@ -1,17 +1,13 @@
-import { useContext, useEffect, useRef, memo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import type { Temporal as TemporalPoly } from "@js-temporal/polyfill";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useContext, useEffect, useRef, memo } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { WeekDataContext, DayCellDataContext, GridContext } from "./context";
+import { GridOrientation } from "./context";
 import { MonthViewStableContext } from "./month-view-context";
 import { useMonthViewState } from "./month-view-context";
-import { useViewContext } from "./view-context";
-import {
-  WeekDataContext,
-  DayCellDataContext,
-  GridContext,
-} from "./context";
-import { shouldMoveDomFocus, isInRange as isInRangeUtil } from "./utils";
 import type {
   ValueFormat,
   DayCellTemplateProps,
@@ -20,8 +16,8 @@ import type {
   TemporalNamespace,
   OutsideDays,
 } from "./types";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { GridOrientation } from "./context";
+import { shouldMoveDomFocus, isInRange as isInRangeUtil } from "./utils";
+import { useViewContext } from "./view-context";
 
 /** Computes derived day cell state from context values. Pure function, no hooks. */
 export function computeDayCellState(
@@ -361,13 +357,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
     weekStartDay,
   } = useCalendarStable();
 
-  const {
-    selectedDates,
-    rangeStart,
-    rangeEnd,
-    previewStart,
-    previewEnd,
-  } = useCalendarState();
+  const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
+    useCalendarState();
 
   const viewCtx = useViewContext();
   const { focusedDate, tabTargetDate } = viewCtx;
@@ -477,12 +468,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   props: DayButtonInstanceProps<F>,
 ) {
   const { ref, render, date, _derivedState, ...otherProps } = props;
-  const {
-    onSelect,
-    locale,
-    readOnly,
-    setHoveredDate,
-  } = useCalendarStable();
+  const { onSelect, locale, readOnly, setHoveredDate } = useCalendarStable();
   const { setFocusedDate } = useViewContext();
   const monthStable = useContext(MonthViewStableContext);
   const gridFocusedRef = monthStable!.gridFocusedRef;
@@ -637,13 +623,8 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
     temporal: T,
     weekStartDay,
   } = useCalendarStable();
-  const {
-    selectedDates,
-    rangeStart,
-    rangeEnd,
-    previewStart,
-    previewEnd,
-  } = useCalendarState();
+  const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
+    useCalendarState();
   const viewCtx = useViewContext();
   const { focusedDate, tabTargetDate } = viewCtx;
   const monthStable = useContext(MonthViewStableContext);

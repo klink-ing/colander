@@ -20,27 +20,21 @@ export { RangePreview } from "./range-preview";
 export { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 export { WeekNumberCell, WeekNumberHeader } from "./week-number";
 export { WeeksView, WeeksViewRoot } from "./weeks-view";
-export { PrevWeeksButton, NextWeeksButton, WeekCount } from "./weeks-navigation";
+export {
+  PrevWeeksButton,
+  NextWeeksButton,
+  WeekCount,
+} from "./weeks-navigation";
 export { MonthSeparator } from "./month-separator";
 export { createDatePicker, type Components } from "./factory";
 export { computePreviewRange } from "./root-selection";
 export { computeWeeksInWindow } from "./compute-weeks-in-window";
 export { resolveFirstWeek, resolveFirstWeekSpec } from "./resolve-first-week";
 export { Temporal } from "./temporal-polyfill";
-export {
-  useCalendarStable,
-  useCalendarState,
-} from "./calendar-context";
-export {
-  useMonthViewStable,
-  useMonthViewState,
-} from "./month-view-context";
+export { useCalendarStable, useCalendarState } from "./calendar-context";
+export { useMonthViewStable, useMonthViewState } from "./month-view-context";
 export { useViewContext } from "./view-context";
-export {
-  DayCellDataContext,
-  WeekDataContext,
-  GridContext,
-} from "./context";
+export { DayCellDataContext, WeekDataContext, GridContext } from "./context";
 
 export type {
   RootState,
@@ -122,10 +116,7 @@ export type {
   WeekCountState,
   WeekCountProps,
 } from "./weeks-navigation";
-export {
-  useWeeksViewStable,
-  useWeeksViewState,
-} from "./weeks-view-context";
+export { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
 export type { WeekDescriptor } from "./compute-weeks-in-window";
 export type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";

@@ -1,21 +1,21 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { computeWeeksInWindow } from "./compute-weeks-in-window";
+import { applyOverflow, type OverflowBehavior } from "./overflow";
+import {
+  resolveFirstWeekSpec,
+  resolveFirstWeek,
+  type FirstWeekSpec,
+} from "./resolve-first-week";
+import { selectedToZdt, toZonedDateTime } from "./utils";
+import type { ViewContextValue } from "./view-context";
 import type {
   WeeksViewRootProps,
   WeeksViewStableContextValue,
   WeeksViewStateContextValue,
   WindowInfo,
 } from "./weeks-view-types";
-import type { ViewContextValue } from "./view-context";
-import { useCalendarStable, useCalendarState } from "./calendar-context";
-import { computeWeeksInWindow } from "./compute-weeks-in-window";
-import {
-  resolveFirstWeekSpec,
-  resolveFirstWeek,
-  type FirstWeekSpec,
-} from "./resolve-first-week";
-import { applyOverflow, type OverflowBehavior } from "./overflow";
-import { selectedToZdt, toZonedDateTime } from "./utils";
 
 /**
  * Core state management hook for WeeksView.Root.
@@ -60,7 +60,11 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         return resolveSpec(defaultFirstWeekProp);
       // Derive from selection or today
       if (calState.selected) {
-        const plain = toZonedDateTime(calState.selected, timeZone, T).toPlainDate();
+        const plain = toZonedDateTime(
+          calState.selected,
+          timeZone,
+          T,
+        ).toPlainDate();
         return resolveSpec(plain);
       }
       return resolveSpec(T.Now.plainDateISO());
@@ -88,7 +92,15 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         weekStartDay,
         T,
       }),
-    [resolvedFirstWeek, weekCount, overflowBehavior, minValue, maxValue, weekStartDay, T],
+    [
+      resolvedFirstWeek,
+      weekCount,
+      overflowBehavior,
+      minValue,
+      maxValue,
+      weekStartDay,
+      T,
+    ],
   );
 
   // Recompute weeks if overflow adjusted the window
@@ -245,7 +257,15 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
 
     const firstEnabled = allDays.find((d) => isDateEnabled(d));
     return firstEnabled ?? allDays[0] ?? windowInfo.windowStart;
-  }, [adjustedWeeks, focusedDate, selectedPlain, gridHasFocus, isDateEnabled, T, windowInfo.windowStart]);
+  }, [
+    adjustedWeeks,
+    focusedDate,
+    selectedPlain,
+    gridHasFocus,
+    isDateEnabled,
+    T,
+    windowInfo.windowStart,
+  ]);
 
   // --- currentDateTime ---
   const selectedZdt = useMemo(
@@ -266,7 +286,12 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         },
         { overflow: "constrain" },
       ),
-    [windowInfo.windowStart, focusedDate.day, selectedZdt, T.PlainDateTime.from],
+    [
+      windowInfo.windowStart,
+      focusedDate.day,
+      selectedZdt,
+      T.PlainDateTime.from,
+    ],
   );
 
   // --- Navigation ---
@@ -283,35 +308,59 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [isControlled, onFirstWeekChange],
   );
 
-  const goNext = useCallback((shiftBy?: number) => {
-    const shift = shiftBy ?? weekCount;
-    const target = resolvedFirstWeek.add({ weeks: shift });
-    const adjusted = applyOverflow({
-      targetFirstWeek: target,
+  const goNext = useCallback(
+    (shiftBy?: number) => {
+      const shift = shiftBy ?? weekCount;
+      const target = resolvedFirstWeek.add({ weeks: shift });
+      const adjusted = applyOverflow({
+        targetFirstWeek: target,
+        weekCount,
+        behavior: overflowBehavior,
+        min: minValue,
+        max: maxValue,
+        weekStartDay,
+        T,
+      });
+      updateFirstWeek(adjusted.firstWeek);
+    },
+    [
+      resolvedFirstWeek,
       weekCount,
-      behavior: overflowBehavior,
-      min: minValue,
-      max: maxValue,
+      overflowBehavior,
+      minValue,
+      maxValue,
       weekStartDay,
       T,
-    });
-    updateFirstWeek(adjusted.firstWeek);
-  }, [resolvedFirstWeek, weekCount, overflowBehavior, minValue, maxValue, weekStartDay, T, updateFirstWeek]);
+      updateFirstWeek,
+    ],
+  );
 
-  const goPrev = useCallback((shiftBy?: number) => {
-    const shift = shiftBy ?? weekCount;
-    const target = resolvedFirstWeek.subtract({ weeks: shift });
-    const adjusted = applyOverflow({
-      targetFirstWeek: target,
+  const goPrev = useCallback(
+    (shiftBy?: number) => {
+      const shift = shiftBy ?? weekCount;
+      const target = resolvedFirstWeek.subtract({ weeks: shift });
+      const adjusted = applyOverflow({
+        targetFirstWeek: target,
+        weekCount,
+        behavior: overflowBehavior,
+        min: minValue,
+        max: maxValue,
+        weekStartDay,
+        T,
+      });
+      updateFirstWeek(adjusted.firstWeek);
+    },
+    [
+      resolvedFirstWeek,
       weekCount,
-      behavior: overflowBehavior,
-      min: minValue,
-      max: maxValue,
+      overflowBehavior,
+      minValue,
+      maxValue,
       weekStartDay,
       T,
-    });
-    updateFirstWeek(adjusted.firstWeek);
-  }, [resolvedFirstWeek, weekCount, overflowBehavior, minValue, maxValue, weekStartDay, T, updateFirstWeek]);
+      updateFirstWeek,
+    ],
+  );
 
   // --- scrollToWeek ---
   const scrollToWeek = useCallback(
@@ -337,7 +386,17 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       });
       updateFirstWeek(adjusted.firstWeek);
     },
-    [resolvedFirstWeek, weekCount, resolveSpec, overflowBehavior, minValue, maxValue, weekStartDay, T, updateFirstWeek],
+    [
+      resolvedFirstWeek,
+      weekCount,
+      resolveSpec,
+      overflowBehavior,
+      minValue,
+      maxValue,
+      weekStartDay,
+      T,
+      updateFirstWeek,
+    ],
   );
 
   // --- Fire onWindowChange ---
@@ -370,7 +429,15 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       gridFocusedRef,
       setGridLabelId,
     }),
-    [weekCount, scrollBy, overflowBehavior, goNext, goPrev, scrollToWeek, setGridLabelId],
+    [
+      weekCount,
+      scrollBy,
+      overflowBehavior,
+      goNext,
+      goPrev,
+      scrollToWeek,
+      setGridLabelId,
+    ],
   );
 
   const stateCtx = useMemo<WeeksViewStateContextValue>(

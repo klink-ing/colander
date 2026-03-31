@@ -1,17 +1,17 @@
-import { Link } from '@tanstack/react-router'
-import { isKnownSymbol, getSymbolByName } from '#/lib/api-data'
+import { Link } from "@tanstack/react-router";
 import {
   Tooltip,
   TooltipTrigger,
   TooltipContent,
-} from '#/components/ui/tooltip'
+} from "#/components/ui/tooltip";
+import { isKnownSymbol, getSymbolByName } from "#/lib/api-data";
 
 /**
  * Parses a type string and turns recognized symbol names into links
  * with VS Code-style hover tooltips showing type details.
  */
 export default function TypeLink({ type }: { type: string }) {
-  const parts = tokenize(type)
+  const parts = tokenize(type);
 
   return (
     <>
@@ -23,11 +23,11 @@ export default function TypeLink({ type }: { type: string }) {
         ),
       )}
     </>
-  )
+  );
 }
 
 function SymbolLink({ name }: { name: string }) {
-  const sym = getSymbolByName(name)
+  const sym = getSymbolByName(name);
 
   if (!sym) {
     return (
@@ -38,7 +38,7 @@ function SymbolLink({ name }: { name: string }) {
       >
         {name}
       </Link>
-    )
+    );
   }
 
   return (
@@ -62,15 +62,15 @@ function SymbolLink({ name }: { name: string }) {
         <TypeTooltipBody symbol={sym} />
       </TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 function TypeTooltipBody({
   symbol,
 }: {
-  symbol: NonNullable<ReturnType<typeof getSymbolByName>>
+  symbol: NonNullable<ReturnType<typeof getSymbolByName>>;
 }) {
-  const maxProps = 6
+  const maxProps = 6;
 
   return (
     <>
@@ -82,24 +82,24 @@ function TypeTooltipBody({
       </div>
 
       {symbol.description && (
-        <p className="type-body-100 m-0 mb-2 text-muted-foreground">
+        <p className="m-0 mb-2 type-body-100 text-muted-foreground">
           {symbol.description}
         </p>
       )}
 
       {symbol.typeText && !symbol.properties?.length && (
-        <pre className="type-code-100 m-0 whitespace-pre-wrap text-muted-foreground">
+        <pre className="m-0 type-code-100 whitespace-pre-wrap text-muted-foreground">
           {symbol.typeText}
         </pre>
       )}
 
       {symbol.properties && symbol.properties.length > 0 && (
-        <pre className="type-code-100 m-0 whitespace-pre-wrap text-muted-foreground">
-          {'{'}
+        <pre className="m-0 type-code-100 whitespace-pre-wrap text-muted-foreground">
+          {"{"}
           {symbol.properties.slice(0, maxProps).map((p) => (
             <div key={p.name} className="pl-3">
               <span className="text-foreground">{p.name}</span>
-              {p.optional ? '?' : ''}: {p.type}
+              {p.optional ? "?" : ""}: {p.type}
             </div>
           ))}
           {symbol.properties.length > maxProps && (
@@ -107,43 +107,43 @@ function TypeTooltipBody({
               // ... {symbol.properties.length - maxProps} more
             </div>
           )}
-          {'}'}
+          {"}"}
         </pre>
       )}
 
       {symbol.members && symbol.members.length > 0 && (
-        <pre className="type-code-100 m-0 whitespace-pre-wrap text-muted-foreground">
-          {symbol.members.join(' | ')}
+        <pre className="m-0 type-code-100 whitespace-pre-wrap text-muted-foreground">
+          {symbol.members.join(" | ")}
         </pre>
       )}
     </>
-  )
+  );
 }
 
 interface Token {
-  text: string
-  linked: boolean
+  text: string;
+  linked: boolean;
 }
 
 /** Split a type string into linkable identifiers and plain text fragments. */
 function tokenize(type: string): Token[] {
-  const regex = /([A-Z][A-Za-z0-9]*)/g
-  const tokens: Token[] = []
-  let lastIndex = 0
+  const regex = /([A-Z][A-Za-z0-9]*)/g;
+  const tokens: Token[] = [];
+  let lastIndex = 0;
 
   for (const match of type.matchAll(regex)) {
-    const start = match.index!
+    const start = match.index!;
     if (start > lastIndex) {
-      tokens.push({ text: type.slice(lastIndex, start), linked: false })
+      tokens.push({ text: type.slice(lastIndex, start), linked: false });
     }
-    const name = match[1]
-    tokens.push({ text: name, linked: isKnownSymbol(name) })
-    lastIndex = start + name.length
+    const name = match[1];
+    tokens.push({ text: name, linked: isKnownSymbol(name) });
+    lastIndex = start + name.length;
   }
 
   if (lastIndex < type.length) {
-    tokens.push({ text: type.slice(lastIndex), linked: false })
+    tokens.push({ text: type.slice(lastIndex), linked: false });
   }
 
-  return tokens
+  return tokens;
 }

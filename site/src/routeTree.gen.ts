@@ -8,171 +8,171 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { Route as rootRouteImport } from './routes/__root'
-import { Route as DocsRouteImport } from './routes/docs'
-import { Route as DemoRouteImport } from './routes/demo'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DocsIndexRouteImport } from './routes/docs/index'
-import { Route as DocsSlugRouteImport } from './routes/docs/$slug'
-import { Route as DocsApiSymbolRouteImport } from './routes/docs/api/$symbol'
+import { Route as rootRouteImport } from "./routes/__root";
+import { Route as DemoRouteImport } from "./routes/demo";
+import { Route as DocsRouteImport } from "./routes/docs";
+import { Route as DocsSlugRouteImport } from "./routes/docs/$slug";
+import { Route as DocsApiSymbolRouteImport } from "./routes/docs/api/$symbol";
+import { Route as DocsIndexRouteImport } from "./routes/docs/index";
+import { Route as IndexRouteImport } from "./routes/index";
 
 const DocsRoute = DocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
+  id: "/docs",
+  path: "/docs",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DemoRoute = DemoRouteImport.update({
-  id: '/demo',
-  path: '/demo',
+  id: "/demo",
+  path: "/demo",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => rootRouteImport,
-} as any)
+} as any);
 const DocsIndexRoute = DocsIndexRouteImport.update({
-  id: '/',
-  path: '/',
+  id: "/",
+  path: "/",
   getParentRoute: () => DocsRoute,
-} as any)
+} as any);
 const DocsSlugRoute = DocsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
+  id: "/$slug",
+  path: "/$slug",
   getParentRoute: () => DocsRoute,
-} as any)
+} as any);
 const DocsApiSymbolRoute = DocsApiSymbolRouteImport.update({
-  id: '/api/$symbol',
-  path: '/api/$symbol',
+  id: "/api/$symbol",
+  path: "/api/$symbol",
   getParentRoute: () => DocsRoute,
-} as any)
+} as any);
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/demo': typeof DemoRoute
-  '/docs': typeof DocsRouteWithChildren
-  '/docs/$slug': typeof DocsSlugRoute
-  '/docs/': typeof DocsIndexRoute
-  '/docs/api/$symbol': typeof DocsApiSymbolRoute
+  "/": typeof IndexRoute;
+  "/demo": typeof DemoRoute;
+  "/docs": typeof DocsRouteWithChildren;
+  "/docs/$slug": typeof DocsSlugRoute;
+  "/docs/": typeof DocsIndexRoute;
+  "/docs/api/$symbol": typeof DocsApiSymbolRoute;
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/demo': typeof DemoRoute
-  '/docs/$slug': typeof DocsSlugRoute
-  '/docs': typeof DocsIndexRoute
-  '/docs/api/$symbol': typeof DocsApiSymbolRoute
+  "/": typeof IndexRoute;
+  "/demo": typeof DemoRoute;
+  "/docs/$slug": typeof DocsSlugRoute;
+  "/docs": typeof DocsIndexRoute;
+  "/docs/api/$symbol": typeof DocsApiSymbolRoute;
 }
 export interface FileRoutesById {
-  __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/demo': typeof DemoRoute
-  '/docs': typeof DocsRouteWithChildren
-  '/docs/$slug': typeof DocsSlugRoute
-  '/docs/': typeof DocsIndexRoute
-  '/docs/api/$symbol': typeof DocsApiSymbolRoute
+  __root__: typeof rootRouteImport;
+  "/": typeof IndexRoute;
+  "/demo": typeof DemoRoute;
+  "/docs": typeof DocsRouteWithChildren;
+  "/docs/$slug": typeof DocsSlugRoute;
+  "/docs/": typeof DocsIndexRoute;
+  "/docs/api/$symbol": typeof DocsApiSymbolRoute;
 }
 export interface FileRouteTypes {
-  fileRoutesByFullPath: FileRoutesByFullPath
+  fileRoutesByFullPath: FileRoutesByFullPath;
   fullPaths:
-    | '/'
-    | '/demo'
-    | '/docs'
-    | '/docs/$slug'
-    | '/docs/'
-    | '/docs/api/$symbol'
-  fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo' | '/docs/$slug' | '/docs' | '/docs/api/$symbol'
+    | "/"
+    | "/demo"
+    | "/docs"
+    | "/docs/$slug"
+    | "/docs/"
+    | "/docs/api/$symbol";
+  fileRoutesByTo: FileRoutesByTo;
+  to: "/" | "/demo" | "/docs/$slug" | "/docs" | "/docs/api/$symbol";
   id:
-    | '__root__'
-    | '/'
-    | '/demo'
-    | '/docs'
-    | '/docs/$slug'
-    | '/docs/'
-    | '/docs/api/$symbol'
-  fileRoutesById: FileRoutesById
+    | "__root__"
+    | "/"
+    | "/demo"
+    | "/docs"
+    | "/docs/$slug"
+    | "/docs/"
+    | "/docs/api/$symbol";
+  fileRoutesById: FileRoutesById;
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DemoRoute: typeof DemoRoute
-  DocsRoute: typeof DocsRouteWithChildren
+  IndexRoute: typeof IndexRoute;
+  DemoRoute: typeof DemoRoute;
+  DocsRoute: typeof DocsRouteWithChildren;
 }
 
-declare module '@tanstack/react-router' {
+declare module "@tanstack/react-router" {
   interface FileRoutesByPath {
-    '/docs': {
-      id: '/docs'
-      path: '/docs'
-      fullPath: '/docs'
-      preLoaderRoute: typeof DocsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/demo': {
-      id: '/demo'
-      path: '/demo'
-      fullPath: '/demo'
-      preLoaderRoute: typeof DemoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs/': {
-      id: '/docs/'
-      path: '/'
-      fullPath: '/docs/'
-      preLoaderRoute: typeof DocsIndexRouteImport
-      parentRoute: typeof DocsRoute
-    }
-    '/docs/$slug': {
-      id: '/docs/$slug'
-      path: '/$slug'
-      fullPath: '/docs/$slug'
-      preLoaderRoute: typeof DocsSlugRouteImport
-      parentRoute: typeof DocsRoute
-    }
-    '/docs/api/$symbol': {
-      id: '/docs/api/$symbol'
-      path: '/api/$symbol'
-      fullPath: '/docs/api/$symbol'
-      preLoaderRoute: typeof DocsApiSymbolRouteImport
-      parentRoute: typeof DocsRoute
-    }
+    "/docs": {
+      id: "/docs";
+      path: "/docs";
+      fullPath: "/docs";
+      preLoaderRoute: typeof DocsRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/demo": {
+      id: "/demo";
+      path: "/demo";
+      fullPath: "/demo";
+      preLoaderRoute: typeof DemoRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/": {
+      id: "/";
+      path: "/";
+      fullPath: "/";
+      preLoaderRoute: typeof IndexRouteImport;
+      parentRoute: typeof rootRouteImport;
+    };
+    "/docs/": {
+      id: "/docs/";
+      path: "/";
+      fullPath: "/docs/";
+      preLoaderRoute: typeof DocsIndexRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/$slug": {
+      id: "/docs/$slug";
+      path: "/$slug";
+      fullPath: "/docs/$slug";
+      preLoaderRoute: typeof DocsSlugRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
+    "/docs/api/$symbol": {
+      id: "/docs/api/$symbol";
+      path: "/api/$symbol";
+      fullPath: "/docs/api/$symbol";
+      preLoaderRoute: typeof DocsApiSymbolRouteImport;
+      parentRoute: typeof DocsRoute;
+    };
   }
 }
 
 interface DocsRouteChildren {
-  DocsSlugRoute: typeof DocsSlugRoute
-  DocsIndexRoute: typeof DocsIndexRoute
-  DocsApiSymbolRoute: typeof DocsApiSymbolRoute
+  DocsSlugRoute: typeof DocsSlugRoute;
+  DocsIndexRoute: typeof DocsIndexRoute;
+  DocsApiSymbolRoute: typeof DocsApiSymbolRoute;
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
   DocsSlugRoute: DocsSlugRoute,
   DocsIndexRoute: DocsIndexRoute,
   DocsApiSymbolRoute: DocsApiSymbolRoute,
-}
+};
 
-const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
+const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren);
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DemoRoute: DemoRoute,
   DocsRoute: DocsRouteWithChildren,
-}
+};
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
-  ._addFileTypes<FileRouteTypes>()
+  ._addFileTypes<FileRouteTypes>();
 
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
+import type { createStart } from "@tanstack/react-start";
+import type { getRouter } from "./router.tsx";
+declare module "@tanstack/react-start" {
   interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
+    ssr: true;
+    router: Awaited<ReturnType<typeof getRouter>>;
   }
 }
