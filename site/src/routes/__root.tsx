@@ -3,8 +3,10 @@ import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
+import NavDrawer from "../components/NavDrawer";
+import NavDrawerContent from "../components/NavDrawerContent";
 import { TooltipProvider } from "../components/ui/tooltip";
-import { HeaderDrawerContentProvider } from "../lib/header-drawer-context";
+import { NavDrawerProvider } from "../lib/nav-drawer-context";
 import { PackageManagerProvider } from "../lib/package-manager";
 
 import appCss from "../styles.css?url";
@@ -45,11 +47,14 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="font-sans wrap-anywhere antialiased selection:bg-[rgba(79,184,178,0.24)]">
         <PackageManagerProvider>
           <TooltipProvider>
-            <HeaderDrawerContentProvider>
+            <NavDrawerProvider>
               <Header />
+              <NavDrawer>
+                <NavDrawerContent />
+              </NavDrawer>
               {children}
               <Footer />
-            </HeaderDrawerContentProvider>
+            </NavDrawerProvider>
           </TooltipProvider>
         </PackageManagerProvider>
         <TanStackDevtools
