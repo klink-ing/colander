@@ -4,6 +4,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { TooltipProvider } from "../components/ui/tooltip";
+import { HeaderDrawerContentProvider } from "../lib/header-drawer-context";
 import { PackageManagerProvider } from "../lib/package-manager";
 
 import appCss from "../styles.css?url";
@@ -44,9 +45,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       <body className="font-sans wrap-anywhere antialiased selection:bg-[rgba(79,184,178,0.24)]">
         <PackageManagerProvider>
           <TooltipProvider>
-            <Header />
-            {children}
-            <Footer />
+            <HeaderDrawerContentProvider>
+              <Header />
+              {children}
+              <Footer />
+            </HeaderDrawerContentProvider>
           </TooltipProvider>
         </PackageManagerProvider>
         <TanStackDevtools
