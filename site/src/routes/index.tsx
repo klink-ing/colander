@@ -6,7 +6,7 @@ export const Route = createFileRoute("/")({ component: App });
 function App() {
   return (
     <main className="page-wrap px-4 pt-14 pb-8">
-      <section className="rise-in relative overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-10 shadow-lg sm:px-10 sm:py-14">
+      <section className="rise-in relative overflow-hidden rounded-[2rem] border border-border bg-card px-6 py-10 shadow-lg bp-6:px-10 bp-6:py-14">
         <p className="mb-3 type-label-100 text-muted-foreground">
           Accessible calendar components for React
         </p>
@@ -40,7 +40,7 @@ function App() {
         </div>
       </section>
 
-      <section className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <section className="mt-8 grid gap-4 bp-6:grid-cols-2 bp-10:grid-cols-5">
         {[
           [
             "MonthView",

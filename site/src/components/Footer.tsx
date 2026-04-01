@@ -3,7 +3,7 @@ export default function Footer() {
 
   return (
     <footer className="mt-20 border-t border-border px-4 pt-10 pb-14 text-muted-foreground">
-      <div className="page-wrap flex flex-col items-center justify-between gap-4 text-center sm:flex-row sm:text-left">
+      <div className="page-wrap flex flex-col items-center justify-between gap-4 text-center bp-6:flex-row bp-6:text-left">
         <p className="m-0 type-body-100">
           &copy; {year} {import.meta.env.VITE_PROJECT_NAME} contributors. All
           rights reserved.
