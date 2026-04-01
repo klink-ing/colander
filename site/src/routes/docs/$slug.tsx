@@ -78,7 +78,7 @@ function DocPage() {
         <p className="mb-1 type-label-100 text-muted-foreground">
           {frontmatter.section}
         </p>
-        <h1 className="mb-2 type-display-100 text-foreground">
+        <h1 className="mb-2 type-heading-300 text-foreground">
           {frontmatter.title}
         </h1>
         {frontmatter.description && (
