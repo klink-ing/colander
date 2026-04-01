@@ -1,8 +1,8 @@
 import { Dialog } from "@base-ui/react/dialog";
 import { useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
-import { useDocsNavData } from "#/lib/docs-nav-context";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
+import { useSectionNav } from "#/lib/use-section-nav";
 
 export default function NavDrawer({
   children,
@@ -11,7 +11,7 @@ export default function NavDrawer({
 }) {
   const { open, setOpen } = useNavDrawer();
   const router = useRouter();
-  const docsNavData = useDocsNavData();
+  const sectionNav = useSectionNav();
 
   // Close on route change
   useEffect(() => {
@@ -25,14 +25,14 @@ export default function NavDrawer({
   // On docs pages: bp-6 (600px / 37.5rem) — sidebar becomes inline
   // On non-docs pages: bp-4.5 (450px / 28.125rem) — hamburger disappears
   useEffect(() => {
-    const breakpoint = docsNavData ? "37.5rem" : "28.125rem";
+    const breakpoint = sectionNav ? "37.5rem" : "28.125rem";
     const mql = window.matchMedia(`(min-width: ${breakpoint})`);
     const handler = () => {
       if (mql.matches) setOpen(false);
     };
     mql.addEventListener("change", handler);
     return () => mql.removeEventListener("change", handler);
-  }, [docsNavData, setOpen]);
+  }, [sectionNav, setOpen]);
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>

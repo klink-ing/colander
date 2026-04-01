@@ -6,7 +6,8 @@ export const Route = createFileRoute("/docs/")({
 });
 
 function DocsIndex() {
-  const { entries } = docsRoute.useLoaderData();
+  const { sectionNav } = docsRoute.useLoaderData();
+  const { entries } = sectionNav;
 
   return (
     <div>

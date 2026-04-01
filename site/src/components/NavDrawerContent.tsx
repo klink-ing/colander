@@ -1,10 +1,10 @@
 import { Link } from "@tanstack/react-router";
 import { NAV_LINKS } from "#/lib/nav-links";
-import { useDocsNavData } from "#/lib/docs-nav-context";
+import { useSectionNav } from "#/lib/use-section-nav";
 import DocsNav from "./DocsNav";
 
 function DocsNavSection() {
-  const data = useDocsNavData();
+  const data = useSectionNav();
   if (!data) return null;
   return <DocsNav entries={data.entries} apiEntries={data.apiEntries} />;
 }
@@ -49,7 +49,7 @@ export default function NavDrawerContent() {
 }
 
 function DocsNavSeparator() {
-  const data = useDocsNavData();
+  const data = useSectionNav();
   if (!data) return null;
   return <hr className="border-border bp-4.5:hidden" />;
 }

@@ -8,7 +8,6 @@ import {
 } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
 import { getAllSymbols } from "#/lib/api-data";
-import { DocsNavDataProvider } from "#/lib/docs-nav-context";
 import { parseFrontmatter } from "#/lib/markdoc";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 
@@ -31,10 +30,10 @@ const getDocEntries = createServerFn().handler(async () => {
       kind: s.kind,
     }));
 
-    return { entries, apiEntries };
+    return { sectionNav: { entries, apiEntries } };
   } catch (error) {
     console.error("Failed to load doc entries:", error);
-    return { entries: [], apiEntries: [] };
+    return { sectionNav: { entries: [], apiEntries: [] } };
   }
 });
 
@@ -44,13 +43,12 @@ export const Route = createFileRoute("/docs")({
 });
 
 function DocsLayout() {
-  const { entries, apiEntries } = Route.useLoaderData();
+  const { sectionNav } = Route.useLoaderData();
   const { setOpen } = useNavDrawer();
 
   return (
-    <DocsNavDataProvider entries={entries} apiEntries={apiEntries}>
-      <main className="page-wrap flex gap-0 px-4 pt-8 pb-12">
-        <DocsNavSidebar entries={entries} apiEntries={apiEntries} />
+    <main className="page-wrap flex gap-0 px-4 pt-8 pb-12">
+      <DocsNavSidebar entries={sectionNav.entries} apiEntries={sectionNav.apiEntries} />
 
         <div className="min-w-0 flex-1">
           {/* Sidebar toggle — visible between bp-4.5 and bp-6 only */}
@@ -70,7 +68,6 @@ function DocsLayout() {
             <Outlet />
           </article>
         </div>
-      </main>
-    </DocsNavDataProvider>
+    </main>
   );
 }
