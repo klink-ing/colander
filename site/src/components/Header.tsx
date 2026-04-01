@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   NavigationMenu,
   NavigationMenuList,
@@ -6,23 +7,84 @@ import {
   NavigationMenuLink,
   navigationMenuTriggerStyle,
 } from "#/components/ui/navigation-menu";
+import { useHeaderDrawerContent } from "#/lib/header-drawer-context";
+import NavDrawer from "./NavDrawer";
 import ThemeToggle from "./ThemeToggle";
 
+function HeaderNavLinks() {
+  return (
+    <nav aria-label="Site navigation">
+      <ul className="m-0 list-none space-y-1 p-0">
+        <li>
+          <Link
+            to="/"
+            className="block rounded-lg px-3 py-2 type-body-100 font-medium no-underline text-foreground transition hover:bg-accent"
+          >
+            Home
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/docs"
+            className="block rounded-lg px-3 py-2 type-body-100 font-medium no-underline text-foreground transition hover:bg-accent"
+          >
+            Docs
+          </Link>
+        </li>
+        <li>
+          <Link
+            to="/demo"
+            className="block rounded-lg px-3 py-2 type-body-100 font-medium no-underline text-foreground transition hover:bg-accent"
+          >
+            Demo
+          </Link>
+        </li>
+        <li>
+          <a
+            href={import.meta.env.VITE_GITHUB_REPO_URL}
+            target="_blank"
+            rel="noreferrer"
+            className="block rounded-lg px-3 py-2 type-body-100 font-medium no-underline text-foreground transition hover:bg-accent"
+          >
+            GitHub
+          </a>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
 export default function Header() {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const drawerContent = useHeaderDrawerContent();
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 px-4 backdrop-blur-lg">
-      <nav className="page-wrap flex flex-wrap items-center gap-x-3 gap-y-2 py-3 sm:py-4">
+      <nav className="page-wrap flex items-center gap-x-3 py-3 bp-4.5:py-4">
+        {/* Hamburger — visible below bp-4.5 */}
+        <button
+          type="button"
+          onClick={() => setDrawerOpen(true)}
+          aria-label="Open navigation menu"
+          className="flex items-center justify-center rounded-lg p-2 text-foreground transition hover:bg-accent bp-4.5:hidden"
+        >
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
+        </button>
+
         <h2 className="m-0 shrink-0">
           <Link
             to="/"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 type-body-100-bold text-foreground no-underline shadow-md sm:px-4 sm:py-2"
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-secondary px-3 py-1.5 type-body-100-bold text-foreground no-underline shadow-md bp-4.5:px-4 bp-4.5:py-2"
           >
             <span className="h-2 w-2 rounded-full bg-accent" />
             {import.meta.env.VITE_PROJECT_NAME}
           </Link>
         </h2>
 
-        <NavigationMenu viewport={false} className="order-3 sm:order-2">
+        {/* Desktop nav — hidden below bp-4.5 */}
+        <NavigationMenu viewport={false} className="hidden bp-4.5:flex">
           <NavigationMenuList className="gap-0.5">
             <NavigationMenuItem>
               <NavigationMenuLink
@@ -51,12 +113,13 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="ml-auto flex items-center gap-1.5 sm:gap-2">
+        <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
+          {/* GitHub — hidden below bp-4.5 */}
           <a
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
-            className="hidden rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground sm:block"
+            className="hidden rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground bp-4.5:block"
           >
             <span className="sr-only">{`${import.meta.env.VITE_PROJECT_NAME} on GitHub`}</span>
             <svg viewBox="0 0 16 16" aria-hidden="true" width="24" height="24">
@@ -70,6 +133,11 @@ export default function Header() {
           <ThemeToggle />
         </div>
       </nav>
+
+      {/* Drawer for narrow screens */}
+      <NavDrawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        {drawerContent ?? <HeaderNavLinks />}
+      </NavDrawer>
     </header>
   );
 }
