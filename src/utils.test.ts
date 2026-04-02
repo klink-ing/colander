@@ -172,7 +172,7 @@ describe("fromZonedDateTime", () => {
   it("extracts PlainDate", () => {
     const result = fromZonedDateTime(zdt, "PlainDate", T);
     expect(result.format).toBe("PlainDate");
-    expect(result.value.toString()).toBe("2026-03-15");
+    expect((result.value as Temporal.PlainDate).toString()).toBe("2026-03-15");
   });
 
   it("extracts PlainDateTime", () => {
@@ -240,7 +240,7 @@ describe("fromZonedDateTime", () => {
       T,
     );
     const result = fromZonedDateTime(intermediate, "PlainDate", T);
-    expect(result.value.toString()).toBe("2026-06-20");
+    expect((result.value as Temporal.PlainDate).toString()).toBe("2026-06-20");
   });
 });
 

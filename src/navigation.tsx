@@ -1,9 +1,9 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useId, useMemo, useEffect } from "react";
+import { forwardRef, useId, useMemo, useEffect } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { useMonthViewStable, useMonthViewState } from "./month-view-context";
+import type { StateAttributesMapping } from "./types";
 import type {
   ValueFormat,
   DateStringState,
@@ -42,103 +42,110 @@ const monthYearStringStateAttributesMapping = {
  * Displays the currently selected (or current) date as localized text.
  * Renders a `<span>` with `aria-live="polite"`.
  */
-export function DateString<F extends ValueFormat = ValueFormat>(
-  props: DateStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
-) {
-  const { ref, render, locales, options, ...otherProps } = props;
-  const { locale, temporal: T, timeZone } = useCalendarStable();
-  const { selected } = useCalendarState();
-  const { currentDateTime, rootState } = useMonthViewState();
+export const DateString = forwardRef<HTMLSpanElement, DateStringProps>(
+  function DateString(props, ref) {
+    const { render, locales, options, ...otherProps } = props;
+    const { locale, temporal: T, timeZone } = useCalendarStable();
+    const { selected } = useCalendarState();
+    const { currentDateTime, rootState } = useMonthViewState();
 
-  const selectedZdt = selectedToZdt(selected, timeZone, T);
-  const displayDate = selectedZdt
-    ? zdtToNativeDate(selectedZdt)
-    : new Date(currentDateTime.year, currentDateTime.month - 1, 1);
+    const selectedZdt = selectedToZdt(selected, timeZone, T);
+    const displayDate = selectedZdt
+      ? zdtToNativeDate(selectedZdt)
+      : new Date(currentDateTime.year, currentDateTime.month - 1, 1);
 
-  const formatted = displayDate.toLocaleDateString(locales ?? locale, options);
+    const formatted = displayDate.toLocaleDateString(
+      locales ?? locale,
+      options,
+    );
 
-  const month = displayDate.getMonth() + 1;
-  const year = displayDate.getFullYear();
-  const day = displayDate.getDate();
+    const month = displayDate.getMonth() + 1;
+    const year = displayDate.getFullYear();
+    const day = displayDate.getDate();
 
-  const state = useMemo<DateStringState<F>>(
-    () => ({
-      root: rootState as any,
-      month,
-      year,
-      day,
-    }),
-    [rootState, month, year, day],
-  );
+    const state = useMemo<DateStringState>(
+      () => ({
+        root: rootState as any,
+        month,
+        year,
+        day,
+      }),
+      [rootState, month, year, day],
+    );
 
-  const defaultProps: Record<string, unknown> = {
-    children: formatted,
-    "aria-live": "polite",
-  };
+    const defaultProps: Record<string, unknown> = {
+      children: formatted,
+      "aria-live": "polite",
+    };
 
-  return useRender({
-    defaultTagName: "span",
-    render,
-    ref: ref ? [ref] : [],
-    state,
-    stateAttributesMapping: dateStringStateAttributesMapping,
-    props: mergeProps<"span">(defaultProps, otherProps),
-  });
-}
+    return useRender({
+      defaultTagName: "span",
+      render,
+      ref: ref ? [ref] : [],
+      state,
+      stateAttributesMapping: dateStringStateAttributesMapping,
+      props: mergeProps<"span">(defaultProps, otherProps),
+    });
+  },
+) as <F extends ValueFormat = ValueFormat>(
+  props: DateStringProps<F> & React.RefAttributes<HTMLSpanElement>,
+) => React.ReactElement | null;
 
 /**
  * Displays the currently selected time as localized text.
  * Falls back to the current time when nothing is selected.
  * Renders a `<span>` with `aria-live="polite"`.
  */
-export function TimeString<F extends ValueFormat = ValueFormat>(
-  props: TimeStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
-) {
-  const { ref, render, locales, options, ...otherProps } = props;
-  const { locale, temporal: T, timeZone } = useCalendarStable();
-  const { selected } = useCalendarState();
-  const { rootState } = useMonthViewState();
+export const TimeString = forwardRef<HTMLSpanElement, TimeStringProps>(
+  function TimeString(props, ref) {
+    const { render, locales, options, ...otherProps } = props;
+    const { locale, temporal: T, timeZone } = useCalendarStable();
+    const { selected } = useCalendarState();
+    const { rootState } = useMonthViewState();
 
-  const selZdt = selectedToZdt(selected, timeZone, T);
-  const displayDate = selZdt
-    ? zdtToNativeDate(selZdt)
-    : zdtToNativeDate(T.Now.zonedDateTimeISO(timeZone));
+    const selZdt = selectedToZdt(selected, timeZone, T);
+    const displayDate = selZdt
+      ? zdtToNativeDate(selZdt)
+      : zdtToNativeDate(T.Now.zonedDateTimeISO(timeZone));
 
-  const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
-  const formatted = displayDate.toLocaleTimeString(
-    locales ?? locale,
-    mergedOptions,
-  );
+    const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
+    const formatted = displayDate.toLocaleTimeString(
+      locales ?? locale,
+      mergedOptions,
+    );
 
-  const nowZdt = selZdt ?? T.Now.zonedDateTimeISO(timeZone);
-  const hour = nowZdt.hour;
-  const minute = nowZdt.minute;
-  const second = nowZdt.second;
+    const nowZdt = selZdt ?? T.Now.zonedDateTimeISO(timeZone);
+    const hour = nowZdt.hour;
+    const minute = nowZdt.minute;
+    const second = nowZdt.second;
 
-  const state = useMemo<TimeStringState<F>>(
-    () => ({
-      root: rootState as any,
-      hour,
-      minute,
-      second,
-    }),
-    [rootState, hour, minute, second],
-  );
+    const state = useMemo<TimeStringState>(
+      () => ({
+        root: rootState as any,
+        hour,
+        minute,
+        second,
+      }),
+      [rootState, hour, minute, second],
+    );
 
-  const defaultProps: Record<string, unknown> = {
-    children: formatted,
-    "aria-live": "polite",
-  };
+    const defaultProps: Record<string, unknown> = {
+      children: formatted,
+      "aria-live": "polite",
+    };
 
-  return useRender({
-    defaultTagName: "span",
-    render,
-    ref: ref ? [ref] : [],
-    state,
-    stateAttributesMapping: timeStringStateAttributesMapping,
-    props: mergeProps<"span">(defaultProps, otherProps),
-  });
-}
+    return useRender({
+      defaultTagName: "span",
+      render,
+      ref: ref ? [ref] : [],
+      state,
+      stateAttributesMapping: timeStringStateAttributesMapping,
+      props: mergeProps<"span">(defaultProps, otherProps),
+    });
+  },
+) as <F extends ValueFormat = ValueFormat>(
+  props: TimeStringProps<F> & React.RefAttributes<HTMLSpanElement>,
+) => React.ReactElement | null;
 
 /**
  * Displays the currently viewed month and year as a live-region heading for the
@@ -152,11 +159,11 @@ export function TimeString<F extends ValueFormat = ValueFormat>(
  * referenced by the calendar grid's `aria-labelledby` and serves as its
  * accessible name.
  */
-export function MonthYearString<F extends ValueFormat = ValueFormat>(
-  props: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> },
-) {
+export const MonthYearString = forwardRef<
+  HTMLSpanElement,
+  MonthYearStringProps
+>(function MonthYearString(props, ref) {
   const {
-    ref,
     render,
     locales,
     options,
@@ -194,7 +201,7 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
     defaultOptions,
   );
 
-  const state = useMemo<MonthYearStringState<F>>(
+  const state = useMemo<MonthYearStringState>(
     () => ({
       root: rootState as any,
       month: displayMonth,
@@ -217,7 +224,9 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping: monthYearStringStateAttributesMapping,
     props: mergeProps<"span">(defaultProps, otherProps),
   });
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: MonthYearStringProps<F> & React.RefAttributes<HTMLSpanElement>,
+) => React.ReactElement | null;
 
 function useNavButton<F extends ValueFormat = ValueFormat>(
   direction: "prev" | "next",
@@ -324,11 +333,12 @@ const navButtonStateAttributesMapping = {
  * Button that navigates to the previous month. Automatically disabled
  * when the previous month falls before `min`. Exposes `data-direction="prev"`.
  */
-export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
-  props: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
-) {
-  const { ref, render, ...otherProps } = props;
-  const { state, defaultProps } = useNavButton<F>("prev");
+export const PrevMonthButton = forwardRef<
+  HTMLButtonElement,
+  PrevMonthButtonProps
+>(function PrevMonthButton(props, ref) {
+  const { render, ...otherProps } = props;
+  const { state, defaultProps } = useNavButton("prev");
 
   return useRender({
     defaultTagName: "button",
@@ -338,17 +348,20 @@ export function PrevMonthButton<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping: navButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: PrevMonthButtonProps<F> & React.RefAttributes<HTMLButtonElement>,
+) => React.ReactElement | null;
 
 /**
  * Button that navigates to the next month. Automatically disabled
  * when the next month falls after `max`. Exposes `data-direction="next"`.
  */
-export function NextMonthButton<F extends ValueFormat = ValueFormat>(
-  props: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
-) {
-  const { ref, render, ...otherProps } = props;
-  const { state, defaultProps } = useNavButton<F>("next");
+export const NextMonthButton = forwardRef<
+  HTMLButtonElement,
+  NextMonthButtonProps
+>(function NextMonthButton(props, ref) {
+  const { render, ...otherProps } = props;
+  const { state, defaultProps } = useNavButton("next");
 
   return useRender({
     defaultTagName: "button",
@@ -358,4 +371,6 @@ export function NextMonthButton<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping: navButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: NextMonthButtonProps<F> & React.RefAttributes<HTMLButtonElement>,
+) => React.ReactElement | null;

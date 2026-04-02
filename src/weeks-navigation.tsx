@@ -1,9 +1,9 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useMemo } from "react";
+import { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { canShift } from "./overflow";
+import type { StateAttributesMapping } from "./types";
 import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
 // ---------------------------------------------------------------------------
@@ -129,10 +129,11 @@ function useWeeksNavButton(
  * no more weeks are available based on `overflowBehavior` and `min`.
  * Exposes `data-direction="prev"`.
  */
-export function PrevWeeksButton(
-  props: PrevWeeksButtonProps & { ref?: React.Ref<HTMLButtonElement> },
-) {
-  const { ref, render, shiftBy, ...otherProps } = props;
+export const PrevWeeksButton = forwardRef<
+  HTMLButtonElement,
+  PrevWeeksButtonProps
+>(function PrevWeeksButton(props, ref) {
+  const { render, shiftBy, ...otherProps } = props;
   const { state, defaultProps } = useWeeksNavButton("prev", shiftBy);
 
   return useRender({
@@ -143,7 +144,7 @@ export function PrevWeeksButton(
     stateAttributesMapping: weeksNavButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-}
+});
 
 // ---------------------------------------------------------------------------
 // NextWeeksButton
@@ -154,10 +155,11 @@ export function PrevWeeksButton(
  * no more weeks are available based on `overflowBehavior` and `max`.
  * Exposes `data-direction="next"`.
  */
-export function NextWeeksButton(
-  props: NextWeeksButtonProps & { ref?: React.Ref<HTMLButtonElement> },
-) {
-  const { ref, render, shiftBy, ...otherProps } = props;
+export const NextWeeksButton = forwardRef<
+  HTMLButtonElement,
+  NextWeeksButtonProps
+>(function NextWeeksButton(props, ref) {
+  const { render, shiftBy, ...otherProps } = props;
   const { state, defaultProps } = useWeeksNavButton("next", shiftBy);
 
   return useRender({
@@ -168,7 +170,7 @@ export function NextWeeksButton(
     stateAttributesMapping: weeksNavButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-}
+});
 
 // ---------------------------------------------------------------------------
 // WeekCount
@@ -178,25 +180,28 @@ export function NextWeeksButton(
  * Renders the current visible week count as a number. Useful with shrink
  * overflow modes where the actual count may be less than the `weekCount` prop.
  */
-export function WeekCount(
-  props: WeekCountProps & { ref?: React.Ref<HTMLSpanElement> },
-) {
-  const { ref, render, ...otherProps } = props;
-  const { windowInfo } = useWeeksViewState();
-  const count = windowInfo.weekCount;
+export const WeekCount = forwardRef<HTMLSpanElement, WeekCountProps>(
+  function WeekCount(props, ref) {
+    const { render, ...otherProps } = props;
+    const { windowInfo } = useWeeksViewState();
+    const count = windowInfo.weekCount;
 
-  const state = useMemo<WeekCountState>(() => ({ weekCount: count }), [count]);
+    const state = useMemo<WeekCountState>(
+      () => ({ weekCount: count }),
+      [count],
+    );
 
-  const defaultProps: Record<string, unknown> = {
-    children: count,
-  };
+    const defaultProps: Record<string, unknown> = {
+      children: count,
+    };
 
-  return useRender({
-    defaultTagName: "span",
-    render,
-    ref: ref ? [ref] : [],
-    state,
-    stateAttributesMapping: weekCountStateAttributesMapping,
-    props: mergeProps<"span">(defaultProps, otherProps),
-  });
-}
+    return useRender({
+      defaultTagName: "span",
+      render,
+      ref: ref ? [ref] : [],
+      state,
+      stateAttributesMapping: weekCountStateAttributesMapping,
+      props: mergeProps<"span">(defaultProps, otherProps),
+    });
+  },
+);

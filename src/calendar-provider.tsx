@@ -287,12 +287,12 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
   );
 
   // --- Current formatted values (for "previous" in meta) ---
-  const currentSingleFormatted =
-    useCallback((): RawValueForFormat<F> | null => {
-      if (committedDates.length === 0) return null;
-      const first = committedDates[0];
-      return first != null ? plainToFormatValue(first) : null;
-    }, [committedDates, plainToFormatValue]);
+  const currentSingleFormatted = useCallback(() => {
+    if (committedDates.length === 0) return null;
+    const first = committedDates[0];
+    if (first == null) return null;
+    return plainToFormatValue(first);
+  }, [committedDates, plainToFormatValue]);
 
   const currentRangeFormatted = useCallback((): DateRange<F> | null => {
     if (!committedStart && !committedEnd) return null;

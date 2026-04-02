@@ -2,6 +2,15 @@ import type { useRender } from "@base-ui/react/use-render";
 import type { Temporal } from "@js-temporal/polyfill";
 import { GridOrientation } from "./context";
 
+/**
+ * Extracted from Base UI's `useRender.Parameters.stateAttributesMapping`.
+ * Base UI doesn't publicly export `StateAttributesMapping`, so we derive it
+ * from the public `useRender` namespace to avoid depending on internal paths.
+ */
+export type StateAttributesMapping<State> = NonNullable<
+  useRender.Parameters<State, Element, true>["stateAttributesMapping"]
+>;
+
 /** Day of the week represented as a number: `0` = Sunday through `6` = Saturday. */
 export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 

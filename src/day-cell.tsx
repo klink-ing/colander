@@ -1,13 +1,13 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import type { Temporal as TemporalPoly } from "@js-temporal/polyfill";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useContext, useEffect, useRef, memo } from "react";
+import { useContext, useEffect, useRef, memo, forwardRef } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { WeekDataContext, DayCellDataContext, GridContext } from "./context";
 import { GridOrientation } from "./context";
 import { MonthViewStableContext } from "./month-view-context";
 import { useMonthViewState } from "./month-view-context";
+import type { StateAttributesMapping } from "./types";
 import type {
   ValueFormat,
   DayCellTemplateProps,
@@ -36,8 +36,8 @@ export function computeDayCellState(
   T: TemporalNamespace,
   selectionMode: "single" | "range" | "multiple",
   outsideDays: OutsideDays,
-  previewStart?: TemporalPoly.PlainDate | undefined,
-  previewEnd?: TemporalPoly.PlainDate | undefined,
+  previewStart?: TemporalPoly.PlainDate,
+  previewEnd?: TemporalPoly.PlainDate,
 ): DayCellTemplateState & { isTabTarget: boolean } {
   const isCurrentMonth =
     date.year === currentDateTime.year && date.month === currentDateTime.month;
@@ -214,32 +214,32 @@ export const dayStateAttributesMapping = {
     v ? { "data-date": v.toString() } : null,
   columnIndex: () => null,
   orientation: (v) => (v ? { "data-orientation": v } : null),
-  selected: (v) => (v ? { "data-selected": v } : null),
-  today: (v) => (v ? { "data-today": v } : null),
-  disabled: (v) => (v ? { "data-disabled": v } : null),
-  outsideMonth: (v) => (v ? { "data-outside-month": v } : null),
-  hidden: (v) => (v ? { "data-hidden": v } : null),
-  focused: (v) => (v ? { "data-focused": v } : null),
-  rangeStart: (v) => (v ? { "data-range-start": v } : null),
-  rangeEnd: (v) => (v ? { "data-range-end": v } : null),
-  rangeBoundary: (v) => (v ? { "data-range-boundary": v } : null),
-  inRange: (v) => (v ? { "data-in-range": v } : null),
+  selected: (v) => (v ? { "data-selected": "" } : null),
+  today: (v) => (v ? { "data-today": "" } : null),
+  disabled: (v) => (v ? { "data-disabled": "" } : null),
+  outsideMonth: (v) => (v ? { "data-outside-month": "" } : null),
+  hidden: (v) => (v ? { "data-hidden": "" } : null),
+  focused: (v) => (v ? { "data-focused": "" } : null),
+  rangeStart: (v) => (v ? { "data-range-start": "" } : null),
+  rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
+  rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
+  inRange: (v) => (v ? { "data-in-range": "" } : null),
   rangeIndex: (v) => (v !== false ? { "data-range-index": String(v) } : null),
   rangeLength: (v) => (v !== false ? { "data-range-length": String(v) } : null),
-  rangeHasStart: (v) => (v ? { "data-range-has-start": v } : null),
-  rangeHasEnd: (v) => (v ? { "data-range-has-end": v } : null),
-  rangeStartPreview: (v) => (v ? { "data-range-start-preview": v } : null),
-  rangeEndPreview: (v) => (v ? { "data-range-end-preview": v } : null),
+  rangeHasStart: (v) => (v ? { "data-range-has-start": "" } : null),
+  rangeHasEnd: (v) => (v ? { "data-range-has-end": "" } : null),
+  rangeStartPreview: (v) => (v ? { "data-range-start-preview": "" } : null),
+  rangeEndPreview: (v) => (v ? { "data-range-end-preview": "" } : null),
   rangeBoundaryPreview: (v) =>
     v ? { "data-range-boundary-preview": "" } : null,
-  inRangePreview: (v) => (v ? { "data-in-range-preview": v } : null),
+  inRangePreview: (v) => (v ? { "data-in-range-preview": "" } : null),
   rangeIndexPreview: (v) =>
     v !== false ? { "data-range-index-preview": String(v) } : null,
   rangeLengthPreview: (v) =>
     v !== false ? { "data-range-length-preview": String(v) } : null,
   rangePreviewHasStart: (v) =>
-    v ? { "data-range-preview-has-start": v } : null,
-  rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": v } : null),
+    v ? { "data-range-preview-has-start": "" } : null,
+  rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": "" } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */
@@ -249,22 +249,14 @@ interface DayCellInstanceProps<F extends ValueFormat = ValueFormat> {
   columnIndex?: number;
   children?: React.ReactNode;
   _derivedState: DayCellTemplateState & { isTabTarget: boolean };
-  ref?: React.Ref<HTMLTableCellElement>;
   [key: string]: unknown;
 }
 
-function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
+function DayCellInstanceFn<F extends ValueFormat = ValueFormat>(
   props: DayCellInstanceProps<F>,
 ) {
-  const {
-    ref,
-    render,
-    date,
-    columnIndex,
-    children,
-    _derivedState,
-    ...otherProps
-  } = props;
+  const { render, date, columnIndex, children, _derivedState, ...otherProps } =
+    props;
 
   const state = _derivedState as unknown as DayCellTemplateState<F>;
 
@@ -284,7 +276,7 @@ function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   const cell = useRender({
     defaultTagName: "td",
     render,
-    ref: ref ? [ref] : [],
+    ref: [],
     state,
     stateAttributesMapping: dayStateAttributesMapping,
     props: mergeProps<"td">(defaultProps, otherProps),
@@ -300,7 +292,7 @@ function DayCellInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   );
 }
 
-function dayCellPropsAreEqual(
+function dayCellInstancePropsAreEqual(
   prev: DayCellInstanceProps,
   next: DayCellInstanceProps,
 ): boolean {
@@ -342,10 +334,10 @@ function dayCellPropsAreEqual(
   );
 }
 
-const DayCellInstanceInner = memo(
-  DayCellInstanceInnerFn,
-  dayCellPropsAreEqual,
-) as typeof DayCellInstanceInnerFn;
+const DayCellInstance = memo(
+  DayCellInstanceFn,
+  dayCellInstancePropsAreEqual,
+) as typeof DayCellInstanceFn;
 
 /**
  * Renders one `<td role="gridcell">` per day. Exposes data-attributes for
@@ -356,7 +348,7 @@ const DayCellInstanceInner = memo(
  * An explicit `date` prop renders a single cell.
  */
 export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
-  props: DayCellTemplateProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
+  props: DayCellTemplateProps<F>,
 ) {
   const { date: dateProp, ...restProps } = props;
   const weekData = useContext(WeekDataContext);
@@ -415,11 +407,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       previewEnd,
     );
     return (
-      <DayCellInstanceInner<F>
-        {...restProps}
-        date={dateProp}
-        _derivedState={derived}
-      />
+      <DayCellInstance {...restProps} date={dateProp} _derivedState={derived} />
     );
   }
 
@@ -454,7 +442,7 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
           previewEnd,
         );
         return (
-          <DayCellInstanceInner<F>
+          <DayCellInstance
             key={day.toString()}
             {...restProps}
             date={day}
@@ -468,18 +456,18 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
 }
 
 /** Props for the memoized DayButtonInstance. */
-interface DayButtonInstanceProps<F extends ValueFormat = ValueFormat> {
+interface DayButtonInnerProps<F extends ValueFormat = ValueFormat> {
   render?: DayButtonProps<F>["render"];
   date: TemporalPoly.PlainDate;
   _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
-  ref?: React.Ref<HTMLButtonElement>;
   [key: string]: unknown;
 }
 
-function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
-  props: DayButtonInstanceProps<F>,
+function DayButtonInnerFn(
+  props: DayButtonInnerProps,
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) {
-  const { ref, render, date, _derivedState, ...otherProps } = props;
+  const { render, date, _derivedState, ...otherProps } = props;
   const { onSelect, locale, readOnly, setHoveredDate } = useCalendarStable();
   const { setFocusedDate } = useViewContext();
   const monthStable = useContext(MonthViewStableContext);
@@ -501,7 +489,7 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
     }
   }, [isFocused, gridFocusedRef]);
 
-  const state = _derivedState as unknown as DayCellTemplateState<F>;
+  const state = _derivedState as unknown as DayCellTemplateState;
 
   const defaultProps: Record<string, unknown> = isHidden
     ? {}
@@ -542,9 +530,9 @@ function DayButtonInstanceInnerFn<F extends ValueFormat = ValueFormat>(
   );
 }
 
-function dayButtonPropsAreEqual(
-  prev: DayButtonInstanceProps,
-  next: DayButtonInstanceProps,
+function dayButtonInnerPropsAreEqual(
+  prev: DayButtonInnerProps,
+  next: DayButtonInnerProps,
 ): boolean {
   if (prev.date !== next.date || prev.render !== next.render) return false;
   const a = prev._derivedState;
@@ -576,10 +564,15 @@ function dayButtonPropsAreEqual(
   );
 }
 
-const DayButtonInstanceInner = memo(
-  DayButtonInstanceInnerFn,
-  dayButtonPropsAreEqual,
-) as typeof DayButtonInstanceInnerFn;
+// The `as any` casts are needed because DayButtonInnerProps uses an index
+// signature (`[key: string]: unknown`) which conflicts with forwardRef's
+// internal `Omit<Props, "ref">` type transformation.
+const DayButtonInner = memo(
+  forwardRef(DayButtonInnerFn as any) as any,
+  dayButtonInnerPropsAreEqual as any,
+) as unknown as <F extends ValueFormat = ValueFormat>(
+  props: DayButtonInnerProps<F> & React.RefAttributes<HTMLButtonElement>,
+) => React.ReactElement | null;
 
 /**
  * Interactive `<button>` inside a day cell. Handles click-to-select,
@@ -587,12 +580,12 @@ const DayButtonInstanceInner = memo(
  *
  * Must be used inside a {@link DayCellTemplate} or given an explicit `date` prop.
  */
-export function DayButton<F extends ValueFormat = ValueFormat>(
-  props: DayButtonProps<F> & {
-    ref?: React.Ref<HTMLButtonElement>;
+export const DayButton = forwardRef<
+  HTMLButtonElement,
+  DayButtonProps & {
     _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
-  },
-) {
+  }
+>(function DayButton(props, ref) {
   const { date: dateProp, _derivedState, ...restProps } = props;
   const cellData = useContext(DayCellDataContext);
 
@@ -602,29 +595,32 @@ export function DayButton<F extends ValueFormat = ValueFormat>(
     // If we have derived state passed from parent, use it directly
     if (_derivedState) {
       return (
-        <DayButtonInstanceInner<F>
+        <DayButtonInner
           {...restProps}
+          ref={ref}
           date={resolvedDate}
           _derivedState={_derivedState}
         />
       );
     }
     // Fallback: compute state (for standalone DayButton usage with explicit date)
-    return <DayButtonFallback {...restProps} date={resolvedDate} />;
+    return <DayButtonFallback ref={ref} {...restProps} date={resolvedDate} />;
   }
 
   throw new Error(
     "DayButton must be used inside DayCellTemplate or receive an explicit date prop.",
   );
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: DayButtonProps<F> & {
+    _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
+  } & React.RefAttributes<HTMLButtonElement>,
+) => React.ReactElement | null;
 
 /** Fallback for standalone DayButton usage that needs to read context. */
-function DayButtonFallback<F extends ValueFormat = ValueFormat>(
-  props: Omit<DayButtonProps<F>, "date"> & {
-    date: TemporalPoly.PlainDate;
-    ref?: React.Ref<HTMLButtonElement>;
-  },
-) {
+const DayButtonFallback = forwardRef<
+  HTMLButtonElement,
+  Omit<DayButtonProps, "date"> & { date: TemporalPoly.PlainDate }
+>(function DayButtonFallback(props, ref) {
   const { date, ...restProps } = props;
   const { orientation } = useContext(GridContext);
   const weekData = useContext(WeekDataContext);
@@ -672,10 +668,15 @@ function DayButtonFallback<F extends ValueFormat = ValueFormat>(
   );
 
   return (
-    <DayButtonInstanceInner<F>
+    <DayButtonInner
       {...restProps}
+      ref={ref}
       date={date}
       _derivedState={derived}
     />
   );
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: Omit<DayButtonProps<F>, "date"> & {
+    date: TemporalPoly.PlainDate;
+  } & React.RefAttributes<HTMLButtonElement>,
+) => React.ReactElement | null;

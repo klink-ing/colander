@@ -286,12 +286,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         },
         { overflow: "constrain" },
       ),
-    [
-      windowInfo.windowStart,
-      focusedDate.day,
-      selectedZdt,
-      T.PlainDateTime.from,
-    ],
+    [windowInfo.windowStart, focusedDate.day, selectedZdt, T],
   );
 
   // --- Navigation ---

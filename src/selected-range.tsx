@@ -1,12 +1,12 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import type { Temporal } from "@js-temporal/polyfill";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useContext, useMemo } from "react";
+import { forwardRef, useContext, useMemo } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { WeekDataContext, GridContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
 import { MonthViewStableContext } from "./month-view-context";
+import type { StateAttributesMapping } from "./types";
 import type {
   ValueFormat,
   RangeSelectedState,
@@ -91,87 +91,92 @@ export function computeClippedRangeInfo(
  * `active`, `week-index`, `start-index`, `end-index`, `start-date`,
  * `end-date`, `extends-before`, and `extends-after`.
  */
-export function RangeSelected<F extends ValueFormat = ValueFormat>(
-  props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
-) {
+export const RangeSelected = forwardRef<
+  HTMLTableCellElement,
+  RangeSelectedProps
+>(function RangeSelected(props, ref) {
   const { selectionMode } = useCalendarStable();
   if (selectionMode !== "range") {
     return null;
   }
-  return <RangeSelectedImplementation {...props} />;
-}
+  return <RangeSelectedInner ref={ref} {...props} />;
+}) as <F extends ValueFormat = ValueFormat>(
+  props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
+) => React.ReactElement | null;
 
-function RangeSelectedImplementation<F extends ValueFormat = ValueFormat>(
-  props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
-) {
-  const { ref, render, ...otherProps } = props;
-  const weekData = useContext(WeekDataContext);
-  const { orientation } = useContext(GridContext);
-  const { temporal: T } = useCalendarStable();
-  const { rangeStart, rangeEnd } = useCalendarState();
-  const monthStable = useContext(MonthViewStableContext);
-  const { rootState } = useMonthViewState();
-  const outsideDays = monthStable?.outsideDays ?? "enabled";
+const RangeSelectedInner = forwardRef<HTMLTableCellElement, RangeSelectedProps>(
+  function RangeSelectedInner(props, ref) {
+    const { render, ...otherProps } = props;
+    const weekData = useContext(WeekDataContext);
+    const { orientation } = useContext(GridContext);
+    const { temporal: T } = useCalendarStable();
+    const { rangeStart, rangeEnd } = useCalendarState();
+    const monthStable = useContext(MonthViewStableContext);
+    const { rootState } = useMonthViewState();
+    const outsideDays = monthStable?.outsideDays ?? "enabled";
 
-  const days = weekData?.days ?? [];
-  const gridMonth = weekData?.gridMonth;
+    const days = weekData?.days ?? [];
+    const gridMonth = weekData?.gridMonth;
 
-  const info = useMemo(
-    () =>
-      computeClippedRangeInfo(
-        days,
+    const info = useMemo(
+      () =>
+        computeClippedRangeInfo(
+          days,
+          rangeStart,
+          rangeEnd,
+          T,
+          outsideDays,
+          gridMonth,
+        ),
+      [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
+    );
+
+    const startDate = info.active ? days[info.startIndex].toString() : "";
+    const endDate = info.active ? days[info.endIndex].toString() : "";
+
+    const weekIndex = weekData?.weekIndex ?? 0;
+
+    const state = useMemo<RangeSelectedState>(
+      () => ({
+        root: rootState as any,
+        active: info.active,
+        weekIndex,
+        startIndex: info.startIndex,
+        endIndex: info.endIndex,
+        startDate,
+        endDate,
+        extendsBefore: info.extendsBefore,
+        extendsAfter: info.extendsAfter,
+        hasStart: rangeStart !== undefined,
+        hasEnd: rangeEnd !== undefined,
+        orientation,
+      }),
+      [
+        rootState,
+        info,
+        weekIndex,
+        startDate,
+        endDate,
         rangeStart,
         rangeEnd,
-        T,
-        outsideDays,
-        gridMonth,
-      ),
-    [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
-  );
+        orientation,
+      ],
+    );
 
-  const startDate = info.active ? days[info.startIndex].toString() : "";
-  const endDate = info.active ? days[info.endIndex].toString() : "";
+    const defaultProps: Record<string, unknown> = {
+      role: "presentation",
+      "aria-hidden": true,
+    };
 
-  const weekIndex = weekData?.weekIndex ?? 0;
-
-  const state = useMemo<RangeSelectedState<F>>(
-    () => ({
-      root: rootState as any,
-      active: info.active,
-      weekIndex,
-      startIndex: info.startIndex,
-      endIndex: info.endIndex,
-      startDate,
-      endDate,
-      extendsBefore: info.extendsBefore,
-      extendsAfter: info.extendsAfter,
-      hasStart: rangeStart !== undefined,
-      hasEnd: rangeEnd !== undefined,
-      orientation,
-    }),
-    [
-      rootState,
-      info,
-      weekIndex,
-      startDate,
-      endDate,
-      rangeStart,
-      rangeEnd,
-      orientation,
-    ],
-  );
-
-  const defaultProps: Record<string, unknown> = {
-    role: "presentation",
-    "aria-hidden": true,
-  };
-
-  return useRender({
-    defaultTagName: "td",
-    render,
-    ref: ref ? [ref] : [],
-    state,
-    stateAttributesMapping: rangeOverlayStateAttributesMapping,
-    props: mergeProps<"td">(defaultProps, otherProps),
-  });
-}
+    return useRender({
+      defaultTagName: "td",
+      render,
+      ref: ref ? [ref] : [],
+      state,
+      stateAttributesMapping: rangeOverlayStateAttributesMapping,
+      props: mergeProps<"td">(defaultProps, otherProps),
+    });
+  },
+) as <F extends ValueFormat = ValueFormat>(
+  props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
+) => React.ReactElement | null;

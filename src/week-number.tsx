@@ -1,10 +1,10 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
-import { useContext, useMemo } from "react";
+import { forwardRef, useContext, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { WeekDataContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
+import type { StateAttributesMapping } from "./types";
 import type {
   ValueFormat,
   WeekNumberCellState,
@@ -23,10 +23,11 @@ const weekNumberCellStateAttributesMapping = {
  * Renders the ISO 8601 week number for a week row. Must be used inside
  * a {@link WeekTemplate}. Renders a `<td>` with `role="rowheader"`.
  */
-export function WeekNumberCell<F extends ValueFormat = ValueFormat>(
-  props: WeekNumberCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
-) {
-  const { ref, render, ...otherProps } = props;
+export const WeekNumberCell = forwardRef<
+  HTMLTableCellElement,
+  WeekNumberCellProps
+>(function WeekNumberCell(props, ref) {
+  const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
   const { rootState } = useMonthViewState();
   const { temporal: T } = useCalendarStable();
@@ -47,9 +48,9 @@ export function WeekNumberCell<F extends ValueFormat = ValueFormat>(
     return getISOWeekNumber(thursday, T);
   }, [days, T]);
 
-  const state = useMemo<WeekNumberCellState<F>>(
+  const state = useMemo<WeekNumberCellState>(
     () => ({
-      root: rootState as unknown as WeekNumberCellState<F>["root"],
+      root: rootState as unknown as WeekNumberCellState["root"],
       weekNumber,
     }),
     [rootState, weekNumber],
@@ -69,7 +70,9 @@ export function WeekNumberCell<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping: weekNumberCellStateAttributesMapping,
     props: mergeProps<"td">(defaultProps, otherProps),
   });
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: WeekNumberCellProps<F> & React.RefAttributes<HTMLTableCellElement>,
+) => React.ReactElement | null;
 
 const weekNumberHeaderStateAttributesMapping = {
   root: () => null,
@@ -78,14 +81,15 @@ const weekNumberHeaderStateAttributesMapping = {
 /**
  * Column header for the week number column. Renders a `<th scope="col">`.
  */
-export function WeekNumberHeader<F extends ValueFormat = ValueFormat>(
-  props: WeekNumberHeaderProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
-) {
-  const { ref, render, ...otherProps } = props;
+export const WeekNumberHeader = forwardRef<
+  HTMLTableCellElement,
+  WeekNumberHeaderProps
+>(function WeekNumberHeader(props, ref) {
+  const { render, ...otherProps } = props;
   const { rootState } = useMonthViewState();
 
-  const state = useMemo<WeekNumberHeaderState<F>>(
-    () => ({ root: rootState as unknown as WeekNumberHeaderState<F>["root"] }),
+  const state = useMemo<WeekNumberHeaderState>(
+    () => ({ root: rootState as unknown as WeekNumberHeaderState["root"] }),
     [rootState],
   );
 
@@ -103,4 +107,6 @@ export function WeekNumberHeader<F extends ValueFormat = ValueFormat>(
     stateAttributesMapping: weekNumberHeaderStateAttributesMapping,
     props: mergeProps<"th">(defaultProps, otherProps),
   });
-}
+}) as <F extends ValueFormat = ValueFormat>(
+  props: WeekNumberHeaderProps<F> & React.RefAttributes<HTMLTableCellElement>,
+) => React.ReactElement | null;

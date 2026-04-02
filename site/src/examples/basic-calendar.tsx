@@ -1,3 +1,4 @@
+import type { Temporal } from "@js-temporal/polyfill";
 import {
   CalendarProvider,
   MonthView,
@@ -9,7 +10,6 @@ import {
   DayCellTemplate,
   DayButton,
 } from "colander";
-import type { Temporal } from "@js-temporal/polyfill";
 
 export function BasicCalendar({
   onSelect,

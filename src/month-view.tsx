@@ -214,7 +214,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
         },
         { overflow: "constrain" },
       ),
-    [currentMonth, focusedDate.day, selectedZdt, T.PlainDateTime.from],
+    [currentMonth, focusedDate.day, selectedZdt, T],
   );
 
   // --- tabTargetDate ---
