@@ -7,6 +7,7 @@ import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
 import tailwindcss from "@tailwindcss/vite";
 import viteReact from "@vitejs/plugin-react";
+import { imagetools } from "vite-imagetools";
 import { breakpoints } from "./plugins/breakpoints.ts";
 import { fluid } from "./plugins/fluid.ts";
 
@@ -19,6 +20,9 @@ const config = defineConfig({
   plugins: [
     breakpoints(),
     fluid(),
+    imagetools({
+      defaultDirectives: () => new URLSearchParams({ metadata: "" }),
+    }),
     devtools(),
     tsconfigPaths({ projects: ["./tsconfig.json"] }),
     tailwindcss(),
