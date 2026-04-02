@@ -17,6 +17,7 @@
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@fontsource-variable/lora": "^5.2.8",
     "@fontsource-variable/roboto-flex": "^5.2.8",
+    "@fontsource/unica-one": "^5.2.8",
     "@js-temporal/polyfill": "^0.5.1",
     "@markdoc/markdoc": "^0.5.6",
     "@tailwindcss/vite": "^4.1.18",

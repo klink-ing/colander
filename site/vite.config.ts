@@ -21,7 +21,7 @@ const config = defineConfig({
     breakpoints(),
     fluid(),
     imagetools({
-      defaultDirectives: () => new URLSearchParams({ metadata: "" }),
+      defaultDirectives: () => new URLSearchParams({ as: "metadata" }),
     }),
     devtools(),
     tsconfigPaths({ projects: ["./tsconfig.json"] }),

@@ -17,11 +17,11 @@
 
 /* ShadCN color tokens */
 :root {
-  --background: oklch(1 0 0);
+  --background: oklch(0.985 0 0);
   --foreground: oklch(0.147 0.004 49.25);
   --foreground-vivid: oklch(0.852 0.199 91.936);
 
-  --card: oklch(0.985 0.001 106.424);
+  --card: oklch(1 0 0);
   --card-foreground: oklch(0.147 0.004 49.25);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.147 0.004 49.25);
@@ -29,12 +29,17 @@
   --primary-foreground: oklch(0 0 0);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
-  --muted: oklch(0.97 0.001 106.424);
+  --muted: oklch(0.94 0.001 106.424);
   --muted-foreground: oklch(0.553 0.013 58.071);
   --accent: oklch(0.97 0.001 106.424);
   --accent-foreground: oklch(0.216 0.006 56.043);
+  --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
+  --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
   --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.923 0.003 48.717);
+  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --border: oklch(0.85 0.003 48.717);
   --input: oklch(0.923 0.003 48.717);
   --ring: oklch(0.709 0.01 56.259);
   --chart-1: oklch(0.865 0.127 207.078);
@@ -42,7 +47,7 @@
   --chart-3: oklch(0.609 0.126 221.723);
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
-  --radius: 0.625rem;
+
   --sidebar: oklch(0.985 0.001 106.423);
   --sidebar-foreground: oklch(0.147 0.004 49.25);
   --sidebar-primary: oklch(0.681 0.162 75.834);
@@ -104,17 +109,20 @@
   --color-chart-2: var(--chart-2);
   --color-chart-1: var(--chart-1);
   --color-accent: var(--accent);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-muted-hover: var(--muted-hover);
+  --color-accent-hover: var(--accent-hover);
+  --color-destructive-hover: var(--destructive-hover);
 }
 
 @theme {
-  --radius: 12px;
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xs: calc(8em / 16);
+  --radius-sm: calc(10em / 16);
+  --radius-md: calc(12em / 16);
+  --radius-lg: calc(14em / 16);
+  --radius-xl: calc(16em / 16);
+  --radius-2xl: calc(24em / 16);
 }
 
 /* Site color tokens */
@@ -125,10 +133,10 @@
 }
 
 .dark {
-  --background: oklch(0.1 0 274);
+  --background: oklch(0.15 0 0);
   --foreground: oklch(0.985 0.001 106.423);
   --foreground-vivid: oklch(0.795 0.184 86.047);
-  --card: oklch(0.26 0.006 274);
+  --card: oklch(0 0 0);
   --card-foreground: oklch(0.985 0.001 106.423);
   --popover: oklch(0.216 0.006 56.043);
   --popover-foreground: oklch(0.985 0.001 274);
@@ -140,8 +148,13 @@
   --muted-foreground: oklch(0.809 0.01 274);
   --accent: oklch(0.21 0.006 274);
   --accent-foreground: oklch(0.985 0.001 274);
+  --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
+  --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
   --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
+  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --border: oklch(0.3 0 0);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.553 0.013 58.071);
   --chart-1: oklch(0.865 0.127 207.078);
@@ -213,4 +226,8 @@
       transform: translateY(0);
     }
   }
+}
+
+@utility text-trim-both {
+  text-box: trim-both cap alphabetic;
 }

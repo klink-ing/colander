@@ -6,7 +6,6 @@
     "module": "ESNext",
     "paths": {
       "#/*": ["./src/*"],
-      "@/*": ["./src/*"],
       "colander": ["./src/types/colander.d.ts"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],

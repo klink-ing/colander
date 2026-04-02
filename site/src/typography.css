@@ -14,6 +14,7 @@
   --type-body-font: var(--font-sans);
   --type-body-var: "wdth" 100;
   --type-body-weight: 400;
+  --type-body-weight-semi: 500;
   --type-body-weight-bold: 600;
 
   --type-label-font: var(--font-sans);
@@ -179,6 +180,39 @@
   text-transform: none;
 }
 
+@utility type-body-100-bold-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-100-size);
+  line-height: var(--type-body-100-lh);
+  letter-spacing: var(--type-body-100-ls);
+  font-weight: var(--type-body-weight-bold);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
+
+@utility type-body-100-semi {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-100-size);
+  line-height: var(--type-body-100-lh);
+  letter-spacing: var(--type-body-100-ls);
+  font-weight: var(--type-body-weight-semi);
+  font-variation-settings: var(--type-body-var);
+  font-style: normal;
+  text-transform: none;
+}
+
+@utility type-body-100-semi-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-100-size);
+  line-height: var(--type-body-100-lh);
+  letter-spacing: var(--type-body-100-ls);
+  font-weight: var(--type-body-weight-semi);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
+
 @utility type-body-200 {
   font-family: var(--type-body-font);
   font-size: var(--type-body-200-size);
@@ -212,6 +246,38 @@
   text-transform: none;
 }
 
+@utility type-body-200-bold-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-200-size);
+  line-height: var(--type-body-200-lh);
+  letter-spacing: var(--type-body-200-ls);
+  font-weight: var(--type-body-weight-bold);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
+
+@utility type-body-200-semi {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-200-size);
+  line-height: var(--type-body-200-lh);
+  letter-spacing: var(--type-body-200-ls);
+  font-weight: var(--type-body-weight-semi);
+  font-variation-settings: var(--type-body-var);
+  font-style: normal;
+  text-transform: none;
+}
+
+@utility type-body-200-semi-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-200-size);
+  line-height: var(--type-body-200-lh);
+  letter-spacing: var(--type-body-200-ls);
+  font-weight: var(--type-body-weight-semi);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
 
 @utility type-body-300 {
   font-family: var(--type-body-font);
@@ -241,6 +307,39 @@
   line-height: var(--type-body-300-lh);
   letter-spacing: var(--type-body-300-ls);
   font-weight: var(--type-body-weight);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
+
+@utility type-body-300-bold-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-300-size);
+  line-height: var(--type-body-300-lh);
+  letter-spacing: var(--type-body-300-ls);
+  font-weight: var(--type-body-weight-bold);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
+
+@utility type-body-300-semi {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-300-size);
+  line-height: var(--type-body-300-lh);
+  letter-spacing: var(--type-body-300-ls);
+  font-weight: var(--type-body-weight-semi);
+  font-variation-settings: var(--type-body-var);
+  font-style: normal;
+  text-transform: none;
+}
+
+@utility type-body-300-semi-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-300-size);
+  line-height: var(--type-body-300-lh);
+  letter-spacing: var(--type-body-300-ls);
+  font-weight: var(--type-body-weight-semi);
   font-variation-settings: var(--type-body-var);
   font-style: italic;
   text-transform: none;

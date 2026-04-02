@@ -1,24 +1,31 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { cn } from "#/lib/cn";
-import { ButtonA } from "#/components/ui/button";
 import { Image } from "@unpic/react";
-import heroImage from "#/content/images/hero.png";
+import heroImage from "#/assets/colander.png";
+import { GithubIcon } from "#/components/icons/GithubIcon";
+import { ButtonA } from "#/components/ui/button";
+import { cn } from "#/lib/cn";
 
 export const Route = createFileRoute("/")({ component: App });
 
 function App() {
   return (
     <main className="page-wrap px-4 pt-14 pb-8">
-      <section className="rise-in relative overflow-hidden  py-10  bp-6:py-14 items-center text-center flex flex-col">
+      <section className="rise-in relative flex flex-col items-center text-center">
         <h1
           className={cn(
-            "mb-5 text-foreground  type-display-100 ",
+            "mb-10 text-foreground type-display-100 text-trim-both pt-8 pb-4",
           )}
         >
           {import.meta.env.VITE_PROJECT_NAME}
         </h1>
-        <Image {...heroImage} alt="Hero" className="w-full h-auto" layout="fullWidth" />
-        <p className="mb-8 type-body-300 text-muted-foreground  max-w-[60ch] text-balance">
+        <Image
+          src={heroImage.src}
+          width={heroImage.width}
+          height={heroImage.height}
+          alt="Hero"
+          className="h-auto w-full max-w-[max(80vh,100px)]"
+        />
+        <p className="mb-8 max-w-[60ch] type-body-300-semi text-balance text-muted-foreground">
           Accessible, customizable calendar components for React. Built on Base
           UI and the Temporal API.
         </p>
@@ -26,28 +33,19 @@ function App() {
           <ButtonA
             variant="default"
             size="xl"
-            className="squircle-xl squircle-amt-1"
-            render={<Link to="/docs/$slug" params={{ slug: "getting-started" }} />}
+            render={
+              <Link to="/docs/$slug" params={{ slug: "getting-started" }} />
+            }
           >
             Get Started
           </ButtonA>
           <ButtonA
             variant="secondary"
-            className="squircle-xl squircle-amt-1.5"
             size="xl"
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
-          >
-            GitHub
-          </ButtonA>
-          <ButtonA
-            variant="default"
-            className="squircle-xl squircle-amt-2"
-            size="xl"
-            href={import.meta.env.VITE_GITHUB_REPO_URL}
-            target="_blank"
-            rel="noopener noreferrer"
+            iconStart={<GithubIcon className="size-5" />}
           >
             GitHub
           </ButtonA>
@@ -76,7 +74,7 @@ function App() {
         ].map(([title, desc], index) => (
           <article
             key={title}
-            className="rise-in rounded-2xl border border-border bg-card p-5 shadow-md transition hover:-translate-y-0.5"
+            className="rise-in  border  border-border bg-card p-5 transition hover:-translate-y-0.5"
             style={{ animationDelay: `${index * 90 + 80}ms` }}
           >
             <h2 className="mb-2 type-body-200-bold text-foreground">{title}</h2>

@@ -1,4 +1,10 @@
-// Image imports return metadata via vite-imagetools (overrides vite/client)
+// Vite import.meta types (import.meta.hot, import.meta.env, etc.)
+// We reference this directly instead of vite/client because vite/client
+// declares image imports as `string`, which conflicts with vite-imagetools
+// returning `{ src, width, height, format }` metadata objects.
+/// <reference types="vite/types/importMeta" />
+
+// Image imports return metadata via vite-imagetools
 interface ImageMeta {
   src: string;
   width: number;
@@ -31,52 +37,9 @@ declare module "*.gif" {
   export default meta;
 }
 
-// ── Vite client types (non-image subset of vite/client.d.ts) ──
-
-type CSSModuleClasses = { readonly [key: string]: string };
-declare module "*.module.css" {
-  const classes: CSSModuleClasses;
-  export default classes;
-}
-declare module "*.module.scss" {
-  const classes: CSSModuleClasses;
-  export default classes;
-}
-declare module "*.css" {}
-declare module "*.scss" {}
-
-declare module "*.svg" {
-  const src: string;
-  export default src;
-}
-
-declare module "*.woff2" {
-  const src: string;
-  export default src;
-}
-declare module "*.woff" {
-  const src: string;
-  export default src;
-}
-
-declare module "*?raw" {
-  const src: string;
-  export default src;
-}
+// Vite query-parameter imports used in this project.
+// Add new declarations here if TypeScript errors on asset imports.
 declare module "*?url" {
   const src: string;
   export default src;
-}
-declare module "*?worker" {
-  const workerConstructor: {
-    new (options?: { name?: string }): Worker;
-  };
-  export default workerConstructor;
-}
-
-declare interface VitePreloadErrorEvent extends Event {
-  payload: Error;
-}
-declare interface WindowEventMap {
-  "vite:preloadError": VitePreloadErrorEvent;
 }

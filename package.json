@@ -35,8 +35,7 @@
     "visualize": "VISUALIZE=1 vite build -c vite.lib.config.ts && open stats.html"
   },
   "dependencies": {
-    "@fontsource-variable/figtree": "^5.2.10",
-    "@fontsource-variable/lora": "^5.2.8"
+
   },
   "devDependencies": {
     "@base-ui/react": "^1.2.0",

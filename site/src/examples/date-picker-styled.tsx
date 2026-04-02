@@ -250,11 +250,11 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
             {
               <div
                 className={cn(
-                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-neutral-200 group-data-in-range:bg-white/20 group-data-selected:bg-white/50 group-data-today:block",
+                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-muted group-data-in-range:bg-white/20 group-data-today:block",
                 )}
               />
             }
-            <div className="isolate inline-block w-[2ch] text-right">
+            <div className="isolate inline-block min-w-[2ch] text-right">
               {children}
             </div>
             <StyledDragHandle

@@ -76,7 +76,7 @@ function MonthGrid({
               )}
               render={({ children, ...props }: any) => (
                 <th {...props}>
-                  <span className="inline-block w-[2ch] text-right">
+                  <span className="inline-block min-w-[2ch] text-right">
                     {children}
                   </span>
                 </th>
@@ -112,7 +112,7 @@ function MonthGrid({
                 )}
                 render={({ children, ...props }: any) => (
                   <td {...props}>
-                    <span className="inline-block w-[2ch] text-right">
+                    <span className="inline-block min-w-[2ch] text-right">
                       {children}
                     </span>
                   </td>
