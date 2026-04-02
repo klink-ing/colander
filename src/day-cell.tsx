@@ -77,39 +77,53 @@ export function computeDayCellState(
 
   const today = T.Now.plainDateISO();
   const isToday = T.PlainDate.compare(date, today) === 0;
+  const isRange = selectionMode === "range";
 
-  const isRangeStart = rangeStart
-    ? T.PlainDate.compare(date, rangeStart) === 0
-    : false;
-  const isRangeEnd = rangeEnd
-    ? T.PlainDate.compare(date, rangeEnd) === 0
-    : false;
-  const isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
-  const effectiveStart = rangeStart ?? rangeEnd;
-  const effectiveEnd = rangeEnd ?? rangeStart;
-  const rangeIdx =
-    isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
-  const rangeLen =
-    isInRangeDay && effectiveStart && effectiveEnd
-      ? effectiveEnd.since(effectiveStart).days + 1
-      : false;
+  let isRangeStart: boolean = false;
+  let isRangeEnd: boolean = false;
+  let isInRangeDay: boolean = false;
+  let rangeIdx: number | false = false;
+  let rangeLen: number | false = false;
+  let isPreviewRangeStart: boolean = false;
+  let isPreviewRangeEnd: boolean = false;
+  let isInPreviewRange: boolean = false;
+  let previewIdx: number | false = false;
+  let previewLen: number | false = false;
 
-  const isPreviewRangeStart = previewStart
-    ? T.PlainDate.compare(date, previewStart) === 0
-    : false;
-  const isPreviewRangeEnd = previewEnd
-    ? T.PlainDate.compare(date, previewEnd) === 0
-    : false;
-  const isInPreviewRange =
-    previewStart && previewEnd
-      ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
+  if (isRange) {
+    isRangeStart = rangeStart
+      ? T.PlainDate.compare(date, rangeStart) === 0
       : false;
-  const previewIdx =
-    isInPreviewRange && previewStart ? date.since(previewStart).days : false;
-  const previewLen =
-    isInPreviewRange && previewStart && previewEnd
-      ? previewEnd.since(previewStart).days + 1
+    isRangeEnd = rangeEnd
+      ? T.PlainDate.compare(date, rangeEnd) === 0
       : false;
+    isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
+    const effectiveStart = rangeStart ?? rangeEnd;
+    const effectiveEnd = rangeEnd ?? rangeStart;
+    rangeIdx =
+      isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
+    rangeLen =
+      isInRangeDay && effectiveStart && effectiveEnd
+        ? effectiveEnd.since(effectiveStart).days + 1
+        : false;
+
+    isPreviewRangeStart = previewStart
+      ? T.PlainDate.compare(date, previewStart) === 0
+      : false;
+    isPreviewRangeEnd = previewEnd
+      ? T.PlainDate.compare(date, previewEnd) === 0
+      : false;
+    isInPreviewRange =
+      previewStart && previewEnd
+        ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
+        : false;
+    previewIdx =
+      isInPreviewRange && previewStart ? date.since(previewStart).days : false;
+    previewLen =
+      isInPreviewRange && previewStart && previewEnd
+        ? previewEnd.since(previewStart).days + 1
+        : false;
+  }
 
   const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
   const suppressRange =
@@ -202,32 +216,32 @@ export const dayStateAttributesMapping = {
     v ? { "data-date": v.toString() } : null,
   columnIndex: () => null,
   orientation: (v) => (v ? { "data-orientation": v } : null),
-  selected: (v) => (v ? { "data-selected": "" } : null),
-  today: (v) => (v ? { "data-today": "" } : null),
-  disabled: (v) => (v ? { "data-disabled": "" } : null),
-  outsideMonth: (v) => (v ? { "data-outside-month": "" } : null),
-  hidden: (v) => (v ? { "data-hidden": "" } : null),
-  focused: (v) => (v ? { "data-focused": "" } : null),
-  rangeStart: (v) => (v ? { "data-range-start": "" } : null),
-  rangeEnd: (v) => (v ? { "data-range-end": "" } : null),
-  rangeBoundary: (v) => (v ? { "data-range-boundary": "" } : null),
-  inRange: (v) => (v ? { "data-in-range": "" } : null),
+  selected: (v) => (v ? { "data-selected": v } : null),
+  today: (v) => (v ? { "data-today": v } : null),
+  disabled: (v) => (v ? { "data-disabled": v } : null),
+  outsideMonth: (v) => (v ? { "data-outside-month": v } : null),
+  hidden: (v) => (v ? { "data-hidden": v } : null),
+  focused: (v) => (v ? { "data-focused": v } : null),
+  rangeStart: (v) => (v ? { "data-range-start": v } : null),
+  rangeEnd: (v) => (v ? { "data-range-end": v } : null),
+  rangeBoundary: (v) => (v ? { "data-range-boundary": v } : null),
+  inRange: (v) => (v ? { "data-in-range": v } : null),
   rangeIndex: (v) => (v !== false ? { "data-range-index": String(v) } : null),
   rangeLength: (v) => (v !== false ? { "data-range-length": String(v) } : null),
-  rangeHasStart: (v) => (v ? { "data-range-has-start": "" } : null),
-  rangeHasEnd: (v) => (v ? { "data-range-has-end": "" } : null),
-  rangeStartPreview: (v) => (v ? { "data-range-start-preview": "" } : null),
-  rangeEndPreview: (v) => (v ? { "data-range-end-preview": "" } : null),
+  rangeHasStart: (v) => (v ? { "data-range-has-start": v } : null),
+  rangeHasEnd: (v) => (v ? { "data-range-has-end": v } : null),
+  rangeStartPreview: (v) => (v ? { "data-range-start-preview": v } : null),
+  rangeEndPreview: (v) => (v ? { "data-range-end-preview": v } : null),
   rangeBoundaryPreview: (v) =>
     v ? { "data-range-boundary-preview": "" } : null,
-  inRangePreview: (v) => (v ? { "data-in-range-preview": "" } : null),
+  inRangePreview: (v) => (v ? { "data-in-range-preview": v } : null),
   rangeIndexPreview: (v) =>
     v !== false ? { "data-range-index-preview": String(v) } : null,
   rangeLengthPreview: (v) =>
     v !== false ? { "data-range-length-preview": String(v) } : null,
   rangePreviewHasStart: (v) =>
-    v ? { "data-range-preview-has-start": "" } : null,
-  rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": "" } : null),
+    v ? { "data-range-preview-has-start": v } : null,
+  rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": v } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */

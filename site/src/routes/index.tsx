@@ -3,6 +3,7 @@ import { Image } from "@unpic/react";
 import heroImage from "#/assets/colander.png";
 import { GithubIcon } from "#/components/icons/GithubIcon";
 import { ButtonA } from "#/components/ui/button";
+import { Card } from "#/components/ui/card";
 import { cn } from "#/lib/cn";
 
 export const Route = createFileRoute("/")({ component: App });
@@ -10,10 +11,10 @@ export const Route = createFileRoute("/")({ component: App });
 function App() {
   return (
     <main className="page-wrap px-4 pt-14 pb-8">
-      <section className="rise-in relative flex flex-col items-center text-center">
+      <section className="relative flex flex-col items-center text-center">
         <h1
           className={cn(
-            "mb-10 text-foreground type-display-100 text-trim-both pt-8 pb-4",
+            "mb-10 text-foreground type-display-300 text-trim-both pt-8 pb-4",
           )}
         >
           {import.meta.env.VITE_PROJECT_NAME}
@@ -72,14 +73,14 @@ function App() {
             "Uses the Temporal API for correct date handling across time zones.",
           ],
         ].map(([title, desc], index) => (
-          <article
+          <Card
             key={title}
-            className="rise-in  border  border-border bg-card p-5 transition hover:-translate-y-0.5"
+            render={<article />}
             style={{ animationDelay: `${index * 90 + 80}ms` }}
           >
             <h2 className="mb-2 type-body-200-bold text-foreground">{title}</h2>
             <p className="m-0 type-body-100 text-muted-foreground">{desc}</p>
-          </article>
+          </Card>
         ))}
       </section>
     </main>

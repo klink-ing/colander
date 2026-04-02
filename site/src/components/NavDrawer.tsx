@@ -22,10 +22,10 @@ export default function NavDrawer({
   }, [open, router, setOpen]);
 
   // Auto-close when viewport crosses the threshold where the trigger disappears
-  // On docs pages: bp-6 (600px / 37.5rem) — sidebar becomes inline
+  // On docs pages: bp-7.5 (600px / 46.875rem) — sidebar becomes inline
   // On non-docs pages: bp-4.5 (450px / 28.125rem) — hamburger disappears
   useEffect(() => {
-    const breakpoint = sectionNav ? "37.5rem" : "28.125rem";
+    const breakpoint = sectionNav ? "46.875rem" : "28.125rem";
     const mql = window.matchMedia(`(min-width: ${breakpoint})`);
     const handler = () => {
       if (mql.matches) setOpen(false);

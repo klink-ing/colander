@@ -94,6 +94,16 @@ export function computeClippedRangeInfo(
 export function RangeSelected<F extends ValueFormat = ValueFormat>(
   props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
+  const { selectionMode } = useCalendarStable();
+  if (selectionMode !== "range") {
+    return null;
+  }
+  return <RangeSelectedImplementation {...props} />;
+}
+
+function RangeSelectedImplementation<F extends ValueFormat = ValueFormat>(
+  props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
+) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
   const { orientation } = useContext(GridContext);

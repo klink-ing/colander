@@ -24,6 +24,16 @@ import type {
 export function RangePreview<F extends ValueFormat = ValueFormat>(
   props: RangePreviewProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
+  const { selectionMode } = useCalendarStable();
+  if (selectionMode !== "range") {
+    return null;
+  }
+  return <RangePreviewImplementation {...props} />;
+}
+
+function RangePreviewImplementation<F extends ValueFormat = ValueFormat>(
+  props: RangePreviewProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
+) {
   const { ref, render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
   const { orientation } = useContext(GridContext);

@@ -8,7 +8,7 @@ export default function DocsNavSidebar({
   apiEntries: ApiDocsNavEntry[];
 }) {
   return (
-    <div className="hidden w-56 shrink-0 pr-6 bp-6:block">
+    <div className="hidden w-56 shrink-0 pr-6 bp-7.5:block">
       <div className="sticky top-20 max-h-[calc(100vh-6rem)] overflow-y-auto">
         <DocsNav entries={entries} apiEntries={apiEntries} />
       </div>
