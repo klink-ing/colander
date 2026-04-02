@@ -2,8 +2,9 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import React, { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
+import { useMonthViewState } from "./month-view-context";
 import { canShift } from "./overflow";
-import type { StateAttributesMapping } from "./types";
+import type { RootState, StateAttributesMapping } from "./types";
 import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
 // ---------------------------------------------------------------------------
@@ -12,6 +13,7 @@ import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
 /** State exposed by `PrevWeeksButton` and `NextWeeksButton`. */
 export type WeeksNavButtonState = {
+  root: RootState;
   direction: "prev" | "next";
   disabled: boolean;
 };
@@ -38,6 +40,7 @@ export type NextWeeksButtonProps = useRender.ComponentProps<
 
 /** State exposed by `WeeksView.WeekCount`. */
 export type WeekCountState = {
+  root: RootState;
   weekCount: number;
 };
 
@@ -49,11 +52,13 @@ export type WeekCountProps = useRender.ComponentProps<"span", WeekCountState>;
 // ---------------------------------------------------------------------------
 
 const weeksNavButtonStateAttributesMapping = {
+  root: () => null,
   direction: (v) => ({ "data-direction": v }),
   disabled: () => null,
 } as const satisfies StateAttributesMapping<WeeksNavButtonState>;
 
 const weekCountStateAttributesMapping = {
+  root: () => null,
   weekCount: () => null,
 } as const satisfies StateAttributesMapping<WeekCountState>;
 
@@ -74,6 +79,7 @@ function useWeeksNavButton(
   } = useCalendarStable();
   const { weekCount, overflowBehavior, goNext, goPrev } = useWeeksViewStable();
   const { windowInfo } = useWeeksViewState();
+  const { rootState } = useMonthViewState();
 
   const currentFirstWeek = windowInfo.windowStart;
 
@@ -104,8 +110,8 @@ function useWeeksNavButton(
   ]);
 
   const state = useMemo<WeeksNavButtonState>(
-    () => ({ direction, disabled: isDisabled }),
-    [direction, isDisabled],
+    () => ({ root: rootState as any, direction, disabled: isDisabled }),
+    [rootState, direction, isDisabled],
   );
 
   const goFn = direction === "prev" ? goPrev : goNext;
@@ -186,9 +192,13 @@ function WeekCountFn(
 ) {
   const { render, ...otherProps } = props;
   const { windowInfo } = useWeeksViewState();
+  const { rootState } = useMonthViewState();
   const count = windowInfo.weekCount;
 
-  const state = useMemo<WeekCountState>(() => ({ weekCount: count }), [count]);
+  const state = useMemo<WeekCountState>(
+    () => ({ root: rootState as any, weekCount: count }),
+    [rootState, count],
+  );
 
   const defaultProps: Record<string, unknown> = {
     children: count,

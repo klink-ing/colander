@@ -262,12 +262,12 @@ export function WeeksGrid(props: {
     }
 
     // Provide WeekDataContext so DayCellTemplate and children work.
-    // gridRow: 1-based row index in the CSS grid (header is row 1, weeks start at row 2).
+    // gridRowIndex: 1-based row index in the CSS grid (header is row 1, weeks start at row 2).
     const weekGridRow = i + 2; // +1 for 1-based, +1 for header
     rows.push(
       <WeekDataContext.Provider
         key={week.startDate.toString()}
-        value={{ days, weekIndex: week.weekIndex, gridRow: weekGridRow }}
+        value={{ days, weekIndex: week.weekIndex, gridRowIndex: weekGridRow }}
       >
         <GridMonthContext.Provider
           value={{

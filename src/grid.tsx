@@ -171,7 +171,7 @@ const gridStateAttributesMapping = {
  * Calendar grid container. Renders a `<table>` with `role="grid"` by default.
  *
  * Sets CSS custom properties `--calendar-days-per-week` and
- * `--calendar-weeks-in-month`, and matching `data-calendar-*` attributes.
+ * `--calendar-weeks-in-month`, and matching `data-*` attributes.
  * Manages keyboard navigation, grid focus tracking, and
  * `aria-labelledby` linkage to {@link MonthYearString}.
  *
@@ -273,8 +273,8 @@ function MonthGridFn(
     role: "grid",
     "aria-labelledby": gridLabelIds[monthIndex] || undefined,
     "aria-label": gridLabelIds[monthIndex] ? undefined : "Calendar",
-    "data-calendar-days-per-week": daysPerWeek,
-    "data-calendar-weeks-in-month": weeksInMonth,
+    "data-days-per-week": daysPerWeek,
+    "data-weeks-in-month": weeksInMonth,
     style: {
       "--calendar-days-per-week": daysPerWeek,
       "--calendar-weeks-in-month": weeksInMonth,
@@ -422,8 +422,8 @@ function WeeksViewGridFn(
     role: "grid",
     "aria-labelledby": gridLabelIds[0] || undefined,
     "aria-label": gridLabelIds[0] ? undefined : "Calendar",
-    "data-calendar-days-per-week": 7,
-    "data-calendar-weeks-in-month": weekCount,
+    "data-days-per-week": 7,
+    "data-weeks-in-month": weekCount,
     style: {
       "--calendar-days-per-week": 7,
       "--calendar-weeks-in-month": weekCount,
@@ -579,7 +579,7 @@ const MonthGridBody = forwardRef(MonthGridBodyFn) as <
 const weekInstanceStateAttributesMapping = {
   root: () => null,
   weekIndex: () => null,
-  gridRow: () => null,
+  gridRowIndex: () => null,
 } as const satisfies StateAttributesMapping<WeekTemplateState>;
 
 function WeekInstance<F extends ValueFormat = ValueFormat>(
@@ -593,9 +593,9 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(
     () => ({
       root: rootState as unknown as WeekTemplateState<F>["root"],
       weekIndex: weekData.weekIndex,
-      gridRow: weekData.gridRow,
+      gridRowIndex: weekData.gridRowIndex,
     }),
-    [rootState, weekData.weekIndex, weekData.gridRow],
+    [rootState, weekData.weekIndex, weekData.gridRowIndex],
   );
 
   return useRender({
@@ -637,7 +637,7 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
             days: weekDays,
             weekIndex: i,
             gridMonth,
-            gridRow: outerWeekData?.gridRow,
+            gridRowIndex: outerWeekData?.gridRowIndex,
           }}
         >
           <Instance {...props} />

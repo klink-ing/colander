@@ -941,14 +941,10 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // Grid state attributes reflect each grid's month
-      expect(
-        grids[0].getAttribute("data-calendar-weeks-in-month"),
-      ).toBeTruthy();
-      expect(grids[0].getAttribute("data-calendar-days-per-week")).toBe("7");
-      expect(
-        grids[1].getAttribute("data-calendar-weeks-in-month"),
-      ).toBeTruthy();
-      expect(grids[1].getAttribute("data-calendar-days-per-week")).toBe("7");
+      expect(grids[0].getAttribute("data-weeks-in-month")).toBeTruthy();
+      expect(grids[0].getAttribute("data-days-per-week")).toBe("7");
+      expect(grids[1].getAttribute("data-weeks-in-month")).toBeTruthy();
+      expect(grids[1].getAttribute("data-days-per-week")).toBe("7");
 
       unmount();
     });

@@ -629,7 +629,7 @@ export type WeekTemplateState<F extends ValueFormat = ValueFormat> = {
   root: RootState<F>;
   weekIndex: number;
   /** 1-based CSS grid row index for this week row (WeeksView only, undefined in MonthView). */
-  gridRow: number | undefined;
+  gridRowIndex: number | undefined;
 };
 
 /** Full props for the `WeekTemplate` component. */
@@ -662,17 +662,17 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
   /** Whether the committed range has a defined end boundary. */
   rangeHasEnd: boolean;
   /** Whether this cell is the start of the hover preview range. */
-  rangeStartPreview: boolean;
+  rangePreviewStart: boolean;
   /** Whether this cell is the end of the hover preview range. */
-  rangeEndPreview: boolean;
+  rangePreviewEnd: boolean;
   /** Whether this cell is a boundary of the hover preview range. */
-  rangeBoundaryPreview: boolean;
+  rangePreviewBoundary: boolean;
   /** Whether this cell is within the hover preview range. */
-  inRangePreview: boolean;
+  rangePreviewInRange: boolean;
   /** 0-based index of this cell within the preview range, or `false` if not in preview range. */
-  rangeIndexPreview: number | false;
+  rangePreviewIndex: number | false;
   /** Total number of days in the preview range, or `false` if not in preview range. */
-  rangeLengthPreview: number | false;
+  rangePreviewLength: number | false;
   /** Whether the preview range has a defined start boundary. */
   rangePreviewHasStart: boolean;
   /** Whether the preview range has a defined end boundary. */

@@ -63,12 +63,12 @@ export function computeDayCellState(
       rangeLength: false,
       rangeHasStart: false,
       rangeHasEnd: false,
-      rangeStartPreview: false,
-      rangeEndPreview: false,
-      rangeBoundaryPreview: false,
-      inRangePreview: false,
-      rangeIndexPreview: false,
-      rangeLengthPreview: false,
+      rangePreviewStart: false,
+      rangePreviewEnd: false,
+      rangePreviewBoundary: false,
+      rangePreviewInRange: false,
+      rangePreviewIndex: false,
+      rangePreviewLength: false,
       rangePreviewHasStart: false,
       rangePreviewHasEnd: false,
       isTabTarget: false,
@@ -151,14 +151,14 @@ export function computeDayCellState(
       rangeHasEnd: suppressRange
         ? false
         : isInRangeDay && rangeEnd !== undefined,
-      rangeStartPreview: suppressRange ? false : isPreviewRangeStart,
-      rangeEndPreview: suppressRange ? false : isPreviewRangeEnd,
-      rangeBoundaryPreview: suppressRange
+      rangePreviewStart: suppressRange ? false : isPreviewRangeStart,
+      rangePreviewEnd: suppressRange ? false : isPreviewRangeEnd,
+      rangePreviewBoundary: suppressRange
         ? false
         : isPreviewRangeStart || isPreviewRangeEnd,
-      inRangePreview: suppressRange ? false : isInPreviewRange,
-      rangeIndexPreview: suppressRange ? false : previewIdx,
-      rangeLengthPreview: suppressRange ? false : previewLen,
+      rangePreviewInRange: suppressRange ? false : isInPreviewRange,
+      rangePreviewIndex: suppressRange ? false : previewIdx,
+      rangePreviewLength: suppressRange ? false : previewLen,
       rangePreviewHasStart: suppressRange
         ? false
         : isInPreviewRange && previewStart !== undefined,
@@ -196,12 +196,12 @@ export function computeDayCellState(
     rangeLength: rangeLen,
     rangeHasStart: isInRangeDay && rangeStart !== undefined,
     rangeHasEnd: isInRangeDay && rangeEnd !== undefined,
-    rangeStartPreview: isPreviewRangeStart,
-    rangeEndPreview: isPreviewRangeEnd,
-    rangeBoundaryPreview: isPreviewRangeStart || isPreviewRangeEnd,
-    inRangePreview: isInPreviewRange,
-    rangeIndexPreview: previewIdx,
-    rangeLengthPreview: previewLen,
+    rangePreviewStart: isPreviewRangeStart,
+    rangePreviewEnd: isPreviewRangeEnd,
+    rangePreviewBoundary: isPreviewRangeStart || isPreviewRangeEnd,
+    rangePreviewInRange: isInPreviewRange,
+    rangePreviewIndex: previewIdx,
+    rangePreviewLength: previewLen,
     rangePreviewHasStart: isInPreviewRange && previewStart !== undefined,
     rangePreviewHasEnd: isInPreviewRange && previewEnd !== undefined,
     isTabTarget,
@@ -228,15 +228,16 @@ export const dayStateAttributesMapping = {
   rangeLength: (v) => (v !== false ? { "data-range-length": String(v) } : null),
   rangeHasStart: (v) => (v ? { "data-range-has-start": "" } : null),
   rangeHasEnd: (v) => (v ? { "data-range-has-end": "" } : null),
-  rangeStartPreview: (v) => (v ? { "data-range-start-preview": "" } : null),
-  rangeEndPreview: (v) => (v ? { "data-range-end-preview": "" } : null),
-  rangeBoundaryPreview: (v) =>
-    v ? { "data-range-boundary-preview": "" } : null,
-  inRangePreview: (v) => (v ? { "data-in-range-preview": "" } : null),
-  rangeIndexPreview: (v) =>
-    v !== false ? { "data-range-index-preview": String(v) } : null,
-  rangeLengthPreview: (v) =>
-    v !== false ? { "data-range-length-preview": String(v) } : null,
+  rangePreviewStart: (v) => (v ? { "data-range-preview-start": "" } : null),
+  rangePreviewEnd: (v) => (v ? { "data-range-preview-end": "" } : null),
+  rangePreviewBoundary: (v) =>
+    v ? { "data-range-preview-boundary": "" } : null,
+  rangePreviewInRange: (v) =>
+    v ? { "data-range-preview-in-range": "" } : null,
+  rangePreviewIndex: (v) =>
+    v !== false ? { "data-range-preview-index": String(v) } : null,
+  rangePreviewLength: (v) =>
+    v !== false ? { "data-range-preview-length": String(v) } : null,
   rangePreviewHasStart: (v) =>
     v ? { "data-range-preview-has-start": "" } : null,
   rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": "" } : null),
@@ -322,12 +323,12 @@ function dayCellInstancePropsAreEqual(
     a.rangeLength === b.rangeLength &&
     a.rangeHasStart === b.rangeHasStart &&
     a.rangeHasEnd === b.rangeHasEnd &&
-    a.rangeStartPreview === b.rangeStartPreview &&
-    a.rangeEndPreview === b.rangeEndPreview &&
-    a.rangeBoundaryPreview === b.rangeBoundaryPreview &&
-    a.inRangePreview === b.inRangePreview &&
-    a.rangeIndexPreview === b.rangeIndexPreview &&
-    a.rangeLengthPreview === b.rangeLengthPreview &&
+    a.rangePreviewStart === b.rangePreviewStart &&
+    a.rangePreviewEnd === b.rangePreviewEnd &&
+    a.rangePreviewBoundary === b.rangePreviewBoundary &&
+    a.rangePreviewInRange === b.rangePreviewInRange &&
+    a.rangePreviewIndex === b.rangePreviewIndex &&
+    a.rangePreviewLength === b.rangePreviewLength &&
     a.rangePreviewHasStart === b.rangePreviewHasStart &&
     a.rangePreviewHasEnd === b.rangePreviewHasEnd &&
     a.isTabTarget === b.isTabTarget
@@ -505,7 +506,6 @@ function DayButtonInnerFn(
           year: "numeric",
         }),
         date: date.toString(),
-        "data-testid": `button-day-${date.toString()}`,
         onClick: () => {
           setFocusedDate(date);
           onSelect(date);
@@ -552,12 +552,12 @@ function dayButtonInnerPropsAreEqual(
     a.rangeLength === b.rangeLength &&
     a.rangeHasStart === b.rangeHasStart &&
     a.rangeHasEnd === b.rangeHasEnd &&
-    a.rangeStartPreview === b.rangeStartPreview &&
-    a.rangeEndPreview === b.rangeEndPreview &&
-    a.rangeBoundaryPreview === b.rangeBoundaryPreview &&
-    a.inRangePreview === b.inRangePreview &&
-    a.rangeIndexPreview === b.rangeIndexPreview &&
-    a.rangeLengthPreview === b.rangeLengthPreview &&
+    a.rangePreviewStart === b.rangePreviewStart &&
+    a.rangePreviewEnd === b.rangePreviewEnd &&
+    a.rangePreviewBoundary === b.rangePreviewBoundary &&
+    a.rangePreviewInRange === b.rangePreviewInRange &&
+    a.rangePreviewIndex === b.rangePreviewIndex &&
+    a.rangePreviewLength === b.rangePreviewLength &&
     a.rangePreviewHasStart === b.rangePreviewHasStart &&
     a.rangePreviewHasEnd === b.rangePreviewHasEnd &&
     a.isTabTarget === b.isTabTarget

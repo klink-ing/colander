@@ -67,7 +67,6 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
     "aria-valuetext": date?.toString(),
     "aria-grabbed": isActive ? isDragging : undefined,
     "aria-hidden": isActive ? undefined : true,
-    "data-testid": `drag-handle-${edge}`,
     onPointerEnter: () => {
       if (date && !outsideDisabled) setHoveredDate(date);
     },

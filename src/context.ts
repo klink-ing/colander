@@ -8,7 +8,7 @@ export const WeekDataContext = createContext<{
   /** The year/month this week belongs to (for outsideMonth checks in multi-month). */
   gridMonth?: { year: number; month: number };
   /** 1-based CSS grid row index for this week row (WeeksView only). */
-  gridRow?: number;
+  gridRowIndex?: number;
 } | null>(null);
 
 /** Layout direction for the calendar grid. */

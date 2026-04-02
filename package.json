@@ -29,7 +29,7 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "lint": "oxlint --fix && oxfmt",
-    "check": "tsc --noEmit",
+    "check": "tsc --noEmit && tsc --noEmit -p site/tsconfig.json",
     "prepublishOnly": "npm run build",
     "size": "size-limit",
     "visualize": "VISUALIZE=1 vite build -c vite.lib.config.ts && open stats.html"

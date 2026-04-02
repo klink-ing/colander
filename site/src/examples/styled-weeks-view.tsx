@@ -126,7 +126,7 @@ export function StyledWeeksView({
             <StyledGridBody>
               {showMonthSeparators && (
                 <MonthSeparatorRow
-                  render={(renderProps: any, state: any) => {
+                  render={(renderProps, state) => {
                     const borderFromCol =
                       state.firstDayColumn + 1 + (showWeekNumbers ? 1 : 0);
                     const showLabel = state.fullWeeksVisibleAfter >= 2;

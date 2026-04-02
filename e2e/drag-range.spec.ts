@@ -24,7 +24,7 @@ function getDayButton(page: Page, day: string): Locator {
  * Get the visible drag handle for a specific edge.
  */
 function getDragHandle(page: Page, edge: "start" | "end"): Locator {
-  return page.locator(`[data-testid="drag-handle-${edge}"][data-active]`);
+  return page.locator(`[data-edge="${edge}"][data-active]`);
 }
 
 /**

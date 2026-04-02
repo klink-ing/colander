@@ -98,7 +98,7 @@ describe("Grid event dispatch profiling", () => {
       entries.length = 0;
 
       const button = container.querySelector<HTMLElement>(
-        '[data-testid="button-day-2026-03-20"]',
+        'button[data-date="2026-03-20"]',
       )!;
       expect(button).toBeTruthy();
 
@@ -143,7 +143,7 @@ describe("Grid event dispatch profiling", () => {
       entries.length = 0;
 
       const button = container.querySelector<HTMLElement>(
-        '[data-testid="button-day-2026-03-25"]',
+        'button[data-date="2026-03-25"]',
       )!;
       expect(button).toBeTruthy();
 
@@ -190,7 +190,7 @@ describe("Grid event dispatch profiling", () => {
       const days = Array.from({ length: 7 }, (_, i) => {
         const day = String(i + 16).padStart(2, "0");
         return container.querySelector<HTMLElement>(
-          `[data-testid="button-day-2026-03-${day}"]`,
+          `button[data-date="2026-03-${day}"]`,
         )!;
       });
 
@@ -241,7 +241,7 @@ describe("Grid event dispatch profiling", () => {
 
       // Click a day outside the current range to trigger a new range selection
       const button = container.querySelector<HTMLElement>(
-        '[data-testid="button-day-2026-03-25"]',
+        'button[data-date="2026-03-25"]',
       )!;
       expect(button).toBeTruthy();
 

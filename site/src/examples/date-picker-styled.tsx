@@ -158,11 +158,13 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   return (
     <WeekTemplate
       {...(props as WeekTemplateProps)}
-      render={(renderProps: any, state: any) => (
+      render={(renderProps, state) => (
         <tr
           {...renderProps}
           className={cn("col-span-full grid grid-cols-subgrid", className)}
-          style={state.gridRow ? { gridRow: state.gridRow } : undefined}
+          style={
+            state.gridRowIndex ? { gridRow: state.gridRowIndex } : undefined
+          }
         />
       )}
     />
@@ -187,7 +189,7 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
   return (
     <DayCellTemplate
       {...(props as DayCellTemplateProps)}
-      render={(renderProps: any, state: any) => {
+      render={(renderProps, state) => {
         const gridStyle =
           state.columnIndex >= 0
             ? state.orientation === "horizontal"
@@ -340,7 +342,7 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
   return (
     <RangePreview
       {...(props as RangePreviewProps)}
-      render={(renderProps: any, state: any) => {
+      render={(renderProps, state) => {
         if (!state.active) {
           return <td {...renderProps} hidden style={{ display: "none" }} />;
         }
@@ -395,7 +397,7 @@ export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
     <RangeSelected
       {...(props as RangeSelectedProps)}
       data-range-selection
-      render={(renderProps: any, state: any) => {
+      render={(renderProps, state) => {
         if (!state.active) {
           return <td {...renderProps} hidden style={{ display: "none" }} />;
         }
