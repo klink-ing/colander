@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 
-import { cn } from "./cn";
+import { cn } from "./utils";
 
 describe("cn() typography composition with type-* utilities", () => {
   const cases = [
