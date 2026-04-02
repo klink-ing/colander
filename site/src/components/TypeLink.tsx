@@ -5,6 +5,7 @@ import {
   TooltipContent,
 } from "#/components/ui/tooltip";
 import { isKnownSymbol, getSymbolByName } from "#/lib/api-data";
+import { LinkInline } from "./LinkInline";
 
 /**
  * Parses a type string and turns recognized symbol names into links
@@ -28,16 +29,17 @@ export default function TypeLink({ type }: { type: string }) {
 
 function SymbolLink({ name }: { name: string }) {
   const sym = getSymbolByName(name);
+  const linkClassName = "no-underline hover:underline";
 
   if (!sym) {
     return (
-      <Link
+      <LinkInline
         to="/docs/api/$symbol"
         params={{ symbol: name }}
-        className="text-accent no-underline hover:underline"
+        className={linkClassName}
       >
         {name}
-      </Link>
+      </LinkInline>
     );
   }
 
@@ -45,10 +47,10 @@ function SymbolLink({ name }: { name: string }) {
     <Tooltip>
       <TooltipTrigger
         render={
-          <Link
+          <LinkInline
             to="/docs/api/$symbol"
             params={{ symbol: name }}
-            className="text-accent no-underline hover:underline"
+            className={linkClassName}
           />
         }
       >
@@ -75,7 +77,7 @@ function TypeTooltipBody({
   return (
     <>
       <div className="mb-1 flex items-center gap-2">
-        <span className="type-code-100 text-accent">{symbol.kind}</span>
+        <span className="type-code-100 text-foreground-vivid">{symbol.kind}</span>
         <span className="type-code-100 font-semibold text-foreground">
           {symbol.name}
         </span>

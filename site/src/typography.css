@@ -1,3 +1,5 @@
+@import "./fluid.gen.css";
+
 /* ── Typography tokens ──────────────────────────────────── */
 
 :root {
@@ -10,7 +12,7 @@
   --type-heading-weight: 700;
 
   --type-body-font: var(--font-sans);
-  --type-body-var: "wdth" 150;
+  --type-body-var: "wdth" 100;
   --type-body-weight: 400;
   --type-body-weight-bold: 600;
 
@@ -23,41 +25,41 @@
   --type-code-weight: 400;
   --type-code-weight-bold: 600;
 
-  --type-display-100-size: 2rem;
+  --type-display-100-size: var(--fluid-display-100);
   --type-display-100-lh: 1.2;
   --type-display-100-ls: 0;
 
-  --type-display-200-size: calc(var(--type-display-100-size) * 1.5);
+  --type-display-200-size: var(--fluid-display-200);
   --type-display-200-lh: 1.2;
   --type-display-200-ls: 0;
 
-  --type-display-300-size: calc(var(--type-display-200-size) * 1.5);
+  --type-display-300-size: var(--fluid-display-300);
   --type-display-300-lh: 1.05;
   --type-display-300-ls: -0.02em;
 
-  --type-heading-100-size: 1.0625rem;
+  --type-heading-100-size: var(--fluid-heading-100);
   --type-heading-100-lh: 1.3;
-  --type-heading-100-ls: -0.005em;
+  --type-heading-100-ls: 0.01em;
 
-  --type-heading-200-size: 1.25rem;
+  --type-heading-200-size: var(--fluid-heading-200);
   --type-heading-200-lh: 1.3;
-  --type-heading-200-ls: -0.01em;
+  --type-heading-200-ls: 0.01em;
 
-  --type-heading-300-size: 1.5rem;
+  --type-heading-300-size: var(--fluid-heading-300);
   --type-heading-300-lh: 1.25;
-  --type-heading-300-ls: -0.015em;
+  --type-heading-300-ls: 0.01em;
 
-  --type-heading-400-size: clamp(2rem, 1.667rem + 2.133vw, 3rem);
-  --type-heading-400-lh: 1.25;
-  --type-heading-400-ls: -0.015em;
+  --type-body-100-size: calc(0.0625rem * 15);
+  --type-body-100-lh: 1.5;
+  --type-body-100-ls: 0.03333334em;
 
-  --type-body-100-size: 0.875rem;
-  --type-body-100-lh: 1.6;
-  --type-body-100-ls: 0;
+  --type-body-200-size: calc(0.0625rem * 17);
+  --type-body-200-lh: 1.55;
+  --type-body-200-ls: 0.02941176em;
 
-  --type-body-200-size: 1rem;
-  --type-body-200-lh: 1.7;
-  --type-body-200-ls: 0;
+  --type-body-300-size: calc(0.0625rem * 19);
+  --type-body-300-lh: 1.6;
+  --type-body-300-ls: 0;
 
   --type-label-100-size: 0.6875rem;
   --type-label-100-lh: 1.2;
@@ -116,7 +118,7 @@
   font-size: var(--type-heading-100-size);
   line-height: var(--type-heading-100-lh);
   letter-spacing: var(--type-heading-100-ls);
-  font-weight: var(--type-heading-weight);
+  font-weight: calc(var(--type-heading-weight) - 200);
   font-variation-settings: var(--type-heading-var);
   font-style: normal;
   text-transform: none;
@@ -127,7 +129,7 @@
   font-size: var(--type-heading-200-size);
   line-height: var(--type-heading-200-lh);
   letter-spacing: var(--type-heading-200-ls);
-  font-weight: var(--type-heading-weight);
+  font-weight: calc(var(--type-heading-weight) - 100);
   font-variation-settings: var(--type-heading-var);
   font-style: normal;
   text-transform: none;
@@ -143,8 +145,6 @@
   font-style: normal;
   text-transform: none;
 }
-
-
 
 @utility type-body-100 {
   font-family: var(--type-body-font);
@@ -206,6 +206,40 @@
   font-size: var(--type-body-200-size);
   line-height: var(--type-body-200-lh);
   letter-spacing: var(--type-body-200-ls);
+  font-weight: var(--type-body-weight);
+  font-variation-settings: var(--type-body-var);
+  font-style: italic;
+  text-transform: none;
+}
+
+
+@utility type-body-300 {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-300-size);
+  line-height: var(--type-body-300-lh);
+  letter-spacing: var(--type-body-300-ls);
+  font-weight: var(--type-body-weight);
+  font-variation-settings: var(--type-body-var);
+  font-style: normal;
+  text-transform: none;
+}
+
+@utility type-body-300-bold {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-300-size);
+  line-height: var(--type-body-300-lh);
+  letter-spacing: var(--type-body-300-ls);
+  font-weight: var(--type-body-weight-bold);
+  font-variation-settings: var(--type-body-var);
+  font-style: normal;
+  text-transform: none;
+}
+
+@utility type-body-300-italic {
+  font-family: var(--type-body-font);
+  font-size: var(--type-body-300-size);
+  line-height: var(--type-body-300-lh);
+  letter-spacing: var(--type-body-300-ls);
   font-weight: var(--type-body-weight);
   font-variation-settings: var(--type-body-var);
   font-style: italic;

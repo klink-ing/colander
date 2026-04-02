@@ -53,11 +53,11 @@ const installCmdTag: Schema = {
 };
 
 const headingTypeClass: Record<number, string> = {
-  1: "type-display-100",
-  2: "type-heading-300",
-  3: "type-heading-200",
-  4: "type-heading-100",
-  5: "type-heading-100",
+  1: "type-display-300",
+  2: "type-heading-200",
+  3: "type-heading-100",
+  4: "type-label-200",
+  5: "type-label-100",
   6: "type-heading-100",
 };
 

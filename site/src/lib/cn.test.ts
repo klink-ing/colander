@@ -81,8 +81,8 @@ describe("cn() typography composition with type-* utilities", () => {
     },
     {
       title: "keeps non-conflicting utilities between type-* classes",
-      input: "type-body-200 text-accent type-body-100",
-      expected: "text-accent type-body-100",
+      input: "type-body-200 text-foreground-vivid type-body-100",
+      expected: "text-foreground-vivid type-body-100",
     },
   ] as const;
 

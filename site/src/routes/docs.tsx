@@ -47,7 +47,7 @@ function DocsLayout() {
   const { setOpen } = useNavDrawer();
 
   return (
-    <main className="page-wrap flex gap-0 px-4 pt-8 pb-12">
+    <main className="page-wrap flex gap-0  pt-8 pb-12">
       <DocsNavSidebar entries={sectionNav.entries} apiEntries={sectionNav.apiEntries} />
 
         <div className="min-w-0 flex-1">

@@ -49,7 +49,7 @@ function DefaultElement({ symbol }: { symbol: ApiSymbol }) {
         href={`${MDN_BASE}/${el}`}
         target="_blank"
         rel="noopener noreferrer"
-        className="type-code-100 text-accent no-underline hover:underline"
+        className="type-code-100 no-underline hover:underline"
       >
         &lt;{el}&gt;
       </a>{" "}
@@ -116,7 +116,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                 <Badge>
                   {prop.name}
                   {!prop.optional && (
-                    <span className="ml-0.5 text-accent">*</span>
+                    <span className="ml-0.5 relative top-[-.25em] text-muted-foreground">*</span>
                   )}
                 </Badge>
               </Cell>
