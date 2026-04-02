@@ -9,7 +9,12 @@ import {
   DayButton,
 } from "./grid";
 import { GridHeader, GridHeaderCell } from "./grid-header";
-import { MonthSeparator } from "./month-separator";
+import {
+  MonthSeparator,
+  MonthSeparatorMonth,
+  MonthSeparatorYear,
+  MonthSeparatorWeekCount,
+} from "./month-separator";
 import { useViewContext } from "./view-context";
 import { NextWeeksButton, PrevWeeksButton } from "./weeks-navigation";
 import { WeeksView } from "./weeks-view";
@@ -399,7 +404,7 @@ describe("WeeksView regression: MonthSeparator renders in context (Bug #2)", () 
         <Grid>
           <GridBody>
             <MonthSeparator>
-              <MonthSeparator.Month /> <MonthSeparator.Year />
+              <MonthSeparatorMonth /> <MonthSeparatorYear />
             </MonthSeparator>
             <WeekTemplate>
               <DayCellTemplate />
@@ -418,7 +423,7 @@ describe("WeeksView regression: MonthSeparator renders in context (Bug #2)", () 
     expect(view.getAllByText("2026").length).toBeGreaterThanOrEqual(2);
   });
 
-  it("MonthSeparator.WeekCount shows correct counts", () => {
+  it("MonthSeparatorWeekCount shows correct counts", () => {
     // Window: 2026-03-22 through 2026-04-18
     // March 22 is a Sunday, so weeks starting: Mar 22, Mar 29, Apr 5, Apr 12
     // March: weeks at index 0 (month=3) and 1 (month=3) -> weeksVisibleAfter=2
@@ -432,8 +437,8 @@ describe("WeeksView regression: MonthSeparator renders in context (Bug #2)", () 
         <Grid>
           <GridBody>
             <MonthSeparator>
-              <MonthSeparator.Month />{" "}
-              <MonthSeparator.WeekCount data-testid="wc" />
+              <MonthSeparatorMonth />{" "}
+              <MonthSeparatorWeekCount data-testid="wc" />
             </MonthSeparator>
             <WeekTemplate>
               <DayCellTemplate />

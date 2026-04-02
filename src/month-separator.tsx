@@ -154,7 +154,7 @@ type MonthSeparatorRowProps = useRender.ComponentProps<
 >;
 
 /** Renders the `<tr>` for a month separator. Provides MonthSeparatorDataContext. */
-const MonthSeparatorRowInner = forwardRef<
+export const MonthSeparatorRow = forwardRef<
   HTMLTableRowElement,
   MonthSeparatorRowProps
 >(function MonthSeparatorRow(props, ref) {
@@ -185,7 +185,7 @@ type MonthSeparatorCellProps = useRender.ComponentProps<
 >;
 
 /** Renders the `<td>` inside a MonthSeparatorRow. */
-function MonthSeparatorCellInner(
+export function MonthSeparatorCell(
   props: MonthSeparatorCellProps & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { ref, render, ...otherProps } = props;
@@ -210,7 +210,7 @@ type MonthSeparatorProps = useRender.ComponentProps<"tr", MonthSeparatorState>;
  * Combines MonthSeparatorRow + MonthSeparatorCell.
  * Default children: `<Month /> <Year />`.
  */
-const MonthSeparatorConvenience = forwardRef<
+export const MonthSeparator = forwardRef<
   HTMLTableRowElement,
   MonthSeparatorProps
 >(function MonthSeparator(props, ref) {
@@ -246,25 +246,4 @@ const MonthSeparatorConvenience = forwardRef<
   );
 });
 
-/**
- * Compound component for rendering month boundary separators.
- *
- * Convenience (combines Row + Cell):
- * - `MonthSeparator` — `<tr><td colspan="7">children</td></tr>`
- *
- * Granular:
- * - `MonthSeparator.Row` — `<tr>` (provides context)
- * - `MonthSeparator.Cell` — `<td>` (reads context)
- *
- * Content children:
- * - `MonthSeparator.Month` — month name
- * - `MonthSeparator.Year` — year number
- * - `MonthSeparator.WeekCount` — weeks of this month visible below
- */
-export const MonthSeparator = Object.assign(MonthSeparatorConvenience, {
-  Row: MonthSeparatorRowInner,
-  Cell: MonthSeparatorCellInner,
-  Month: MonthSeparatorMonth,
-  Year: MonthSeparatorYear,
-  WeekCount: MonthSeparatorWeekCount,
-});
+export { MonthSeparatorMonth, MonthSeparatorYear, MonthSeparatorWeekCount };

@@ -7,7 +7,11 @@ import React, { useMemo, Children, isValidElement } from "react";
 import { useCalendarStable } from "./calendar-context";
 import type { WeekDescriptor } from "./compute-weeks-in-window";
 import { WeekDataContext, GridMonthContext } from "./context";
-import { MonthSeparatorDataContext, MonthSeparator } from "./month-separator";
+import {
+  MonthSeparatorDataContext,
+  MonthSeparator,
+  MonthSeparatorRow,
+} from "./month-separator";
 import type { MonthSeparatorState } from "./month-separator";
 import type { TemporalNamespace, WeekStartDay } from "./types";
 import { useWeeksViewState } from "./weeks-view-context";
@@ -35,7 +39,7 @@ function isSeparatorElement(child: React.ReactNode): boolean {
   if (!isValidElement(child)) return false;
   return (
     child.type === MonthSeparator ||
-    child.type === MonthSeparator.Row ||
+    child.type === MonthSeparatorRow ||
     child.type === (MonthSeparator as any)
   );
 }

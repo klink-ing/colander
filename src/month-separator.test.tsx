@@ -2,6 +2,9 @@ import { render, cleanup, within } from "@testing-library/react";
 import { describe, it, expect, afterEach } from "vitest";
 import {
   MonthSeparator,
+  MonthSeparatorMonth,
+  MonthSeparatorYear,
+  MonthSeparatorWeekCount,
   MonthSeparatorDataContext,
   type MonthSeparatorState,
 } from "./month-separator";
@@ -60,7 +63,7 @@ describe("MonthSeparator", () => {
   it("renders custom children instead of defaults", () => {
     const { container } = renderInTable(
       <MonthSeparator>
-        <MonthSeparator.WeekCount />
+        <MonthSeparatorWeekCount />
       </MonthSeparator>,
     );
     const view = within(container);
@@ -107,7 +110,7 @@ describe("MonthSeparator", () => {
   });
 });
 
-describe("MonthSeparator.Month", () => {
+describe("MonthSeparatorMonth", () => {
   it.each([
     {
       description: "January",
@@ -127,7 +130,7 @@ describe("MonthSeparator.Month", () => {
   ])("renders $description", ({ data, expected }) => {
     const { container } = renderInTable(
       <MonthSeparator>
-        <MonthSeparator.Month />
+        <MonthSeparatorMonth />
       </MonthSeparator>,
       data,
     );
@@ -135,22 +138,22 @@ describe("MonthSeparator.Month", () => {
   });
 });
 
-describe("MonthSeparator.Year", () => {
+describe("MonthSeparatorYear", () => {
   it("renders the year number", () => {
     const { container } = renderInTable(
       <MonthSeparator>
-        <MonthSeparator.Year />
+        <MonthSeparatorYear />
       </MonthSeparator>,
     );
     expect(within(container).getByText("2026")).toBeTruthy();
   });
 });
 
-describe("MonthSeparator.WeekCount", () => {
+describe("MonthSeparatorWeekCount", () => {
   it("renders weeksVisibleAfter", () => {
     const { container } = renderInTable(
       <MonthSeparator>
-        <MonthSeparator.WeekCount />
+        <MonthSeparatorWeekCount />
       </MonthSeparator>,
     );
     expect(within(container).getByText("4")).toBeTruthy();
@@ -159,7 +162,7 @@ describe("MonthSeparator.WeekCount", () => {
   it("renders 0 when no weeks visible after", () => {
     const { container } = renderInTable(
       <MonthSeparator>
-        <MonthSeparator.WeekCount />
+        <MonthSeparatorWeekCount />
       </MonthSeparator>,
       { ...mockData, weeksVisibleAfter: 0 },
     );

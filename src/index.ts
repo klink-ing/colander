@@ -25,7 +25,14 @@ export {
   NextWeeksButton,
   WeekCount,
 } from "./weeks-navigation";
-export { MonthSeparator } from "./month-separator";
+export {
+  MonthSeparator,
+  MonthSeparatorRow,
+  MonthSeparatorCell,
+  MonthSeparatorMonth,
+  MonthSeparatorYear,
+  MonthSeparatorWeekCount,
+} from "./month-separator";
 export { createDatePicker, type Components } from "./factory";
 export { computePreviewRange } from "./root-selection";
 export { computeWeeksInWindow } from "./compute-weeks-in-window";
