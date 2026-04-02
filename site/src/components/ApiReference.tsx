@@ -6,9 +6,9 @@ import {
   type SymbolProperty,
 } from "#/lib/api-data";
 import { cn } from "#/lib/cn";
-import { Code } from "./ui/code";
 import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
+import { Code } from "./ui/code";
 
 const MDN_BASE = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element";
 
@@ -118,7 +118,9 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                 <Badge>
                   {prop.name}
                   {!prop.optional && (
-                    <span className="ml-0.5 relative top-[-.25em] text-muted-foreground">*</span>
+                    <span className="relative top-[-.25em] ml-0.5 text-muted-foreground">
+                      *
+                    </span>
                   )}
                 </Badge>
               </Cell>
@@ -160,7 +162,7 @@ function Th({
     <th
       scope="col"
       className={cn(
-        "type-label-200 border-b border-border pb-1 text-left text-muted-foreground",
+        "border-b border-border pb-1 text-left type-label-200 text-muted-foreground",
         !lastInRow && "pr-4",
       )}
     >

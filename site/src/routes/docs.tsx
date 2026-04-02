@@ -2,10 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import {
-  type DocsNavEntry,
-  type ApiDocsNavEntry,
-} from "#/components/DocsNav";
+import { type DocsNavEntry, type ApiDocsNavEntry } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
 import { getAllSymbols } from "#/lib/api-data";
 import { parseFrontmatter } from "#/lib/markdoc";
@@ -47,27 +44,41 @@ function DocsLayout() {
   const { setOpen } = useNavDrawer();
 
   return (
-    <main className="page-wrap flex gap-0  pt-8 pb-12">
-      <DocsNavSidebar entries={sectionNav.entries} apiEntries={sectionNav.apiEntries} />
+    <main className="page-wrap flex gap-0 pt-8 pb-12">
+      <DocsNavSidebar
+        entries={sectionNav.entries}
+        apiEntries={sectionNav.apiEntries}
+      />
 
-        <div className="min-w-0 flex-1">
-          {/* Sidebar toggle — visible between bp-4.5 and bp-6 only */}
-          <button
-            type="button"
-            data-nav-drawer-trigger
-            onClick={() => setOpen(true)}
-            className="mb-4 hidden items-center gap-2 rounded-lg border border-border px-3 py-2 type-body-100 text-muted-foreground transition hover:bg-accent hover:text-foreground bp-4.5:flex bp-7.5:hidden"
+      <div className="min-w-0 flex-1">
+        {/* Sidebar toggle — visible between bp-4.5 and bp-6 only */}
+        <button
+          type="button"
+          data-nav-drawer-trigger
+          onClick={() => setOpen(true)}
+          className="mb-4 hidden items-center gap-2 rounded-lg border border-border px-3 py-2 type-body-100 text-muted-foreground transition hover:bg-accent hover:text-foreground bp-4.5:flex bp-7.5:hidden"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
           >
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-              <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-            </svg>
-            Navigation
-          </button>
+            <path
+              d="M2 4h12M2 8h12M2 12h12"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
+          </svg>
+          Navigation
+        </button>
 
-          <article className="max-w-none">
-            <Outlet />
-          </article>
-        </div>
+        <article className="max-w-none">
+          <Outlet />
+        </article>
+      </div>
     </main>
   );
 }

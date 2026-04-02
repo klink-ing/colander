@@ -9,10 +9,7 @@ function Card({
   return useRender({
     render,
     props: {
-      className: cn(
-        "border border-border bg-card p-5 transition",
-        className,
-      ),
+      className: cn("border border-border bg-card p-5 transition", className),
       ...props,
     },
   });

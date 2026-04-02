@@ -47,7 +47,7 @@ export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -69,7 +69,7 @@ export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -101,7 +101,7 @@ export function StyledGrid<F extends ValueFormat = ValueFormat>({
       mode="grid"
       {...(props as GridProps)}
       className={cn(
-        "grid w-full gap-x-px grid-cols-[repeat(var(--calendar-days-per-week),1fr)]",
+        "grid w-full grid-cols-[repeat(var(--calendar-days-per-week),1fr)] gap-x-px",
         className,
       )}
     />
@@ -132,7 +132,7 @@ export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
     <GridHeaderCell
       {...(props as GridHeaderCellProps)}
       className={cn(
-        "text-muted-foreground flex justify-end p-1 text-center text-[0.8rem] font-normal",
+        "flex justify-end p-1 text-center text-[0.8rem] font-normal text-muted-foreground",
         className,
       )}
     />
@@ -236,24 +236,23 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       {...(props as DayButtonProps)}
       className={cn(
         "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
-        "focus-visible:ring-ring focus-visible:z-10 focus-visible:ring-2 focus-visible:outline-none",
+        "focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         "text-foreground not-aria-disabled:hover:bg-accent not-aria-disabled:hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
         "data-selected:bg-primary data-selected:text-primary-foreground data-selected:not-aria-disabled:hover:bg-primary",
         "data-disabled:pointer-events-none data-disabled:opacity-50",
-        "data-in-range:data-outside-month:text-primary-foreground data-in-range:text-primary-foreground isolate select-none data-in-range:data-outside-month:opacity-70",
+        "isolate select-none data-in-range:text-primary-foreground data-in-range:data-outside-month:text-primary-foreground data-in-range:data-outside-month:opacity-70",
         className,
       )}
       render={({ children, ...props }: any) => {
         return (
           <button {...props}>
-            {
-              <div
-                className={cn(
-                  "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-muted group-data-in-range:bg-white/20 group-data-today:block",
-                )}
-              />
-            }
+            {/* Current day indicator */}
+            <div
+              className={cn(
+                "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-muted group-data-in-range:bg-white/20 group-data-today:block group-data-selected:bg-white/20",
+              )}
+            />
             <div className="isolate inline-block min-w-[2ch] text-right">
               {children}
             </div>
@@ -370,7 +369,7 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
             {/* Blue dashed line on top */}
             <div
               className={cn(
-                "border-primary/80 absolute inset-0 rounded-md border border-dashed",
+                "absolute inset-0 rounded-md border border-dashed border-primary/80",
                 horizontal
                   ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
                   : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
@@ -412,7 +411,7 @@ export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
                 : { gridRow: span, gridColumn: 1 }
             }
             className={cn(
-              "bg-primary rounded-md",
+              "rounded-md bg-primary",
               horizontal
                 ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none"
                 : "data-extends-after:rounded-b-none data-extends-before:rounded-t-none",

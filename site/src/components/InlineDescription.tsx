@@ -1,6 +1,6 @@
 import type React from "react";
-import { Code } from "./ui/code";
 import { LinkInline } from "./LinkInline";
+import { Code } from "./ui/code";
 
 /**
  * Renders a JSDoc description string with:
@@ -30,13 +30,21 @@ export default function InlineDescription({
 
     if (match[1] !== undefined) {
       // Backtick code
-      parts.push(<Code key={match.index} size={codeSize}>{match[1]}</Code>);
+      parts.push(
+        <Code key={match.index} size={codeSize}>
+          {match[1]}
+        </Code>,
+      );
     } else if (match[2] !== undefined) {
       // {@link SymbolName} or {@link SymbolName display text}
       const symbol = match[2];
       const display = match[3] ?? symbol;
       parts.push(
-        <LinkInline key={match.index} to="/docs/api/$symbol" params={{ symbol }}>
+        <LinkInline
+          key={match.index}
+          to="/docs/api/$symbol"
+          params={{ symbol }}
+        >
           {display}
         </LinkInline>,
       );

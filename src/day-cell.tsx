@@ -94,9 +94,7 @@ export function computeDayCellState(
     isRangeStart = rangeStart
       ? T.PlainDate.compare(date, rangeStart) === 0
       : false;
-    isRangeEnd = rangeEnd
-      ? T.PlainDate.compare(date, rangeEnd) === 0
-      : false;
+    isRangeEnd = rangeEnd ? T.PlainDate.compare(date, rangeEnd) === 0 : false;
     isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
     const effectiveStart = rangeStart ?? rangeEnd;
     const effectiveEnd = rangeEnd ?? rangeStart;

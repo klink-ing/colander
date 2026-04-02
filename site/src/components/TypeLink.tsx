@@ -77,7 +77,9 @@ function TypeTooltipBody({
   return (
     <>
       <div className="mb-1 flex items-center gap-2">
-        <span className="type-code-100 text-foreground-vivid">{symbol.kind}</span>
+        <span className="type-code-100 text-foreground-vivid">
+          {symbol.kind}
+        </span>
         <span className="type-code-100 font-semibold text-foreground">
           {symbol.name}
         </span>

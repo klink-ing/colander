@@ -3,7 +3,8 @@ import {
   WeeksView,
   PrevWeeksButton,
   NextWeeksButton,
-  MonthSeparator,
+  MonthSeparatorRow,
+  MonthSeparatorMonth,
   WeekNumberCell,
   WeekNumberHeader,
   useWeeksViewState,
@@ -49,7 +50,7 @@ const navButtonClassName = cn(
   "inline-flex h-7 w-7 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors",
   "hover:bg-accent hover:text-accent-foreground",
-  "focus-visible:ring-ring focus-visible:ring-2 focus-visible:outline-none",
+  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
   "disabled:pointer-events-none disabled:opacity-50",
 );
 
@@ -124,7 +125,7 @@ export function StyledWeeksView({
             </StyledGridHeader>
             <StyledGridBody>
               {showMonthSeparators && (
-                <MonthSeparator.Row
+                <MonthSeparatorRow
                   render={(renderProps: any, state: any) => {
                     const borderFromCol =
                       state.firstDayColumn + 1 + (showWeekNumbers ? 1 : 0);
@@ -160,7 +161,7 @@ export function StyledWeeksView({
                                   textOrientation: "mixed",
                                 }}
                               >
-                                <MonthSeparator.Month
+                                <MonthSeparatorMonth
                                   locale={locale}
                                   format="short"
                                 />

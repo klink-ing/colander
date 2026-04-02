@@ -26,7 +26,9 @@ function round(n: number, decimals: number) {
 
 function parseJsonc(filePath: string) {
   const raw = readFileSync(filePath, "utf-8");
-  return JSON.parse(raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, ""));
+  return JSON.parse(
+    raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, ""),
+  );
 }
 
 function readRemPerUnit(rootDir: string): number {

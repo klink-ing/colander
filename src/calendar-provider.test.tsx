@@ -99,7 +99,11 @@ describe("CalendarProvider", () => {
   it("deselects when clicking an already-selected date in single mode", async () => {
     const onChange = vi.fn();
     const { getByTestId, getByText } = render(
-      <CalendarProvider temporal={T} selectionMode="single" onValueChange={onChange}>
+      <CalendarProvider
+        temporal={T}
+        selectionMode="single"
+        onValueChange={onChange}
+      >
         <StateConsumer />
         <SelectButton />
       </CalendarProvider>,

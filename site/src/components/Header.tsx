@@ -46,7 +46,7 @@ export default function Header() {
         <h2 className="m-0 shrink-0">
           <Link
             to="/"
-            className="h-full flex items-center gap-2 pr-3 no-underline -my-2"
+            className="-my-2 flex h-full items-center gap-2 pr-3 no-underline"
           >
             <img
               src={heroImage.src}

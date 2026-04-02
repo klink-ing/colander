@@ -14,25 +14,26 @@
 
 ## File Map
 
-| File | Action | Responsibility |
-|---|---|---|
-| `site/src/styles.css` | Modify | Add `@theme` block with `bp-*` breakpoints (rem), clear defaults |
-| `site/src/components/DocsNav.tsx` | Create (rename from Sidebar.tsx) | Pure docs navigation markup, no layout styles |
-| `site/src/components/DocsNavSidebar.tsx` | Create | Inline sidebar wrapper: `w-56 shrink-0 pr-6`, sticky positioning |
-| `site/src/components/NavDrawer.tsx` | Create | Base UI Dialog as left slide-in drawer, controlled, auto-close on route change |
-| `site/src/components/DocsDrawerContent.tsx` | Create | Combined nav links + DocsNav for < 450px on docs pages |
-| `site/src/components/Header.tsx` | Modify | Add hamburger, `drawerContent` slot prop, responsive visibility |
-| `site/src/routes/__root.tsx` | Modify | Thread `drawerContent` to Header via context |
-| `site/src/routes/docs.tsx` | Modify | Use DocsNavSidebar inline, add toggle for 450–599px range, provide DocsDrawerContent |
-| `site/src/routes/index.tsx` | Modify | Migrate `sm:` / `lg:` breakpoints to `bp-*` |
-| `site/src/routes/docs/index.tsx` | Modify | Migrate `sm:` breakpoints to `bp-*` |
-| `site/src/components/Footer.tsx` | Modify | Migrate `sm:` breakpoints to `bp-*` |
+| File                                        | Action                           | Responsibility                                                                       |
+| ------------------------------------------- | -------------------------------- | ------------------------------------------------------------------------------------ |
+| `site/src/styles.css`                       | Modify                           | Add `@theme` block with `bp-*` breakpoints (rem), clear defaults                     |
+| `site/src/components/DocsNav.tsx`           | Create (rename from Sidebar.tsx) | Pure docs navigation markup, no layout styles                                        |
+| `site/src/components/DocsNavSidebar.tsx`    | Create                           | Inline sidebar wrapper: `w-56 shrink-0 pr-6`, sticky positioning                     |
+| `site/src/components/NavDrawer.tsx`         | Create                           | Base UI Dialog as left slide-in drawer, controlled, auto-close on route change       |
+| `site/src/components/DocsDrawerContent.tsx` | Create                           | Combined nav links + DocsNav for < 450px on docs pages                               |
+| `site/src/components/Header.tsx`            | Modify                           | Add hamburger, `drawerContent` slot prop, responsive visibility                      |
+| `site/src/routes/__root.tsx`                | Modify                           | Thread `drawerContent` to Header via context                                         |
+| `site/src/routes/docs.tsx`                  | Modify                           | Use DocsNavSidebar inline, add toggle for 450–599px range, provide DocsDrawerContent |
+| `site/src/routes/index.tsx`                 | Modify                           | Migrate `sm:` / `lg:` breakpoints to `bp-*`                                          |
+| `site/src/routes/docs/index.tsx`            | Modify                           | Migrate `sm:` breakpoints to `bp-*`                                                  |
+| `site/src/components/Footer.tsx`            | Modify                           | Migrate `sm:` breakpoints to `bp-*`                                                  |
 
 ---
 
 ### Task 1: Add `bp-*` Breakpoint Scale to styles.css
 
 **Files:**
+
 - Modify: `site/src/styles.css`
 
 - [ ] **Step 1: Add the `@theme` block with all breakpoints**
@@ -105,10 +106,12 @@ git commit -m "feat(site): add bp-* breakpoint scale and clear Tailwind defaults
 Since default breakpoints are cleared, all existing `sm:`, `md:`, `lg:`, `xl:` usage will break. Migrate them to the nearest `bp-*` equivalent.
 
 Mapping:
+
 - `sm` (640px) → `bp-6` (600px) — closest match
 - `lg` (1024px) → `bp-10` (1000px) — closest match
 
 **Files:**
+
 - Modify: `site/src/components/Footer.tsx`
 - Modify: `site/src/routes/index.tsx`
 - Modify: `site/src/routes/docs/index.tsx`
@@ -121,11 +124,11 @@ Replace `sm:flex-row sm:text-left` with `bp-6:flex-row bp-6:text-left`.
 
 - [ ] **Step 2: Migrate index.tsx (home page)**
 
-| Old | New |
-|---|---|
+| Old                 | New                     |
+| ------------------- | ----------------------- |
 | `sm:px-10 sm:py-14` | `bp-6:px-10 bp-6:py-14` |
-| `sm:grid-cols-2` | `bp-6:grid-cols-2` |
-| `lg:grid-cols-5` | `bp-10:grid-cols-5` |
+| `sm:grid-cols-2`    | `bp-6:grid-cols-2`      |
+| `lg:grid-cols-5`    | `bp-10:grid-cols-5`     |
 
 - [ ] **Step 3: Migrate docs/index.tsx**
 
@@ -151,12 +154,14 @@ git commit -m "refactor(site): migrate semantic breakpoints to bp-* scale"
 ### Task 3: Rename Sidebar to DocsNav (Pure Navigation)
 
 **Files:**
+
 - Create: `site/src/components/DocsNav.tsx` (from `Sidebar.tsx`)
 - Delete: `site/src/components/Sidebar.tsx`
 
 - [ ] **Step 1: Copy Sidebar.tsx to DocsNav.tsx and strip layout styles**
 
 Create `DocsNav.tsx` with:
+
 - Rename the default export from `Sidebar` to `DocsNav`
 - Rename exported types: `SidebarEntry` → `DocsNavEntry`, `ApiSidebarEntry` → `ApiDocsNavEntry`
 - Remove the outer `<nav className="w-56 shrink-0 pr-6">` wrapper — replace with `<nav aria-label="Documentation navigation">`
@@ -316,6 +321,7 @@ git commit -m "refactor(site): rename Sidebar to DocsNav, strip layout styles"
 ### Task 4: Create DocsNavSidebar Wrapper
 
 **Files:**
+
 - Create: `site/src/components/DocsNavSidebar.tsx`
 - Modify: `site/src/routes/docs.tsx` (update import)
 
@@ -388,6 +394,7 @@ git commit -m "feat(site): add DocsNavSidebar wrapper, wire into docs layout"
 ### Task 5: Create NavDrawer Component
 
 **Files:**
+
 - Create: `site/src/components/NavDrawer.tsx`
 
 - [ ] **Step 1: Create NavDrawer.tsx**
@@ -420,9 +427,7 @@ export default function NavDrawer({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Backdrop
-          className="fixed inset-0 z-[60] bg-black/50 opacity-0 transition-opacity duration-200 ease-out data-[open]:opacity-100 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-in"
-        />
+        <Dialog.Backdrop className="fixed inset-0 z-[60] bg-black/50 opacity-0 transition-opacity duration-200 ease-out data-[open]:opacity-100 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-in" />
         <Dialog.Popup
           aria-label="Navigation"
           className="fixed inset-y-0 left-0 z-[60] w-72 -translate-x-full overflow-y-auto bg-background p-6 shadow-xl transition-transform duration-200 ease-out data-[open]:translate-x-0 data-[ending-style]:-translate-x-full data-[ending-style]:duration-150 data-[ending-style]:ease-in"
@@ -452,6 +457,7 @@ git commit -m "feat(site): add NavDrawer component (Base UI Dialog slide-in)"
 ### Task 6: Create DocsDrawerContent Component
 
 **Files:**
+
 - Create: `site/src/components/DocsDrawerContent.tsx`
 
 - [ ] **Step 1: Create DocsDrawerContent.tsx**
@@ -537,6 +543,7 @@ git commit -m "feat(site): add DocsDrawerContent for combined drawer view"
 The Header renders in `__root.tsx` but needs to optionally show DocsDrawerContent (which requires data from the docs route loader). Use a React context so the docs layout can provide drawer content to the header without prop drilling through the router.
 
 **Files:**
+
 - Create: `site/src/lib/header-drawer-context.tsx`
 - Modify: `site/src/routes/__root.tsx`
 
@@ -619,6 +626,7 @@ git commit -m "feat(site): add HeaderDrawerContent context for drawer slot"
 ### Task 8: Make Header Responsive with Hamburger + NavDrawer
 
 **Files:**
+
 - Modify: `site/src/components/Header.tsx`
 
 - [ ] **Step 1: Rewrite Header.tsx**
@@ -696,8 +704,19 @@ export default function Header() {
           aria-label="Open navigation menu"
           className="flex items-center justify-center rounded-lg p-2 text-foreground transition hover:bg-accent bp-4.5:hidden"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-            <path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M3 5h14M3 10h14M3 15h14"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
         </button>
 
@@ -788,11 +807,13 @@ git commit -m "feat(site): make header responsive with hamburger + NavDrawer"
 ### Task 9: Wire DocsLayout — Sidebar Toggle + Combined Drawer
 
 **Files:**
+
 - Modify: `site/src/routes/docs.tsx`
 
 - [ ] **Step 1: Update DocsLayout with sidebar toggle and drawer content provider**
 
 The docs layout needs to:
+
 1. Register `DocsDrawerContent` as the header's drawer content (via context)
 2. Show a sidebar toggle button between 450–599px that opens its own NavDrawer
 
@@ -868,8 +889,19 @@ function DocsLayout() {
           onClick={() => setSidebarDrawerOpen(true)}
           className="mb-4 hidden items-center gap-2 rounded-lg border border-border px-3 py-2 type-body-100 text-muted-foreground transition hover:bg-accent hover:text-foreground bp-4.5:flex bp-6:hidden"
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
-            <path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M2 4h12M2 8h12M2 12h12"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            />
           </svg>
           Navigation
         </button>
@@ -913,6 +945,7 @@ Run: `cd site && npm run dev`
 - [ ] **Step 2: Test at ≥ 600px**
 
 Open docs page. Verify:
+
 - Full header with all nav links, GitHub icon, theme toggle
 - Sidebar visible inline on the left
 - No hamburger button, no sidebar toggle
@@ -920,6 +953,7 @@ Open docs page. Verify:
 - [ ] **Step 3: Test at 450–599px**
 
 Resize browser window. Verify:
+
 - Full header (no hamburger)
 - Sidebar hidden, "Navigation" toggle button visible above content
 - Clicking toggle opens slide-in drawer with DocsNav
@@ -929,6 +963,7 @@ Resize browser window. Verify:
 - [ ] **Step 4: Test at < 450px**
 
 Resize further. Verify:
+
 - Hamburger button visible, nav links and GitHub hidden
 - Theme toggle still visible
 - On docs page: hamburger opens drawer with nav links + separator + docs nav

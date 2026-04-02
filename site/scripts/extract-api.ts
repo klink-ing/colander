@@ -9,7 +9,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Project, type Type, SyntaxKind, type Node } from "ts-morph";
+import {
+  Project,
+  type Type,
+  type SourceFile,
+  SyntaxKind,
+  type Node,
+} from "ts-morph";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -113,6 +119,89 @@ function extractPropertiesFromType(type: Type): ExtractedProperty[] {
     });
   }
   return properties;
+}
+
+/**
+ * Extract local-source properties from a type, handling intersections.
+ * For intersections, tries to filter by member declaration location first.
+ * If no local members are found (e.g. Omit<LocalType, ...>), falls back to
+ * extracting from the full type and filtering by individual property declaration.
+ */
+function extractLocalProps(type: Type): ExtractedProperty[] {
+  if (type.isIntersection()) {
+    const seen = new Set<string>();
+    const props: ExtractedProperty[] = [];
+    for (const member of type.getIntersectionTypes()) {
+      const memberSymbol = member.getSymbol() ?? member.getAliasSymbol();
+      const memberDecl = memberSymbol?.getDeclarations()?.[0];
+      const memberFile = memberDecl?.getSourceFile().getFilePath() ?? "";
+      const isLocal = memberFile.includes("/src/");
+      if (isLocal) {
+        for (const p of extractPropertiesFromType(member)) {
+          if (!seen.has(p.name)) {
+            seen.add(p.name);
+            props.push(p);
+          }
+        }
+      }
+    }
+    if (props.length > 0) return props;
+
+    // Fallback: extract all properties but filter by declaration source
+    return extractPropertiesFromType(type).filter((p) => {
+      const typeProp = type.getProperty(p.name);
+      const propDecl = typeProp?.getDeclarations()?.[0];
+      const propFile = propDecl?.getSourceFile().getFilePath() ?? "";
+      return propFile.includes("/src/");
+    });
+  }
+
+  if (type.isUnion()) {
+    return extractPropertiesFromType(type);
+  }
+
+  if (type.isObject() && !type.isArray()) {
+    return extractPropertiesFromType(type);
+  }
+
+  return [];
+}
+
+/** Extract props from a component's props type into the symbol. */
+function extractComponentProps(
+  propsType: Type,
+  symbol: ExtractedSymbol,
+  sourceFile?: SourceFile,
+) {
+  const propsTypeText = resolveTypeText(propsType);
+  let cpMatch = propsTypeText.match(/ComponentProps<"(\w+)",\s*(\w+)/);
+
+  // forwardRef wraps props in Omit<PropsType, "ref">, hiding ComponentProps.
+  // Fall back to scanning the source file for the props type alias definition.
+  if (!cpMatch && sourceFile) {
+    const omitMatch = propsTypeText.match(/Omit<(\w+),/);
+    if (omitMatch) {
+      const fileText = sourceFile.getText();
+      const aliasMatch = fileText.match(
+        new RegExp(
+          `type\\s+${omitMatch[1]}[^=]*=\\s*[^;]*ComponentProps<"(\\w+)",\\s*(\\w+)`,
+        ),
+      );
+      if (aliasMatch) {
+        cpMatch = aliasMatch;
+      }
+    }
+  }
+
+  if (cpMatch) {
+    symbol.defaultElement = cpMatch[1];
+    symbol.stateType = cpMatch[2];
+  }
+
+  const props = extractLocalProps(propsType);
+  if (props.length > 0) {
+    symbol.properties = props;
+  }
 }
 
 function classifySymbol(
@@ -234,37 +323,7 @@ function extract(): ExtractedSymbol[] {
         (type.isObject() || type.isIntersection() || type.isUnion()) &&
         !type.isArray()
       ) {
-        let props: ExtractedProperty[] = [];
-
-        if (type.isIntersection()) {
-          // For intersection types (e.g. ComponentProps<"table", State> & GridOwnProps),
-          // only extract from members whose declarations are in our own source files.
-          // This gives us the OwnProps without flooding with 200+ React HTML attributes.
-          const seen = new Set<string>();
-          for (const member of type.getIntersectionTypes()) {
-            const memberSymbol = member.getSymbol() ?? member.getAliasSymbol();
-            const memberDecl = memberSymbol?.getDeclarations()?.[0];
-            const memberFile = memberDecl?.getSourceFile().getFilePath() ?? "";
-            const isLocal = memberFile.includes("/src/");
-
-            if (isLocal) {
-              for (const p of extractPropertiesFromType(member)) {
-                if (!seen.has(p.name)) {
-                  seen.add(p.name);
-                  props.push(p);
-                }
-              }
-            }
-          }
-        } else if (type.isUnion()) {
-          // For discriminated unions (e.g. CalendarProviderProps = Base & (A | B | C)),
-          // TS flattens into a union of intersections. type.getProperties() returns
-          // the properties common to all union members.
-          props = extractPropertiesFromType(type);
-        } else {
-          props = extractPropertiesFromType(type);
-        }
-
+        const props = extractLocalProps(type);
         if (props.length > 0) {
           symbol.properties = props;
         }
@@ -287,56 +346,9 @@ function extract(): ExtractedSymbol[] {
       symbol.returnType = resolveTypeText(returnType);
 
       if (kind === "component") {
-        // For components, resolve the props parameter type to extract individual properties
         const propsParam = func.getParameters()[0];
         if (propsParam) {
-          const propsType = propsParam.getType();
-
-          // Detect defaultElement and stateType from useRender.ComponentProps<"el", State>
-          const propsTypeText = resolveTypeText(propsType);
-          const cpMatch = propsTypeText.match(
-            /ComponentProps<"(\w+)",\s*(\w+)/,
-          );
-          if (cpMatch) {
-            symbol.defaultElement = cpMatch[1];
-            symbol.stateType = cpMatch[2];
-          }
-
-          // Extract properties using the same intersection-filtering logic as type aliases
-          if (propsType.isIntersection()) {
-            const seen = new Set<string>();
-            const props: ExtractedProperty[] = [];
-            for (const member of propsType.getIntersectionTypes()) {
-              const memberSymbol = member.getSymbol() ?? member.getAliasSymbol();
-              const memberDecl = memberSymbol?.getDeclarations()?.[0];
-              const memberFile = memberDecl?.getSourceFile().getFilePath() ?? "";
-              const isLocal = memberFile.includes("/src/");
-
-              if (isLocal) {
-                for (const p of extractPropertiesFromType(member)) {
-                  if (!seen.has(p.name)) {
-                    seen.add(p.name);
-                    props.push(p);
-                  }
-                }
-              }
-            }
-            if (props.length > 0) {
-              symbol.properties = props;
-            }
-          } else if (propsType.isUnion()) {
-            // For discriminated unions (e.g. CalendarProviderProps = Base & (A | B | C)),
-            // getProperties() returns the properties common to all members.
-            const props = extractPropertiesFromType(propsType);
-            if (props.length > 0) {
-              symbol.properties = props;
-            }
-          } else if (propsType.isObject() && !propsType.isArray()) {
-            const props = extractPropertiesFromType(propsType);
-            if (props.length > 0) {
-              symbol.properties = props;
-            }
-          }
+          extractComponentProps(propsParam.getType(), symbol, sourceFile);
         }
       } else {
         // Non-component functions: extract raw parameters
@@ -346,6 +358,37 @@ function extract(): ExtractedSymbol[] {
           description: "",
           optional: p.isOptional(),
         }));
+      }
+    }
+
+    // Extract props from variable-declared components (forwardRef, Object.assign, etc.)
+    if (declKind === SyntaxKind.VariableDeclaration && kind === "component") {
+      const varType = decl
+        .asKindOrThrow(SyntaxKind.VariableDeclaration)
+        .getType();
+
+      // Find call signatures — either directly on the type, or on intersection members
+      // (Object.assign returns an intersection where one member has the call signature)
+      let callSigs = varType.getCallSignatures();
+      if (callSigs.length === 0 && varType.isIntersection()) {
+        for (const member of varType.getIntersectionTypes()) {
+          const sigs = member.getCallSignatures();
+          if (sigs.length > 0) {
+            callSigs = sigs;
+            break;
+          }
+        }
+      }
+
+      if (callSigs.length > 0) {
+        const propsParam = callSigs[0].getParameters()[0];
+        if (propsParam) {
+          extractComponentProps(
+            propsParam.getTypeAtLocation(decl),
+            symbol,
+            sourceFile,
+          );
+        }
       }
     }
 

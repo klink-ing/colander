@@ -31,14 +31,14 @@
     "**/.wrangler": true,
     "**/.playwright-mcp": true,
     "**/dist": true,
-    "**/dist-ssr": true,
+    "**/dist-ssr": true
   },
   "files.watcherExclude": {
     "**/routeTree.gen.ts": true
   },
   "search.exclude": {
     "**/routeTree.gen.ts": true,
-    "**/package-lock.json": true,
+    "**/package-lock.json": true
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true,

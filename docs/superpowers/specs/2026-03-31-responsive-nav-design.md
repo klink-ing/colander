@@ -19,27 +19,27 @@ All 40 breakpoints are enumerated in `styles.css` via a `@theme` block (Tailwind
 ```css
 @theme {
   --breakpoint-*: initial;
-  --breakpoint-bp-1: 6.25rem;    /* 100px */
+  --breakpoint-bp-1: 6.25rem; /* 100px */
   --breakpoint-bp-1.5: 9.375rem; /* 150px */
-  --breakpoint-bp-2: 12.5rem;    /* 200px */
+  --breakpoint-bp-2: 12.5rem; /* 200px */
   /* ... through bp-20 (125rem / 2000px) */
 }
 ```
 
 ### Breakpoints Used in This Spec
 
-| Breakpoint | Width | Purpose |
-|---|---|---|
-| `bp-4.5` | 450px | Header collapses to hamburger |
-| `bp-6` | 600px | Sidebar collapses to drawer |
+| Breakpoint | Width | Purpose                       |
+| ---------- | ----- | ----------------------------- |
+| `bp-4.5`   | 450px | Header collapses to hamburger |
+| `bp-6`     | 600px | Sidebar collapses to drawer   |
 
 ### Responsive Behavior
 
-| Screen width | Header | Docs Sidebar |
-|---|---|---|
-| **< 450px** | Logo + theme toggle + hamburger. Hamburger opens drawer. On docs pages, drawer contains nav links + sidebar. On other pages, just nav links + GitHub. | Hidden — accessed via combined drawer. |
-| **450px – 599px** | Full header (logo, nav links, GitHub, theme toggle). | Hidden — toggle button above docs content opens drawer with sidebar only. |
-| **≥ 600px** | Full header. | Always visible inline (current behavior). |
+| Screen width      | Header                                                                                                                                                | Docs Sidebar                                                              |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **< 450px**       | Logo + theme toggle + hamburger. Hamburger opens drawer. On docs pages, drawer contains nav links + sidebar. On other pages, just nav links + GitHub. | Hidden — accessed via combined drawer.                                    |
+| **450px – 599px** | Full header (logo, nav links, GitHub, theme toggle).                                                                                                  | Hidden — toggle button above docs content opens drawer with sidebar only. |
+| **≥ 600px**       | Full header.                                                                                                                                          | Always visible inline (current behavior).                                 |
 
 Mobile-first: default styles target the narrowest layout, `min-width` media queries layer on wider layouts.
 
@@ -97,5 +97,6 @@ A single `NavDrawer` component wrapping Base UI's `Dialog`, styled as a left-edg
 All responsive behavior uses Tailwind utility classes directly on React components. No custom CSS class names.
 
 Drawer animation uses Tailwind transitions combined with Base UI's data attributes for enter/exit states:
+
 - Backdrop: `opacity-0 data-[open]:opacity-100 data-[ending-style]:opacity-0 transition-opacity duration-200`
 - Panel: `-translate-x-full data-[open]:translate-x-0 data-[ending-style]:-translate-x-full transition-transform duration-200 ease-out`

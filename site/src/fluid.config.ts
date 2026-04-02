@@ -18,6 +18,6 @@ export default {
 
   // Values in Tailwind spacing units (1 = 0.25rem)
   spacing: {
-    'page-mx': { min: 2, max: 20, minBp: 3 },
+    "page-mx": { min: 2, max: 20, minBp: 3 },
   },
 } satisfies FluidConfig;

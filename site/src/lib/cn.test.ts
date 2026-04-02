@@ -195,8 +195,7 @@ describe("cn() squircle / rounded conflict resolution", () => {
         expected: "squircle-lg squircle-amt-[2]",
       },
       {
-        description:
-          "squircle-amt + squircle kept, then rounded clears both",
+        description: "squircle-amt + squircle kept, then rounded clears both",
         input: "squircle-amt-[2] squircle-tl-xl rounded-lg",
         expected: "rounded-lg",
       },

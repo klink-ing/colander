@@ -22,14 +22,14 @@ export default function NavDrawerContent() {
                   href={link.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="block rounded-lg px-3 py-2 type-body-100 font-medium no-underline text-foreground transition hover:bg-accent"
+                  className="block rounded-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
                 >
                   {link.label}
                 </a>
               ) : (
                 <Link
                   to={link.to}
-                  className="block rounded-lg px-3 py-2 type-body-100 font-medium no-underline text-foreground transition hover:bg-accent"
+                  className="block rounded-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
                 >
                   {link.label}
                 </Link>

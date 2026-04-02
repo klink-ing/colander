@@ -34,11 +34,15 @@
   --accent: oklch(0.97 0.001 106.424);
   --accent-foreground: oklch(0.216 0.006 56.043);
   --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
-  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(
+    from var(--secondary) calc(l + 0.08) calc(c + 0.01) h
+  );
   --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
   --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --destructive-hover: oklch(
+    from var(--destructive) calc(l + 0.08) calc(c + 0.01) h
+  );
   --border: oklch(0.85 0.003 48.717);
   --input: oklch(0.923 0.003 48.717);
   --ring: oklch(0.709 0.01 56.259);
@@ -149,11 +153,15 @@
   --accent: oklch(0.21 0.006 274);
   --accent-foreground: oklch(0.985 0.001 274);
   --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
-  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(
+    from var(--secondary) calc(l + 0.08) calc(c + 0.01) h
+  );
   --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
   --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
   --destructive: oklch(0.704 0.191 22.216);
-  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --destructive-hover: oklch(
+    from var(--destructive) calc(l + 0.08) calc(c + 0.01) h
+  );
   --border: oklch(0.3 0 0);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.553 0.013 58.071);
@@ -211,8 +219,6 @@
     );
     margin-inline: auto;
   }
-
-  
 }
 
 @utility text-trim-both {

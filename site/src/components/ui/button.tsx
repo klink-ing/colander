@@ -53,21 +53,13 @@ export function ButtonContent({
   return (
     <>
       {iconStart && (
-        <span
-          data-icon="inline-start"
-          className="-ml-[0.1em] text-trim-both"
-        >
+        <span data-icon="inline-start" className="-ml-[0.1em] text-trim-both">
           {iconStart}
         </span>
       )}
-      {children && (
-        <span className="text-trim-both">{children}</span>
-      )}
+      {children && <span className="text-trim-both">{children}</span>}
       {iconEnd && (
-        <span
-          data-icon="inline-end"
-          className="-mr-[0.1em] text-trim-both"
-        >
+        <span data-icon="inline-end" className="-mr-[0.1em] text-trim-both">
           {iconEnd}
         </span>
       )}
@@ -115,7 +107,7 @@ function ButtonA({
     render,
     props: {
       className: cn(
-        "[text-box:trim-both_ex_alphabetic] h-auto",
+        "h-auto [text-box:trim-both_ex_alphabetic]",
         buttonVariants({ variant, size, className }),
       ),
       ...props,

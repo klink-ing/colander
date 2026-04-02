@@ -70,7 +70,7 @@ function MonthGrid({
           {showWeekNumbers && (
             <WeekNumberHeader
               className={cn(
-                "text-muted-foreground p-1 text-center text-[0.7rem] font-normal",
+                "p-1 text-center text-[0.7rem] font-normal text-muted-foreground",
                 !isVertical && "w-8",
                 isVertical && "flex items-center",
               )}
@@ -106,7 +106,7 @@ function MonthGrid({
             {showWeekNumbers && (
               <WeekNumberCell
                 className={cn(
-                  "text-muted-foreground p-1 text-center text-[0.7rem] tabular-nums",
+                  "p-1 text-center text-[0.7rem] text-muted-foreground tabular-nums",
                   !isVertical && "w-8",
                   isVertical && "flex items-center justify-center",
                 )}

@@ -75,12 +75,16 @@
 
   --type-code-100-px: 13;
   --type-code-100-size: calc(0.0625rem * var(--type-code-100-px));
-  --type-code-100-lh: calc(var(--type-body-100-px) / var(--type-code-100-px) * var(--type-body-100-lh));
+  --type-code-100-lh: calc(
+    var(--type-body-100-px) / var(--type-code-100-px) * var(--type-body-100-lh)
+  );
   --type-code-100-ls: 0;
 
   --type-code-200-px: 14.5;
   --type-code-200-size: calc(0.0625rem * var(--type-code-200-px));
-  --type-code-200-lh: calc(var(--type-body-200-px) / var(--type-code-200-px) * var(--type-body-200-lh));
+  --type-code-200-lh: calc(
+    var(--type-body-200-px) / var(--type-code-200-px) * var(--type-body-200-lh)
+  );
   --type-code-200-ls: 0;
 }
 

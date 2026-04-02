@@ -14,7 +14,7 @@ function App() {
       <section className="relative flex flex-col items-center text-center">
         <h1
           className={cn(
-            "mb-10 text-foreground type-display-300 text-trim-both pt-8 pb-4",
+            "mb-10 pt-8 pb-4 type-display-300 text-foreground text-trim-both",
           )}
         >
           {import.meta.env.VITE_PROJECT_NAME}

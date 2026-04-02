@@ -11,7 +11,8 @@
       "files": ["site/**/*.{ts,tsx}"],
       "options": {
         "sortTailwindcss": {
-          "stylesheet": "./site/src/styles.css"
+          "stylesheet": "./site/src/styles.css",
+          "functions": ["cn"]
         }
       }
     }
