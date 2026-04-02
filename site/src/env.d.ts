@@ -1,4 +1,4 @@
-/// <reference types="vite/client" />
+/// <reference types="vite/types/importMeta" />
 
 interface ImportMetaEnv {
   readonly VITE_PROJECT_NAME: string;
