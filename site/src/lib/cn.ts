@@ -1,25 +1,46 @@
 import { clsx, type ClassValue } from "clsx";
 import { extendTailwindMerge } from "tailwind-merge";
 
-/**
- * Every type-* utility sets the same seven CSS properties — font-family,
- * font-size, line-height, letter-spacing, font-weight, font-style, and
- * text-transform — so switching between any two fully resets all
- * typography with no property leaks.
- *
- * Conflicts are bidirectional: a type-* class removes any preceding
- * individual utility (e.g. `text-sm type-body-200` → `type-body-200`),
- * and an individual utility removes a preceding type-* class
- * (e.g. `type-body-200 font-bold` → `font-bold`).
- */
-export const twMerge = extendTailwindMerge<"type-style">({
+const allRoundedGroups = [
+  "rounded",
+  "rounded-s",
+  "rounded-e",
+  "rounded-t",
+  "rounded-r",
+  "rounded-b",
+  "rounded-l",
+  "rounded-ss",
+  "rounded-se",
+  "rounded-es",
+  "rounded-ee",
+  "rounded-tl",
+  "rounded-tr",
+  "rounded-br",
+  "rounded-bl",
+] as const;
+
+export const twMerge = extendTailwindMerge<
+  "type-style" | "squircle" | "squircle-amt"
+>({
   extend: {
     classGroups: {
-      "type-style": [{ type: () => true }],
+      "type-style": [{ type: [() => true] }],
+      // All squircle radius utilities in one group — since corner-shape
+      // is global, any squircle class is incompatible with any rounded class.
+      squircle: [
+        { squircle: [() => true] },
+        { "squircle-t": [() => true] },
+        { "squircle-r": [() => true] },
+        { "squircle-b": [() => true] },
+        { "squircle-l": [() => true] },
+        { "squircle-tl": [() => true] },
+        { "squircle-tr": [() => true] },
+        { "squircle-br": [() => true] },
+        { "squircle-bl": [() => true] },
+      ],
+      "squircle-amt": [{ "squircle-amt": [() => true] }],
     },
     conflictingClassGroups: {
-      // type-* creates conflicts and therefore removes preceding
-      // Tailwind typography utilities when both are present.
       "type-style": [
         "font-size",
         "font-family",
@@ -29,12 +50,16 @@ export const twMerge = extendTailwindMerge<"type-style">({
         "font-style",
         "text-transform",
       ],
+      // Any squircle clears all rounded (corner-shape is incompatible)
+      squircle: [...allRoundedGroups, "squircle-amt"],
+      // Any rounded clears all squircle + squircle-amt
+      ...Object.fromEntries(
+        allRoundedGroups.map((g) => [g, ["squircle", "squircle-amt"]]),
+      ),
     },
   },
 });
 
 export function cn(...inputs: ClassValue[]) {
-  // Preserve caller order. We rely on asymmetric `conflictingClassGroups`
-  // so that later utilities override earlier ones when they overlap.
   return twMerge(clsx(inputs));
 }

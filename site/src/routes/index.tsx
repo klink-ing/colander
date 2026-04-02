@@ -1,6 +1,8 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { cn } from "#/lib/cn";
 import { ButtonA } from "#/components/ui/button";
+import { Image } from "@unpic/react";
+import heroImage from "#/content/images/hero.png";
 
 export const Route = createFileRoute("/")({ component: App });
 
@@ -10,11 +12,12 @@ function App() {
       <section className="rise-in relative overflow-hidden  py-10  bp-6:py-14 items-center text-center flex flex-col">
         <h1
           className={cn(
-            "mb-5 text-foreground italic type-display-100 ",
+            "mb-5 text-foreground  type-display-100 ",
           )}
         >
           {import.meta.env.VITE_PROJECT_NAME}
         </h1>
+        <Image {...heroImage} alt="Hero" className="w-full h-auto" layout="fullWidth" />
         <p className="mb-8 type-body-300 text-muted-foreground  max-w-[60ch] text-balance">
           Accessible, customizable calendar components for React. Built on Base
           UI and the Temporal API.
@@ -23,14 +26,24 @@ function App() {
           <ButtonA
             variant="default"
             size="xl"
-            className="squircle-soft-xl"
+            className="squircle-xl squircle-amt-1"
             render={<Link to="/docs/$slug" params={{ slug: "getting-started" }} />}
           >
             Get Started
           </ButtonA>
           <ButtonA
             variant="secondary"
-            className="squircle-hard-xl"
+            className="squircle-xl squircle-amt-1.5"
+            size="xl"
+            href={import.meta.env.VITE_GITHUB_REPO_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </ButtonA>
+          <ButtonA
+            variant="default"
+            className="squircle-xl squircle-amt-2"
             size="xl"
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"

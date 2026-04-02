@@ -8,6 +8,7 @@
 @import "shadcn/tailwind.css";
 
 @import "./typography.css";
+@import "./squircle.css";
 
 @import "./breakpoints.gen.css";
 @import "./fluid.gen.css";
@@ -20,12 +21,12 @@
   --foreground: oklch(0.147 0.004 49.25);
   --foreground-vivid: oklch(0.852 0.199 91.936);
 
-  --card: oklch(0.23 0.01 17.61);
+  --card: oklch(0.985 0.001 106.424);
   --card-foreground: oklch(0.147 0.004 49.25);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.147 0.004 49.25);
-  --primary: oklch(0.852 0.199 91.936);
-  --primary-foreground: oklch(0.421 0.095 57.708);
+  --primary: oklch(0.9 0.199 91.936);
+  --primary-foreground: oklch(0 0 0);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.97 0.001 106.424);
@@ -132,7 +133,7 @@
   --popover: oklch(0.216 0.006 56.043);
   --popover-foreground: oklch(0.985 0.001 274);
   --primary: oklch(0.795 0.184 86.047);
-  --primary-foreground: oklch(0.2 0.03 274);
+  --primary-foreground: oklch(0 0 0);
   --secondary: oklch(0.274 0.006 274);
   --secondary-foreground: oklch(0.985 0 274);
   --muted: oklch(0.268 0.007 274);
@@ -212,32 +213,4 @@
       transform: translateY(0);
     }
   }
-}
-
-@utility squircle-soft-* {
-  --border-radius: --value(--radius-*);
-  --amt: 2;
-  --mult: calc(pow(1.74, (pow(var(--amt), 1.079) - 1)));
-
-  border-radius: calc(var(--mult) * var(--border-radius));
-  corner-shape: superellipse(var(--amt));
-}
-
-
-@utility squircle-hard-* {
-  --border-radius: --value(--radius-*);
-  --amt: 1.0;
-  --mult: calc(pow(1.74, (pow(var(--amt), 1.079) - 1)));
-
-  border-radius: calc(var(--mult) * var(--border-radius));
-  corner-shape: superellipse(var(--amt));
-}
-
-@utility squircle-* {
-  --border-radius: --value(--radius-*);
-  --amt: 1.5;
-  --mult: calc(pow(1.74, (pow(var(--amt), 1.079) - 1)));
-
-  border-radius: calc(var(--mult) * var(--border-radius));
-  corner-shape: superellipse(var(--amt));
 }
