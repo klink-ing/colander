@@ -33,7 +33,7 @@ function DemoApp() {
 
   const [selectionMode, setSelectionMode] = useState<
     "single" | "range" | "multiple"
-  >("range");
+  >("single");
   const [timeZone, setTimeZone] = useState("");
   const [locale, setLocale] = useState("en-US");
   const [disabled, setDisabled] = useState(false);

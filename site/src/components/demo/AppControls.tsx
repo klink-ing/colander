@@ -555,14 +555,16 @@ export function AppControls(props: AppControlsProps) {
                 Show Week Numbers
               </label>
 
-              <label className={checkboxClassName}>
-                <input
-                  type="checkbox"
-                  checked={showMonthSeparators}
-                  onChange={(e) => setShowMonthSeparators(e.target.checked)}
-                />
-                Show Month Separators
-              </label>
+              {viewMode === "weeks" && (
+                <label className={checkboxClassName}>
+                  <input
+                    type="checkbox"
+                    checked={showMonthSeparators}
+                    onChange={(e) => setShowMonthSeparators(e.target.checked)}
+                  />
+                  Show Month Separators
+                </label>
+              )}
 
               <div>
                 <div className={propLabelClassName}>Grid.orientation</div>
