@@ -134,8 +134,14 @@ function classifySymbol(
     ) {
       return "interface";
     }
-    // Functions
+    // Functions (PascalCase = component, camelCase = function)
     if (kind === SyntaxKind.FunctionDeclaration) {
+      if (
+        name[0] === name[0].toUpperCase() &&
+        name[0] !== name[0].toLowerCase()
+      ) {
+        return "component";
+      }
       return "function";
     }
     // Variable declarations (components, constants)
@@ -277,14 +283,70 @@ function extract(): ExtractedSymbol[] {
     // Extract parameters and return type for functions
     if (declKind === SyntaxKind.FunctionDeclaration) {
       const func = decl.asKindOrThrow(SyntaxKind.FunctionDeclaration);
-      symbol.parameters = func.getParameters().map((p) => ({
-        name: p.getName(),
-        type: resolveTypeText(p.getType()),
-        description: "", // Could parse @param tags
-        optional: p.isOptional(),
-      }));
       const returnType = func.getReturnType();
       symbol.returnType = resolveTypeText(returnType);
+
+      if (kind === "component") {
+        // For components, resolve the props parameter type to extract individual properties
+        const propsParam = func.getParameters()[0];
+        if (propsParam) {
+          const propsType = propsParam.getType();
+
+          // Detect defaultElement and stateType from useRender.ComponentProps<"el", State>
+          const propsTypeText = resolveTypeText(propsType);
+          const cpMatch = propsTypeText.match(
+            /ComponentProps<"(\w+)",\s*(\w+)/,
+          );
+          if (cpMatch) {
+            symbol.defaultElement = cpMatch[1];
+            symbol.stateType = cpMatch[2];
+          }
+
+          // Extract properties using the same intersection-filtering logic as type aliases
+          if (propsType.isIntersection()) {
+            const seen = new Set<string>();
+            const props: ExtractedProperty[] = [];
+            for (const member of propsType.getIntersectionTypes()) {
+              const memberSymbol = member.getSymbol() ?? member.getAliasSymbol();
+              const memberDecl = memberSymbol?.getDeclarations()?.[0];
+              const memberFile = memberDecl?.getSourceFile().getFilePath() ?? "";
+              const isLocal = memberFile.includes("/src/");
+
+              if (isLocal) {
+                for (const p of extractPropertiesFromType(member)) {
+                  if (!seen.has(p.name)) {
+                    seen.add(p.name);
+                    props.push(p);
+                  }
+                }
+              }
+            }
+            if (props.length > 0) {
+              symbol.properties = props;
+            }
+          } else if (propsType.isUnion()) {
+            // For discriminated unions (e.g. CalendarProviderProps = Base & (A | B | C)),
+            // getProperties() returns the properties common to all members.
+            const props = extractPropertiesFromType(propsType);
+            if (props.length > 0) {
+              symbol.properties = props;
+            }
+          } else if (propsType.isObject() && !propsType.isArray()) {
+            const props = extractPropertiesFromType(propsType);
+            if (props.length > 0) {
+              symbol.properties = props;
+            }
+          }
+        }
+      } else {
+        // Non-component functions: extract raw parameters
+        symbol.parameters = func.getParameters().map((p) => ({
+          name: p.getName(),
+          type: resolveTypeText(p.getType()),
+          description: "",
+          optional: p.isOptional(),
+        }));
+      }
     }
 
     symbols.push(symbol);
@@ -314,7 +376,7 @@ function extract(): ExtractedSymbol[] {
 // ---------------------------------------------------------------------------
 
 const symbols = extract();
-const outputPath = path.resolve(__dirname, "../api-data/symbols.json");
+const outputPath = path.resolve(__dirname, "../api-data/symbols.gen.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
 fs.writeFileSync(outputPath, JSON.stringify(symbols, null, 2));
 console.log(`Wrote ${symbols.length} symbols to ${outputPath}`);

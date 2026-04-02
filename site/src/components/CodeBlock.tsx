@@ -1,3 +1,5 @@
+import { Code } from "#/components/ui/code";
+
 export default function CodeBlock({
   children,
   "data-language": language,
@@ -15,7 +17,7 @@ export default function CodeBlock({
       <pre
         className={`overflow-x-auto border border-border bg-muted p-4 type-code-200 ${language ? "rounded-b-lg" : "rounded-lg"}`}
       >
-        <code>{children}</code>
+        <Code size={200}>{children}</Code>
       </pre>
     </div>
   );

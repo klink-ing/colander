@@ -1,3 +1,4 @@
+import { Code } from "#/components/ui/code";
 import { AInline } from "./LinkInline";
 
 const repoUrl = import.meta.env.VITE_GITHUB_REPO_URL as string | undefined;
@@ -13,7 +14,7 @@ export default function SourceLink({
   const label = `${filePath}:${lineNumber}`;
 
   if (!repoUrl) {
-    return <code>{label}</code>;
+    return <Code>{label}</Code>;
   }
 
   const href = `${repoUrl}/blob/${branch ?? "main"}/${filePath}#L${lineNumber}`;

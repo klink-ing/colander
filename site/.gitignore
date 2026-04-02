@@ -13,3 +13,4 @@ __unconfig*
 todos.json
 src/breakpoints.gen.css
 src/fluid.gen.css
+api-data/symbols.gen.json

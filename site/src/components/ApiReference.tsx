@@ -6,6 +6,8 @@ import {
   type SymbolProperty,
 } from "#/lib/api-data";
 import { cn } from "#/lib/cn";
+import { Code } from "./ui/code";
+import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
 
 const MDN_BASE = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element";
@@ -20,7 +22,7 @@ export default function ApiReference({
   if (!sym) {
     return (
       <div className="border-callout-error-border bg-callout-error-bg text-callout-error-text my-4 rounded-lg border p-4 type-body-100">
-        Symbol <code>{symbolName}</code> not found in API data.
+        Symbol <Code>{symbolName}</Code> not found in API data.
       </div>
     );
   }
@@ -137,7 +139,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                 className="type-body-100 text-muted-foreground"
                 lastInRow
               >
-                {prop.description}
+                <InlineDescription text={prop.description} />
               </Cell>
             </tr>
           );
@@ -198,12 +200,12 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
       <p className="mb-2 type-body-100-bold text-foreground">Members</p>
       <div className="flex flex-wrap gap-2">
         {symbol.members!.map((member) => (
-          <code
+          <Code
             key={member}
-            className="rounded-md border border-border bg-secondary px-2 py-1 type-code-100"
+            className="rounded-md border border-border bg-secondary px-2 py-1"
           >
             {member}
-          </code>
+          </Code>
         ))}
       </div>
     </div>
@@ -213,8 +215,8 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
 function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="rounded-lg border border-border bg-card p-4 type-code-200">
-        <code>
+      <pre className="rounded-lg border border-border bg-card p-4">
+        <Code size={200}>
           {symbol.name}(
           {symbol.parameters?.map((p, i) => (
             <React.Fragment key={p.name}>
@@ -223,7 +225,7 @@ function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
             </React.Fragment>
           ))}
           ): {symbol.returnType && <TypeLink type={symbol.returnType} />}
-        </code>
+        </Code>
       </pre>
     </div>
   );
@@ -232,11 +234,11 @@ function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
 function HookSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="rounded-lg border border-border bg-card p-4 type-code-200">
-        <code>
+      <pre className="rounded-lg border border-border bg-card p-4">
+        <Code size={200}>
           {symbol.name}():{" "}
           {symbol.returnType && <TypeLink type={symbol.returnType} />}
-        </code>
+        </Code>
       </pre>
     </div>
   );

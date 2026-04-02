@@ -50,15 +50,18 @@
   --type-heading-300-lh: 1.25;
   --type-heading-300-ls: 0.01em;
 
-  --type-body-100-size: calc(0.0625rem * 15);
+  --type-body-100-px: 15;
+  --type-body-100-size: calc(0.0625rem * var(--type-body-100-px));
   --type-body-100-lh: 1.5;
   --type-body-100-ls: 0.03333334em;
 
-  --type-body-200-size: calc(0.0625rem * 17);
+  --type-body-200-px: 17;
+  --type-body-200-size: calc(0.0625rem * var(--type-body-200-px));
   --type-body-200-lh: 1.55;
   --type-body-200-ls: 0.02941176em;
 
-  --type-body-300-size: calc(0.0625rem * 19);
+  --type-body-300-px: 19;
+  --type-body-300-size: calc(0.0625rem * var(--type-body-300-px));
   --type-body-300-lh: 1.6;
   --type-body-300-ls: 0;
 
@@ -70,12 +73,14 @@
   --type-label-200-lh: 1.4;
   --type-label-200-ls: 0.06em;
 
-  --type-code-100-size: 0.75rem;
-  --type-code-100-lh: 1.5;
+  --type-code-100-px: 13;
+  --type-code-100-size: calc(0.0625rem * var(--type-code-100-px));
+  --type-code-100-lh: calc(var(--type-body-100-px) / var(--type-code-100-px) * var(--type-body-100-lh));
   --type-code-100-ls: 0;
 
-  --type-code-200-size: 0.875rem;
-  --type-code-200-lh: 1.6;
+  --type-code-200-px: 14.5;
+  --type-code-200-size: calc(0.0625rem * var(--type-code-200-px));
+  --type-code-200-lh: calc(var(--type-body-200-px) / var(--type-code-200-px) * var(--type-body-200-lh));
   --type-code-200-ls: 0;
 }
 

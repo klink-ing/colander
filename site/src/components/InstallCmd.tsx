@@ -1,3 +1,4 @@
+import { Code } from "#/components/ui/code";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
 import {
   usePackageManager,
@@ -37,7 +38,7 @@ export default function InstallCmd() {
         {managers.map((m) => (
           <TabsContent key={m} value={m}>
             <pre className="overflow-x-auto rounded-b-lg border border-border bg-muted p-4 type-code-200">
-              <code>{getInstallCommand(m, packages)}</code>
+              <Code size={200}>{getInstallCommand(m, packages)}</Code>
             </pre>
           </TabsContent>
         ))}

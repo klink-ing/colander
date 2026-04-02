@@ -1,6 +1,7 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import ApiReference from "#/components/ApiReference";
+import InlineDescription from "#/components/InlineDescription";
 import SourceLink from "#/components/SourceLink";
 import { getAllSymbols } from "#/lib/api-data";
 
@@ -48,14 +49,14 @@ function ApiSymbolPage() {
           API Reference
         </p>
         <div className="flex items-baseline gap-3">
-          <h1 className="type-display-100 text-foreground">{sym.name}</h1>
+          <h1 className="type-heading-300 text-foreground">{sym.name}</h1>
           <span className="rounded-md border border-border bg-secondary px-2 py-0.5 type-code-100 text-muted-foreground">
             {sym.kind}
           </span>
         </div>
         {sym.description && (
           <p className="mt-2 type-body-200 text-muted-foreground">
-            {sym.description}
+            <InlineDescription text={sym.description} codeSize={200} />
           </p>
         )}
         {sym.filePath && (

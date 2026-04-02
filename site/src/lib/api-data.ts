@@ -1,4 +1,4 @@
-import symbolsJson from "../../api-data/symbols.json";
+import symbolsJson from "../../api-data/symbols.gen.json";
 
 export interface SymbolProperty {
   name: string;

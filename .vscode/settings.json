@@ -42,6 +42,7 @@
   },
   "files.readonlyInclude": {
     "**/routeTree.gen.ts": true,
-    "**/*.gen.css": true
+    "**/*.gen.css": true,
+    "**/*.gen.json": true
   }
 }
