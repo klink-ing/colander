@@ -23,25 +23,26 @@ export interface WeeksViewRootHandle {
   ) => void;
 }
 
-const WeeksViewRoot = forwardRef<WeeksViewRootHandle, WeeksViewRootProps>(
-  function WeeksViewRoot(props, ref) {
-    const { children } = props;
-    const { stableCtx, stateCtx, viewCtx, scrollToWeek } =
-      useWeeksViewRootState(props);
+function WeeksViewRootFn(
+  props: WeeksViewRootProps,
+  ref: React.ForwardedRef<WeeksViewRootHandle>,
+) {
+  const { children } = props;
+  const { stableCtx, stateCtx, viewCtx, scrollToWeek } =
+    useWeeksViewRootState(props);
 
-    useImperativeHandle(ref, () => ({ scrollToWeek }), [scrollToWeek]);
+  useImperativeHandle(ref, () => ({ scrollToWeek }), [scrollToWeek]);
 
-    return (
-      <WeeksViewStableContext.Provider value={stableCtx}>
-        <WeeksViewStateContext.Provider value={stateCtx}>
-          <ViewContext.Provider value={viewCtx}>
-            {children}
-          </ViewContext.Provider>
-        </WeeksViewStateContext.Provider>
-      </WeeksViewStableContext.Provider>
-    );
-  },
-);
+  return (
+    <WeeksViewStableContext.Provider value={stableCtx}>
+      <WeeksViewStateContext.Provider value={stateCtx}>
+        <ViewContext.Provider value={viewCtx}>{children}</ViewContext.Provider>
+      </WeeksViewStateContext.Provider>
+    </WeeksViewStableContext.Provider>
+  );
+}
+
+const WeeksViewRoot = forwardRef(WeeksViewRootFn);
 
 // ---------------------------------------------------------------------------
 // WeeksView convenience wrapper — composes CalendarProvider + WeeksView.Root
@@ -50,38 +51,41 @@ const WeeksViewRoot = forwardRef<WeeksViewRootHandle, WeeksViewRootProps>(
 type WeeksViewProps<F extends ValueFormat = "PlainDate"> =
   CalendarProviderProps<F> & WeeksViewRootProps;
 
-const WeeksView = forwardRef<WeeksViewRootHandle, WeeksViewProps>(
-  function WeeksView(props, ref) {
-    const {
-      weekCount,
-      firstWeek,
-      defaultFirstWeek,
-      onFirstWeekChange,
-      scrollBy,
-      overflowBehavior,
-      onWindowChange,
-      children,
-      ...calendarProps
-    } = props as WeeksViewProps & { children?: React.ReactNode };
+function WeeksViewFn(
+  props: WeeksViewProps,
+  ref: React.ForwardedRef<WeeksViewRootHandle>,
+) {
+  const {
+    weekCount,
+    firstWeek,
+    defaultFirstWeek,
+    onFirstWeekChange,
+    scrollBy,
+    overflowBehavior,
+    onWindowChange,
+    children,
+    ...calendarProps
+  } = props as WeeksViewProps & { children?: React.ReactNode };
 
-    return (
-      <CalendarProvider {...(calendarProps as CalendarProviderProps)}>
-        <WeeksViewRoot
-          ref={ref}
-          weekCount={weekCount}
-          firstWeek={firstWeek}
-          defaultFirstWeek={defaultFirstWeek}
-          onFirstWeekChange={onFirstWeekChange}
-          scrollBy={scrollBy}
-          overflowBehavior={overflowBehavior}
-          onWindowChange={onWindowChange}
-        >
-          {children}
-        </WeeksViewRoot>
-      </CalendarProvider>
-    );
-  },
-) as WeeksViewComponent;
+  return (
+    <CalendarProvider {...(calendarProps as CalendarProviderProps)}>
+      <WeeksViewRoot
+        ref={ref}
+        weekCount={weekCount}
+        firstWeek={firstWeek}
+        defaultFirstWeek={defaultFirstWeek}
+        onFirstWeekChange={onFirstWeekChange}
+        scrollBy={scrollBy}
+        overflowBehavior={overflowBehavior}
+        onWindowChange={onWindowChange}
+      >
+        {children}
+      </WeeksViewRoot>
+    </CalendarProvider>
+  );
+}
+
+const WeeksView = forwardRef(WeeksViewFn) as WeeksViewComponent;
 
 // Attach Root as a static property
 interface WeeksViewComponent extends React.ForwardRefExoticComponent<

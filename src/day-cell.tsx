@@ -580,12 +580,12 @@ const DayButtonInner = memo(
  *
  * Must be used inside a {@link DayCellTemplate} or given an explicit `date` prop.
  */
-export const DayButton = forwardRef<
-  HTMLButtonElement,
-  DayButtonProps & {
+function DayButtonFn(
+  props: DayButtonProps & {
     _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
-  }
->(function DayButton(props, ref) {
+  },
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
   const { date: dateProp, _derivedState, ...restProps } = props;
   const cellData = useContext(DayCellDataContext);
 
@@ -610,17 +610,21 @@ export const DayButton = forwardRef<
   throw new Error(
     "DayButton must be used inside DayCellTemplate or receive an explicit date prop.",
   );
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+export const DayButton = forwardRef(DayButtonFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: DayButtonProps<F> & {
     _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
   } & React.RefAttributes<HTMLButtonElement>,
 ) => React.ReactElement | null;
 
 /** Fallback for standalone DayButton usage that needs to read context. */
-const DayButtonFallback = forwardRef<
-  HTMLButtonElement,
-  Omit<DayButtonProps, "date"> & { date: TemporalPoly.PlainDate }
->(function DayButtonFallback(props, ref) {
+function DayButtonFallbackFn(
+  props: Omit<DayButtonProps, "date"> & { date: TemporalPoly.PlainDate },
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
   const { date, ...restProps } = props;
   const { orientation } = useContext(GridContext);
   const weekData = useContext(WeekDataContext);
@@ -675,7 +679,11 @@ const DayButtonFallback = forwardRef<
       _derivedState={derived}
     />
   );
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+const DayButtonFallback = forwardRef(DayButtonFallbackFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: Omit<DayButtonProps<F>, "date"> & {
     date: TemporalPoly.PlainDate;
   } & React.RefAttributes<HTMLButtonElement>,

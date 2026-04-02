@@ -81,14 +81,10 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   };
 }
 
-/**
- * Drag handle (`<span>`) rendered at a range boundary. Exposes
- * `data-active`, `data-dragging`, and `data-edge` attributes.
- */
-export const RangeDragHandle = forwardRef<
-  HTMLSpanElement,
-  RangeDragHandleProps
->(function RangeDragHandle(props, ref) {
+function RangeDragHandleFn(
+  props: RangeDragHandleProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
     useDragHandle(edge, { dragging });
@@ -108,26 +104,42 @@ export const RangeDragHandle = forwardRef<
           props: mergeProps<"span">(defaultProps, otherProps),
         },
   );
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+/**
+ * Drag handle (`<span>`) rendered at a range boundary. Exposes
+ * `data-active`, `data-dragging`, and `data-edge` attributes.
+ */
+export const RangeDragHandle = forwardRef(RangeDragHandleFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangeDragHandleProps<F> & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
-/** Convenience wrapper for {@link RangeDragHandle} with `edge="start"`. */
-export const RangeStartDragHandle = forwardRef<
-  HTMLSpanElement,
-  RangeStartDragHandleProps
->(function RangeStartDragHandle(props, ref) {
+function RangeStartDragHandleFn(
+  props: RangeStartDragHandleProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   return <RangeDragHandle edge="start" ref={ref} {...props} />;
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+/** Convenience wrapper for {@link RangeDragHandle} with `edge="start"`. */
+export const RangeStartDragHandle = forwardRef(RangeStartDragHandleFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangeStartDragHandleProps<F> & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
-/** Convenience wrapper for {@link RangeDragHandle} with `edge="end"`. */
-export const RangeEndDragHandle = forwardRef<
-  HTMLSpanElement,
-  RangeEndDragHandleProps
->(function RangeEndDragHandle(props, ref) {
+function RangeEndDragHandleFn(
+  props: RangeEndDragHandleProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   return <RangeDragHandle edge="end" ref={ref} {...props} />;
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+/** Convenience wrapper for {@link RangeDragHandle} with `edge="end"`. */
+export const RangeEndDragHandle = forwardRef(RangeEndDragHandleFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangeEndDragHandleProps<F> & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;

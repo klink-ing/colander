@@ -1,6 +1,6 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { createContext, useContext, forwardRef, useMemo } from "react";
+import React, { createContext, useContext, forwardRef, useMemo } from "react";
 import type { StateAttributesMapping } from "./types";
 
 /** State exposed by the MonthSeparator component and its children. */
@@ -76,46 +76,52 @@ type MonthChildProps = useRender.ComponentProps<"span", MonthSeparatorState> & {
   format?: "long" | "short" | "narrow";
 };
 
-const MonthSeparatorMonth = forwardRef<HTMLSpanElement, MonthChildProps>(
-  function MonthSeparatorMonth(props, ref) {
-    const { render, locale = "en-US", format = "long", ...otherProps } = props;
-    const data = useMonthSeparatorData();
+function MonthSeparatorMonthFn(
+  props: MonthChildProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const { render, locale = "en-US", format = "long", ...otherProps } = props;
+  const data = useMonthSeparatorData();
 
-    const monthName = useMemo(() => {
-      const date = new Date(data.year, data.month - 1, 1);
-      return new Intl.DateTimeFormat(locale, { month: format }).format(date);
-    }, [data.year, data.month, locale, format]);
+  const monthName = useMemo(() => {
+    const date = new Date(data.year, data.month - 1, 1);
+    return new Intl.DateTimeFormat(locale, { month: format }).format(date);
+  }, [data.year, data.month, locale, format]);
 
-    return useRender({
-      defaultTagName: "span",
-      render,
-      ref: ref ? [ref] : [],
-      state: data,
-      stateAttributesMapping,
-      props: mergeProps<"span">({ children: monthName }, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "span",
+    render,
+    ref: ref ? [ref] : [],
+    state: data,
+    stateAttributesMapping,
+    props: mergeProps<"span">({ children: monthName }, otherProps),
+  });
+}
+
+const MonthSeparatorMonth = forwardRef(MonthSeparatorMonthFn);
 
 // ─── Child: Year ─────────────────────────────────────────────────────
 
 type YearChildProps = useRender.ComponentProps<"span", MonthSeparatorState>;
 
-const MonthSeparatorYear = forwardRef<HTMLSpanElement, YearChildProps>(
-  function MonthSeparatorYear(props, ref) {
-    const { render, ...otherProps } = props;
-    const data = useMonthSeparatorData();
+function MonthSeparatorYearFn(
+  props: YearChildProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const { render, ...otherProps } = props;
+  const data = useMonthSeparatorData();
 
-    return useRender({
-      defaultTagName: "span",
-      render,
-      ref: ref ? [ref] : [],
-      state: data,
-      stateAttributesMapping,
-      props: mergeProps<"span">({ children: data.year }, otherProps),
-    });
-  },
-);
+  return useRender({
+    defaultTagName: "span",
+    render,
+    ref: ref ? [ref] : [],
+    state: data,
+    stateAttributesMapping,
+    props: mergeProps<"span">({ children: data.year }, otherProps),
+  });
+}
+
+const MonthSeparatorYear = forwardRef(MonthSeparatorYearFn);
 
 // ─── Child: WeekCount ────────────────────────────────────────────────
 
@@ -124,10 +130,10 @@ type WeekCountChildProps = useRender.ComponentProps<
   MonthSeparatorState
 >;
 
-const MonthSeparatorWeekCount = forwardRef<
-  HTMLSpanElement,
-  WeekCountChildProps
->(function MonthSeparatorWeekCount(props, ref) {
+function MonthSeparatorWeekCountFn(
+  props: WeekCountChildProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, ...otherProps } = props;
   const data = useMonthSeparatorData();
 
@@ -139,7 +145,9 @@ const MonthSeparatorWeekCount = forwardRef<
     stateAttributesMapping,
     props: mergeProps<"span">({ children: data.weeksVisibleAfter }, otherProps),
   });
-});
+}
+
+const MonthSeparatorWeekCount = forwardRef(MonthSeparatorWeekCountFn);
 
 // ─── MonthSeparatorRow ──────────────────────────────────────────────
 
@@ -148,11 +156,10 @@ type MonthSeparatorRowProps = useRender.ComponentProps<
   MonthSeparatorState
 >;
 
-/** Renders the `<tr>` for a month separator. Provides MonthSeparatorDataContext. */
-export const MonthSeparatorRow = forwardRef<
-  HTMLTableRowElement,
-  MonthSeparatorRowProps
->(function MonthSeparatorRow(props, ref) {
+function MonthSeparatorRowFn(
+  props: MonthSeparatorRowProps,
+  ref: React.ForwardedRef<HTMLTableRowElement>,
+) {
   const { render, ...otherProps } = props;
   const data = useMonthSeparatorData();
 
@@ -170,7 +177,10 @@ export const MonthSeparatorRow = forwardRef<
       {rendered}
     </MonthSeparatorDataContext.Provider>
   );
-});
+}
+
+/** Renders the `<tr>` for a month separator. Provides MonthSeparatorDataContext. */
+export const MonthSeparatorRow = forwardRef(MonthSeparatorRowFn);
 
 // ─── MonthSeparatorCell ─────────────────────────────────────────────
 
@@ -179,11 +189,10 @@ type MonthSeparatorCellProps = useRender.ComponentProps<
   MonthSeparatorState
 >;
 
-/** Renders the `<td>` inside a MonthSeparatorRow. */
-export const MonthSeparatorCell = forwardRef<
-  HTMLTableCellElement,
-  MonthSeparatorCellProps
->(function MonthSeparatorCell(props, ref) {
+function MonthSeparatorCellFn(
+  props: MonthSeparatorCellProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { render, ...otherProps } = props;
   const data = useMonthSeparatorData();
 
@@ -195,21 +204,19 @@ export const MonthSeparatorCell = forwardRef<
     stateAttributesMapping,
     props: mergeProps<"td">({ colSpan: 7 }, otherProps),
   });
-});
+}
+
+/** Renders the `<td>` inside a MonthSeparatorRow. */
+export const MonthSeparatorCell = forwardRef(MonthSeparatorCellFn);
 
 // ─── MonthSeparator (convenience) ───────────────────────────────────
 
 type MonthSeparatorProps = useRender.ComponentProps<"tr", MonthSeparatorState>;
 
-/**
- * Convenience component: `<tr><td colspan="7">children</td></tr>`.
- * Combines MonthSeparatorRow + MonthSeparatorCell.
- * Default children: `<Month /> <Year />`.
- */
-export const MonthSeparator = forwardRef<
-  HTMLTableRowElement,
-  MonthSeparatorProps
->(function MonthSeparator(props, ref) {
+function MonthSeparatorFn(
+  props: MonthSeparatorProps,
+  ref: React.ForwardedRef<HTMLTableRowElement>,
+) {
   const { render, children, ...otherProps } = props;
   const data = useMonthSeparatorData();
 
@@ -240,6 +247,13 @@ export const MonthSeparator = forwardRef<
       {rendered}
     </MonthSeparatorDataContext.Provider>
   );
-});
+}
+
+/**
+ * Convenience component: `<tr><td colspan="7">children</td></tr>`.
+ * Combines MonthSeparatorRow + MonthSeparatorCell.
+ * Default children: `<Month /> <Year />`.
+ */
+export const MonthSeparator = forwardRef(MonthSeparatorFn);
 
 export { MonthSeparatorMonth, MonthSeparatorYear, MonthSeparatorWeekCount };

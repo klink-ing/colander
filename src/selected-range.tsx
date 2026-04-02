@@ -85,98 +85,107 @@ export function computeClippedRangeInfo(
   return raw;
 }
 
+function RangeSelectedFn(
+  props: RangeSelectedProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
+  const { selectionMode } = useCalendarStable();
+  if (selectionMode !== "range") {
+    return null;
+  }
+  return <RangeSelectedInner ref={ref} {...props} />;
+}
+
 /**
  * Visual overlay (`<td role="presentation">`) that highlights the selected
  * date range within a single week row. Exposes data-attributes for
  * `active`, `week-index`, `start-index`, `end-index`, `start-date`,
  * `end-date`, `extends-before`, and `extends-after`.
  */
-export const RangeSelected = forwardRef<
-  HTMLTableCellElement,
-  RangeSelectedProps
->(function RangeSelected(props, ref) {
-  const { selectionMode } = useCalendarStable();
-  if (selectionMode !== "range") {
-    return null;
-  }
-  return <RangeSelectedInner ref={ref} {...props} />;
-}) as <F extends ValueFormat = ValueFormat>(
+export const RangeSelected = forwardRef(RangeSelectedFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
-const RangeSelectedInner = forwardRef<HTMLTableCellElement, RangeSelectedProps>(
-  function RangeSelectedInner(props, ref) {
-    const { render, ...otherProps } = props;
-    const weekData = useContext(WeekDataContext);
-    const { orientation } = useContext(GridContext);
-    const { temporal: T } = useCalendarStable();
-    const { rangeStart, rangeEnd } = useCalendarState();
-    const monthStable = useContext(MonthViewStableContext);
-    const { rootState } = useMonthViewState();
-    const outsideDays = monthStable?.outsideDays ?? "enabled";
+function RangeSelectedInnerFn(
+  props: RangeSelectedProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
+  const { render, ...otherProps } = props;
+  const weekData = useContext(WeekDataContext);
+  const { orientation } = useContext(GridContext);
+  const { temporal: T } = useCalendarStable();
+  const { rangeStart, rangeEnd } = useCalendarState();
+  const monthStable = useContext(MonthViewStableContext);
+  const { rootState } = useMonthViewState();
+  const outsideDays = monthStable?.outsideDays ?? "enabled";
 
-    const days = weekData?.days ?? [];
-    const gridMonth = weekData?.gridMonth;
+  const days = weekData?.days ?? [];
+  const gridMonth = weekData?.gridMonth;
 
-    const info = useMemo(
-      () =>
-        computeClippedRangeInfo(
-          days,
-          rangeStart,
-          rangeEnd,
-          T,
-          outsideDays,
-          gridMonth,
-        ),
-      [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
-    );
-
-    const startDate = info.active ? days[info.startIndex].toString() : "";
-    const endDate = info.active ? days[info.endIndex].toString() : "";
-
-    const weekIndex = weekData?.weekIndex ?? 0;
-
-    const state = useMemo<RangeSelectedState>(
-      () => ({
-        root: rootState as any,
-        active: info.active,
-        weekIndex,
-        startIndex: info.startIndex,
-        endIndex: info.endIndex,
-        startDate,
-        endDate,
-        extendsBefore: info.extendsBefore,
-        extendsAfter: info.extendsAfter,
-        hasStart: rangeStart !== undefined,
-        hasEnd: rangeEnd !== undefined,
-        orientation,
-      }),
-      [
-        rootState,
-        info,
-        weekIndex,
-        startDate,
-        endDate,
+  const info = useMemo(
+    () =>
+      computeClippedRangeInfo(
+        days,
         rangeStart,
         rangeEnd,
-        orientation,
-      ],
-    );
+        T,
+        outsideDays,
+        gridMonth,
+      ),
+    [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
+  );
 
-    const defaultProps: Record<string, unknown> = {
-      role: "presentation",
-      "aria-hidden": true,
-    };
+  const startDate = info.active ? days[info.startIndex].toString() : "";
+  const endDate = info.active ? days[info.endIndex].toString() : "";
 
-    return useRender({
-      defaultTagName: "td",
-      render,
-      ref: ref ? [ref] : [],
-      state,
-      stateAttributesMapping: rangeOverlayStateAttributesMapping,
-      props: mergeProps<"td">(defaultProps, otherProps),
-    });
-  },
-) as <F extends ValueFormat = ValueFormat>(
+  const weekIndex = weekData?.weekIndex ?? 0;
+
+  const state = useMemo<RangeSelectedState>(
+    () => ({
+      root: rootState as any,
+      active: info.active,
+      weekIndex,
+      startIndex: info.startIndex,
+      endIndex: info.endIndex,
+      startDate,
+      endDate,
+      extendsBefore: info.extendsBefore,
+      extendsAfter: info.extendsAfter,
+      hasStart: rangeStart !== undefined,
+      hasEnd: rangeEnd !== undefined,
+      orientation,
+    }),
+    [
+      rootState,
+      info,
+      weekIndex,
+      startDate,
+      endDate,
+      rangeStart,
+      rangeEnd,
+      orientation,
+    ],
+  );
+
+  const defaultProps: Record<string, unknown> = {
+    role: "presentation",
+    "aria-hidden": true,
+  };
+
+  return useRender({
+    defaultTagName: "td",
+    render,
+    ref: ref ? [ref] : [],
+    state,
+    stateAttributesMapping: rangeOverlayStateAttributesMapping,
+    props: mergeProps<"td">(defaultProps, otherProps),
+  });
+}
+
+const RangeSelectedInner = forwardRef(RangeSelectedInnerFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;

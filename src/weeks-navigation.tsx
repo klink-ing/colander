@@ -1,6 +1,6 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import { forwardRef, useMemo } from "react";
+import React, { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { canShift } from "./overflow";
 import type { StateAttributesMapping } from "./types";
@@ -124,15 +124,10 @@ function useWeeksNavButton(
 // PrevWeeksButton
 // ---------------------------------------------------------------------------
 
-/**
- * Button that navigates to the previous week(s). Automatically disabled when
- * no more weeks are available based on `overflowBehavior` and `min`.
- * Exposes `data-direction="prev"`.
- */
-export const PrevWeeksButton = forwardRef<
-  HTMLButtonElement,
-  PrevWeeksButtonProps
->(function PrevWeeksButton(props, ref) {
+function PrevWeeksButtonFn(
+  props: PrevWeeksButtonProps,
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
   const { render, shiftBy, ...otherProps } = props;
   const { state, defaultProps } = useWeeksNavButton("prev", shiftBy);
 
@@ -144,21 +139,23 @@ export const PrevWeeksButton = forwardRef<
     stateAttributesMapping: weeksNavButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-});
+}
+
+/**
+ * Button that navigates to the previous week(s). Automatically disabled when
+ * no more weeks are available based on `overflowBehavior` and `min`.
+ * Exposes `data-direction="prev"`.
+ */
+export const PrevWeeksButton = forwardRef(PrevWeeksButtonFn);
 
 // ---------------------------------------------------------------------------
 // NextWeeksButton
 // ---------------------------------------------------------------------------
 
-/**
- * Button that navigates to the next week(s). Automatically disabled when
- * no more weeks are available based on `overflowBehavior` and `max`.
- * Exposes `data-direction="next"`.
- */
-export const NextWeeksButton = forwardRef<
-  HTMLButtonElement,
-  NextWeeksButtonProps
->(function NextWeeksButton(props, ref) {
+function NextWeeksButtonFn(
+  props: NextWeeksButtonProps,
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
   const { render, shiftBy, ...otherProps } = props;
   const { state, defaultProps } = useWeeksNavButton("next", shiftBy);
 
@@ -170,38 +167,45 @@ export const NextWeeksButton = forwardRef<
     stateAttributesMapping: weeksNavButtonStateAttributesMapping,
     props: mergeProps<"button">(defaultProps, otherProps),
   });
-});
+}
+
+/**
+ * Button that navigates to the next week(s). Automatically disabled when
+ * no more weeks are available based on `overflowBehavior` and `max`.
+ * Exposes `data-direction="next"`.
+ */
+export const NextWeeksButton = forwardRef(NextWeeksButtonFn);
 
 // ---------------------------------------------------------------------------
 // WeekCount
 // ---------------------------------------------------------------------------
 
+function WeekCountFn(
+  props: WeekCountProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const { render, ...otherProps } = props;
+  const { windowInfo } = useWeeksViewState();
+  const count = windowInfo.weekCount;
+
+  const state = useMemo<WeekCountState>(() => ({ weekCount: count }), [count]);
+
+  const defaultProps: Record<string, unknown> = {
+    children: count,
+  };
+
+  return useRender({
+    defaultTagName: "span",
+    render,
+    ref: ref ? [ref] : [],
+    state,
+    stateAttributesMapping: weekCountStateAttributesMapping,
+    props: mergeProps<"span">(defaultProps, otherProps),
+  });
+}
+
 /**
  * Renders the current visible week count as a number. Useful with shrink
  * overflow modes where the actual count may be less than the `weekCount` prop.
  */
-export const WeekCount = forwardRef<HTMLSpanElement, WeekCountProps>(
-  function WeekCount(props, ref) {
-    const { render, ...otherProps } = props;
-    const { windowInfo } = useWeeksViewState();
-    const count = windowInfo.weekCount;
-
-    const state = useMemo<WeekCountState>(
-      () => ({ weekCount: count }),
-      [count],
-    );
-
-    const defaultProps: Record<string, unknown> = {
-      children: count,
-    };
-
-    return useRender({
-      defaultTagName: "span",
-      render,
-      ref: ref ? [ref] : [],
-      state,
-      stateAttributesMapping: weekCountStateAttributesMapping,
-      props: mergeProps<"span">(defaultProps, otherProps),
-    });
-  },
-);
+export const WeekCount = forwardRef(WeekCountFn);

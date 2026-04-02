@@ -55,10 +55,10 @@ const gridHeaderCellStateAttributesMapping = {
   narrow: () => null,
 } as const satisfies StateAttributesMapping<GridHeaderCellState>;
 
-const GridHeaderCellInstance = forwardRef<
-  HTMLTableCellElement,
-  Omit<GridHeaderCellProps, "index"> & { index: number }
->(function GridHeaderCellInstance(props, ref) {
+function GridHeaderCellInstanceFn(
+  props: Omit<GridHeaderCellProps, "index"> & { index: number },
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { render, index, ...otherProps } = props;
   const { state, defaultProps } = useGridHeaderCellState(index);
 
@@ -70,21 +70,20 @@ const GridHeaderCellInstance = forwardRef<
     stateAttributesMapping: gridHeaderCellStateAttributesMapping,
     props: mergeProps<"th">(defaultProps, otherProps),
   });
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+const GridHeaderCellInstance = forwardRef(GridHeaderCellInstanceFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: Omit<GridHeaderCellProps<F>, "index"> & {
     index: number;
   } & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
-/**
- * Renders weekday column headers (`<th>`). When no `index` is provided,
- * renders all 7 days (Sunday–Saturday). Each cell includes `abbr` and
- * `aria-label` with the full weekday name.
- */
-export const GridHeaderCell = forwardRef<
-  HTMLTableCellElement,
-  GridHeaderCellProps
->(function GridHeaderCell(props, ref) {
+function GridHeaderCellFn(
+  props: GridHeaderCellProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { index: indexProp, ...restProps } = props;
   const { temporal: T } = useCalendarStable();
   const Instance = GridHeaderCellInstance;
@@ -102,34 +101,48 @@ export const GridHeaderCell = forwardRef<
       ))}
     </>
   );
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+/**
+ * Renders weekday column headers (`<th>`). When no `index` is provided,
+ * renders all 7 days (Sunday–Saturday). Each cell includes `abbr` and
+ * `aria-label` with the full weekday name.
+ */
+export const GridHeaderCell = forwardRef(GridHeaderCellFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: GridHeaderCellProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
+function GridHeaderFn(
+  props: GridHeaderProps,
+  ref: React.ForwardedRef<HTMLTableSectionElement>,
+) {
+  const { render, children, ...otherProps } = props;
+  const { rootState } = useMonthViewState();
+
+  const state = useMemo<GridHeaderState>(
+    () => ({ root: rootState as unknown as GridHeaderState["root"] }),
+    [rootState],
+  );
+
+  const defaultProps: Record<string, unknown> = {
+    children: <tr>{children ?? <GridHeaderCell />}</tr>,
+  };
+
+  return useRender({
+    defaultTagName: "thead",
+    render,
+    ref: ref ? [ref] : [],
+    state,
+    stateAttributesMapping: gridHeaderStateAttributesMapping,
+    props: mergeProps<"thead">(defaultProps, otherProps),
+  });
+}
+
 /** Table header section (`<thead>`) wrapping a row of {@link GridHeaderCell}s. */
-export const GridHeader = forwardRef<HTMLTableSectionElement, GridHeaderProps>(
-  function GridHeader(props, ref) {
-    const { render, children, ...otherProps } = props;
-    const { rootState } = useMonthViewState();
-
-    const state = useMemo<GridHeaderState>(
-      () => ({ root: rootState as unknown as GridHeaderState["root"] }),
-      [rootState],
-    );
-
-    const defaultProps: Record<string, unknown> = {
-      children: <tr>{children ?? <GridHeaderCell />}</tr>,
-    };
-
-    return useRender({
-      defaultTagName: "thead",
-      render,
-      ref: ref ? [ref] : [],
-      state,
-      stateAttributesMapping: gridHeaderStateAttributesMapping,
-      props: mergeProps<"thead">(defaultProps, otherProps),
-    });
-  },
-) as <F extends ValueFormat = ValueFormat>(
+export const GridHeader = forwardRef(GridHeaderFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: GridHeaderProps<F> & React.RefAttributes<HTMLTableSectionElement>,
 ) => React.ReactElement | null;

@@ -19,14 +19,10 @@ const weekNumberCellStateAttributesMapping = {
   weekNumber: (v) => ({ "data-week-number": String(v) }),
 } as const satisfies StateAttributesMapping<WeekNumberCellState>;
 
-/**
- * Renders the ISO 8601 week number for a week row. Must be used inside
- * a {@link WeekTemplate}. Renders a `<td>` with `role="rowheader"`.
- */
-export const WeekNumberCell = forwardRef<
-  HTMLTableCellElement,
-  WeekNumberCellProps
->(function WeekNumberCell(props, ref) {
+function WeekNumberCellFn(
+  props: WeekNumberCellProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
   const { rootState } = useMonthViewState();
@@ -70,7 +66,15 @@ export const WeekNumberCell = forwardRef<
     stateAttributesMapping: weekNumberCellStateAttributesMapping,
     props: mergeProps<"td">(defaultProps, otherProps),
   });
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+/**
+ * Renders the ISO 8601 week number for a week row. Must be used inside
+ * a {@link WeekTemplate}. Renders a `<td>` with `role="rowheader"`.
+ */
+export const WeekNumberCell = forwardRef(WeekNumberCellFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: WeekNumberCellProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
@@ -78,13 +82,10 @@ const weekNumberHeaderStateAttributesMapping = {
   root: () => null,
 } as const satisfies StateAttributesMapping<WeekNumberHeaderState>;
 
-/**
- * Column header for the week number column. Renders a `<th scope="col">`.
- */
-export const WeekNumberHeader = forwardRef<
-  HTMLTableCellElement,
-  WeekNumberHeaderProps
->(function WeekNumberHeader(props, ref) {
+function WeekNumberHeaderFn(
+  props: WeekNumberHeaderProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { render, ...otherProps } = props;
   const { rootState } = useMonthViewState();
 
@@ -107,6 +108,13 @@ export const WeekNumberHeader = forwardRef<
     stateAttributesMapping: weekNumberHeaderStateAttributesMapping,
     props: mergeProps<"th">(defaultProps, otherProps),
   });
-}) as <F extends ValueFormat = ValueFormat>(
+}
+
+/**
+ * Column header for the week number column. Renders a `<th scope="col">`.
+ */
+export const WeekNumberHeader = forwardRef(WeekNumberHeaderFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: WeekNumberHeaderProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
