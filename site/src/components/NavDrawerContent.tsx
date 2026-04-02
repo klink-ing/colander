@@ -17,23 +17,12 @@ export default function NavDrawerContent() {
         <ul className="m-0 list-none space-y-1 p-0">
           {NAV_LINKS.map((link) => (
             <li key={link.label}>
-              {"external" in link ? (
-                <a
-                  href={link.href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="block rounded-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
-                >
-                  {link.label}
-                </a>
-              ) : (
-                <Link
-                  to={link.to}
-                  className="block rounded-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
-                >
-                  {link.label}
-                </Link>
-              )}
+              <Link
+                to={link.to}
+                className="block rounded-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
+              >
+                {link.label}
+              </Link>
             </li>
           ))}
         </ul>

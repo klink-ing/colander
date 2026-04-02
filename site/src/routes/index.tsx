@@ -4,7 +4,7 @@ import heroImage from "#/assets/colander.png";
 import { GithubIcon } from "#/components/icons/GithubIcon";
 import { ButtonA } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/")({ component: App });
 

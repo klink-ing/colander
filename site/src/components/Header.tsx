@@ -1,5 +1,5 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import heroImage from "#/assets/colander.png?width=100";
+import heroImage from "#/assets/colander.png";
 import { GithubIcon } from "#/components/icons/GithubIcon";
 import {
   NavigationMenu,

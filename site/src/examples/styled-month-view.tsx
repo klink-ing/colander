@@ -1,7 +1,7 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import { MonthView, WeekNumberCell, WeekNumberHeader } from "colander";
 import type { OutsideDays } from "colander";
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 import {
   StyledPrevMonthButton,
   StyledNextMonthButton,

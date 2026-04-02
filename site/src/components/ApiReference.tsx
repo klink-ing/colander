@@ -5,7 +5,7 @@ import {
   type ApiSymbol,
   type SymbolProperty,
 } from "#/lib/api-data";
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
 import { Code } from "./ui/code";

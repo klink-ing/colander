@@ -11,7 +11,7 @@ import {
   useCalendarStable,
   type OverflowBehavior,
 } from "colander";
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 import {
   StyledGrid,
   StyledGridHeader,

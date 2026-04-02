@@ -7,6 +7,15 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+/* Override shadcn's data-selected variant to support Base UI's presence pattern
+   alongside react-day-picker's data-selected="true" convention. */
+@custom-variant data-selected {
+  &:where([data-selected="true"]),
+  &:where([data-selected]:not([data-selected="false"])) {
+    @slot;
+  }
+}
+
 @import "./typography.css";
 @import "./squircle.css";
 

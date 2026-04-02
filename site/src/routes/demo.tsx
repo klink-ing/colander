@@ -80,7 +80,7 @@ function DemoApp() {
   const [singleDate, setSingleDate] = useState<Temporal.ZonedDateTime | null>(
     null,
   );
-  const [range, setRange] = useState<DateRange | null>(null);
+  const [range, setRange] = useState<DateRange<"ZonedDateTime"> | null>(null);
   const [multipleDates, setMultipleDates] = useState<Temporal.ZonedDateTime[]>(
     [],
   );
@@ -211,7 +211,7 @@ function DemoApp() {
         })
       : "No selection";
 
-  const formatRangeDisplay = (val: DateRange | null) =>
+  const formatRangeDisplay = (val: DateRange<"ZonedDateTime"> | null) =>
     val
       ? `${val.start ? new Date(val.start.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric" }) : "..."} \u2013 ${val.end ? new Date(val.end.epochMilliseconds).toLocaleDateString(locale, { month: "short", day: "numeric", year: "numeric" }) : "..."}`
       : "No selection";
@@ -240,7 +240,7 @@ function DemoApp() {
       return {
         selectionMode: "range" as const,
         value: range,
-        onValueChange: (v: DateRange | null) => {
+        onValueChange: (v: DateRange<"ZonedDateTime"> | null) => {
           setRange(v);
           log("onValueChange", v);
         },

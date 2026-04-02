@@ -1,5 +1,5 @@
 import Markdoc, { type Config, type Schema } from "@markdoc/markdoc";
-import { cn } from "./cn";
+import { cn } from "./utils";
 
 export interface DocFrontmatter {
   title: string;

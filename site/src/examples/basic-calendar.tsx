@@ -9,19 +9,15 @@ import {
   DayCellTemplate,
   DayButton,
 } from "colander";
-import type { ValueFormat, DateRange } from "colander";
-
-interface CalendarProps {
-  format?: ValueFormat;
-  onSelect?: (value: DateRange | null) => void;
-}
+import type { Temporal } from "@js-temporal/polyfill";
 
 export function BasicCalendar({
-  format = "PlainDate",
   onSelect,
-}: CalendarProps) {
+}: {
+  onSelect?: (value: Temporal.PlainDate | null) => void;
+}) {
   return (
-    <CalendarProvider format={format} onValueChange={onSelect}>
+    <CalendarProvider format="PlainDate" onValueChange={onSelect}>
       <MonthView>
         <Grid>
           <GridHeader>

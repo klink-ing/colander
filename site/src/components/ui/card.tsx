@@ -1,5 +1,5 @@
 import { useRender } from "@base-ui/react/use-render";
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 
 function Card({
   className,

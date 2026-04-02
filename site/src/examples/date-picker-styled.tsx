@@ -32,7 +32,7 @@ import type {
   RangeSelectedProps,
   RangePreviewProps,
 } from "colander";
-import { cn } from "#/lib/cn";
+import { cn } from "#/lib/utils";
 import { DragHandle, DragDayButton } from "#/lib/drag-components";
 
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({

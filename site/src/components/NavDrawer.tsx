@@ -33,7 +33,7 @@ export default function NavDrawer({ children }: { children: React.ReactNode }) {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Portal>
-        <Dialog.Backdrop className="fixed inset-0 z-[60] bg-black/50 opacity-0 transition-opacity duration-200 ease-out data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[ending-style]:ease-in data-[open]:opacity-100" />
+        <Dialog.Backdrop className="fixed inset-0 z-60 bg-black/50 opacity-0 transition-opacity duration-200 ease-out data-ending-style:opacity-0 data-ending-style:duration-150 data-ending-style:ease-in data-open:opacity-100" />
         <Dialog.Popup
           aria-label="Navigation"
           finalFocus={() => {
@@ -45,7 +45,7 @@ export default function NavDrawer({ children }: { children: React.ReactNode }) {
             }
             return false;
           }}
-          className="fixed inset-y-0 left-0 z-[60] w-72 -translate-x-full overflow-y-auto bg-background p-6 shadow-xl transition-transform duration-200 ease-out data-[ending-style]:-translate-x-full data-[ending-style]:duration-150 data-[ending-style]:ease-in data-[open]:translate-x-0"
+          className="fixed inset-y-0 left-0 z-60 w-72 -translate-x-full overflow-y-auto bg-background p-6 shadow-xl transition-transform duration-200 ease-out data-ending-style:-translate-x-full data-ending-style:duration-150 data-ending-style:ease-in data-open:translate-x-0"
         >
           {children}
         </Dialog.Popup>
