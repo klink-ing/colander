@@ -11,3 +11,5 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
+src/breakpoints.gen.css
+src/fluid.gen.css

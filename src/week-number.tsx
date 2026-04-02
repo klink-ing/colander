@@ -1,11 +1,10 @@
-import { useContext, useMemo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useContext, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
-import { useMonthViewState } from "./month-view-context";
 import { WeekDataContext } from "./context";
-import { getISOWeekNumber } from "./utils";
+import { useMonthViewState } from "./month-view-context";
 import type {
   ValueFormat,
   WeekNumberCellState,
@@ -13,6 +12,7 @@ import type {
   WeekNumberHeaderState,
   WeekNumberHeaderProps,
 } from "./types";
+import { getISOWeekNumber } from "./utils";
 
 const weekNumberCellStateAttributesMapping = {
   root: () => null,

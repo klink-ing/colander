@@ -1,10 +1,10 @@
-import { useMemo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
-import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 import { canShift } from "./overflow";
+import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
 // ---------------------------------------------------------------------------
 // Shared types
@@ -23,14 +23,18 @@ export interface WeeksNavButtonOwnProps {
 }
 
 /** Full props for the `PrevWeeksButton` component. */
-export type PrevWeeksButtonProps =
-  useRender.ComponentProps<"button", WeeksNavButtonState> &
-    WeeksNavButtonOwnProps;
+export type PrevWeeksButtonProps = useRender.ComponentProps<
+  "button",
+  WeeksNavButtonState
+> &
+  WeeksNavButtonOwnProps;
 
 /** Full props for the `NextWeeksButton` component. */
-export type NextWeeksButtonProps =
-  useRender.ComponentProps<"button", WeeksNavButtonState> &
-    WeeksNavButtonOwnProps;
+export type NextWeeksButtonProps = useRender.ComponentProps<
+  "button",
+  WeeksNavButtonState
+> &
+  WeeksNavButtonOwnProps;
 
 /** State exposed by `WeeksView.WeekCount`. */
 export type WeekCountState = {

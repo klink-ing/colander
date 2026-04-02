@@ -1,5 +1,5 @@
 import { type ComponentProps } from "react";
-import { MonthView } from "./month-view";
+import { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
 import {
   Grid,
   GridHeader,
@@ -9,6 +9,7 @@ import {
   DayCellTemplate,
   DayButton,
 } from "./grid";
+import { MonthView } from "./month-view";
 import {
   DateString,
   TimeString,
@@ -16,11 +17,10 @@ import {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
-import { RangeSelected } from "./selected-range";
 import { RangePreview } from "./range-preview";
-import { RangeStartDragHandle, RangeEndDragHandle } from "./drag-handle";
-import { WeekNumberCell, WeekNumberHeader } from "./week-number";
+import { RangeSelected } from "./selected-range";
 import type { ValueFormat, CreateDatePickerOptions } from "./types";
+import { WeekNumberCell, WeekNumberHeader } from "./week-number";
 
 /**
  * Creates a type-narrowed set of DatePicker components for a specific

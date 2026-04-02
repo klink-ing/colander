@@ -1,7 +1,7 @@
-import { defineConfig } from "vite";
+import path from "path";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
-import path from "path";
+import { defineConfig } from "vite";
 
 export default defineConfig({
   plugins: [
@@ -14,7 +14,7 @@ export default defineConfig({
     lib: {
       entry: path.resolve(import.meta.dirname, "src/index.ts"),
       formats: ["es", "cjs"],
-      fileName: (format) => format === "es" ? "index.js" : "index.cjs",
+      fileName: (format) => (format === "es" ? "index.js" : "index.cjs"),
     },
     rollupOptions: {
       external: [

@@ -1,10 +1,10 @@
-import { useContext, useMemo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import { useContext, useMemo } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { WeekDataContext, GridContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
 import { MonthViewStableContext } from "./month-view-context";
-import { WeekDataContext, GridContext } from "./context";
 import {
   computeClippedRangeInfo,
   rangeOverlayStateAttributesMapping,
@@ -22,6 +22,16 @@ import type {
  * the committed range boundaries.
  */
 export function RangePreview<F extends ValueFormat = ValueFormat>(
+  props: RangePreviewProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
+) {
+  const { selectionMode } = useCalendarStable();
+  if (selectionMode !== "range") {
+    return null;
+  }
+  return <RangePreviewImplementation {...props} />;
+}
+
+function RangePreviewImplementation<F extends ValueFormat = ValueFormat>(
   props: RangePreviewProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { ref, render, ...otherProps } = props;

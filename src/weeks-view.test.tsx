@@ -1,13 +1,19 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, screen, act, cleanup, within } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
-import { WeeksView } from "./weeks-view";
-import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
-import { useViewContext } from "./view-context";
-import { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
+import { render, screen, act, cleanup, within } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import {
+  Grid,
+  GridBody,
+  WeekTemplate,
+  DayCellTemplate,
+  DayButton,
+} from "./grid";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import { MonthSeparator } from "./month-separator";
+import { useViewContext } from "./view-context";
 import { NextWeeksButton, PrevWeeksButton } from "./weeks-navigation";
+import { WeeksView } from "./weeks-view";
+import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
 
 const T = Temporal;
 
@@ -66,7 +72,6 @@ afterEach(() => {
 });
 
 describe("WeeksView", () => {
-
   it("renders 8 weeks starting from firstWeek", () => {
     render(
       <WeeksView
@@ -226,8 +231,7 @@ describe("WeeksView", () => {
 
   it("computes enabledDayCount/enabledWeekCount with isDateDisabled", () => {
     // Disable all Mondays
-    const isDateDisabled = (date: Temporal.PlainDate) =>
-      date.dayOfWeek === 1; // Monday
+    const isDateDisabled = (date: Temporal.PlainDate) => date.dayOfWeek === 1; // Monday
 
     render(
       <WeeksView
@@ -281,9 +285,7 @@ describe("WeeksView", () => {
   it("provides weeks data via context", () => {
     function WeeksDataDisplay() {
       const state = useWeeksViewState();
-      return (
-        <span data-testid="weeks-length">{state.weeks.length}</span>
-      );
+      return <span data-testid="weeks-length">{state.weeks.length}</span>;
     }
 
     render(
@@ -397,9 +399,7 @@ describe("WeeksView regression: MonthSeparator renders in context (Bug #2)", () 
         <Grid>
           <GridBody>
             <MonthSeparator>
-              <MonthSeparator.Month />
-              {" "}
-              <MonthSeparator.Year />
+              <MonthSeparator.Month /> <MonthSeparator.Year />
             </MonthSeparator>
             <WeekTemplate>
               <DayCellTemplate />

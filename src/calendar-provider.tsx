@@ -1,14 +1,22 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Temporal } from "@js-temporal/polyfill";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  CalendarStableContext,
+  CalendarStateContext,
+} from "./calendar-context";
 import type {
   CalendarProviderProps,
   CalendarStableContextValue,
   CalendarStateContextValue,
 } from "./calendar-types";
 import {
-  CalendarStableContext,
-  CalendarStateContext,
-} from "./calendar-context";
+  isDateRange,
+  tagRaw,
+  computeSelectionUpdate,
+  computeSetRangeUpdate,
+  truncateDatesForMode,
+  type SelectionResult,
+} from "./root-selection";
 import type {
   DateRange,
   DateValueObject,
@@ -18,14 +26,6 @@ import type {
   ValueFormat,
 } from "./types";
 import { fromZonedDateTime, toZonedDateTime, selectedToZdt } from "./utils";
-import {
-  isDateRange,
-  tagRaw,
-  computeSelectionUpdate,
-  computeSetRangeUpdate,
-  truncateDatesForMode,
-  type SelectionResult,
-} from "./root-selection";
 import { getSystemTimeZone, resolveTemporal } from "./utils";
 
 /**
@@ -215,7 +215,14 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
     }
     if (singleDefault != null) return [rawToPlain(singleDefault)];
     return [];
-  }, [isMultiple, multipleDefault, rangeDefault, singleDefault, rawToPlain, sortDates]);
+  }, [
+    isMultiple,
+    multipleDefault,
+    rangeDefault,
+    singleDefault,
+    rawToPlain,
+    sortDates,
+  ]);
 
   const [internalDates, setInternalDates] =
     useState<(Temporal.PlainDate | null)[]>(defaultDates);

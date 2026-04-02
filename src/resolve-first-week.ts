@@ -128,10 +128,7 @@ export function resolveFirstWeek(
 
     case "nearest": {
       const lastWeek = currentFirstWeek.add({ weeks: weekCount - 1 });
-      const cmp = (
-        a: Temporal.PlainDate,
-        b: Temporal.PlainDate,
-      ): number => {
+      const cmp = (a: Temporal.PlainDate, b: Temporal.PlainDate): number => {
         if (a.year !== b.year) return a.year - b.year;
         if (a.month !== b.month) return a.month - b.month;
         return a.day - b.day;

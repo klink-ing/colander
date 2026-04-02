@@ -1,8 +1,8 @@
-import { describe, it, expect, vi, afterEach } from "vitest";
-import { render, act, cleanup } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
-import { CalendarProvider } from "./calendar-provider";
+import { render, act, cleanup } from "@testing-library/react";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { CalendarProvider } from "./calendar-provider";
 
 afterEach(cleanup);
 
@@ -94,6 +94,35 @@ describe("CalendarProvider", () => {
       getByText("Select").click();
     });
     expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it("deselects when clicking an already-selected date in single mode", async () => {
+    const onChange = vi.fn();
+    const { getByTestId, getByText } = render(
+      <CalendarProvider temporal={T} selectionMode="single" onValueChange={onChange}>
+        <StateConsumer />
+        <SelectButton />
+      </CalendarProvider>,
+    );
+    // First click: select
+    await act(async () => {
+      getByText("Select").click();
+    });
+    expect(getByTestId("has-selection").textContent).toBe("yes");
+    expect(onChange).toHaveBeenLastCalledWith(
+      expect.anything(),
+      expect.objectContaining({ previous: null }),
+    );
+
+    // Second click on same date: deselect
+    await act(async () => {
+      getByText("Select").click();
+    });
+    expect(getByTestId("has-selection").textContent).toBe("no");
+    expect(onChange).toHaveBeenLastCalledWith(
+      null,
+      expect.objectContaining({ date: T.PlainDate.from("2026-03-15") }),
+    );
   });
 
   it("throws when hooks used outside provider", () => {

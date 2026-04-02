@@ -1,6 +1,12 @@
 {
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "**/*.test.*", "**/*.bench.*", "**/*.perf.*"],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.*",
+    "**/*.bench.*",
+    "**/*.perf.*"
+  ],
   "compilerOptions": {
     "declaration": true,
     "emitDeclarationOnly": true,

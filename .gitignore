@@ -11,3 +11,4 @@ stats.html
 .claude/plans
 /.superpowers
 site/node_modules
+site/api-data/

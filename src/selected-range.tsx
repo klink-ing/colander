@@ -1,13 +1,12 @@
-import { useContext, useMemo } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
+import type { Temporal } from "@js-temporal/polyfill";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useContext, useMemo } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
+import { WeekDataContext, GridContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
 import { MonthViewStableContext } from "./month-view-context";
-import { WeekDataContext, GridContext } from "./context";
-import { computeWeekRangeInfo } from "./utils";
-import type { Temporal } from "@js-temporal/polyfill";
 import type {
   ValueFormat,
   RangeSelectedState,
@@ -15,6 +14,7 @@ import type {
   OutsideDays,
   TemporalNamespace,
 } from "./types";
+import { computeWeekRangeInfo } from "./utils";
 
 export const rangeOverlayStateAttributesMapping = {
   root: () => null,
@@ -92,6 +92,16 @@ export function computeClippedRangeInfo(
  * `end-date`, `extends-before`, and `extends-after`.
  */
 export function RangeSelected<F extends ValueFormat = ValueFormat>(
+  props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
+) {
+  const { selectionMode } = useCalendarStable();
+  if (selectionMode !== "range") {
+    return null;
+  }
+  return <RangeSelectedImplementation {...props} />;
+}
+
+function RangeSelectedImplementation<F extends ValueFormat = ValueFormat>(
   props: RangeSelectedProps<F> & { ref?: React.Ref<HTMLTableCellElement> },
 ) {
   const { ref, render, ...otherProps } = props;

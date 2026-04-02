@@ -1,30 +1,19 @@
-import { useContext, useMemo, useCallback, useEffect, useRef } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
-import type { KeyboardEvent } from "react";
+import { useRender } from "@base-ui/react/use-render";
 import type { Temporal } from "@js-temporal/polyfill";
+import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useContext, useMemo, useCallback, useEffect, useRef } from "react";
+import type { KeyboardEvent } from "react";
 import { useCalendarStable } from "./calendar-context";
+import { WeekDataContext, GridContext, GridMonthContext } from "./context";
+import { GridHeader, GridHeaderCell } from "./grid-header";
+import { computeNextFocusDate } from "./keyboard";
 import {
   MonthViewStableContext,
   MonthViewStateContext,
   useMonthViewStable,
   useMonthViewState,
 } from "./month-view-context";
-import { useViewContext } from "./view-context";
-import {
-  WeeksViewStateContext,
-  useWeeksViewState,
-  useWeeksViewStable,
-} from "./weeks-view-context";
-import {
-  WeekDataContext,
-  GridContext,
-  GridMonthContext,
-} from "./context";
-import { computeNextFocusDate } from "./keyboard";
-import { computeWeeksKeyNav } from "./weeks-keyboard";
-import { GridHeader, GridHeaderCell } from "./grid-header";
-import { WeeksGrid } from "./weeks-grid";
 import type {
   ValueFormat,
   RootState,
@@ -35,7 +24,14 @@ import type {
   WeekTemplateState,
   WeekTemplateProps,
 } from "./types";
-import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useViewContext } from "./view-context";
+import { WeeksGrid } from "./weeks-grid";
+import { computeWeeksKeyNav } from "./weeks-keyboard";
+import {
+  WeeksViewStateContext,
+  useWeeksViewState,
+  useWeeksViewStable,
+} from "./weeks-view-context";
 export { GridHeader, GridHeaderCell } from "./grid-header";
 export { DayCellTemplate, DayButton } from "./day-cell";
 
@@ -188,9 +184,7 @@ export function Grid<F extends ValueFormat = ValueFormat>(
     return <WeeksViewGrid<F> {...props} />;
   }
 
-  throw new Error(
-    "Grid must be used inside MonthView.Root or WeeksView.Root.",
-  );
+  throw new Error("Grid must be used inside MonthView.Root or WeeksView.Root.");
 }
 
 // ---------------------------------------------------------------------------
@@ -480,9 +474,7 @@ function WeeksViewGrid<F extends ValueFormat = ValueFormat>(
   return (
     <MonthViewStableContext.Provider value={monthViewStableShim}>
       <MonthViewStateContext.Provider value={monthViewStateShim}>
-        <GridContext.Provider value={orientationCtx}>
-          {el}
-        </GridContext.Provider>
+        <GridContext.Provider value={orientationCtx}>{el}</GridContext.Provider>
       </MonthViewStateContext.Provider>
     </MonthViewStableContext.Provider>
   );
@@ -501,8 +493,12 @@ export function GridBody<F extends ValueFormat = ValueFormat>(
   // In WeeksView, delegate to WeeksGrid which handles week iteration
   // and MonthSeparator context provision.
   if (weeksState) {
-    const { children, className, style, ...rest } = props as any;
-    return <WeeksGrid className={className} style={style}>{children}</WeeksGrid>;
+    const { children, className, style } = props as any;
+    return (
+      <WeeksGrid className={className} style={style}>
+        {children}
+      </WeeksGrid>
+    );
   }
 
   return <MonthGridBody<F> {...props} />;
@@ -598,7 +594,12 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
       {weeks.map((weekDays, i) => (
         <WeekDataContext.Provider
           key={weekDays[0].toString()}
-          value={{ days: weekDays, weekIndex: i, gridMonth, gridRow: outerWeekData?.gridRow }}
+          value={{
+            days: weekDays,
+            weekIndex: i,
+            gridMonth,
+            gridRow: outerWeekData?.gridRow,
+          }}
         >
           <Instance {...props} />
         </WeekDataContext.Provider>

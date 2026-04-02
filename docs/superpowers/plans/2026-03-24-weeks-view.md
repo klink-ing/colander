@@ -16,60 +16,60 @@
 
 ### New files
 
-| File | Responsibility |
-|------|---------------|
-| `src/calendar-provider.tsx` | CalendarProvider context + provider component |
-| `src/calendar-context.ts` | CalendarStable + CalendarState context definitions, hooks |
-| `src/calendar-types.ts` | Shared types: CalendarProviderProps, CalendarStableContextValue, CalendarStateContextValue |
-| `src/view-context.ts` | ViewContext — shared view-level interface (focusedDate, setFocusedDate, tabTargetDate, viewType) that both MonthView and WeeksView provide. Shared components read from this. |
-| `src/month-view.tsx` | MonthView.Root + MonthView convenience wrapper |
-| `src/month-view-context.ts` | MonthViewStable + MonthViewState context definitions, hooks |
-| `src/month-view-types.ts` | MonthViewRootProps, MonthViewStableContextValue, MonthViewStateContextValue |
-| `src/weeks-view.tsx` | WeeksView.Root + WeeksView convenience wrapper |
-| `src/weeks-view-context.ts` | WeeksViewStable + WeeksViewState context definitions, hooks |
-| `src/weeks-view-types.ts` | WeeksViewRootProps, FirstWeekSpec, WindowInfo, overflow types |
-| `src/weeks-view-state.ts` | useWeeksViewState hook (week window computation, navigation) |
-| `src/weeks-grid.ts` | Internal WeeksGrid renderer (used by Grid in weeks view context) |
-| `src/month-separator.tsx` | MonthSeparator + .Month, .Year, .WeekCount child components |
-| `src/weeks-navigation.tsx` | PrevWeeksButton, NextWeeksButton, WeeksView.WeekCount |
-| `src/weeks-keyboard.ts` | Weeks-specific keyboard navigation logic |
-| `src/compute-weeks-in-window.ts` | Pure utility: computeWeeksInWindow() |
-| `src/resolve-first-week.ts` | Pure utilities: resolveFirstWeek(), resolveFirstWeekSpec() |
-| `src/overflow.ts` | Overflow behavior computation (stop, snap, shrink) |
+| File                             | Responsibility                                                                                                                                                                |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/calendar-provider.tsx`      | CalendarProvider context + provider component                                                                                                                                 |
+| `src/calendar-context.ts`        | CalendarStable + CalendarState context definitions, hooks                                                                                                                     |
+| `src/calendar-types.ts`          | Shared types: CalendarProviderProps, CalendarStableContextValue, CalendarStateContextValue                                                                                    |
+| `src/view-context.ts`            | ViewContext — shared view-level interface (focusedDate, setFocusedDate, tabTargetDate, viewType) that both MonthView and WeeksView provide. Shared components read from this. |
+| `src/month-view.tsx`             | MonthView.Root + MonthView convenience wrapper                                                                                                                                |
+| `src/month-view-context.ts`      | MonthViewStable + MonthViewState context definitions, hooks                                                                                                                   |
+| `src/month-view-types.ts`        | MonthViewRootProps, MonthViewStableContextValue, MonthViewStateContextValue                                                                                                   |
+| `src/weeks-view.tsx`             | WeeksView.Root + WeeksView convenience wrapper                                                                                                                                |
+| `src/weeks-view-context.ts`      | WeeksViewStable + WeeksViewState context definitions, hooks                                                                                                                   |
+| `src/weeks-view-types.ts`        | WeeksViewRootProps, FirstWeekSpec, WindowInfo, overflow types                                                                                                                 |
+| `src/weeks-view-state.ts`        | useWeeksViewState hook (week window computation, navigation)                                                                                                                  |
+| `src/weeks-grid.ts`              | Internal WeeksGrid renderer (used by Grid in weeks view context)                                                                                                              |
+| `src/month-separator.tsx`        | MonthSeparator + .Month, .Year, .WeekCount child components                                                                                                                   |
+| `src/weeks-navigation.tsx`       | PrevWeeksButton, NextWeeksButton, WeeksView.WeekCount                                                                                                                         |
+| `src/weeks-keyboard.ts`          | Weeks-specific keyboard navigation logic                                                                                                                                      |
+| `src/compute-weeks-in-window.ts` | Pure utility: computeWeeksInWindow()                                                                                                                                          |
+| `src/resolve-first-week.ts`      | Pure utilities: resolveFirstWeek(), resolveFirstWeekSpec()                                                                                                                    |
+| `src/overflow.ts`                | Overflow behavior computation (stop, snap, shrink)                                                                                                                            |
 
 ### New test files
 
-| File | Tests for |
-|------|-----------|
-| `src/compute-weeks-in-window.test.ts` | computeWeeksInWindow pure function |
-| `src/resolve-first-week.test.ts` | resolveFirstWeek, resolveFirstWeekSpec pure functions |
-| `src/overflow.test.ts` | Overflow behavior computations |
-| `src/weeks-keyboard.test.ts` | Weeks-specific keyboard navigation |
-| `src/weeks-view.test.tsx` | WeeksView.Root integration (rendering, state, navigation) |
-| `src/month-separator.test.tsx` | MonthSeparator rendering and state |
-| `src/calendar-provider.test.tsx` | CalendarProvider + shared state |
-| `src/month-view.test.tsx` | MonthView refactor (regression tests) |
+| File                                  | Tests for                                                 |
+| ------------------------------------- | --------------------------------------------------------- |
+| `src/compute-weeks-in-window.test.ts` | computeWeeksInWindow pure function                        |
+| `src/resolve-first-week.test.ts`      | resolveFirstWeek, resolveFirstWeekSpec pure functions     |
+| `src/overflow.test.ts`                | Overflow behavior computations                            |
+| `src/weeks-keyboard.test.ts`          | Weeks-specific keyboard navigation                        |
+| `src/weeks-view.test.tsx`             | WeeksView.Root integration (rendering, state, navigation) |
+| `src/month-separator.test.tsx`        | MonthSeparator rendering and state                        |
+| `src/calendar-provider.test.tsx`      | CalendarProvider + shared state                           |
+| `src/month-view.test.tsx`             | MonthView refactor (regression tests)                     |
 
 ### Modified files
 
-| File | Changes |
-|------|---------|
-| `src/types.ts` | Move shared types to calendar-types.ts, add view-specific types |
-| `src/context.ts` | Remove DatePickerStableContext/DatePickerStateContext (moved to calendar-context.ts + view contexts) |
-| `src/use-root-state.ts` | Split into calendar state + month-view state |
-| `src/root.tsx` | Delete (replaced by month-view.tsx) |
-| `src/grid.tsx` | Add view type detection, delegate to MonthGrid or WeeksGrid internally |
-| `src/keyboard.ts` | Extract shared keyboard logic, add view-type dispatch |
-| `src/navigation.tsx` | PrevMonthButton/NextMonthButton read from MonthView context |
-| `src/day-cell.tsx` | Read from CalendarProvider context instead of DatePicker context |
-| `src/week-number.tsx` | Read from CalendarProvider context |
-| `src/selected-range.tsx` | Read from CalendarProvider context |
-| `src/range-preview.tsx` | Read from CalendarProvider context |
-| `src/drag-handle.tsx` | Read from CalendarProvider context |
-| `src/grid-header.tsx` | Read from CalendarProvider context |
-| `src/factory.tsx` | Update to use MonthView/WeeksView, return both view types |
-| `src/index.ts` | Update all exports |
-| `src/utils.ts` | Add week window utilities |
+| File                     | Changes                                                                                              |
+| ------------------------ | ---------------------------------------------------------------------------------------------------- |
+| `src/types.ts`           | Move shared types to calendar-types.ts, add view-specific types                                      |
+| `src/context.ts`         | Remove DatePickerStableContext/DatePickerStateContext (moved to calendar-context.ts + view contexts) |
+| `src/use-root-state.ts`  | Split into calendar state + month-view state                                                         |
+| `src/root.tsx`           | Delete (replaced by month-view.tsx)                                                                  |
+| `src/grid.tsx`           | Add view type detection, delegate to MonthGrid or WeeksGrid internally                               |
+| `src/keyboard.ts`        | Extract shared keyboard logic, add view-type dispatch                                                |
+| `src/navigation.tsx`     | PrevMonthButton/NextMonthButton read from MonthView context                                          |
+| `src/day-cell.tsx`       | Read from CalendarProvider context instead of DatePicker context                                     |
+| `src/week-number.tsx`    | Read from CalendarProvider context                                                                   |
+| `src/selected-range.tsx` | Read from CalendarProvider context                                                                   |
+| `src/range-preview.tsx`  | Read from CalendarProvider context                                                                   |
+| `src/drag-handle.tsx`    | Read from CalendarProvider context                                                                   |
+| `src/grid-header.tsx`    | Read from CalendarProvider context                                                                   |
+| `src/factory.tsx`        | Update to use MonthView/WeeksView, return both view types                                            |
+| `src/index.ts`           | Update all exports                                                                                   |
+| `src/utils.ts`           | Add week window utilities                                                                            |
 
 ---
 
@@ -78,6 +78,7 @@
 ### Task 1: computeWeeksInWindow utility
 
 **Files:**
+
 - Create: `src/compute-weeks-in-window.ts`
 - Test: `src/compute-weeks-in-window.test.ts`
 
@@ -150,18 +151,15 @@ describe("computeWeeksInWindow", () => {
     expect(weeks).toHaveLength(expected.length);
     expect(weeks[0].startDate.toString()).toBe(expected.firstStart);
     expect(weeks[0].endDate.toString()).toBe(expected.firstEnd);
-    expect(weeks[weeks.length - 1].startDate.toString()).toBe(expected.lastStart);
+    expect(weeks[weeks.length - 1].startDate.toString()).toBe(
+      expected.lastStart,
+    );
     expect(weeks[weeks.length - 1].endDate.toString()).toBe(expected.lastEnd);
   });
 
   it("assigns correct month/year to each week based on majority of days", () => {
     // Week of March 29 - April 4 (Sunday start): 5 days in March, 2 in April
-    const weeks = computeWeeksInWindow(
-      T.PlainDate.from("2026-03-29"),
-      1,
-      0,
-      T,
-    );
+    const weeks = computeWeeksInWindow(T.PlainDate.from("2026-03-29"), 1, 0, T);
     expect(weeks[0].startDate.toString()).toBe("2026-03-29");
     // month/year reflect the start date's month
     expect(weeks[0].month).toBe(3);
@@ -169,12 +167,7 @@ describe("computeWeeksInWindow", () => {
   });
 
   it("populates weekIndex sequentially from 0", () => {
-    const weeks = computeWeeksInWindow(
-      T.PlainDate.from("2026-03-01"),
-      5,
-      0,
-      T,
-    );
+    const weeks = computeWeeksInWindow(T.PlainDate.from("2026-03-01"), 5, 0, T);
     weeks.forEach((w, i) => expect(w.weekIndex).toBe(i));
   });
 });
@@ -250,6 +243,7 @@ git commit -m "feat: add computeWeeksInWindow pure utility"
 Converts `FirstWeekSpec` variants to a concrete `Temporal.PlainDate`.
 
 **Files:**
+
 - Create: `src/resolve-first-week.ts`
 - Test: `src/resolve-first-week.test.ts`
 
@@ -299,7 +293,8 @@ describe("resolveFirstWeekSpec", () => {
       expected: "2026-01-04",
     },
     {
-      description: "month+year spec — first week containing a day in that month",
+      description:
+        "month+year spec — first week containing a day in that month",
       spec: { month: 3, year: 2026 },
       weekStartDay: 0 as const,
       // March 1, 2026 is a Sunday — perfect week start
@@ -387,15 +382,18 @@ describe("resolveFirstWeek", () => {
       snap: undefined,
       expected: "2026-03-15",
     },
-  ])("$description", ({ currentFirstWeek, weekCount, target, snap, expected }) => {
-    const result = resolveFirstWeek(
-      currentFirstWeek,
-      weekCount,
-      target,
-      snap ? { snap } : undefined,
-    );
-    expect(result.toString()).toBe(expected);
-  });
+  ])(
+    "$description",
+    ({ currentFirstWeek, weekCount, target, snap, expected }) => {
+      const result = resolveFirstWeek(
+        currentFirstWeek,
+        weekCount,
+        target,
+        snap ? { snap } : undefined,
+      );
+      expect(result.toString()).toBe(expected);
+    },
+  );
 });
 ```
 
@@ -439,7 +437,13 @@ export function resolveFirstWeekSpec(
   timeZone?: string,
 ): Temporal.PlainDate {
   // PlainDate
-  if (typeof spec === "object" && "calendar" in spec && "day" in spec && "month" in spec && "year" in spec) {
+  if (
+    typeof spec === "object" &&
+    "calendar" in spec &&
+    "day" in spec &&
+    "month" in spec &&
+    "year" in spec
+  ) {
     return snapToWeekStart(spec as Temporal.PlainDate, weekStartDay);
   }
 
@@ -451,12 +455,15 @@ export function resolveFirstWeekSpec(
     const tz = timeZone ?? Intl.DateTimeFormat().resolvedOptions().timeZone;
     // Extract date parts in the target timezone using Intl.DateTimeFormat
     const fmt = new Intl.DateTimeFormat("en-US", {
-      timeZone: tz, year: "numeric", month: "numeric", day: "numeric",
+      timeZone: tz,
+      year: "numeric",
+      month: "numeric",
+      day: "numeric",
     });
     const parts = fmt.formatToParts(spec);
-    const year = Number(parts.find(p => p.type === "year")!.value);
-    const month = Number(parts.find(p => p.type === "month")!.value);
-    const day = Number(parts.find(p => p.type === "day")!.value);
+    const year = Number(parts.find((p) => p.type === "year")!.value);
+    const month = Number(parts.find((p) => p.type === "month")!.value);
+    const day = Number(parts.find((p) => p.type === "day")!.value);
     const plainDate = T.PlainDate.from({ year, month, day });
     return snapToWeekStart(plainDate, weekStartDay);
   }
@@ -526,8 +533,10 @@ export function resolveFirstWeek(
     case "nearest": {
       // Check if target is already in the current window
       const windowEnd = currentFirstWeek.add({ weeks: weekCount - 1, days: 6 });
-      const isAbove = Temporal.PlainDate.compare(targetWeekStart, currentFirstWeek) < 0;
-      const isBelow = Temporal.PlainDate.compare(targetWeekStart, windowEnd) > 0;
+      const isAbove =
+        Temporal.PlainDate.compare(targetWeekStart, currentFirstWeek) < 0;
+      const isBelow =
+        Temporal.PlainDate.compare(targetWeekStart, windowEnd) > 0;
       if (!isAbove && !isBelow) {
         return currentFirstWeek; // already visible
       }
@@ -558,6 +567,7 @@ git commit -m "feat: add resolveFirstWeekSpec and resolveFirstWeek utilities"
 ### Task 3: Overflow behavior computation
 
 **Files:**
+
 - Create: `src/overflow.ts`
 - Test: `src/overflow.test.ts`
 
@@ -567,11 +577,7 @@ git commit -m "feat: add resolveFirstWeekSpec and resolveFirstWeek utilities"
 // src/overflow.test.ts
 import { describe, it, expect } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
-import {
-  applyOverflow,
-  canShift,
-  type OverflowBehavior,
-} from "./overflow";
+import { applyOverflow, canShift, type OverflowBehavior } from "./overflow";
 
 const T = Temporal;
 const pd = (s: string) => T.PlainDate.from(s);
@@ -638,19 +644,22 @@ describe("applyOverflow", () => {
       useMinMax: false,
       expected: { firstWeek: "2026-06-01", weekCount: 8 },
     },
-  ])("$description", ({ targetFirstWeek, weekCount, behavior, useMinMax, expected }) => {
-    const result = applyOverflow({
-      targetFirstWeek,
-      weekCount,
-      behavior,
-      min: useMinMax === false ? undefined : min,
-      max: useMinMax === false ? undefined : max,
-      weekStartDay: 0,
-      T,
-    });
-    expect(result.firstWeek.toString()).toBe(expected.firstWeek);
-    expect(result.weekCount).toBe(expected.weekCount);
-  });
+  ])(
+    "$description",
+    ({ targetFirstWeek, weekCount, behavior, useMinMax, expected }) => {
+      const result = applyOverflow({
+        targetFirstWeek,
+        weekCount,
+        behavior,
+        min: useMinMax === false ? undefined : min,
+        max: useMinMax === false ? undefined : max,
+        weekStartDay: 0,
+        T,
+      });
+      expect(result.firstWeek.toString()).toBe(expected.firstWeek);
+      expect(result.weekCount).toBe(expected.weekCount);
+    },
+  );
 });
 
 describe("canShift", () => {
@@ -815,7 +824,8 @@ function shrinkWindow(
 }
 
 export function applyOverflow(input: OverflowInput): OverflowResult {
-  const { targetFirstWeek, weekCount, behavior, min, max, weekStartDay, T } = input;
+  const { targetFirstWeek, weekCount, behavior, min, max, weekStartDay, T } =
+    input;
 
   // No bounds → unbounded
   if (!min && !max) {
@@ -875,7 +885,16 @@ interface CanShiftInput {
 }
 
 export function canShift(input: CanShiftInput): boolean {
-  const { currentFirstWeek, weekCount, direction, behavior, min, max, weekStartDay, T } = input;
+  const {
+    currentFirstWeek,
+    weekCount,
+    direction,
+    behavior,
+    min,
+    max,
+    weekStartDay,
+    T,
+  } = input;
 
   if (behavior === "unbounded") return true;
   if (!min && !max) return true;
@@ -918,6 +937,7 @@ git commit -m "feat: add overflow behavior computation for weeks view"
 ### Task 4: Weeks-specific keyboard navigation
 
 **Files:**
+
 - Create: `src/weeks-keyboard.ts`
 - Test: `src/weeks-keyboard.test.ts`
 
@@ -951,17 +971,32 @@ const baseInput: WeeksKeyNavInput = {
 describe("computeWeeksKeyNav", () => {
   it("ArrowRight moves focus +1 day", () => {
     const result = computeWeeksKeyNav({ ...baseInput, key: "ArrowRight" });
-    expect(result).toEqual({ action: "move", date: pd("2026-03-16"), windowShift: 0, followFocus: false });
+    expect(result).toEqual({
+      action: "move",
+      date: pd("2026-03-16"),
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 
   it("ArrowLeft moves focus -1 day", () => {
     const result = computeWeeksKeyNav({ ...baseInput, key: "ArrowLeft" });
-    expect(result).toEqual({ action: "move", date: pd("2026-03-14"), windowShift: 0, followFocus: false });
+    expect(result).toEqual({
+      action: "move",
+      date: pd("2026-03-14"),
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 
   it("ArrowDown moves focus +1 week", () => {
     const result = computeWeeksKeyNav({ ...baseInput, key: "ArrowDown" });
-    expect(result).toEqual({ action: "move", date: pd("2026-03-22"), windowShift: 0, followFocus: false });
+    expect(result).toEqual({
+      action: "move",
+      date: pd("2026-03-22"),
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 
   it("ArrowDown at bottom of window with scrollBy=row shifts window by 1", () => {
@@ -995,30 +1030,56 @@ describe("computeWeeksKeyNav", () => {
   });
 
   it("Shift+PageDown shifts focus +1 year", () => {
-    const result = computeWeeksKeyNav({ ...baseInput, key: "PageDown", shiftKey: true });
+    const result = computeWeeksKeyNav({
+      ...baseInput,
+      key: "PageDown",
+      shiftKey: true,
+    });
     expect(result.action).toBe("move");
     expect(result.date?.toString()).toBe("2027-03-15");
   });
 
   it("Home moves focus to first day of window", () => {
     const result = computeWeeksKeyNav({ ...baseInput, key: "Home" });
-    expect(result).toEqual({ action: "move", date: pd("2026-03-01"), windowShift: 0, followFocus: false });
+    expect(result).toEqual({
+      action: "move",
+      date: pd("2026-03-01"),
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 
   it("End moves focus to last day of window", () => {
     const result = computeWeeksKeyNav({ ...baseInput, key: "End" });
     // 8 weeks from Mar 1: last day is Apr 25
-    expect(result).toEqual({ action: "move", date: pd("2026-04-25"), windowShift: 0, followFocus: false });
+    expect(result).toEqual({
+      action: "move",
+      date: pd("2026-04-25"),
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 
   it("Enter selects", () => {
     const result = computeWeeksKeyNav({ ...baseInput, key: "Enter" });
-    expect(result).toEqual({ action: "select", windowShift: 0, followFocus: false });
+    expect(result).toEqual({
+      action: "select",
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 
   it("disabled calendar returns none", () => {
-    const result = computeWeeksKeyNav({ ...baseInput, key: "ArrowRight", disabled: true });
-    expect(result).toEqual({ action: "none", windowShift: 0, followFocus: false });
+    const result = computeWeeksKeyNav({
+      ...baseInput,
+      key: "ArrowRight",
+      disabled: true,
+    });
+    expect(result).toEqual({
+      action: "none",
+      windowShift: 0,
+      followFocus: false,
+    });
   });
 });
 ```
@@ -1036,7 +1097,12 @@ import type { Temporal } from "@js-temporal/polyfill";
 import type { TemporalNamespace, WeekStartDay } from "./types";
 
 export type WeeksKeyNavResult =
-  | { action: "move"; date: Temporal.PlainDate; windowShift: number; followFocus: boolean }
+  | {
+      action: "move";
+      date: Temporal.PlainDate;
+      windowShift: number;
+      followFocus: boolean;
+    }
   | { action: "select"; windowShift: number; followFocus: boolean }
   | { action: "none"; windowShift: number; followFocus: boolean };
 
@@ -1070,27 +1136,45 @@ function clamp(
 
 export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
   const {
-    key, shiftKey, focusedDate, windowStart, weekCount,
-    minValue, maxValue, disabled, readOnly, isDateDisabled,
-    scrollBy, T, weekStartDay,
+    key,
+    shiftKey,
+    focusedDate,
+    windowStart,
+    weekCount,
+    minValue,
+    maxValue,
+    disabled,
+    readOnly,
+    isDateDisabled,
+    scrollBy,
+    T,
+    weekStartDay,
   } = input;
 
-  const none: WeeksKeyNavResult = { action: "none", windowShift: 0, followFocus: false };
+  const none: WeeksKeyNavResult = {
+    action: "none",
+    windowShift: 0,
+    followFocus: false,
+  };
   if (disabled) return none;
 
   const windowEnd = windowStart.add({ weeks: weekCount, days: -1 });
 
   /** Check if a date is outside the current window. */
   function isOutsideWindow(d: Temporal.PlainDate): boolean {
-    return T.PlainDate.compare(d, windowStart) < 0 ||
-           T.PlainDate.compare(d, windowEnd) > 0;
+    return (
+      T.PlainDate.compare(d, windowStart) < 0 ||
+      T.PlainDate.compare(d, windowEnd) > 0
+    );
   }
 
   /** Compute window shift when focus leaves the window. */
   function windowShiftFor(target: Temporal.PlainDate): number {
     if (!isOutsideWindow(target)) return 0;
     if (scrollBy === "page") {
-      return T.PlainDate.compare(target, windowStart) < 0 ? -weekCount : weekCount;
+      return T.PlainDate.compare(target, windowStart) < 0
+        ? -weekCount
+        : weekCount;
     }
     // scrollBy "row" — shift by 1 week
     return T.PlainDate.compare(target, windowStart) < 0 ? -1 : 1;
@@ -1113,29 +1197,59 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
       break;
     case "Home":
       nextDate = windowStart;
-      return { action: "move", date: nextDate, windowShift: 0, followFocus: false };
+      return {
+        action: "move",
+        date: nextDate,
+        windowShift: 0,
+        followFocus: false,
+      };
     case "End":
       nextDate = windowEnd;
-      return { action: "move", date: nextDate, windowShift: 0, followFocus: false };
+      return {
+        action: "move",
+        date: nextDate,
+        windowShift: 0,
+        followFocus: false,
+      };
     case "PageUp":
       if (shiftKey) {
         nextDate = focusedDate.subtract({ years: 1 });
         nextDate = clamp(nextDate, minValue, maxValue, T);
-        return { action: "move", date: nextDate, windowShift: 0, followFocus: true };
+        return {
+          action: "move",
+          date: nextDate,
+          windowShift: 0,
+          followFocus: true,
+        };
       } else {
         nextDate = focusedDate.subtract({ weeks: weekCount });
         nextDate = clamp(nextDate, minValue, maxValue, T);
-        return { action: "move", date: nextDate, windowShift: -weekCount, followFocus: false };
+        return {
+          action: "move",
+          date: nextDate,
+          windowShift: -weekCount,
+          followFocus: false,
+        };
       }
     case "PageDown":
       if (shiftKey) {
         nextDate = focusedDate.add({ years: 1 });
         nextDate = clamp(nextDate, minValue, maxValue, T);
-        return { action: "move", date: nextDate, windowShift: 0, followFocus: true };
+        return {
+          action: "move",
+          date: nextDate,
+          windowShift: 0,
+          followFocus: true,
+        };
       } else {
         nextDate = focusedDate.add({ weeks: weekCount });
         nextDate = clamp(nextDate, minValue, maxValue, T);
-        return { action: "move", date: nextDate, windowShift: weekCount, followFocus: false };
+        return {
+          action: "move",
+          date: nextDate,
+          windowShift: weekCount,
+          followFocus: false,
+        };
       }
     case "Enter":
     case " ":
@@ -1151,7 +1265,12 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
   if (nextDate) {
     nextDate = clamp(nextDate, minValue, maxValue, T);
     if (T.PlainDate.compare(nextDate, focusedDate) === 0) return none;
-    return { action: "move", date: nextDate, windowShift: windowShiftFor(nextDate), followFocus: false };
+    return {
+      action: "move",
+      date: nextDate,
+      windowShift: windowShiftFor(nextDate),
+      followFocus: false,
+    };
   }
 
   return none;
@@ -1179,6 +1298,7 @@ git commit -m "feat: add weeks-specific keyboard navigation"
 Extract shared types from the current `types.ts` and `context.ts` into new calendar-level files. This is a structural move — no behavior changes.
 
 **Files:**
+
 - Create: `src/calendar-types.ts`
 - Create: `src/calendar-context.ts`
 - Modify: `src/types.ts` — re-export from calendar-types for backwards compat during migration
@@ -1222,7 +1342,10 @@ export const ViewContext = createContext<ViewContextValue | null>(null);
 
 export function useViewContext(): ViewContextValue {
   const ctx = useContext(ViewContext);
-  if (!ctx) throw new Error("useViewContext must be used within MonthView or WeeksView");
+  if (!ctx)
+    throw new Error(
+      "useViewContext must be used within MonthView or WeeksView",
+    );
   return ctx;
 }
 ```
@@ -1235,20 +1358,27 @@ Both `MonthView.Root` and `WeeksView.Root` will provide this context. Shared com
 // src/calendar-context.ts
 // (Same as previously written)
 import { createContext, useContext } from "react";
-import type { CalendarStableContextValue, CalendarStateContextValue } from "./calendar-types";
+import type {
+  CalendarStableContextValue,
+  CalendarStateContextValue,
+} from "./calendar-types";
 
-export const CalendarStableContext = createContext<CalendarStableContextValue | null>(null);
-export const CalendarStateContext = createContext<CalendarStateContextValue | null>(null);
+export const CalendarStableContext =
+  createContext<CalendarStableContextValue | null>(null);
+export const CalendarStateContext =
+  createContext<CalendarStateContextValue | null>(null);
 
 export function useCalendarStable(): CalendarStableContextValue {
   const ctx = useContext(CalendarStableContext);
-  if (!ctx) throw new Error("useCalendarStable must be used within CalendarProvider");
+  if (!ctx)
+    throw new Error("useCalendarStable must be used within CalendarProvider");
   return ctx;
 }
 
 export function useCalendarState(): CalendarStateContextValue {
   const ctx = useContext(CalendarStateContext);
-  if (!ctx) throw new Error("useCalendarState must be used within CalendarProvider");
+  if (!ctx)
+    throw new Error("useCalendarState must be used within CalendarProvider");
   return ctx;
 }
 ```
@@ -1272,6 +1402,7 @@ git commit -m "feat: define CalendarProvider types, context, and shared ViewCont
 Extract shared state management from `use-root-state.ts` into CalendarProvider.
 
 **Files:**
+
 - Create: `src/calendar-provider.tsx`
 - Test: `src/calendar-provider.test.tsx`
 
@@ -1292,7 +1423,9 @@ function StableConsumer() {
 
 function StateConsumer() {
   const state = useCalendarState();
-  return <div data-testid="value">{state.value ? "has-value" : "no-value"}</div>;
+  return (
+    <div data-testid="value">{state.value ? "has-value" : "no-value"}</div>
+  );
 }
 
 describe("CalendarProvider", () => {
@@ -1328,6 +1461,7 @@ Expected: FAIL
 - [ ] **Step 3: Implement CalendarProvider**
 
 Build `CalendarProvider` by extracting shared state logic from `use-root-state.ts`. This component:
+
 - Accepts CalendarProviderProps (selection, bounds, locale, temporal, weekStartDay, disabled, readOnly)
 - Manages selection state (controlled/uncontrolled)
 - Provides `CalendarStableContext` and `CalendarStateContext`
@@ -1350,6 +1484,7 @@ git commit -m "feat: add CalendarProvider component"
 ### Task 7: Define MonthView types and context
 
 **Files:**
+
 - Create: `src/month-view-types.ts`
 - Create: `src/month-view-context.ts`
 
@@ -1362,10 +1497,15 @@ Move month-specific types from current types.ts: MonthViewRootProps (numberOfMon
 ```ts
 // src/month-view-context.ts
 import { createContext, useContext } from "react";
-import type { MonthViewStableContextValue, MonthViewStateContextValue } from "./month-view-types";
+import type {
+  MonthViewStableContextValue,
+  MonthViewStateContextValue,
+} from "./month-view-types";
 
-export const MonthViewStableContext = createContext<MonthViewStableContextValue | null>(null);
-export const MonthViewStateContext = createContext<MonthViewStateContextValue | null>(null);
+export const MonthViewStableContext =
+  createContext<MonthViewStableContextValue | null>(null);
+export const MonthViewStateContext =
+  createContext<MonthViewStateContextValue | null>(null);
 
 export function useMonthViewStable(): MonthViewStableContextValue {
   const ctx = useContext(MonthViewStableContext);
@@ -1399,6 +1539,7 @@ git commit -m "feat: define MonthView types and context"
 Refactor the current Root component into MonthView.Root (reads from CalendarProvider, manages month-specific state) and MonthView (convenience wrapper combining CalendarProvider + MonthView.Root).
 
 **Files:**
+
 - Create: `src/month-view.tsx`
 - Test: `src/month-view.test.tsx`
 - Modify: `src/root.tsx` — delete
@@ -1411,6 +1552,7 @@ Port key tests from `root.test.tsx` to verify that `MonthView` provides identica
 - [ ] **Step 2: Implement MonthView.Root**
 
 MonthView.Root:
+
 - Must be inside CalendarProvider (reads calendar context)
 - Manages: currentMonth, focusedDate, grid weeks computation, keyboard navigation
 - Provides: MonthViewStableContext + MonthViewStateContext
@@ -1421,7 +1563,13 @@ MonthView.Root:
 ```tsx
 // MonthView composes CalendarProvider + MonthView.Root
 export function MonthView(props: MonthViewProps) {
-  const { numberOfMonths, fixedWeeks, outsideDays, overflowBehavior, ...calendarProps } = props;
+  const {
+    numberOfMonths,
+    fixedWeeks,
+    outsideDays,
+    overflowBehavior,
+    ...calendarProps
+  } = props;
   return (
     <CalendarProvider {...calendarProps}>
       <MonthViewRoot
@@ -1454,6 +1602,7 @@ git commit -m "feat: add MonthView.Root and MonthView convenience wrapper"
 Update all shared components to read from CalendarProvider context (useCalendarStable/useCalendarState) instead of the old useDatePicker hooks. This is the big migration step.
 
 **Files:**
+
 - Modify: `src/day-cell.tsx`
 - Modify: `src/grid.tsx`
 - Modify: `src/grid-header.tsx`
@@ -1499,6 +1648,7 @@ git commit -m "refactor: migrate shared components to CalendarProvider context"
 Clean up the old code and update exports.
 
 **Files:**
+
 - Delete: `src/root.tsx`
 - Modify: `src/context.ts` — remove DatePickerStableContext/DatePickerStateContext, keep WeekDataContext, GridContext, DayCellDataContext, GridMonthContext
 - Modify: `src/index.ts` — replace Root export with MonthView, add CalendarProvider, add new hooks
@@ -1546,6 +1696,7 @@ git commit -m "refactor: remove old Root, update exports for new architecture"
 ### Task 11: Define WeeksView types and context
 
 **Files:**
+
 - Create: `src/weeks-view-types.ts`
 - Create: `src/weeks-view-context.ts`
 
@@ -1576,11 +1727,13 @@ git commit -m "feat: define WeeksView types and context"
 The core state hook for WeeksView — manages the week window, firstWeek resolution, overflow, and navigation.
 
 **Files:**
+
 - Create: `src/weeks-view-state.ts`
 
 - [ ] **Step 1: Implement useWeeksViewRootState**
 
 This hook:
+
 - Resolves `firstWeek` / `defaultFirstWeek` from `FirstWeekSpec` to a concrete `PlainDate` via `resolveFirstWeekSpec`
 - Manages controlled/uncontrolled `firstWeek` state
 - Computes the week window via `computeWeeksInWindow`
@@ -1613,6 +1766,7 @@ git commit -m "feat: add useWeeksViewRootState hook"
 ### Task 13: Implement WeeksView.Root and WeeksView convenience wrapper
 
 **Files:**
+
 - Create: `src/weeks-view.tsx`
 - Test: `src/weeks-view.test.tsx`
 
@@ -1625,7 +1779,13 @@ import { render, screen } from "@testing-library/react";
 import { Temporal } from "@js-temporal/polyfill";
 import { WeeksView } from "./weeks-view";
 import { useWeeksViewState } from "./weeks-view-context";
-import { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./index";
+import {
+  Grid,
+  GridBody,
+  WeekTemplate,
+  DayCellTemplate,
+  DayButton,
+} from "./index";
 
 const T = Temporal;
 
@@ -1633,7 +1793,8 @@ function WindowInfoDisplay() {
   const state = useWeeksViewState();
   return (
     <div data-testid="window-info">
-      {state.windowInfo.windowStart.toString()}|{state.windowInfo.windowEnd.toString()}|{state.windowInfo.weekCount}
+      {state.windowInfo.windowStart.toString()}|
+      {state.windowInfo.windowEnd.toString()}|{state.windowInfo.weekCount}
     </div>
   );
 }
@@ -1732,6 +1893,7 @@ git commit -m "feat: add WeeksView.Root and WeeksView convenience wrapper"
 Make Grid detect the view type and delegate to the appropriate internal renderer.
 
 **Files:**
+
 - Create: `src/weeks-grid.ts`
 - Modify: `src/grid.tsx` — add view type detection and delegation
 
@@ -1767,6 +1929,7 @@ git commit -m "feat: add WeeksGrid internal renderer, Grid delegates by view typ
 ### Task 15: Implement MonthSeparator
 
 **Files:**
+
 - Create: `src/month-separator.tsx`
 - Test: `src/month-separator.test.tsx`
 
@@ -1777,6 +1940,7 @@ Test that MonthSeparator renders at month boundaries with correct state/data att
 - [ ] **Step 2: Implement MonthSeparator**
 
 MonthSeparator and child components (.Month, .Year, .WeekCount):
+
 - Renders as `<tr><td colspan="7">...</td></tr>` inside the grid table
 - Receives month boundary data via context from WeeksGrid
 - Uses `useRender` pattern with state attributes mapping
@@ -1805,6 +1969,7 @@ git commit -m "feat: add MonthSeparator compound component"
 ### Task 16: Implement PrevWeeksButton, NextWeeksButton, WeeksView.WeekCount
 
 **Files:**
+
 - Create: `src/weeks-navigation.tsx`
 
 - [ ] **Step 1: Implement PrevWeeksButton and NextWeeksButton**
@@ -1832,6 +1997,7 @@ git commit -m "feat: add PrevWeeksButton, NextWeeksButton, WeeksView.WeekCount"
 ### Task 17: Integrate weeks keyboard navigation into Grid
 
 **Files:**
+
 - Modify: `src/grid.tsx` — keyboard handler dispatches to weeks-keyboard when in WeeksView
 
 - [ ] **Step 1: Update useGridKeyboard**
@@ -1861,6 +2027,7 @@ git commit -m "feat: integrate weeks keyboard navigation into Grid"
 ### Task 18: Update factory and index exports
 
 **Files:**
+
 - Modify: `src/factory.tsx` — return both MonthView and WeeksView component sets
 - Modify: `src/index.ts` — export all new components, types, hooks, utilities
 
@@ -1911,6 +2078,7 @@ git commit -m "feat: update factory and exports for weeks view"
 ### Task 19: Build verification and dev example
 
 **Files:**
+
 - Modify: `dev/examples/` — add a weeks view example
 
 - [ ] **Step 1: Run the build**
@@ -1921,6 +2089,7 @@ Expected: PASS — library builds with all new exports
 - [ ] **Step 2: Add a dev example**
 
 Create a basic weeks view example in `dev/examples/` that demonstrates:
+
 - WeeksView with weekCount=8
 - MonthSeparator with .Month and .Year
 - PrevWeeksButton / NextWeeksButton

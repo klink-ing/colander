@@ -1,10 +1,9 @@
-import { useId, useMemo, useEffect } from "react";
-import { useRender } from "@base-ui/react/use-render";
 import { mergeProps } from "@base-ui/react/merge-props";
+import { useRender } from "@base-ui/react/use-render";
 import { StateAttributesMapping } from "node_modules/@base-ui/react/esm/utils/getStateAttributesProps";
+import { useId, useMemo, useEffect } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { useMonthViewStable, useMonthViewState } from "./month-view-context";
-import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
 import type {
   ValueFormat,
   DateStringState,
@@ -17,6 +16,7 @@ import type {
   NextMonthButtonProps,
   NavButtonState,
 } from "./types";
+import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
 
 const dateStringStateAttributesMapping = {
   root: () => null,
@@ -166,8 +166,11 @@ export function MonthYearString<F extends ValueFormat = ValueFormat>(
   const monthIndex = monthIndexProp ?? 0;
   const { locale } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
-  const { currentMonth: currentDateTime, allMonths, rootState } =
-    useMonthViewState();
+  const {
+    currentMonth: currentDateTime,
+    allMonths,
+    rootState,
+  } = useMonthViewState();
   const { setGridLabelId } = monthViewStable;
 
   const id = useId();
@@ -233,8 +236,11 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     goPrevMonth: goToPrevMonth,
     numberOfMonths,
   } = monthViewStable;
-  const { currentMonth: currentDateTime, allMonths, rootState } =
-    monthViewState;
+  const {
+    currentMonth: currentDateTime,
+    allMonths,
+    rootState,
+  } = monthViewState;
 
   // For "next", compute destination from the last visible month
   // For "prev", compute destination from the first visible month

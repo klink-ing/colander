@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import { Temporal } from "@js-temporal/polyfill";
+import { describe, it, expect } from "vitest";
 import { resolveFirstWeekSpec, resolveFirstWeek } from "./resolve-first-week";
 
 const T = Temporal;
@@ -39,7 +39,8 @@ describe("resolveFirstWeekSpec", () => {
       expected: "2026-01-04",
     },
     {
-      description: "month+year spec — first week containing a day in that month",
+      description:
+        "month+year spec — first week containing a day in that month",
       spec: { month: 3, year: 2026 },
       weekStartDay: 0 as const,
       expected: "2026-03-01",
@@ -120,13 +121,16 @@ describe("resolveFirstWeek", () => {
       snap: undefined,
       expected: "2026-03-15",
     },
-  ])("$description", ({ currentFirstWeek, weekCount, target, snap, expected }) => {
-    const result = resolveFirstWeek(
-      currentFirstWeek,
-      weekCount,
-      target,
-      snap ? { snap } : undefined,
-    );
-    expect(result.toString()).toBe(expected);
-  });
+  ])(
+    "$description",
+    ({ currentFirstWeek, weekCount, target, snap, expected }) => {
+      const result = resolveFirstWeek(
+        currentFirstWeek,
+        weekCount,
+        target,
+        snap ? { snap } : undefined,
+      );
+      expect(result.toString()).toBe(expected);
+    },
+  );
 });

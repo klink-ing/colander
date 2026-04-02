@@ -434,6 +434,27 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
 
   // Single mode
   const prevSingle = currentSingleFormatted();
+  const alreadySelected =
+    committedDates.length === 1 &&
+    committedDates[0] != null &&
+    T.PlainDate.compare(committedDates[0], date) === 0;
+
+  if (alreadySelected) {
+    return {
+      newDates: [],
+      fireCallback: (onValueChange) => {
+        (
+          onValueChange as
+            | ((
+                v: RawValueForFormat<F> | null,
+                m: ValueChangeMeta<RawValueForFormat<F> | null>,
+              ) => void)
+            | undefined
+        )?.(null, { date, previous: prevSingle });
+      },
+    };
+  }
+
   const newDates = [date];
   return {
     newDates,
