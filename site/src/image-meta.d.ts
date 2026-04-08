@@ -4,7 +4,17 @@
 // returning `{ src, width, height, format }` metadata objects.
 /// <reference types="vite/types/importMeta" />
 
-// Image imports return metadata via vite-imagetools
+// Vite query-parameter imports
+declare module "*?url" {
+  const src: string;
+  export default src;
+}
+
+// vite-imagetools: all images under #/assets/images/ return ImageMeta
+// (with or without directives) because vite.config.ts sets
+// `defaultDirectives: { as: "metadata" }`.
+// TypeScript only allows one `*` per `declare module`, so scoping to
+// the path alias is the only way to handle arbitrary query params.
 interface ImageMeta {
   src: string;
   width: number;
@@ -12,34 +22,7 @@ interface ImageMeta {
   format: string;
 }
 
-declare module "*.png" {
+declare module "#/assets/images/*" {
   const meta: ImageMeta;
   export default meta;
-}
-declare module "*.jpg" {
-  const meta: ImageMeta;
-  export default meta;
-}
-declare module "*.jpeg" {
-  const meta: ImageMeta;
-  export default meta;
-}
-declare module "*.webp" {
-  const meta: ImageMeta;
-  export default meta;
-}
-declare module "*.avif" {
-  const meta: ImageMeta;
-  export default meta;
-}
-declare module "*.gif" {
-  const meta: ImageMeta;
-  export default meta;
-}
-
-// Vite query-parameter imports used in this project.
-// Add new declarations here if TypeScript errors on asset imports.
-declare module "*?url" {
-  const src: string;
-  export default src;
 }

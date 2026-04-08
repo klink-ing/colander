@@ -1,6 +1,6 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
-import heroImage from "#/assets/colander.png";
+import heroImage from "#/assets/images/colander.png";
 import { GithubIcon } from "#/components/icons/GithubIcon";
 import { ButtonA } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
@@ -14,7 +14,7 @@ function App() {
       <section className="relative flex flex-col items-center text-center">
         <h1
           className={cn(
-            "mb-10 pt-8 pb-4 type-display-300 text-foreground text-trim-both",
+            "mb-10 pt-8 pb-4 type-display-300 text-foreground text-trim-cap",
           )}
         >
           {import.meta.env.VITE_PROJECT_NAME}
@@ -24,15 +24,18 @@ function App() {
           width={heroImage.width}
           height={heroImage.height}
           alt="Hero"
-          className="h-auto w-full max-w-[max(80vh,100px)]"
+          className="h-auto w-full max-w-[max(80vh,50vw,100px)]"
         />
-        <p className="mb-8 max-w-[60ch] type-body-300-semi text-balance text-muted-foreground">
+        <p className="mb-8 max-w-[60ch] pt-6 type-body-300-semi text-balance text-muted-foreground">
           Accessible, customizable calendar components for React. Built on Base
           UI and the Temporal API.
         </p>
         <div className="flex flex-wrap gap-3">
+          <ButtonA variant="default" size="xl" render={<Link to="/demo" />}>
+            See Demo
+          </ButtonA>
           <ButtonA
-            variant="default"
+            variant="secondary"
             size="xl"
             render={
               <Link to="/docs/$slug" params={{ slug: "getting-started" }} />

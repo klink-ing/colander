@@ -33,11 +33,13 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger relative flex flex-1 items-start justify-between rounded-md border border-transparent py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 focus-visible:after:border-ring aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
+          "group/accordion-trigger relative flex flex-1 items-start justify-between   py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:outline-none aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground focus-visible: ",
           className,
         )}
         {...props}
       >
+        {/* Focus ring */}
+        <div className="absolute -inset-x-2.5 inset-0 ring-focus border-(--spacing-w-focus) group-focus-visible/accordion-trigger:border-y-focus squircle-md" />
         {children}
         <ChevronDownIcon
           data-slot="accordion-trigger-icon"
@@ -60,16 +62,18 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className="overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+      className="-mx-focus-w overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
       {...props}
     >
-      <div
-        className={cn(
-          "h-(--accordion-panel-height) pt-0 pb-4 data-ending-style:h-0 data-starting-style:h-0 [&_a]:underline [&_a]:underline-offset-3 [&_a]:hover:text-foreground [&_p:not(:last-child)]:mb-4",
-          className,
-        )}
-      >
-        {children}
+      <div className="h-(--accordion-panel-height) px-2 pt-2">
+        <div
+          className={cn(
+            "pt-focus pb-4 data-ending-style:h-0 data-starting-style:h-0",
+            className,
+          )}
+        >
+          {children}
+        </div>
       </div>
     </AccordionPrimitive.Panel>
   );

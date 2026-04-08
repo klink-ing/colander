@@ -8,6 +8,8 @@ import {
 } from "#/components/ui/accordion";
 import { Label } from "#/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "#/components/ui/radio-group";
+import { Checkbox } from "../ui/checkbox";
+import { Field } from "../ui/field";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -82,15 +84,10 @@ export function formatTzLabel(tz: string): string {
 }
 
 const selectClassName =
-  "w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2";
+  "w-full squircle-md border border-input bg-background px-3 py-2 text-sm text-foreground ring-offset-background focus-visible:outline-none focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:ring-offset-2";
 
-const propLabelClassName = "mb-1.5 block font-mono text-xs text-foreground";
-
-const displayLabelClassName =
-  "mb-1.5 block text-sm font-medium text-foreground";
-
-const checkboxClassName =
-  "flex items-center gap-2 text-sm text-foreground cursor-pointer select-none";
+const fieldHeadingClassName =
+  "block font-sans text-sm font-medium text-foreground";
 
 export interface AppControlsProps {
   viewMode: "month" | "weeks";
@@ -155,7 +152,7 @@ function Radio({
   children: React.ReactNode;
 }) {
   return (
-    <Label>
+    <Label className="flex w-full items-center gap-2">
       <RadioGroupItem value={value} />
       {children}
     </Label>
@@ -219,8 +216,8 @@ export function AppControls(props: AppControlsProps) {
     <div className="flex w-64 shrink-0 flex-col">
       <h2 className="mb-2 text-lg font-semibold text-foreground">Controls</h2>
 
-      <div className="mb-3">
-        <div className={displayLabelClassName}>View</div>
+      <Field className="mb-3">
+        <Label className={fieldHeadingClassName}>View</Label>
         <RadioGroup
           value={viewMode}
           onValueChange={(v) => setViewMode(v as "month" | "weeks")}
@@ -228,7 +225,7 @@ export function AppControls(props: AppControlsProps) {
           <Radio value="month">MonthView</Radio>
           <Radio value="weeks">WeeksView</Radio>
         </RadioGroup>
-      </div>
+      </Field>
 
       <Accordion defaultValue={["calendar-provider", "display-options"]}>
         {/* ── Section 1: CalendarProvider ── */}
@@ -236,8 +233,8 @@ export function AppControls(props: AppControlsProps) {
           <AccordionTrigger>CalendarProvider</AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-4">
-              <div>
-                <div className={propLabelClassName}>selectionMode</div>
+              <Field>
+                <Label>selectionMode</Label>
                 <RadioGroup
                   value={selectionMode}
                   onValueChange={(v) =>
@@ -248,13 +245,11 @@ export function AppControls(props: AppControlsProps) {
                   <Radio value="range">range</Radio>
                   <Radio value="multiple">multiple</Radio>
                 </RadioGroup>
-              </div>
+              </Field>
 
               {selectionMode === "range" && (
-                <div>
-                  <label htmlFor="range-mode" className={propLabelClassName}>
-                    rangeMode
-                  </label>
+                <Field>
+                  <Label htmlFor="range-mode">rangeMode</Label>
                   <select
                     id="range-mode"
                     value={rangeMode}
@@ -268,26 +263,23 @@ export function AppControls(props: AppControlsProps) {
                     <option value="adjust-start">Adjust Start</option>
                     <option value="reset">Reset to Single Day</option>
                   </select>
-                </div>
+                </Field>
               )}
 
               {selectionMode === "range" && (
-                <label className={checkboxClassName}>
-                  <input
-                    type="checkbox"
+                <Field orientation="horizontal">
+                  <Checkbox
                     checked={preventRangeReversal}
-                    onChange={(e) => setPreventRangeReversal(e.target.checked)}
+                    onCheckedChange={(checked) =>
+                      setPreventRangeReversal(checked)
+                    }
                   />
-                  <span className="font-mono text-xs">
-                    preventRangeReversal
-                  </span>
-                </label>
+                  <Label>preventRangeReversal</Label>
+                </Field>
               )}
 
-              <div>
-                <label htmlFor="timezone-select" className={propLabelClassName}>
-                  timeZone
-                </label>
+              <Field>
+                <Label htmlFor="timezone-select">timeZone</Label>
                 <select
                   id="timezone-select"
                   value={timeZone}
@@ -301,12 +293,10 @@ export function AppControls(props: AppControlsProps) {
                     </option>
                   ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="locale-select" className={propLabelClassName}>
-                  locale
-                </label>
+              <Field>
+                <Label htmlFor="locale-select">locale</Label>
                 <select
                   id="locale-select"
                   value={locale}
@@ -319,12 +309,10 @@ export function AppControls(props: AppControlsProps) {
                     </option>
                   ))}
                 </select>
-              </div>
+              </Field>
 
-              <div>
-                <label htmlFor="week-start-day" className={propLabelClassName}>
-                  weekStartDay
-                </label>
+              <Field>
+                <Label htmlFor="week-start-day">weekStartDay</Label>
                 <select
                   id="week-start-day"
                   value={weekStartDay}
@@ -341,55 +329,47 @@ export function AppControls(props: AppControlsProps) {
                     </option>
                   ))}
                 </select>
-              </div>
+              </Field>
 
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label htmlFor="min-date" className={propLabelClassName}>
-                    min
-                  </label>
-                  <input
-                    id="min-date"
-                    type="date"
-                    value={toInputValue(minDate)}
-                    onChange={(e) => handleMinChange(e.target.value)}
-                    className={selectClassName}
-                  />
-                </div>
-                <div className="flex-1">
-                  <label htmlFor="max-date" className={propLabelClassName}>
-                    max
-                  </label>
-                  <input
-                    id="max-date"
-                    type="date"
-                    value={toInputValue(maxDate)}
-                    onChange={(e) => handleMaxChange(e.target.value)}
-                    className={selectClassName}
-                  />
-                </div>
-              </div>
-
-              <label className={checkboxClassName}>
+              <Field className="min-w-0">
+                <Label htmlFor="min-date">min</Label>
                 <input
-                  type="checkbox"
+                  id="min-date"
+                  type="date"
+                  value={toInputValue(minDate)}
+                  onChange={(e) => handleMinChange(e.target.value)}
+                  className={selectClassName}
+                />
+              </Field>
+              <Field className="min-w-0">
+                <Label htmlFor="max-date">max</Label>
+                <input
+                  id="max-date"
+                  type="date"
+                  value={toInputValue(maxDate)}
+                  onChange={(e) => handleMaxChange(e.target.value)}
+                  className={selectClassName}
+                />
+              </Field>
+
+              <Field orientation="horizontal">
+                <Checkbox
                   checked={disabled}
-                  onChange={(e) => setDisabled(e.target.checked)}
+                  onCheckedChange={(checked) => setDisabled(checked)}
                 />
-                <span className="font-mono text-xs">disabled</span>
-              </label>
+                <Label>disabled</Label>
+              </Field>
 
-              <label className={checkboxClassName}>
-                <input
-                  type="checkbox"
+              <Field orientation="horizontal">
+                <Checkbox
                   checked={readOnly}
-                  onChange={(e) => setReadOnly(e.target.checked)}
+                  onCheckedChange={(checked) => setReadOnly(checked)}
                 />
-                <span className="font-mono text-xs">readOnly</span>
-              </label>
+                <Label>readOnly</Label>
+              </Field>
 
-              <div>
-                <div className={propLabelClassName}>isDateDisabled</div>
+              <Field>
+                <Label>isDateDisabled</Label>
                 <RadioGroup
                   value={disableDateMode}
                   onValueChange={setDisableDateMode}
@@ -399,7 +379,7 @@ export function AppControls(props: AppControlsProps) {
                   <Radio value="past">Past dates</Radio>
                   <Radio value="every3rd">Every 3rd day</Radio>
                 </RadioGroup>
-              </div>
+              </Field>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -409,13 +389,8 @@ export function AppControls(props: AppControlsProps) {
             <AccordionTrigger>MonthView.Root</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-4">
-                <div>
-                  <label
-                    htmlFor="number-of-months"
-                    className={propLabelClassName}
-                  >
-                    numberOfMonths
-                  </label>
+                <Field>
+                  <Label htmlFor="number-of-months">numberOfMonths</Label>
                   <input
                     id="number-of-months"
                     type="number"
@@ -431,10 +406,10 @@ export function AppControls(props: AppControlsProps) {
                     }}
                     className={selectClassName}
                   />
-                </div>
+                </Field>
 
-                <div>
-                  <div className={propLabelClassName}>outsideDays</div>
+                <Field>
+                  <Label>outsideDays</Label>
                   <RadioGroup
                     value={outsideDays}
                     onValueChange={(v) => setOutsideDays(v as OutsideDays)}
@@ -444,19 +419,18 @@ export function AppControls(props: AppControlsProps) {
                     <Radio value="disabled">disabled</Radio>
                     <Radio value="hidden">hidden</Radio>
                   </RadioGroup>
-                </div>
+                </Field>
 
-                <label className={checkboxClassName}>
-                  <input
-                    type="checkbox"
+                <Field orientation="horizontal">
+                  <Checkbox
                     checked={fixedWeeks}
-                    onChange={(e) => setFixedWeeks(e.target.checked)}
+                    onCheckedChange={(checked) => setFixedWeeks(checked)}
                   />
-                  <span className="font-mono text-xs">fixedWeeks</span>
-                </label>
+                  <Label>fixedWeeks</Label>
+                </Field>
 
-                <div>
-                  <div className={propLabelClassName}>overflowBehavior</div>
+                <Field>
+                  <Label>overflowBehavior</Label>
                   <RadioGroup
                     value={monthOverflowBehavior}
                     onValueChange={(v) =>
@@ -466,7 +440,7 @@ export function AppControls(props: AppControlsProps) {
                     <Radio value="unbounded">unbounded (default)</Radio>
                     <Radio value="stop">stop</Radio>
                   </RadioGroup>
-                </div>
+                </Field>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -477,10 +451,8 @@ export function AppControls(props: AppControlsProps) {
             <AccordionTrigger>WeeksView.Root</AccordionTrigger>
             <AccordionContent>
               <div className="flex flex-col gap-4">
-                <div>
-                  <label htmlFor="week-count" className={propLabelClassName}>
-                    weekCount
-                  </label>
+                <Field>
+                  <Label htmlFor="week-count">weekCount</Label>
                   <select
                     id="week-count"
                     className={selectClassName}
@@ -493,10 +465,10 @@ export function AppControls(props: AppControlsProps) {
                     <option value={10}>10</option>
                     <option value={12}>12</option>
                   </select>
-                </div>
+                </Field>
 
-                <div>
-                  <div className={propLabelClassName}>scrollBy</div>
+                <Field>
+                  <Label>scrollBy</Label>
                   <RadioGroup
                     value={scrollBy}
                     onValueChange={(v) => setScrollBy(v as "row" | "page")}
@@ -504,15 +476,10 @@ export function AppControls(props: AppControlsProps) {
                     <Radio value="row">row (default)</Radio>
                     <Radio value="page">page</Radio>
                   </RadioGroup>
-                </div>
+                </Field>
 
-                <div>
-                  <label
-                    htmlFor="overflow-behavior"
-                    className={propLabelClassName}
-                  >
-                    overflowBehavior
-                  </label>
+                <Field>
+                  <Label htmlFor="overflow-behavior">overflowBehavior</Label>
                   <select
                     id="overflow-behavior"
                     className={selectClassName}
@@ -527,7 +494,7 @@ export function AppControls(props: AppControlsProps) {
                     <option value="snap">Snap</option>
                     <option value="snap-shrink">Snap + Shrink</option>
                   </select>
-                </div>
+                </Field>
               </div>
             </AccordionContent>
           </AccordionItem>
@@ -537,37 +504,38 @@ export function AppControls(props: AppControlsProps) {
           <AccordionTrigger>Display Options</AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-4">
-              <label className={checkboxClassName}>
-                <input
-                  type="checkbox"
+              <Field orientation="horizontal">
+                <Checkbox
                   checked={autoFocus}
-                  onChange={(e) => setAutoFocus(e.target.checked)}
+                  onCheckedChange={(checked) => setAutoFocus(checked)}
                 />
-                <span className="font-mono text-xs">Grid.autoFocus</span>
-              </label>
+                <Label>Grid.autoFocus</Label>
+              </Field>
 
-              <label className={checkboxClassName}>
-                <input
-                  type="checkbox"
+              <Field orientation="horizontal">
+                <Checkbox
                   checked={showWeekNumbers}
-                  onChange={(e) => setShowWeekNumbers(e.target.checked)}
+                  onCheckedChange={(checked) => setShowWeekNumbers(checked)}
                 />
-                Show Week Numbers
-              </label>
+                <Label>Show Week Numbers</Label>
+              </Field>
 
               {viewMode === "weeks" && (
-                <label className={checkboxClassName}>
-                  <input
-                    type="checkbox"
+                <Field orientation="horizontal">
+                  <Checkbox
                     checked={showMonthSeparators}
-                    onChange={(e) => setShowMonthSeparators(e.target.checked)}
+                    onCheckedChange={(checked) =>
+                      setShowMonthSeparators(checked)
+                    }
                   />
-                  Show Month Separators
-                </label>
+                  <Label className="font-sans text-sm">
+                    Show Month Separators
+                  </Label>
+                </Field>
               )}
 
-              <div>
-                <div className={propLabelClassName}>Grid.orientation</div>
+              <Field>
+                <Label>Grid.orientation</Label>
                 <RadioGroup
                   value={orientation}
                   onValueChange={(v) =>
@@ -577,7 +545,7 @@ export function AppControls(props: AppControlsProps) {
                   <Radio value="horizontal">Horizontal (default)</Radio>
                   <Radio value="vertical">Vertical</Radio>
                 </RadioGroup>
-              </div>
+              </Field>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -587,12 +555,16 @@ export function AppControls(props: AppControlsProps) {
           <AccordionContent>
             <div className="text-xs text-muted-foreground">
               <div className="mb-1">
-                <span className="font-medium">Selection:</span>{" "}
+                <Label className="inline font-sans font-medium text-xs text-muted-foreground">
+                  Selection:
+                </Label>{" "}
                 {selectionDisplay}
               </div>
               {lastMonthChange && (
                 <div>
-                  <span className="font-medium">Last month change:</span>{" "}
+                  <Label className="inline font-sans font-medium text-xs text-muted-foreground">
+                    Last month change:
+                  </Label>{" "}
                   {lastMonthChange}
                 </div>
               )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Button } from "#/components/ui/button";
 
 type ThemeMode = "light" | "dark" | "auto";
 
@@ -68,12 +69,14 @@ export default function ThemeToggle() {
       : `Theme mode: ${mode}. Click to switch mode.`;
 
   return (
-    <button
+    <Button
+      size="icon"
+      variant="ghost"
       type="button"
       onClick={toggleMode}
       aria-label={label}
       title={label}
-      className="flex items-center justify-center rounded-lg p-2 text-foreground transition hover:bg-accent"
+      className="flex items-center justify-center squircle-md p-2 text-foreground transition hover:bg-accent"
     >
       {mode === "light" ? (
         <svg
@@ -143,6 +146,6 @@ export default function ThemeToggle() {
           </svg>
         </span>
       )}
-    </button>
+    </Button>
   );
 }

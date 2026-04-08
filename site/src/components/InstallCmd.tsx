@@ -23,7 +23,7 @@ export default function InstallCmd() {
       >
         <TabsList
           variant="line"
-          className="h-auto rounded-t-lg border border-b-0 border-border bg-card p-0"
+          className="h-auto squircle-t-lg border border-b-0 border-border bg-card p-0"
         >
           {managers.map((m) => (
             <TabsTrigger
@@ -37,7 +37,7 @@ export default function InstallCmd() {
         </TabsList>
         {managers.map((m) => (
           <TabsContent key={m} value={m}>
-            <pre className="overflow-x-auto rounded-b-lg border border-border bg-muted p-4 type-code-200">
+            <pre className="overflow-x-auto squircle-b-lg border border-border bg-muted p-4 type-code-200">
               <Code size={200}>{getInstallCommand(m, packages)}</Code>
             </pre>
           </TabsContent>

@@ -1,12 +1,11 @@
 import { Link, useLocation } from "@tanstack/react-router";
-import heroImage from "#/assets/colander.png";
+import heroImage from "#/assets/images/colander.png?w=150";
 import { GithubIcon } from "#/components/icons/GithubIcon";
 import {
   NavigationMenu,
   NavigationMenuList,
   NavigationMenuItem,
   NavigationMenuLink,
-  navigationMenuTriggerStyle,
 } from "#/components/ui/navigation-menu";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { NAV_LINKS } from "#/lib/nav-links";
@@ -25,7 +24,7 @@ export default function Header() {
           data-nav-drawer-trigger
           onClick={() => setOpen(true)}
           aria-label="Open navigation menu"
-          className="flex items-center justify-center rounded-lg p-2 text-foreground transition hover:bg-accent bp-4.5:hidden"
+          className="flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent bp-4.5:hidden"
         >
           <svg
             width="20"
@@ -63,15 +62,11 @@ export default function Header() {
         <NavigationMenu viewport={false} className="hidden bp-4.5:flex">
           <NavigationMenuList className="gap-0.5">
             {NAV_LINKS.map((link) => {
-              const active =
-                link.to === "/"
-                  ? pathname === "/"
-                  : pathname.startsWith(link.to);
+              const active = pathname.startsWith(link.to);
               return (
                 <NavigationMenuItem key={link.label}>
                   <NavigationMenuLink
                     render={<Link to={link.to} />}
-                    className={navigationMenuTriggerStyle()}
                     active={active}
                   >
                     {link.label}
@@ -83,12 +78,13 @@ export default function Header() {
         </NavigationMenu>
 
         <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
+          <div className="type-label-100 px-3 py-1 squircle-full squircle-amt-minimal border-border border text-trim-cap">pre-alpha</div>
           <a
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub repository"
-            className="flex items-center justify-center rounded-lg p-2 text-foreground transition hover:bg-accent"
+            className="flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent"
           >
             <GithubIcon className="size-5" />
           </a>

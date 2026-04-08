@@ -381,7 +381,7 @@ function DemoApp() {
         <div className="w-full pt-4">
           <textarea
             readOnly
-            className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
+            className="w-full squircle-md border border-input bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
             rows={4}
             value={JSON.stringify(
               selectionMode === "range"
@@ -400,7 +400,7 @@ function DemoApp() {
         <div className="w-full pt-2">
           <textarea
             readOnly
-            className="w-full rounded-md border border-input bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
+            className="w-full squircle-md border border-input bg-background px-3 py-2 font-mono text-xs text-muted-foreground"
             rows={6}
             value={JSON.stringify(
               eventLog,

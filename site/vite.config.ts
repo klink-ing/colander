@@ -21,6 +21,7 @@ const config = defineConfig({
     breakpoints(),
     fluid(),
     imagetools({
+      include: "src/assets/images/**/*",
       defaultDirectives: () => new URLSearchParams({ as: "metadata" }),
     }),
     devtools(),

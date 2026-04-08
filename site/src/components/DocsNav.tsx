@@ -1,5 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import type { DocFrontmatter } from "#/lib/markdoc";
+import { cn } from "#/lib/utils";
 
 export interface DocsNavEntry {
   slug: string;
@@ -80,11 +81,12 @@ export default function DocsNav({
                   <Link
                     to={path}
                     aria-current={isActive ? "page" : undefined}
-                    className={`block rounded-lg px-3 py-1.5 type-body-100 no-underline transition ${
+                    className={cn(
+                      `block squircle-lg px-3 py-1.5 type-body-100 no-underline transition focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none`,
                       isActive
                         ? "bg-accent font-semibold text-accent-foreground"
-                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                    }`}
+                        : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                    )}
                   >
                     {entry.frontmatter.title}
                   </Link>
@@ -111,12 +113,14 @@ export default function DocsNav({
                     <Link
                       to="/docs/api/$symbol"
                       params={{ symbol: item.name }}
+                      {...(isActive ? { "data-active": "" } : {})}
                       aria-current={isActive ? "page" : undefined}
-                      className={`block rounded-lg px-3 py-1.5 type-code-100 no-underline transition ${
+                      className={cn(
+                        "block squircle-lg px-3 py-1.5 type-code-100 no-underline transition focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none",
                         isActive
                           ? "bg-accent font-semibold text-accent-foreground"
-                          : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                      }`}
+                          : "text-muted-foreground hover:bg-accent hover:text-foreground",
+                      )}
                     >
                       {item.name}
                     </Link>

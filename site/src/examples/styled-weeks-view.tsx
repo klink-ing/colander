@@ -50,7 +50,7 @@ const navButtonClassName = cn(
   "inline-flex h-7 w-7 items-center justify-center rounded-md",
   "text-muted-foreground transition-colors",
   "hover:bg-accent hover:text-accent-foreground",
-  "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+  "focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none",
   "disabled:pointer-events-none disabled:opacity-50",
 );
 

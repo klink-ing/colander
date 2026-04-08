@@ -52,23 +52,17 @@
   --destructive-hover: oklch(
     from var(--destructive) calc(l + 0.08) calc(c + 0.01) h
   );
+  --focus: oklch(0.5 0.4 221.723);
+  --focus-destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.85 0.003 48.717);
   --input: oklch(0.923 0.003 48.717);
-  --ring: oklch(0.709 0.01 56.259);
   --chart-1: oklch(0.865 0.127 207.078);
   --chart-2: oklch(0.715 0.143 215.221);
   --chart-3: oklch(0.609 0.126 221.723);
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
 
-  --sidebar: oklch(0.985 0.001 106.423);
-  --sidebar-foreground: oklch(0.147 0.004 49.25);
-  --sidebar-primary: oklch(0.681 0.162 75.834);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
-  --sidebar-accent: oklch(0.97 0.001 106.424);
-  --sidebar-accent-foreground: oklch(0.216 0.006 56.043);
-  --sidebar-border: oklch(0.923 0.003 48.717);
-  --sidebar-ring: oklch(0.709 0.01 56.259);
+  --squircle-amt: 1.5;
 }
 
 /* ── Site color tokens ────────────────────────────────────────── */
@@ -97,7 +91,9 @@
   --color-card: var(--card);
   --color-card-foreground: var(--card-foreground);
   --color-input: var(--input);
-  --color-ring: var(--ring);
+  --color-focus: var(--focus);
+  --color-ring: var(--focus);
+  --color-focus-destructive: var(--focus-destructive);
   --color-border: var(--border);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
@@ -108,14 +104,6 @@
   --font-heading: "Lora Variable", serif;
   --font-display: "Roboto Flex Variable", sans-serif;
   --font-mono: "JetBrains Mono Variable", monospace;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -127,6 +115,7 @@
   --color-muted-hover: var(--muted-hover);
   --color-accent-hover: var(--accent-hover);
   --color-destructive-hover: var(--destructive-hover);
+  --spacing-w-focus: 2px;
 }
 
 @theme {
@@ -136,6 +125,11 @@
   --radius-lg: calc(14em / 16);
   --radius-xl: calc(16em / 16);
   --radius-2xl: calc(24em / 16);
+  --radius-full: calc(infinity * 1px);
+
+  --squircle-amt-default: 1.5;
+  --squircle-amt-minimal: 1.15;
+  --squircle-amt-lg: 1.5;
 }
 
 /* Site color tokens */
@@ -173,20 +167,13 @@
   );
   --border: oklch(0.3 0 0);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.553 0.013 58.071);
+  --focus: oklch(0.7 0.16 251.22);
+  --focus-destructive: oklch(0.577 0.245 27.325);
   --chart-1: oklch(0.865 0.127 207.078);
   --chart-2: oklch(0.715 0.143 215.221);
   --chart-3: oklch(0.609 0.126 221.723);
   --chart-4: oklch(0.52 0.105 223.128);
   --chart-5: oklch(0.45 0.085 224.283);
-  --sidebar: oklch(0.216 0.006 56.043);
-  --sidebar-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-primary: oklch(0.795 0.184 86.047);
-  --sidebar-primary-foreground: oklch(0.987 0.026 102.212);
-  --sidebar-accent: oklch(0.268 0.007 34.298);
-  --sidebar-accent-foreground: oklch(0.985 0.001 106.423);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.553 0.013 58.071);
 }
 
 @layer base {
@@ -194,7 +181,8 @@
 
   * {
     box-sizing: border-box;
-    @apply border-border outline-ring/50;
+    /* default border and focus colors */
+    @apply border-border outline-focus;
   }
   body {
     @apply bg-background text-foreground;
@@ -230,6 +218,19 @@
   }
 }
 
-@utility text-trim-both {
+@utility text-trim-cap {
   text-box: trim-both cap alphabetic;
+}
+
+@utility zipzap {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0
+    calc(var(--spacing-w-focus) + var(--tw-ring-offset-width))
+    var(--tw-ring-color, currentcolor);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility ring-w-focus {
+  @apply ring-2;
 }

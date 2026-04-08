@@ -19,7 +19,7 @@ export default function NavDrawerContent() {
             <li key={link.label}>
               <Link
                 to={link.to}
-                className="block rounded-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
+                className="block squircle-lg px-3 py-2 type-body-100 font-medium text-foreground no-underline transition hover:bg-accent"
               >
                 {link.label}
               </Link>

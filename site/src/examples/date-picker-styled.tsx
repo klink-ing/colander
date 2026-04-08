@@ -47,7 +47,7 @@ export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        "focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -69,7 +69,7 @@ export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
         "inline-flex h-7 w-7 items-center justify-center rounded-md",
         "text-muted-foreground transition-colors",
         "hover:bg-accent hover:text-accent-foreground",
-        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        "focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none",
         "disabled:pointer-events-none disabled:opacity-50",
         className,
       )}
@@ -238,7 +238,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       {...(props as DayButtonProps)}
       className={cn(
         "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
-        "focus-visible:z-10 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+        "focus-visible:z-10 focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none",
         "text-foreground not-aria-disabled:hover:bg-accent not-aria-disabled:hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",
         "data-selected:bg-primary data-selected:text-primary-foreground data-selected:not-aria-disabled:hover:bg-primary",

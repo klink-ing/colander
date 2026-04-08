@@ -31,7 +31,7 @@ export default function Callout({
   const s = styles[type];
   return (
     <div
-      className={`my-4 rounded-lg border type-body-100 ${s.border} ${s.bg} p-4 ${s.text}`}
+      className={`my-4 squircle-lg border type-body-100 ${s.border} ${s.bg} p-4 ${s.text}`}
     >
       {children}
     </div>

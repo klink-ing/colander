@@ -16,7 +16,7 @@ export default function Footer() {
           href={import.meta.env.VITE_GITHUB_REPO_URL}
           target="_blank"
           rel="noreferrer"
-          className="rounded-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+          className="squircle-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
         >
           <span className="sr-only">{`${import.meta.env.VITE_PROJECT_NAME} on GitHub`}</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">

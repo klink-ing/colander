@@ -39,6 +39,7 @@ export const twMerge = extendTailwindMerge<
         { "squircle-bl": [() => true] },
       ],
       "squircle-amt": [{ "squircle-amt": [() => true] }],
+      "ring-w": ["ring-w-focus"],
     },
     conflictingClassGroups: {
       "type-style": [

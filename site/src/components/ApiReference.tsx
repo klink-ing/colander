@@ -21,7 +21,7 @@ export default function ApiReference({
 
   if (!sym) {
     return (
-      <div className="border-callout-error-border bg-callout-error-bg text-callout-error-text my-4 rounded-lg border p-4 type-body-100">
+      <div className="border-callout-error-border bg-callout-error-bg text-callout-error-text my-4 squircle-lg border p-4 type-body-100">
         Symbol <Code>{symbolName}</Code> not found in API data.
       </div>
     );
@@ -204,7 +204,7 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
         {symbol.members!.map((member) => (
           <Code
             key={member}
-            className="rounded-md border border-border bg-secondary px-2 py-1"
+            className="squircle-md border border-border bg-secondary px-2 py-1"
           >
             {member}
           </Code>
@@ -217,7 +217,7 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
 function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="rounded-lg border border-border bg-card p-4">
+      <pre className="squircle-lg border border-border bg-card p-4">
         <Code size={200}>
           {symbol.name}(
           {symbol.parameters?.map((p, i) => (
@@ -236,7 +236,7 @@ function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
 function HookSignature({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="overflow-x-auto">
-      <pre className="rounded-lg border border-border bg-card p-4">
+      <pre className="squircle-lg border border-border bg-card p-4">
         <Code size={200}>
           {symbol.name}():{" "}
           {symbol.returnType && <TypeLink type={symbol.returnType} />}
@@ -260,7 +260,7 @@ function Badge({
     state: {},
     props: {
       className:
-        "type-code-100 inline-flex items-center rounded-md border border-border bg-accent px-1.5 py-0.5 text-foreground",
+        "type-code-100 inline-flex items-center squircle-md border border-border bg-accent px-1.5 py-0.5 text-foreground",
       children,
     },
     defaultTagName: "span",
