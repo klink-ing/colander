@@ -9,8 +9,8 @@ const formatsDir = path.resolve(import.meta.dirname, "src/formats");
 const formatEntries: Record<string, string> = {};
 if (fs.existsSync(formatsDir)) {
   for (const file of fs.readdirSync(formatsDir)) {
-    if (file.endsWith(".tsx")) {
-      const name = file.replace(/\.tsx$/, "");
+    if (file.endsWith(".ts") || file.endsWith(".tsx")) {
+      const name = file.replace(/\.tsx?$/, "");
       formatEntries[`formats/${name}`] = path.resolve(formatsDir, file);
     }
   }

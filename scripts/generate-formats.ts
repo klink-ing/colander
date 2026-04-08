@@ -2,12 +2,13 @@
  * Generates pre-typed format entry files under src/formats/.
  *
  * For each ValueFormat member (parsed from src/types.ts), this script creates
- * a .tsx file that re-exports all generic components from the main library
- * with the type parameter narrowed to that specific format.
+ * a .ts file that re-exports everything from index.ts with generic components
+ * and types narrowed to the specific format via instantiation expressions.
  *
  * Usage: npx tsx scripts/generate-formats.ts
  */
 
+import { execSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import ts from "typescript";
@@ -20,9 +21,6 @@ const FORMATS_DIR = path.join(SRC, "formats");
 
 // Formats to skip (don't make sense for a calendar component)
 const SKIP_FORMATS = new Set(["PlainTime"]);
-
-// Exports to exclude from generated files
-const SKIP_EXPORTS = new Set(["createDatePicker"]);
 
 // ---------------------------------------------------------------------------
 // 1. Parse DateValueObject from types.ts to extract format discriminants
@@ -71,24 +69,40 @@ function parseFormats(): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// 2. Parse index.ts to find value-exported symbols that are generic over
-//    ValueFormat. Uses the TypeScript type checker.
+// 2. Detect generic exports (values and types) via TypeScript type checker
 // ---------------------------------------------------------------------------
 
-interface GenericExport {
-  name: string;
-  /** The module specifier in the re-export (e.g. "./grid") */
-  sourceModule: string;
-}
-
-/**
- * Check if any call signature of a type has a type parameter constrained to
- * ValueFormat (directly or as part of a union).
- */
-function hasValueFormatTypeParam(
+function isGenericOverValueFormat(
   checker: ts.TypeChecker,
-  type: ts.Type,
+  sym: ts.Symbol,
 ): boolean {
+  const resolved =
+    sym.flags & ts.SymbolFlags.Alias
+      ? checker.getAliasedSymbol(sym)
+      : sym;
+
+  const decls = resolved.getDeclarations();
+  if (!decls || decls.length === 0) return false;
+
+  // For type aliases: check if they have a type parameter with ValueFormat constraint
+  for (const decl of decls) {
+    if (ts.isTypeAliasDeclaration(decl) || ts.isInterfaceDeclaration(decl)) {
+      const typeParams = decl.typeParameters;
+      if (typeParams) {
+        for (const tp of typeParams) {
+          if (tp.constraint) {
+            const cType = checker.getTypeAtLocation(tp.constraint);
+            const cStr = checker.typeToString(cType);
+            if (cStr === "ValueFormat" || cStr.includes("ValueFormat"))
+              return true;
+          }
+        }
+      }
+    }
+  }
+
+  // For value exports: check call signatures
+  const type = checker.getTypeOfSymbolAtLocation(resolved, decls[0]);
   for (const sig of type.getCallSignatures()) {
     const typeParams = sig.getTypeParameters();
     if (!typeParams) continue;
@@ -99,10 +113,29 @@ function hasValueFormatTypeParam(
       if (str === "ValueFormat" || str.includes("ValueFormat")) return true;
     }
   }
+
+  // Fallback: check type string
+  const typeStr = checker.typeToString(
+    type,
+    undefined,
+    ts.TypeFormatFlags.NoTruncation,
+  );
+  if (typeStr.includes("F extends ValueFormat")) return true;
+
+  // Last resort: check declaration source text
+  for (const decl of decls) {
+    const src = decl.getSourceFile();
+    const declText = src.text.slice(decl.pos, decl.end).slice(0, 300);
+    if (/\bextends\s+ValueFormat\b/.test(declText)) return true;
+  }
+
   return false;
 }
 
-function findGenericExports(): GenericExport[] {
+function findGenericSymbols(): {
+  genericValues: Set<string>;
+  genericTypes: Set<string>;
+} {
   const configPath = path.join(ROOT, "tsconfig.json");
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
   const parsed = ts.parseJsonConfigFileContent(
@@ -119,112 +152,78 @@ function findGenericExports(): GenericExport[] {
   const indexSf = program.getSourceFile(INDEX_PATH);
   if (!indexSf) throw new Error("Could not load src/index.ts");
 
-  // Build a map of export name → source module from the AST
-  const exportSourceMap = new Map<string, string>();
-  ts.forEachChild(indexSf, (node) => {
-    if (
-      ts.isExportDeclaration(node) &&
-      node.moduleSpecifier &&
-      ts.isStringLiteral(node.moduleSpecifier) &&
-      node.exportClause &&
-      ts.isNamedExports(node.exportClause) &&
-      !node.isTypeOnly
-    ) {
-      const mod = node.moduleSpecifier.text;
-      for (const el of node.exportClause.elements) {
-        if (!el.isTypeOnly) {
-          exportSourceMap.set(el.name.text, mod);
-        }
-      }
-    }
-  });
-
   const indexSymbol = checker.getSymbolAtLocation(indexSf);
   if (!indexSymbol) throw new Error("No symbol for index.ts");
 
   const moduleExports = checker.getExportsOfModule(indexSymbol);
-  const result: GenericExport[] = [];
+  const genericValues = new Set<string>();
+  const genericTypes = new Set<string>();
 
   for (const sym of moduleExports) {
-    if (SKIP_EXPORTS.has(sym.name)) continue;
+    if (!isGenericOverValueFormat(checker, sym)) continue;
 
-    const sourceModule = exportSourceMap.get(sym.name);
-    if (!sourceModule) continue;
-
-    // Resolve aliases
     const resolved =
       sym.flags & ts.SymbolFlags.Alias
         ? checker.getAliasedSymbol(sym)
         : sym;
 
-    const decls = resolved.getDeclarations();
-    if (!decls || decls.length === 0) continue;
+    // Determine if this is a type-only or value export
+    const isTypeOnly =
+      resolved.flags & ts.SymbolFlags.TypeAlias &&
+      !(resolved.flags & ts.SymbolFlags.Value);
 
-    // Get the type of the symbol and check for generic call signatures
-    const type = checker.getTypeOfSymbolAtLocation(resolved, decls[0]);
-
-    // Check if the type has call signatures with a ValueFormat type param.
-    // Also check the type-to-string as a fallback for components typed via
-    // `as <F extends ValueFormat>(...) => ...` where the checker may not
-    // expose type params directly.
-    if (hasValueFormatTypeParam(checker, type)) {
-      result.push({ name: sym.name, sourceModule });
-      continue;
-    }
-
-    const typeStr = checker.typeToString(
-      type,
-      undefined,
-      ts.TypeFormatFlags.NoTruncation,
-    );
-    if (typeStr.includes("F extends ValueFormat")) {
-      result.push({ name: sym.name, sourceModule });
-      continue;
-    }
-
-    // For function+namespace hybrids (e.g. MonthView with .Root), the
-    // call signature type param may be hidden. Check all declarations for
-    // a type parameter with a ValueFormat constraint.
-    let foundViaDecl = false;
-    for (const decl of decls) {
-      // Check function declarations and function expressions
-      const typeParams =
-        ts.isFunctionDeclaration(decl) || ts.isFunctionExpression(decl)
-          ? decl.typeParameters
-          : undefined;
-      if (typeParams) {
-        for (const tp of typeParams) {
-          if (tp.constraint) {
-            const cType = checker.getTypeAtLocation(tp.constraint);
-            const cStr = checker.typeToString(cType);
-            if (cStr === "ValueFormat" || cStr.includes("ValueFormat")) {
-              foundViaDecl = true;
-              break;
-            }
-          }
-        }
-      }
-      if (foundViaDecl) break;
-
-      // Last resort: check the source text of the declaration
-      const src = decl.getSourceFile();
-      const declText = src.text.slice(decl.pos, decl.end).slice(0, 200);
-      if (/\bextends\s+ValueFormat\b/.test(declText)) {
-        foundViaDecl = true;
-        break;
-      }
-    }
-    if (foundViaDecl) {
-      result.push({ name: sym.name, sourceModule });
+    if (isTypeOnly) {
+      genericTypes.add(sym.name);
+    } else {
+      genericValues.add(sym.name);
     }
   }
 
-  return result.sort((a, b) => a.name.localeCompare(b.name));
+  return { genericValues, genericTypes };
 }
 
 // ---------------------------------------------------------------------------
-// 3. Generate format entry files
+// 3. Parse index.ts and generate format files by transforming each export
 // ---------------------------------------------------------------------------
+
+interface ExportInfo {
+  names: string[];
+  module: string;
+  isTypeOnly: boolean;
+}
+
+/** Parse index.ts AST to extract structured export info. */
+function parseIndexExports(): ExportInfo[] {
+  const source = fs.readFileSync(INDEX_PATH, "utf-8");
+  const sf = ts.createSourceFile(
+    INDEX_PATH,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+  );
+
+  const result: ExportInfo[] = [];
+
+  ts.forEachChild(sf, (node) => {
+    if (
+      ts.isExportDeclaration(node) &&
+      node.moduleSpecifier &&
+      ts.isStringLiteral(node.moduleSpecifier) &&
+      node.exportClause &&
+      ts.isNamedExports(node.exportClause)
+    ) {
+      const mod = node.moduleSpecifier.text;
+      const names = node.exportClause.elements.map((el) => el.name.text);
+      result.push({
+        names,
+        module: mod,
+        isTypeOnly: node.isTypeOnly,
+      });
+    }
+  });
+
+  return result;
+}
 
 function formatToKebab(format: string): string {
   return format.replace(/([a-z])([A-Z])/g, "$1-$2").toLowerCase();
@@ -232,57 +231,59 @@ function formatToKebab(format: string): string {
 
 function generateFormatFile(
   format: string,
-  genericExports: GenericExport[],
+  exports: ExportInfo[],
+  genericValues: Set<string>,
+  genericTypes: Set<string>,
 ): string {
-  // Group exports by source module for clean imports
-  const byModule = new Map<string, string[]>();
-  for (const exp of genericExports) {
-    // Rewrite import paths: ./grid → ../grid (formats/ is one level deeper)
-    const importPath = exp.sourceModule.replace(/^\.\//, "../");
-    const list = byModule.get(importPath) ?? [];
-    list.push(exp.name);
-    byModule.set(importPath, list);
-  }
-
   const lines: string[] = [];
   lines.push(
     "// @generated by scripts/generate-formats.ts — do not edit manually",
+    `type F = "${format}";`,
     "",
   );
 
-  // Import statements
-  const sortedModules = [...byModule.entries()].sort((a, b) =>
-    a[0].localeCompare(b[0]),
-  );
-  for (const [mod, names] of sortedModules) {
-    const sorted = [...names].sort();
-    if (sorted.length <= 3) {
-      lines.push(`import { ${sorted.join(", ")} } from "${mod}";`);
-    } else {
-      lines.push(`import {`);
-      for (const name of sorted) {
-        lines.push(`  ${name},`);
+  for (const exp of exports) {
+    const mod = exp.module.replace(/^\.\//, "../");
+
+    if (exp.isTypeOnly) {
+      // Type exports: split into generic and non-generic
+      const generic = exp.names.filter((n) => genericTypes.has(n));
+      const plain = exp.names.filter((n) => !genericTypes.has(n));
+
+      if (generic.length > 0) {
+        // Import generic types aliased, then re-export with F applied
+        const imports = generic.map((n) => `${n} as _${n}`).join(", ");
+        lines.push(`import type { ${imports} } from "${mod}";`);
+        for (const n of generic) {
+          lines.push(`export type ${n} = _${n}<F>;`);
+        }
       }
-      lines.push(`} from "${mod}";`);
+      if (plain.length > 0) {
+        lines.push(
+          `export type { ${plain.join(", ")} } from "${mod}";`,
+        );
+      }
+    } else {
+      // Value exports: split into generic and non-generic
+      const generic = exp.names.filter((n) => genericValues.has(n));
+      const plain = exp.names.filter((n) => !genericValues.has(n));
+
+      if (generic.length > 0) {
+        const imports = generic.map((n) => `${n} as _${n}`).join(", ");
+        lines.push(`import { ${imports} } from "${mod}";`);
+        for (const n of generic) {
+          lines.push(`const ${n} = _${n}<F>;`);
+        }
+        lines.push(`export { ${generic.join(", ")} };`);
+      }
+      if (plain.length > 0) {
+        lines.push(
+          `export { ${plain.join(", ")} } from "${mod}";`,
+        );
+      }
     }
+    lines.push("");
   }
-
-  lines.push("");
-  lines.push(`type F = "${format}";`);
-  lines.push("");
-
-  // Instantiation expressions + re-exports
-  for (const exp of genericExports) {
-    lines.push(`const _${exp.name} = ${exp.name}<F>;`);
-  }
-
-  lines.push("");
-  lines.push("export {");
-  for (const exp of genericExports) {
-    lines.push(`  _${exp.name} as ${exp.name},`);
-  }
-  lines.push("};");
-  lines.push("");
 
   return lines.join("\n");
 }
@@ -292,10 +293,14 @@ function generateFormatFile(
 // ---------------------------------------------------------------------------
 
 const formats = parseFormats();
-const genericExports = findGenericExports();
+const { genericValues, genericTypes } = findGenericSymbols();
+const exports = parseIndexExports();
 
 console.log(
-  `Found ${genericExports.length} generic exports: ${genericExports.map((e) => e.name).join(", ")}`,
+  `Found ${genericValues.size} generic values: ${[...genericValues].sort().join(", ")}`,
+);
+console.log(
+  `Found ${genericTypes.size} generic types: ${[...genericTypes].sort().join(", ")}`,
 );
 console.log(`Generating format entries for: ${formats.join(", ")}`);
 
@@ -303,20 +308,34 @@ fs.mkdirSync(FORMATS_DIR, { recursive: true });
 
 // Clean existing generated files
 for (const file of fs.readdirSync(FORMATS_DIR)) {
-  if (file.endsWith(".tsx")) {
-    const content = fs.readFileSync(path.join(FORMATS_DIR, file), "utf-8");
+  if (file.endsWith(".tsx") || file.endsWith(".ts")) {
+    const filePath = path.join(FORMATS_DIR, file);
+    const content = fs.readFileSync(filePath, "utf-8");
     if (content.startsWith("// @generated")) {
-      fs.unlinkSync(path.join(FORMATS_DIR, file));
+      fs.unlinkSync(filePath);
     }
   }
 }
 
 for (const format of formats) {
   const kebab = formatToKebab(format);
-  const content = generateFormatFile(format, genericExports);
-  const filePath = path.join(FORMATS_DIR, `${kebab}.tsx`);
+  const content = generateFormatFile(format, exports, genericValues, genericTypes);
+  const filePath = path.join(FORMATS_DIR, `${kebab}.ts`);
   fs.writeFileSync(filePath, content);
-  console.log(`  wrote src/formats/${kebab}.tsx`);
+  console.log(`  wrote src/formats/${kebab}.ts`);
+}
+
+// Run linting and formatting on generated files
+console.log("Running linter and formatter...");
+try {
+  execSync(`npx oxlint --fix ${FORMATS_DIR}`, { cwd: ROOT, stdio: "pipe" });
+} catch {
+  // oxlint may exit non-zero for unfixable issues; that's OK
+}
+try {
+  execSync(`npx oxfmt ${FORMATS_DIR}`, { cwd: ROOT, stdio: "pipe" });
+} catch {
+  // oxfmt may fail if not installed; proceed anyway
 }
 
 console.log("Done.");
