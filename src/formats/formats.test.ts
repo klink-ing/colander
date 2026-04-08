@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
 import * as root from "colander";
+import { describe, it, expect } from "vitest";
 
 const formatModules = import.meta.glob<Record<string, unknown>>(
   ["./*.ts", "!./*.test.ts"],

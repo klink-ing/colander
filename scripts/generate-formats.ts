@@ -77,9 +77,7 @@ function isGenericOverValueFormat(
   sym: ts.Symbol,
 ): boolean {
   const resolved =
-    sym.flags & ts.SymbolFlags.Alias
-      ? checker.getAliasedSymbol(sym)
-      : sym;
+    sym.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(sym) : sym;
 
   const decls = resolved.getDeclarations();
   if (!decls || decls.length === 0) return false;
@@ -138,11 +136,7 @@ function findGenericSymbols(): {
 } {
   const configPath = path.join(ROOT, "tsconfig.json");
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-  const parsed = ts.parseJsonConfigFileContent(
-    configFile.config,
-    ts.sys,
-    ROOT,
-  );
+  const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, ROOT);
 
   const program = ts.createProgram([INDEX_PATH], {
     ...parsed.options,
@@ -163,9 +157,7 @@ function findGenericSymbols(): {
     if (!isGenericOverValueFormat(checker, sym)) continue;
 
     const resolved =
-      sym.flags & ts.SymbolFlags.Alias
-        ? checker.getAliasedSymbol(sym)
-        : sym;
+      sym.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(sym) : sym;
 
     // Determine if this is a type-only or value export
     const isTypeOnly =
@@ -259,9 +251,7 @@ function generateFormatFile(
         }
       }
       if (plain.length > 0) {
-        lines.push(
-          `export type { ${plain.join(", ")} } from "${mod}";`,
-        );
+        lines.push(`export type { ${plain.join(", ")} } from "${mod}";`);
       }
     } else {
       // Value exports: split into generic and non-generic
@@ -277,9 +267,7 @@ function generateFormatFile(
         lines.push(`export { ${generic.join(", ")} };`);
       }
       if (plain.length > 0) {
-        lines.push(
-          `export { ${plain.join(", ")} } from "${mod}";`,
-        );
+        lines.push(`export { ${plain.join(", ")} } from "${mod}";`);
       }
     }
     lines.push("");
@@ -319,7 +307,12 @@ for (const file of fs.readdirSync(FORMATS_DIR)) {
 
 for (const format of formats) {
   const kebab = formatToKebab(format);
-  const content = generateFormatFile(format, exports, genericValues, genericTypes);
+  const content = generateFormatFile(
+    format,
+    exports,
+    genericValues,
+    genericTypes,
+  );
   const filePath = path.join(FORMATS_DIR, `${kebab}.ts`);
   fs.writeFileSync(filePath, content);
   console.log(`  wrote src/formats/${kebab}.ts`);
