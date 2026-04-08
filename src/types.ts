@@ -278,7 +278,7 @@ interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
   /**
    * Custom Temporal namespace for environments without native Temporal support.
    * Typically the `Temporal` export from `@js-temporal/polyfill`. When using
-   * `createDatePicker`, this is baked into the factory and need not be passed again.
+   * `@js-temporal/polyfill`.
    */
   temporal?: TemporalNamespace;
   /**
@@ -785,14 +785,8 @@ export type WeekNumberHeaderState<F extends ValueFormat = ValueFormat> = {
 export type WeekNumberHeaderProps<F extends ValueFormat = ValueFormat> =
   useRender.ComponentProps<"th", WeekNumberHeaderState<F>>;
 
-/** Root props pre-narrowed to a specific format (used by `createDatePicker`). */
+/** Root props pre-narrowed to a specific format. */
 export type TypedRootProps<F extends ValueFormat> = Omit<
   RootProps<F>,
   "format" | "temporal"
 >;
-
-/** Options for {@link createDatePicker}. */
-export interface CreateDatePickerOptions {
-  /** Temporal polyfill to bake into the factory-created components. */
-  temporal?: TemporalNamespace;
-}

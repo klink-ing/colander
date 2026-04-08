@@ -33,7 +33,6 @@ export {
   MonthSeparatorYear,
   MonthSeparatorWeekCount,
 } from "./month-separator";
-export { createDatePicker, type Components } from "./factory";
 export { computePreviewRange } from "./root-selection";
 export { computeWeeksInWindow } from "./compute-weeks-in-window";
 export { resolveFirstWeek, resolveFirstWeekSpec } from "./resolve-first-week";
@@ -83,7 +82,6 @@ export type {
   RawValueForFormat,
   PlainDateObject,
   TemporalNamespace,
-  CreateDatePickerOptions,
   WeekStartDay,
   RangeMode,
   OutsideDays,

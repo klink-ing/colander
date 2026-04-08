@@ -1,5 +1,5 @@
 import { useRender } from "@base-ui/react/use-render";
-import React from "react";
+import React, { useId, type ComponentProps } from "react";
 import {
   getSymbolByName,
   type ApiSymbol,
@@ -81,6 +81,7 @@ function renderPropType(symbol: ApiSymbol): string {
 
 function PropsTable({ symbol }: { symbol: ApiSymbol }) {
   const ownProps = symbol.properties ?? [];
+  const propId = `${symbol.name}-${useId()}`;
 
   // Build the render prop entry if this type uses ComponentProps
   const renderProp: SymbolProperty | null = symbol.defaultElement
@@ -98,52 +99,51 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
 
   return (
     <table
-      className="grid w-full border-collapse grid-cols-[auto_1fr_auto_1fr] overflow-x-auto type-body-100"
+      className="grid w-full border-collapse grid-cols-[auto_1fr_auto] overflow-x-auto type-body-100"
       aria-label={`${symbol.name} props`}
     >
-      <thead className="contents">
+      <thead className="contents border-none">
         <tr className="contents">
-          <Th>Prop</Th>
-          <Th>Type</Th>
-          <Th>Default</Th>
-          <Th lastInRow>Description</Th>
+          <Th id={propId}>Prop</Th>
+          <Th headers={propId}>Type</Th>
+          <Th headers={propId}>Default</Th>
+          <Th headers={propId} className="sr-only">
+            Description
+          </Th>
         </tr>
       </thead>
       <tbody className="contents">
         {allProps.map((prop, i) => {
-          const isLast = i === allProps.length - 1;
           return (
-            <tr key={prop.name} className="contents">
-              <Cell isLast={isLast}>
-                <Badge>
-                  {prop.name}
-                  {!prop.optional && (
-                    <span className="relative top-[-.25em] ml-0.5 text-muted-foreground">
-                      *
-                    </span>
-                  )}
-                </Badge>
-              </Cell>
-              <Cell
-                isLast={isLast}
-                className="type-code-100 break-all text-muted-foreground"
+            <>
+              <tr
+                key={prop.name}
+                className="col-span-full grid grid-cols-subgrid border-t border-border"
               >
-                <TypeLink type={prop.type} />
-              </Cell>
-              <Cell
-                isLast={isLast}
-                className="type-code-100 text-muted-foreground"
-              >
-                {prop.defaultValue || "—"}
-              </Cell>
-              <Cell
-                isLast={isLast}
-                className="type-body-100 text-muted-foreground"
-                lastInRow
-              >
-                <InlineDescription text={prop.description} />
-              </Cell>
-            </tr>
+                <Cell className="border-0 pb-3">
+                  <Badge>
+                    {prop.name}
+                    {!prop.optional && (
+                      <span className="relative top-[-.25em] ml-0.5 text-muted-foreground">
+                        *
+                      </span>
+                    )}
+                  </Badge>
+                </Cell>
+                <Cell className="border-0 pb-3 type-code-100 wrap-break-word text-muted-foreground">
+                  <TypeLink type={prop.type} />
+                </Cell>
+                <Cell
+                  className="border-0 pb-3 type-code-100 text-muted-foreground"
+                  lastInRow
+                >
+                  {prop.defaultValue || "—"}
+                </Cell>
+                <Cell className="col-start-2 -col-end-1 pt-0">
+                  <InlineDescription text={prop.description} />
+                </Cell>
+              </tr>
+            </>
           );
         })}
       </tbody>
@@ -154,17 +154,19 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
 function Th({
   children,
   lastInRow = false,
+  ...props
 }: {
   children: React.ReactNode;
   lastInRow?: boolean;
-}) {
+} & ComponentProps<"th">) {
   return (
     <th
       scope="col"
       className={cn(
-        "border-b border-border pb-1 text-left type-label-200 text-muted-foreground",
+        "pb-1 text-left type-label-200 text-muted-foreground",
         !lastInRow && "pr-4",
       )}
+      {...props}
     >
       {children}
     </th>
@@ -173,24 +175,17 @@ function Th({
 
 function Cell({
   children,
-  isLast = false,
   lastInRow = false,
   className,
+  ...props
 }: {
   children: React.ReactNode;
   isLast?: boolean;
   lastInRow?: boolean;
   className?: string;
-}) {
+} & ComponentProps<"td">) {
   return (
-    <td
-      className={cn(
-        "py-1.5",
-        !lastInRow && "pr-4",
-        !isLast && "border-b border-border",
-        className,
-      )}
-    >
+    <td className={cn("py-5", !lastInRow && "pr-4", className)} {...props}>
       {children}
     </td>
   );
