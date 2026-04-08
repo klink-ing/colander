@@ -74,9 +74,9 @@ function TypeTooltipBody({
   const maxProps = 6;
 
   return (
-    <>
-      <div className="mb-1 flex items-center gap-2">
-        <span className="type-code-100 text-foreground-vivid">
+    <div className="flex flex-col gap-2">
+      <div className="mb-1 inline wrap-break-word">
+        <span className="type-code-100 text-foreground-vivid pr-[1em]">
           {symbol.kind}
         </span>
         <span className="type-code-100 font-semibold text-foreground">
@@ -119,7 +119,7 @@ function TypeTooltipBody({
           {symbol.members.join(" | ")}
         </pre>
       )}
-    </>
+    </div>
   );
 }
 
