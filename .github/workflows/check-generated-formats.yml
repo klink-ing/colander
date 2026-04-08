@@ -1,14 +1,19 @@
-name: Check generated format files
+name: Generate format files
 
 on:
   pull_request:
     branches: [alpha]
 
+permissions:
+  contents: write
+
 jobs:
-  check-formats:
+  generate-formats:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
 
       - uses: actions/setup-node@v4
         with:
@@ -19,9 +24,12 @@ jobs:
 
       - run: npx tsx scripts/generate-formats.ts
 
-      - name: Verify generated files are up to date
+      - name: Commit generated formats if changed
         run: |
-          if ! git diff --exit-code src/formats/; then
-            echo "::error::Generated format files are stale. Run 'npm run generate:formats' and commit the changes."
-            exit 1
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/formats/
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: regenerate format files"
+            git push
           fi
