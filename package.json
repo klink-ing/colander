@@ -64,7 +64,7 @@
     "perf:bench": "vitest bench 'utils.bench'",
     "format": "oxfmt",
     "format:check": "oxfmt --check",
-    "lint": "oxlint --fix && oxfmt",
+    "lint": "oxlint --type-aware --fix && oxfmt",
     "check": "tsc --noEmit && tsc --noEmit -p site/tsconfig.json",
     "prepublishOnly": "npm run build",
     "size": "size-limit",

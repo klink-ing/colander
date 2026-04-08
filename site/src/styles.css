@@ -118,7 +118,7 @@
 }
 
 @theme {
-  --radius-*: initial; // reset initial tailwind radii
+  --radius-*: initial; /* reset initial tailwind radii */
   --radius-xs: calc(8em / 16);
   --radius-sm: calc(10em / 16);
   --radius-md: calc(12em / 16);
