@@ -60,7 +60,7 @@ export default function Header() {
 
         {/* Desktop nav — hidden below bp-4.5, renders from NAV_LINKS */}
         <NavigationMenu viewport={false} className="hidden bp-4.5:flex">
-          <NavigationMenuList className="gap-0.5">
+          <NavigationMenuList className="gap-2">
             {NAV_LINKS.map((link) => {
               const active = pathname.startsWith(link.to);
               return (
@@ -78,7 +78,9 @@ export default function Header() {
         </NavigationMenu>
 
         <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
-          <div className="type-label-100 px-3 py-1 squircle-full squircle-amt-minimal border-border border text-trim-cap">pre-alpha</div>
+          <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">
+            pre-alpha
+          </div>
           <a
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"

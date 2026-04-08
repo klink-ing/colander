@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, type Ref } from "react";
 
 import {
   Grid,
@@ -38,7 +38,7 @@ import { cn } from "#/lib/utils";
 export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: PrevMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
+}: PrevMonthButtonProps<F> & { ref?: Ref<HTMLButtonElement> }) {
   return (
     <PrevMonthButton
       data-testid="button-prev-month"
@@ -60,7 +60,7 @@ export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
 export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: NextMonthButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> }) {
+}: NextMonthButtonProps<F> & { ref?: Ref<HTMLButtonElement> }) {
   return (
     <NextMonthButton
       data-testid="button-next-month"
@@ -82,7 +82,7 @@ export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
 export function StyledMonthYearString<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: MonthYearStringProps<F> & { ref?: React.Ref<HTMLSpanElement> }) {
+}: MonthYearStringProps<F> & { ref?: Ref<HTMLSpanElement> }) {
   return (
     <MonthYearString
       data-testid="text-current-month"
@@ -95,7 +95,7 @@ export function StyledMonthYearString<F extends ValueFormat = ValueFormat>({
 export function StyledGrid<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridProps<F> & { ref?: React.Ref<HTMLTableElement> }) {
+}: GridProps<F> & { ref?: Ref<HTMLTableElement> }) {
   return (
     <Grid
       mode="grid"
@@ -111,7 +111,7 @@ export function StyledGrid<F extends ValueFormat = ValueFormat>({
 export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridHeaderProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
+}: GridHeaderProps<F> & { ref?: Ref<HTMLTableSectionElement> }) {
   return (
     <GridHeader
       {...(props as GridHeaderProps)}
@@ -127,7 +127,7 @@ export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
 export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridHeaderCellProps<F> & { ref?: React.Ref<HTMLTableCellElement> }) {
+}: GridHeaderCellProps<F> & { ref?: Ref<HTMLTableCellElement> }) {
   return (
     <GridHeaderCell
       {...(props as GridHeaderCellProps)}
@@ -142,7 +142,7 @@ export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
 export function StyledGridBody<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: GridBodyProps<F> & { ref?: React.Ref<HTMLTableSectionElement> }) {
+}: GridBodyProps<F> & { ref?: Ref<HTMLTableSectionElement> }) {
   return (
     <GridBody
       {...(props as GridBodyProps)}
@@ -154,7 +154,7 @@ export function StyledGridBody<F extends ValueFormat = ValueFormat>({
 export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   className,
   ...props
-}: WeekTemplateProps<F> & { ref?: React.Ref<HTMLTableRowElement> }) {
+}: WeekTemplateProps<F> & { ref?: Ref<HTMLTableRowElement> }) {
   return (
     <WeekTemplate
       {...(props as WeekTemplateProps)}
@@ -173,7 +173,7 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
 
 export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
   allProps: DayCellTemplateProps<F> & {
-    ref?: React.Ref<HTMLTableCellElement>;
+    ref?: Ref<HTMLTableCellElement>;
     columnOffset?: number;
     preventRangeReversal?: boolean;
     showFirstOfMonthBorder?: boolean;
@@ -229,7 +229,7 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
   preventRangeReversal,
   ...props
 }: DayButtonProps<F> & {
-  ref?: React.Ref<HTMLButtonElement>;
+  ref?: Ref<HTMLButtonElement>;
   preventRangeReversal?: boolean;
 }) {
   return (
@@ -334,7 +334,7 @@ export function StyledDragHandle({
 
 export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
   allProps: RangePreviewProps<F> & {
-    ref?: React.Ref<HTMLTableCellElement>;
+    ref?: Ref<HTMLTableCellElement>;
     columnOffset?: number;
   },
 ) {
@@ -360,7 +360,7 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
             {/* White solid line */}
             <div
               className={cn(
-                "absolute inset-0 rounded-md border border-white",
+                "absolute inset-0 squircle-sm rounded-sm border border-background dark:border-dashed dark:border-foreground",
                 horizontal
                   ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
                   : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
@@ -368,10 +368,10 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
               data-extends-before={state.extendsBefore || undefined}
               data-extends-after={state.extendsAfter || undefined}
             />
-            {/* Blue dashed line on top */}
+            {/* primary dashed line on top */}
             <div
               className={cn(
-                "absolute inset-0 rounded-md border border-dashed border-primary/80",
+                "absolute inset-0 squircle-sm rounded-sm border border-dashed border-primary dark:opacity-0",
                 horizontal
                   ? "data-extends-after:rounded-r-none data-extends-after:border-r-0 data-extends-before:rounded-l-none data-extends-before:border-l-0"
                   : "data-extends-after:rounded-b-none data-extends-after:border-b-0 data-extends-before:rounded-t-none data-extends-before:border-t-0",
@@ -388,7 +388,7 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
 
 export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
   allProps: RangeSelectedProps<F> & {
-    ref?: React.Ref<HTMLTableCellElement>;
+    ref?: Ref<HTMLTableCellElement>;
     columnOffset?: number;
   },
 ) {
@@ -413,7 +413,7 @@ export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
                 : { gridRow: span, gridColumn: 1 }
             }
             className={cn(
-              "rounded-md bg-primary",
+              "squircle-xs rounded-xs bg-primary",
               horizontal
                 ? "data-extends-after:rounded-r-none data-extends-before:rounded-l-none"
                 : "data-extends-after:rounded-b-none data-extends-before:rounded-t-none",

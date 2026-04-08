@@ -37,13 +37,13 @@ export default function ExampleBlock({
         </div>
         <TabsContent value="ts">
           <div
-            className="overflow-x-auto squircle-b-lg border border-border [&_pre]:m-0 [&_pre]:squircle-none [&_pre]:border-0 [&_pre]:p-4"
+            className="[&_pre]:squircle-none overflow-x-auto squircle-b-lg border border-border [&_pre]:m-0 [&_pre]:border-0 [&_pre]:p-4"
             dangerouslySetInnerHTML={{ __html: tsHtml }}
           />
         </TabsContent>
         <TabsContent value="js">
           <div
-            className="overflow-x-auto squircle-b-lg border border-border [&_pre]:m-0 [&_pre]:squircle-none [&_pre]:border-0 [&_pre]:p-4"
+            className="[&_pre]:squircle-none overflow-x-auto squircle-b-lg border border-border [&_pre]:m-0 [&_pre]:border-0 [&_pre]:p-4"
             dangerouslySetInnerHTML={{ __html: jsHtml }}
           />
         </TabsContent>

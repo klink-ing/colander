@@ -17,11 +17,11 @@ export type WeekStartDay = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 /**
  * Controls how days from adjacent months are displayed in the calendar grid.
  * - `"enabled"` — outside days are fully interactive (default).
- * - `"readonly"` — outside days are visible but disabled; range highlighting still paints through.
+ * - `"readOnly"` — outside days are visible but disabled; range highlighting still paints through.
  * - `"disabled"` — outside days are visible but disabled; no range highlighting or drag handles.
  * - `"hidden"` — outside day cells are empty (`<td>` with `data-hidden` + `aria-hidden`).
  */
-export type OutsideDays = "enabled" | "readonly" | "disabled" | "hidden";
+export type OutsideDays = "enabled" | "readOnly" | "disabled" | "hidden";
 
 /**
  * Controls how clicking inside an existing range behaves.
@@ -309,7 +309,7 @@ interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
   /**
    * Controls how days from adjacent months are displayed.
    * - `"enabled"` — fully interactive (default).
-   * - `"readonly"` — visible but disabled; range highlighting paints through.
+   * - `"readOnly"` — visible but disabled; range highlighting paints through.
    * - `"disabled"` — visible but disabled; no range highlighting or drag handles.
    * - `"hidden"` — empty cells with `data-hidden` + `aria-hidden`.
    * @default "enabled"

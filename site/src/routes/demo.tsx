@@ -20,7 +20,7 @@ export const Route = createFileRoute("/demo")({ component: DemoPage });
 
 function DemoPage() {
   return (
-    <main className="page-wrap px-4 pt-8 pb-8">
+    <main className="page-wrap pt-8 pb-8">
       <DemoApp />
     </main>
   );

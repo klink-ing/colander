@@ -1211,13 +1211,13 @@ describe("outsideDays", () => {
     });
   });
 
-  describe('outsideDays="readonly"', () => {
+  describe('outsideDays="readOnly"', () => {
     it("outside-month buttons render but are disabled", () => {
       const { container, unmount } = render(
         <MonthView
           {...defaultProps}
           defaultValue={march15}
-          outsideDays="readonly"
+          outsideDays="readOnly"
         >
           <Grid />
         </MonthView>,
@@ -1251,7 +1251,7 @@ describe("outsideDays", () => {
           {...defaultProps}
           selectionMode="range"
           value={{ start: march25, end: april3 }}
-          outsideDays="readonly"
+          outsideDays="readOnly"
         >
           <Grid />
         </MonthView>,
@@ -1531,7 +1531,7 @@ describe("outsideDays", () => {
           selectionMode="range"
           value={{ start: march25, end: april5 }}
           numberOfMonths={2}
-          outsideDays="readonly"
+          outsideDays="readOnly"
         >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />

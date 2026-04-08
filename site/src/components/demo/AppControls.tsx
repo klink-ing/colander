@@ -1,15 +1,24 @@
+import { Field as FieldPrimitive } from "@base-ui/react/field";
+import { Fieldset as FieldsetPrimitive } from "@base-ui/react/fieldset";
 import { Temporal } from "@js-temporal/polyfill";
-import type { RangeMode, OutsideDays, OverflowBehavior } from "colander";
+import type { OutsideDays, OverflowBehavior, RangeMode } from "colander";
+import type { ComponentProps } from "react";
 import {
   Accordion,
+  AccordionContent,
   AccordionItem,
   AccordionTrigger,
-  AccordionContent,
 } from "#/components/ui/accordion";
-import { Label } from "#/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "#/components/ui/radio-group";
 import { Checkbox } from "../ui/checkbox";
-import { Field } from "../ui/field";
+import { Field, FieldLabel, FieldsetLegend } from "../ui/field";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -72,12 +81,20 @@ export const WEEK_START_DAYS = [
   { value: 6, label: "Saturday" },
 ] as const;
 
+const RANGE_MODE_OPTIONS: Record<RangeMode, string> = {
+  "start-end": "start-end (default)",
+  "nearest-end": "nearest-end",
+  "nearest-start": "nearest-start",
+  "adjust-end": "adjust-end",
+  "adjust-start": "adjust-start",
+  reset: "reset",
+} as const;
+
 export function formatTzLabel(tz: string): string {
   try {
     const now = Temporal.Now.zonedDateTimeISO(tz);
     const offset = now.offset;
-    const city = tz.split("/").pop()?.replace(/_/g, " ") ?? tz;
-    return `${city} (UTC${offset})`;
+    return `UTC${offset}`;
   } catch {
     return tz;
   }
@@ -144,18 +161,17 @@ export interface AppControlsProps {
 const toInputValue = (zdt: Temporal.ZonedDateTime) =>
   zdt.toPlainDate().toString();
 
-function Radio({
-  value,
+function SingleCheckbox({
   children,
-}: {
-  value: string;
-  children: React.ReactNode;
-}) {
+  ...props
+}: ComponentProps<typeof Checkbox> & { children: React.ReactNode }) {
   return (
-    <Label className="flex w-full items-center gap-2">
-      <RadioGroupItem value={value} />
-      {children}
-    </Label>
+    <FieldPrimitive.Root>
+      <FieldPrimitive.Label className="flex w-full items-center gap-2">
+        <Checkbox {...props} />
+        {children}
+      </FieldPrimitive.Label>
+    </FieldPrimitive.Root>
   );
 }
 
@@ -208,24 +224,29 @@ export function AppControls(props: AppControlsProps) {
     setDisableDateMode,
     monthOverflowBehavior,
     setMonthOverflowBehavior,
-    selectionDisplay,
-    lastMonthChange,
   } = props;
 
   return (
     <div className="flex w-64 shrink-0 flex-col">
       <h2 className="mb-2 text-lg font-semibold text-foreground">Controls</h2>
 
-      <Field className="mb-3">
-        <Label className={fieldHeadingClassName}>View</Label>
-        <RadioGroup
-          value={viewMode}
-          onValueChange={(v) => setViewMode(v as "month" | "weeks")}
+      <FieldPrimitive.Root className="border-b border-input pb-0">
+        <FieldsetPrimitive.Root
+          className="mb-3"
+          render={
+            <RadioGroup
+              value={viewMode}
+              onValueChange={(v) => setViewMode(v as "month" | "weeks")}
+            />
+          }
         >
-          <Radio value="month">MonthView</Radio>
-          <Radio value="weeks">WeeksView</Radio>
-        </RadioGroup>
-      </Field>
+          <FieldsetLegend className={fieldHeadingClassName}>
+            View
+          </FieldsetLegend>
+          <RadioGroupItem value="month">MonthView</RadioGroupItem>
+          <RadioGroupItem value="weeks">WeeksView</RadioGroupItem>
+        </FieldsetPrimitive.Root>
+      </FieldPrimitive.Root>
 
       <Accordion defaultValue={["calendar-provider", "display-options"]}>
         {/* ── Section 1: CalendarProvider ── */}
@@ -233,106 +254,144 @@ export function AppControls(props: AppControlsProps) {
           <AccordionTrigger>CalendarProvider</AccordionTrigger>
           <AccordionContent>
             <div className="flex flex-col gap-4">
-              <Field>
-                <Label>selectionMode</Label>
-                <RadioGroup
-                  value={selectionMode}
-                  onValueChange={(v) =>
-                    setSelectionMode(v as "single" | "range" | "multiple")
+              <FieldPrimitive.Root name="selectionMode">
+                <FieldsetPrimitive.Root
+                  render={
+                    <RadioGroup
+                      value={selectionMode}
+                      onValueChange={(v) =>
+                        setSelectionMode(v as "single" | "range" | "multiple")
+                      }
+                    />
                   }
                 >
-                  <Radio value="single">single (default)</Radio>
-                  <Radio value="range">range</Radio>
-                  <Radio value="multiple">multiple</Radio>
-                </RadioGroup>
-              </Field>
+                  <FieldsetLegend>selectionMode</FieldsetLegend>
+                  <RadioGroupItem value="single">
+                    single (default)
+                  </RadioGroupItem>
+                  <RadioGroupItem value="range">range</RadioGroupItem>
+                  <RadioGroupItem value="multiple">multiple</RadioGroupItem>
+                </FieldsetPrimitive.Root>
+              </FieldPrimitive.Root>
 
               {selectionMode === "range" && (
                 <Field>
-                  <Label htmlFor="range-mode">rangeMode</Label>
-                  <select
+                  <FieldLabel htmlFor="range-mode">rangeMode</FieldLabel>
+                  <Select
                     id="range-mode"
                     value={rangeMode}
-                    onChange={(e) => setRangeMode(e.target.value as RangeMode)}
-                    className={selectClassName}
+                    onValueChange={(value) =>
+                      setRangeMode(value ?? "start-end")
+                    }
                   >
-                    <option value="start-end">Start → End (default)</option>
-                    <option value="nearest-end">Nearest (tie: End)</option>
-                    <option value="nearest-start">Nearest (tie: Start)</option>
-                    <option value="adjust-end">Adjust End</option>
-                    <option value="adjust-start">Adjust Start</option>
-                    <option value="reset">Reset to Single Day</option>
-                  </select>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(RANGE_MODE_OPTIONS).map(
+                        ([value, label]) => (
+                          <SelectItem key={value} value={value}>
+                            {label}
+                          </SelectItem>
+                        ),
+                      )}
+                    </SelectContent>
+                  </Select>
                 </Field>
               )}
 
               {selectionMode === "range" && (
-                <Field orientation="horizontal">
-                  <Checkbox
-                    checked={preventRangeReversal}
-                    onCheckedChange={(checked) =>
-                      setPreventRangeReversal(checked)
-                    }
-                  />
-                  <Label>preventRangeReversal</Label>
-                </Field>
+                <SingleCheckbox
+                  checked={preventRangeReversal}
+                  onCheckedChange={(checked) =>
+                    setPreventRangeReversal(checked)
+                  }
+                >
+                  preventRangeReversal
+                </SingleCheckbox>
               )}
 
               <Field>
-                <Label htmlFor="timezone-select">timeZone</Label>
-                <select
+                <FieldLabel htmlFor="timezone-select">timeZone</FieldLabel>
+                <Select
                   id="timezone-select"
                   value={timeZone}
-                  onChange={(e) => handleTimeZoneChange(e.target.value)}
-                  className={selectClassName}
+                  itemToStringLabel={(item) =>
+                    !item
+                      ? tzOptions[0].label
+                      : (tzOptions.find((opt) => opt.value === item)?.label ??
+                        "")
+                  }
+                  onValueChange={(value) => handleTimeZoneChange(value ?? "")}
                 >
-                  <option value="">None (default)</option>
-                  {tzOptions.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select a timezone" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">None (default)</SelectItem>
+                    {tzOptions.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value}>
+                        {opt.value} — {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
 
               <Field>
-                <Label htmlFor="locale-select">locale</Label>
-                <select
+                <FieldLabel htmlFor="locale-select">locale</FieldLabel>
+                <Select
                   id="locale-select"
                   value={locale}
-                  onChange={(e) => setLocale(e.target.value)}
-                  className={selectClassName}
+                  onValueChange={(value) => setLocale(value ?? "en-US")}
                 >
-                  {LOCALES.map((loc) => (
-                    <option key={loc.value} value={loc.value}>
-                      {loc.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {LOCALES.map((loc) => (
+                      <SelectItem key={loc.value} value={loc.value}>
+                        {loc.value} – {loc.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
 
               <Field>
-                <Label htmlFor="week-start-day">weekStartDay</Label>
-                <select
+                <FieldLabel htmlFor="week-start-day">weekStartDay</FieldLabel>
+                <Select
                   id="week-start-day"
-                  value={weekStartDay}
-                  onChange={(e) =>
+                  value={String(weekStartDay)}
+                  onValueChange={(value) => {
+                    const next = Number(value ?? "0");
                     setWeekStartDay(
-                      Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-                    )
-                  }
-                  className={selectClassName}
+                      (Number.isFinite(next) ? next : 0) as
+                        | 0
+                        | 1
+                        | 2
+                        | 3
+                        | 4
+                        | 5
+                        | 6,
+                    );
+                  }}
                 >
-                  {WEEK_START_DAYS.map((d) => (
-                    <option key={d.value} value={d.value}>
-                      {d.label}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {WEEK_START_DAYS.map((d) => (
+                      <SelectItem key={d.value} value={String(d.value)}>
+                        {d.value} – {d.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </Field>
 
               <Field className="min-w-0">
-                <Label htmlFor="min-date">min</Label>
+                <FieldLabel htmlFor="min-date">min</FieldLabel>
                 <input
                   id="min-date"
                   type="date"
@@ -341,8 +400,9 @@ export function AppControls(props: AppControlsProps) {
                   className={selectClassName}
                 />
               </Field>
+
               <Field className="min-w-0">
-                <Label htmlFor="max-date">max</Label>
+                <FieldLabel htmlFor="max-date">max</FieldLabel>
                 <input
                   id="max-date"
                   type="date"
@@ -352,34 +412,38 @@ export function AppControls(props: AppControlsProps) {
                 />
               </Field>
 
-              <Field orientation="horizontal">
-                <Checkbox
-                  checked={disabled}
-                  onCheckedChange={(checked) => setDisabled(checked)}
-                />
-                <Label>disabled</Label>
-              </Field>
+              <SingleCheckbox
+                checked={disabled}
+                onCheckedChange={(checked) => setDisabled(checked)}
+              >
+                disabled
+              </SingleCheckbox>
 
-              <Field orientation="horizontal">
-                <Checkbox
-                  checked={readOnly}
-                  onCheckedChange={(checked) => setReadOnly(checked)}
-                />
-                <Label>readOnly</Label>
-              </Field>
+              <SingleCheckbox
+                checked={readOnly}
+                onCheckedChange={(checked) => setReadOnly(checked)}
+              >
+                readOnly
+              </SingleCheckbox>
 
-              <Field>
-                <Label>isDateDisabled</Label>
-                <RadioGroup
-                  value={disableDateMode}
-                  onValueChange={setDisableDateMode}
+              <FieldPrimitive.Root>
+                <FieldsetPrimitive.Root
+                  render={
+                    <RadioGroup
+                      value={disableDateMode}
+                      onValueChange={setDisableDateMode}
+                    />
+                  }
                 >
-                  <Radio value="none">None (default)</Radio>
-                  <Radio value="weekends">Weekends</Radio>
-                  <Radio value="past">Past dates</Radio>
-                  <Radio value="every3rd">Every 3rd day</Radio>
-                </RadioGroup>
-              </Field>
+                  <FieldsetLegend>isDateDisabled</FieldsetLegend>
+                  <RadioGroupItem value="none">None (default)</RadioGroupItem>
+                  <RadioGroupItem value="weekends">Weekends</RadioGroupItem>
+                  <RadioGroupItem value="past">Past dates</RadioGroupItem>
+                  <RadioGroupItem value="every3rd">
+                    Every 3rd day
+                  </RadioGroupItem>
+                </FieldsetPrimitive.Root>
+              </FieldPrimitive.Root>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -390,7 +454,9 @@ export function AppControls(props: AppControlsProps) {
             <AccordionContent>
               <div className="flex flex-col gap-4">
                 <Field>
-                  <Label htmlFor="number-of-months">numberOfMonths</Label>
+                  <FieldLabel htmlFor="number-of-months">
+                    numberOfMonths
+                  </FieldLabel>
                   <input
                     id="number-of-months"
                     type="number"
@@ -409,15 +475,17 @@ export function AppControls(props: AppControlsProps) {
                 </Field>
 
                 <Field>
-                  <Label>outsideDays</Label>
-                  <RadioGroup
+                  <FieldLabel>outsideDays</FieldLabel>
+                  <RadioGroup<OutsideDays>
                     value={outsideDays}
                     onValueChange={(v) => setOutsideDays(v as OutsideDays)}
                   >
-                    <Radio value="enabled">enabled (default)</Radio>
-                    <Radio value="readonly">readonly</Radio>
-                    <Radio value="disabled">disabled</Radio>
-                    <Radio value="hidden">hidden</Radio>
+                    <RadioGroupItem<OutsideDays> value="enabled">
+                      enabled (default)
+                    </RadioGroupItem>
+                    <RadioGroupItem<OutsideDays> value="readOnly" />
+                    <RadioGroupItem<OutsideDays> value="disabled" />
+                    <RadioGroupItem<OutsideDays> value="hidden" />
                   </RadioGroup>
                 </Field>
 
@@ -426,19 +494,21 @@ export function AppControls(props: AppControlsProps) {
                     checked={fixedWeeks}
                     onCheckedChange={(checked) => setFixedWeeks(checked)}
                   />
-                  <Label>fixedWeeks</Label>
+                  <FieldLabel>fixedWeeks</FieldLabel>
                 </Field>
 
                 <Field>
-                  <Label>overflowBehavior</Label>
+                  <FieldLabel>overflowBehavior</FieldLabel>
                   <RadioGroup
                     value={monthOverflowBehavior}
                     onValueChange={(v) =>
                       setMonthOverflowBehavior(v as "unbounded" | "stop")
                     }
                   >
-                    <Radio value="unbounded">unbounded (default)</Radio>
-                    <Radio value="stop">stop</Radio>
+                    <RadioGroupItem value="unbounded">
+                      unbounded (default)
+                    </RadioGroupItem>
+                    <RadioGroupItem value="stop">stop</RadioGroupItem>
                   </RadioGroup>
                 </Field>
               </div>
@@ -452,48 +522,65 @@ export function AppControls(props: AppControlsProps) {
             <AccordionContent>
               <div className="flex flex-col gap-4">
                 <Field>
-                  <Label htmlFor="week-count">weekCount</Label>
-                  <select
+                  <FieldLabel htmlFor="week-count">weekCount</FieldLabel>
+                  <Select
                     id="week-count"
-                    className={selectClassName}
-                    value={weekCount}
-                    onChange={(e) => setWeekCount(Number(e.target.value))}
+                    value={String(weekCount)}
+                    onValueChange={(value) => {
+                      const next = Number(value ?? "6");
+                      setWeekCount(Number.isFinite(next) ? next : 6);
+                    }}
                   >
-                    <option value={4}>4</option>
-                    <option value={6}>6 (default)</option>
-                    <option value={8}>8</option>
-                    <option value={10}>10</option>
-                    <option value={12}>12</option>
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="4">4</SelectItem>
+                      <SelectItem value="6">6 (default)</SelectItem>
+                      <SelectItem value="8">8</SelectItem>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="12">12</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
 
                 <Field>
-                  <Label>scrollBy</Label>
+                  <FieldLabel>scrollBy</FieldLabel>
                   <RadioGroup
                     value={scrollBy}
                     onValueChange={(v) => setScrollBy(v as "row" | "page")}
                   >
-                    <Radio value="row">row (default)</Radio>
-                    <Radio value="page">page</Radio>
+                    <RadioGroupItem value="row">row (default)</RadioGroupItem>
+                    <RadioGroupItem value="page">page</RadioGroupItem>
                   </RadioGroup>
                 </Field>
 
                 <Field>
-                  <Label htmlFor="overflow-behavior">overflowBehavior</Label>
-                  <select
+                  <FieldLabel htmlFor="overflow-behavior">
+                    overflowBehavior
+                  </FieldLabel>
+                  <Select
                     id="overflow-behavior"
-                    className={selectClassName}
                     value={overflowBehavior}
-                    onChange={(e) =>
-                      setOverflowBehavior(e.target.value as OverflowBehavior)
+                    onValueChange={(value) =>
+                      setOverflowBehavior(
+                        (value ?? "unbounded") as OverflowBehavior,
+                      )
                     }
                   >
-                    <option value="unbounded">Unbounded (default)</option>
-                    <option value="stop">Stop</option>
-                    <option value="stop-shrink">Stop + Shrink</option>
-                    <option value="snap">Snap</option>
-                    <option value="snap-shrink">Snap + Shrink</option>
-                  </select>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unbounded">
+                        Unbounded (default)
+                      </SelectItem>
+                      <SelectItem value="stop">Stop</SelectItem>
+                      <SelectItem value="stop-shrink">Stop + Shrink</SelectItem>
+                      <SelectItem value="snap">Snap</SelectItem>
+                      <SelectItem value="snap-shrink">Snap + Shrink</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </Field>
               </div>
             </AccordionContent>
@@ -509,7 +596,7 @@ export function AppControls(props: AppControlsProps) {
                   checked={autoFocus}
                   onCheckedChange={(checked) => setAutoFocus(checked)}
                 />
-                <Label>Grid.autoFocus</Label>
+                <FieldLabel>Grid.autoFocus</FieldLabel>
               </Field>
 
               <Field orientation="horizontal">
@@ -517,7 +604,7 @@ export function AppControls(props: AppControlsProps) {
                   checked={showWeekNumbers}
                   onCheckedChange={(checked) => setShowWeekNumbers(checked)}
                 />
-                <Label>Show Week Numbers</Label>
+                <FieldLabel>Show Week Numbers</FieldLabel>
               </Field>
 
               {viewMode === "weeks" && (
@@ -528,46 +615,26 @@ export function AppControls(props: AppControlsProps) {
                       setShowMonthSeparators(checked)
                     }
                   />
-                  <Label className="font-sans text-sm">
+                  <FieldLabel className="font-sans text-sm">
                     Show Month Separators
-                  </Label>
+                  </FieldLabel>
                 </Field>
               )}
 
               <Field>
-                <Label>Grid.orientation</Label>
+                <FieldLabel>Grid.orientation</FieldLabel>
                 <RadioGroup
                   value={orientation}
                   onValueChange={(v) =>
                     setOrientation(v as "horizontal" | "vertical")
                   }
                 >
-                  <Radio value="horizontal">Horizontal (default)</Radio>
-                  <Radio value="vertical">Vertical</Radio>
+                  <RadioGroupItem value="horizontal">
+                    Horizontal (default)
+                  </RadioGroupItem>
+                  <RadioGroupItem value="vertical">Vertical</RadioGroupItem>
                 </RadioGroup>
               </Field>
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
-        <AccordionItem value="state">
-          <AccordionTrigger>State</AccordionTrigger>
-          <AccordionContent>
-            <div className="text-xs text-muted-foreground">
-              <div className="mb-1">
-                <Label className="inline font-sans font-medium text-xs text-muted-foreground">
-                  Selection:
-                </Label>{" "}
-                {selectionDisplay}
-              </div>
-              {lastMonthChange && (
-                <div>
-                  <Label className="inline font-sans font-medium text-xs text-muted-foreground">
-                    Last month change:
-                  </Label>{" "}
-                  {lastMonthChange}
-                </div>
-              )}
             </div>
           </AccordionContent>
         </AccordionItem>

@@ -33,13 +33,13 @@ function AccordionTrigger({
       <AccordionPrimitive.Trigger
         data-slot="accordion-trigger"
         className={cn(
-          "group/accordion-trigger relative flex flex-1 items-start justify-between   py-4 text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:outline-none aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground focus-visible: ",
+          "group/accordion-trigger relative flex flex-1 items-start justify-between border-y-(length:--spacing-w-focus) border-transparent py-[calc((4*var(--spacing))-(var(--spacing-w-focus)*2))] text-left text-sm font-medium transition-all outline-none hover:underline focus-visible:border-focus focus-visible:outline-none aria-disabled:pointer-events-none aria-disabled:opacity-50 **:data-[slot=accordion-trigger-icon]:ml-auto **:data-[slot=accordion-trigger-icon]:size-4 **:data-[slot=accordion-trigger-icon]:text-muted-foreground",
           className,
         )}
         {...props}
       >
         {/* Focus ring */}
-        <div className="absolute -inset-x-2.5 inset-0 ring-focus border-(--spacing-w-focus) group-focus-visible/accordion-trigger:border-y-focus squircle-md" />
+        <div className="absolute inset-0 -inset-x-2.5" />
         {children}
         <ChevronDownIcon
           data-slot="accordion-trigger-icon"
@@ -62,10 +62,10 @@ function AccordionContent({
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
-      className="-mx-focus-w overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
+      className="-mx-focus-w -mx-1 overflow-hidden text-sm data-open:animate-accordion-down data-closed:animate-accordion-up"
       {...props}
     >
-      <div className="h-(--accordion-panel-height) px-2 pt-2">
+      <div className="h-(--accordion-panel-height) px-1 pt-1">
         <div
           className={cn(
             "pt-focus pb-4 data-ending-style:h-0 data-starting-style:h-0",

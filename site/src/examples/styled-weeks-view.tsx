@@ -139,7 +139,7 @@ export function StyledWeeksView({
                           {state.firstDayVisible && (
                             <div
                               aria-hidden
-                              className="pointer-events-none relative z-10 -mt-px mb-(--radius-md) -ml-px rounded-tl-[calc(var(--radius-md)+1px)] border-t border-l border-muted-foreground"
+                              className="pointer-events-none relative z-10 -mt-px mb-(--radius-md) -ml-px rounded-tl-[calc(var(--radius-md)+1px)] border-t border-l border-muted-foreground dark:border-white"
                               style={{
                                 gridColumn: `${borderFromCol} / -1`,
                                 gridRow: `${state.gridRowStart} / span 1`,

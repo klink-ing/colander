@@ -110,7 +110,7 @@ function NavigationMenuLink({
     <NavigationMenuPrimitive.Link
       data-slot="navigation-menu-link"
       className={cn(
-        "flex items-center gap-1.5 squircle-md py-2 px-4 type-body-100-bold ring-w-focus ring-focus -outline-offset-1 outline-foreground-vivid transition-all focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none data-active:outline data-active:outline-solid",
+        "flex items-center gap-1.5 squircle-md border border-transparent px-4 py-2 type-body-100-bold ring-w-focus ring-transparent transition-all focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none data-active:border-foreground-vivid",
         className,
       )}
       {...props}
