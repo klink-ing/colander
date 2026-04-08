@@ -32,7 +32,7 @@ export function resolveTemporal(
     return (globalThis as any).Temporal;
   }
   throw new Error(
-    "DatePicker: Temporal is not available. Pass a Temporal polyfill via the `temporal` option to createDatePicker, or use a browser that supports the Temporal API natively.",
+    "DatePicker: Temporal is not available. Pass a Temporal polyfill via the `temporal` prop, or use a browser that supports the Temporal API natively.",
   );
 }
 

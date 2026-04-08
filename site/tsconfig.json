@@ -6,7 +6,14 @@
     "module": "ESNext",
     "paths": {
       "#/*": ["./src/*"],
-      "colander": ["../dist/index.d.ts"]
+      "colander": ["../dist/index.d.ts"],
+      "colander/plain-date": ["../src/formats/plain-date.tsx"],
+      "colander/plain-date-time": ["../src/formats/plain-date-time.tsx"],
+      "colander/plain-month-day": ["../src/formats/plain-month-day.tsx"],
+      "colander/plain-year-month": ["../src/formats/plain-year-month.tsx"],
+      "colander/zoned-date-time": ["../src/formats/zoned-date-time.tsx"],
+      "colander/object": ["../src/formats/object.tsx"],
+      "colander/date": ["../src/formats/date.tsx"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"],

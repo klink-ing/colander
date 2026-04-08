@@ -1,7 +1,20 @@
+import fs from "fs";
 import path from "path";
 import react from "@vitejs/plugin-react";
 import { visualizer } from "rollup-plugin-visualizer";
 import { defineConfig } from "vite";
+
+// Discover generated format entry files
+const formatsDir = path.resolve(import.meta.dirname, "src/formats");
+const formatEntries: Record<string, string> = {};
+if (fs.existsSync(formatsDir)) {
+  for (const file of fs.readdirSync(formatsDir)) {
+    if (file.endsWith(".tsx")) {
+      const name = file.replace(/\.tsx$/, "");
+      formatEntries[`formats/${name}`] = path.resolve(formatsDir, file);
+    }
+  }
+}
 
 export default defineConfig({
   plugins: [
@@ -12,9 +25,13 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: path.resolve(import.meta.dirname, "src/index.ts"),
+      entry: {
+        index: path.resolve(import.meta.dirname, "src/index.ts"),
+        ...formatEntries,
+      },
       formats: ["es", "cjs"],
-      fileName: (format) => (format === "es" ? "index.js" : "index.cjs"),
+      fileName: (format, entryName) =>
+        `${entryName}.${format === "es" ? "js" : "cjs"}`,
     },
     rollupOptions: {
       external: [

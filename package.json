@@ -16,10 +16,46 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
+    },
+    "./plain-date": {
+      "types": "./dist/formats/plain-date.d.ts",
+      "import": "./dist/formats/plain-date.js",
+      "require": "./dist/formats/plain-date.cjs"
+    },
+    "./plain-date-time": {
+      "types": "./dist/formats/plain-date-time.d.ts",
+      "import": "./dist/formats/plain-date-time.js",
+      "require": "./dist/formats/plain-date-time.cjs"
+    },
+    "./plain-month-day": {
+      "types": "./dist/formats/plain-month-day.d.ts",
+      "import": "./dist/formats/plain-month-day.js",
+      "require": "./dist/formats/plain-month-day.cjs"
+    },
+    "./plain-year-month": {
+      "types": "./dist/formats/plain-year-month.d.ts",
+      "import": "./dist/formats/plain-year-month.js",
+      "require": "./dist/formats/plain-year-month.cjs"
+    },
+    "./zoned-date-time": {
+      "types": "./dist/formats/zoned-date-time.d.ts",
+      "import": "./dist/formats/zoned-date-time.js",
+      "require": "./dist/formats/zoned-date-time.cjs"
+    },
+    "./object": {
+      "types": "./dist/formats/object.d.ts",
+      "import": "./dist/formats/object.js",
+      "require": "./dist/formats/object.cjs"
+    },
+    "./date": {
+      "types": "./dist/formats/date.d.ts",
+      "import": "./dist/formats/date.js",
+      "require": "./dist/formats/date.cjs"
     }
   },
   "scripts": {
     "dev": "npm run dev --prefix site",
+    "generate:formats": "tsx scripts/generate-formats.ts",
     "build": "vite build -c vite.lib.config.ts && tsc -p tsconfig.build.json",
     "test": "vitest run",
     "test:watch": "vitest",
