@@ -23,8 +23,11 @@ export default defineConfig({
   },
   run: {
     tasks: {
+      "generate-formats": {
+        command: "tsx scripts/generate-formats.ts",
+      },
       build: {
-        command: "tsx scripts/generate-formats.ts && vp pack",
+        command: "vp run generate-formats && vp pack",
       },
       test: {
         command: "vp test run",

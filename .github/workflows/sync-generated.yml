@@ -25,14 +25,7 @@ jobs:
           run-install: true
 
       - name: Regenerate format files
-        run: cd package && vp exec tsx scripts/generate-formats.ts
+        run: vp run colander#generate-formats
 
       - name: Commit if changed
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet package/src/formats/ || {
-            git add package/src/formats/
-            git commit -m "chore: regenerate format files [skip ci]"
-            git push
-          }
+        run: bash scripts/commit-if-changed.sh package/src/formats/ "chore: regenerate format files [skip ci]"
