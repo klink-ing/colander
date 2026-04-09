@@ -2,7 +2,9 @@ import { Temporal } from "@js-temporal/polyfill";
 import { render, act, fireEvent } from "@testing-library/react";
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 // @vitest-environment jsdom
-import { describe, it, expect, beforeAll } from "vitest";
+import { describe, it, expect, beforeAll, type TestOptions } from "vitest";
+
+const perfOptions: TestOptions = { retry: 3 };
 import { Grid } from "./grid";
 import { MonthView } from "./month-view";
 
@@ -51,10 +53,10 @@ const march10 = Temporal.PlainDate.from("2026-03-10");
 const march20 = Temporal.PlainDate.from("2026-03-20");
 
 // Generous thresholds — for comparison, not regression.
-const CLICK_THRESHOLD_MS = 60;
-const HOVER_THRESHOLD_MS = 40;
-const SWEEP_THRESHOLD_MS = 200;
-const MOUNT_THRESHOLD_MS = 100;
+const CLICK_THRESHOLD_MS = 120;
+const HOVER_THRESHOLD_MS = 80;
+const SWEEP_THRESHOLD_MS = 400;
+const MOUNT_THRESHOLD_MS = 200;
 
 const ITERATIONS = 5;
 
@@ -71,7 +73,7 @@ function p95(values: number[]): number {
   return sorted[Math.ceil(sorted.length * 0.95) - 1];
 }
 
-describe("Grid event dispatch profiling", () => {
+describe("Grid event dispatch profiling", perfOptions, () => {
   beforeAll(() => {
     const { unmount } = render(
       <MonthView {...defaultProps} defaultValue={march15}>

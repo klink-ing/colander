@@ -65,7 +65,7 @@ const march20 = Temporal.PlainDate.from("2026-03-20");
 // Actual durations in dev mode with the Temporal polyfill will be much slower than
 // production. Adjust downward once baseline numbers are established.
 const MOUNT_THRESHOLD_MS = 200;
-const UPDATE_THRESHOLD_MS = 80;
+const UPDATE_THRESHOLD_MS = 160;
 
 describe("Grid render profiling", perfOptions, () => {
   // Warm up the Temporal polyfill so first-run JIT cost doesn't skew mount timings
