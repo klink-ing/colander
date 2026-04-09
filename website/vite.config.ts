@@ -9,6 +9,7 @@ import tailwindcss from "@tailwindcss/vite";
 import viteReact from "@vitejs/plugin-react";
 import { imagetools } from "vite-imagetools";
 import { breakpoints } from "./plugins/breakpoints.ts";
+import { extractApi } from "./plugins/extract-api.ts";
 import { fluid } from "./plugins/fluid.ts";
 
 const isBuild = process.argv.includes("build");
@@ -30,6 +31,7 @@ const config = defineConfig({
   },
   plugins: [
     breakpoints(),
+    extractApi(),
     fluid(),
     imagetools({
       include: "src/assets/images/**/*",
