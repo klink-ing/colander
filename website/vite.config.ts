@@ -21,8 +21,10 @@ const config = defineConfig({
       ),
     },
   },
-  ssr: {
-    external: ["typescript"],
+  build: {
+    rollupOptions: {
+      external: ["typescript"],
+    },
   },
   plugins: [
     tanstackStart(),
