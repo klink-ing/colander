@@ -31,7 +31,7 @@ function RadioGroupItem<TValue = "string">({
         <RadioPrimitive.Root
           data-slot="radio-group-item"
           className={cn(
-            "group/radio-group-item peer relative flex aspect-square size-4.5 shrink-0 rounded-full border border-input ring-offset-1 ring-offset-primary-foreground outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-w-focus focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-w-focus aria-invalid:ring-focus-destructive aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
+            "group/radio-group-item peer size-4.5 relative flex aspect-square shrink-0 rounded-full border border-input ring-offset-1 ring-offset-primary-foreground outline-none after:absolute after:-inset-x-3 after:-inset-y-2 focus-visible:border-ring focus-visible:ring-w-focus focus-visible:ring-focus disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-w-focus aria-invalid:ring-focus-destructive aria-invalid:aria-checked:border-primary dark:bg-input/30 dark:aria-invalid:border-destructive/50 data-checked:border-primary data-checked:bg-primary data-checked:text-primary-foreground dark:data-checked:bg-primary",
             className,
           )}
           {...props}
