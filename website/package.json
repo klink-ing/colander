@@ -7,7 +7,7 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vp dev --port 3000",
+    "dev": "vite dev --port 3000",
     "build": "tsx scripts/extract-api.ts && vite build",
     "preview": "vite preview",
     "test": "vp test run"
