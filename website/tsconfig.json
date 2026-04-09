@@ -6,16 +6,16 @@
     "module": "ESNext",
     "paths": {
       "#/*": ["./src/*"],
-      "colander": ["../package/src/index.ts"],
-      "colander/plain-date": ["../package/src/formats/plain-date.ts"],
-      "colander/plain-date-time": ["../package/src/formats/plain-date-time.ts"],
-      "colander/plain-month-day": ["../package/src/formats/plain-month-day.ts"],
-      "colander/plain-year-month": [
+      "@klinking/colander": ["../package/src/index.ts"],
+      "@klinking/colander/plain-date": ["../package/src/formats/plain-date.ts"],
+      "@klinking/colander/plain-date-time": ["../package/src/formats/plain-date-time.ts"],
+      "@klinking/colander/plain-month-day": ["../package/src/formats/plain-month-day.ts"],
+      "@klinking/colander/plain-year-month": [
         "../package/src/formats/plain-year-month.ts"
       ],
-      "colander/zoned-date-time": ["../package/src/formats/zoned-date-time.ts"],
-      "colander/object": ["../package/src/formats/object.ts"],
-      "colander/date": ["../package/src/formats/date.ts"]
+      "@klinking/colander/zoned-date-time": ["../package/src/formats/zoned-date-time.ts"],
+      "@klinking/colander/object": ["../package/src/formats/object.ts"],
+      "@klinking/colander/date": ["../package/src/formats/date.ts"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node"],

@@ -1,7 +1,13 @@
+import path from "node:path";
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite-plus";
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      "@klinking/colander": path.resolve(import.meta.dirname, "src/index.ts"),
+    },
+  },
   plugins: [react({ jsxRuntime: "automatic" })],
   test: {
     environment: "jsdom",

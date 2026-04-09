@@ -14,7 +14,10 @@
     "verbatimModuleSyntax": true,
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "jsx": "react-jsx",
-    "types": ["node"]
+    "types": ["node"],
+    "paths": {
+      "@klinking/colander": ["./package/src/index.ts"]
+    }
   },
   "include": ["package/src/**/*"]
 }

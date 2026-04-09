@@ -1,4 +1,4 @@
-import * as root from "colander";
+import * as root from "@klinking/colander";
 import { describe, it, expect } from "vitest";
 
 const formatModules = import.meta.glob<Record<string, unknown>>(
