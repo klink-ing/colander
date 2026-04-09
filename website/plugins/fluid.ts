@@ -40,11 +40,13 @@ function readRemPerUnit(rootDir: string): number {
 }
 
 function loadConfig(configPath: string): FluidConfig {
-  const json = execSync(
+  const raw = execSync(
     `vp exec tsx -e "import c from '${configPath}'; console.log(JSON.stringify(c))"`,
     { encoding: "utf-8" },
   );
-  return JSON.parse(json);
+  // vp exec prints a banner before the output — extract the JSON line
+  const jsonLine = raw.trim().split("\n").pop()!;
+  return JSON.parse(jsonLine);
 }
 
 function clampLine(
