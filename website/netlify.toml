@@ -1,0 +1,7 @@
+[build]
+  base = "website/"
+  command = "pnpm build"
+  publish = "dist/client"
+
+[functions]
+  directory = "website/.netlify/v1/functions"
