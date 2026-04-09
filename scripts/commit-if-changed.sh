@@ -10,6 +10,7 @@ message="${2:?Usage: commit-if-changed.sh <path> <commit-message>}"
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
+vp check --fix "$path"
 git add "$path"
 
 if git diff --cached --quiet; then
