@@ -21,6 +21,9 @@ const config = defineConfig({
       ),
     },
   },
+  ssr: {
+    external: ["typescript"],
+  },
   plugins: [
     tanstackStart(),
     netlify(),
