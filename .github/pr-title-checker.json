@@ -1,0 +1,14 @@
+{
+  "LABEL": {
+    "name": "",
+    "color": ""
+  },
+  "CHECKS": {
+    "regexp": "^(feat|fix|perf|docs|chore|test|ci|style|revert)(!)?((\\(.+\\)))?: .+",
+    "ignoreLabels": []
+  },
+  "MESSAGES": {
+    "success": "PR title follows Conventional Commits format.",
+    "failure": "PR title must match: type(optional-scope): description. Allowed types: feat, fix, perf, docs, chore, test, ci, style, revert. Use ! for breaking changes (e.g. feat!:). Types 'refactor' and 'build' are not allowed."
+  }
+}

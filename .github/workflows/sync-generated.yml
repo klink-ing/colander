@@ -1,0 +1,34 @@
+name: Sync generated files
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - package/src/index.ts
+      - package/scripts/generate-formats.ts
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+          run-install: true
+
+      - name: Regenerate format files
+        run: vp run @klinking/colander#generate-formats
+
+      - name: Commit if changed
+        run: >-
+          bash scripts/commit-if-changed.sh
+          package/src/formats/
+          "chore: regenerate format files [skip ci]"

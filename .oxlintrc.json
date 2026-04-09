@@ -1,20 +1,22 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["typescript"],
+  "plugins": ["typescript", "unicorn", "oxc"],
   "categories": {
     "correctness": "error"
   },
+  "rules": {},
+  "ignorePatterns": ["**/routeTree.gen.ts"],
   "env": {
     "builtin": true
   },
   "overrides": [
     {
-      "files": ["site/**/*.{ts,tsx}"],
+      "files": ["website/**/*.{ts,tsx}"],
       "rules": {
         "tailwind-canonical-classes/tailwind-canonical-classes": [
           "warn",
           {
-            "cssPath": "./site/src/styles.css"
+            "cssPath": "./website/src/styles.css"
           }
         ]
       },
