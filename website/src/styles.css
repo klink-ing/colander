@@ -128,8 +128,8 @@
   --radius-full: calc(infinity * 1px);
 
   /* Same spacing scale as default Tailwind, but limited with possible values limited as the scale increases */
-  --spacing: 0.25rem; /* 0.25rem = 4px */
   --spacing-*: initial; /* reset initial tailwind spacing */
+  --spacing: 0.25rem; /* 0.25rem = 4px */
   --spacing-0: calc(0 * var(--spacing)); /* 0 rem = 0 */
   --spacing-0.5: calc(0.5 * var(--spacing)); /* 0.125rem = 2px */
   --spacing-1: calc(1 * var(--spacing)); /* 0.25rem = 4 px */

@@ -38,7 +38,7 @@ const config = defineConfig({
     devtools(),
     tailwindcss(),
     tanstackStart(),
-    ...(isBuild ? [netlify()] : []),
+    netlify(),
     viteReact(),
   ],
 });
