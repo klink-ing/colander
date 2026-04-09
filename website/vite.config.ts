@@ -30,8 +30,8 @@ const config = defineConfig({
     }),
     devtools(),
     tailwindcss(),
-    netlify(),
     tanstackStart(),
+    netlify(),
     viteReact(),
   ],
 });
