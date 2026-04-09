@@ -10,7 +10,7 @@ import {
   useWeeksViewState,
   useCalendarStable,
   type OverflowBehavior,
-} from "colander";
+} from "@klinking/colander";
 import { cn } from "#/lib/utils";
 import {
   StyledGrid,

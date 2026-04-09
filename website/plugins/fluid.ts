@@ -41,7 +41,7 @@ function readRemPerUnit(rootDir: string): number {
 
 function loadConfig(configPath: string): FluidConfig {
   const json = execSync(
-    `npx tsx -e "import c from '${configPath}'; console.log(JSON.stringify(c))"`,
+    `vp exec tsx -e "import c from '${configPath}'; console.log(JSON.stringify(c))"`,
     { encoding: "utf-8" },
   );
   return JSON.parse(json);

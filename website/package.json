@@ -7,9 +7,9 @@
     "#/*": "./src/*"
   },
   "scripts": {
-    "dev": "vite dev --port 3000",
-    "build": "vite build",
-    "preview": "vite preview",
+    "dev": "vp dev --port 3000",
+    "build": "vp build",
+    "preview": "vp preview",
     "test": "vp test run"
   },
   "dependencies": {
