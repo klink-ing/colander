@@ -53,7 +53,6 @@
     "typescript": "catalog:",
     "vite": "catalog:",
     "vite-imagetools": "^10.0.0",
-    "vite-tsconfig-paths": "^5.1.4",
     "vitest": "catalog:"
   }
 }

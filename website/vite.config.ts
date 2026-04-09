@@ -1,7 +1,6 @@
 import path from "node:path";
 import { devtools } from "@tanstack/devtools-vite";
 import { defineConfig } from "vite";
-import tsconfigPaths from "vite-tsconfig-paths";
 
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
@@ -13,6 +12,7 @@ import { fluid } from "./plugins/fluid.ts";
 
 const config = defineConfig({
   resolve: {
+    tsconfigPaths: true,
     alias: {
       colander: path.resolve(__dirname, "../package/src/index.ts"),
     },
@@ -25,7 +25,6 @@ const config = defineConfig({
       defaultDirectives: () => new URLSearchParams({ as: "metadata" }),
     }),
     devtools(),
-    tsconfigPaths({ projects: ["./tsconfig.json"] }),
     tailwindcss(),
     tanstackStart(),
     viteReact(),
