@@ -1,6 +1,6 @@
+import { execFileSync } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { format } from "prettier";
 import { codeToHtml } from "shiki";
 import { stripTypes } from "./strip-types";
 
@@ -38,10 +38,11 @@ export async function resolveExamples(tree: unknown): Promise<unknown> {
         const tsLang = isTsx ? "tsx" : "ts";
         const jsLang = isTsx ? "jsx" : "js";
 
-        const [tsFormatted, jsFormatted] = await Promise.all([
-          formatCode(tsRaw, file),
-          formatCode(jsRaw, file.replace(/\.tsx?$/, jsLang === "jsx" ? ".jsx" : ".js")),
-        ]);
+        const tsFormatted = formatCode(tsRaw, file);
+        const jsFormatted = formatCode(
+          jsRaw,
+          file.replace(/\.tsx?$/, jsLang === "jsx" ? ".jsx" : ".js"),
+        );
 
         const [tsHtml, jsHtml] = await Promise.all([
           highlight(tsFormatted, tsLang),
@@ -68,14 +69,11 @@ export async function resolveExamples(tree: unknown): Promise<unknown> {
   return node;
 }
 
-async function formatCode(source: string, fileName: string): Promise<string> {
+function formatCode(source: string, fileName: string): string {
   try {
-    return await format(source, {
-      parser: fileName.match(/\.[jt]sx$/) ? "babel-ts" : "typescript",
-      semi: false,
-      singleQuote: true,
-      trailingComma: "all",
-      printWidth: 80,
+    return execFileSync("vp", ["fmt", "--stdin-filepath", fileName], {
+      input: source,
+      encoding: "utf-8",
     });
   } catch {
     return source;

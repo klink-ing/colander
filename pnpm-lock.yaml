@@ -244,9 +244,6 @@ importers:
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0(@noble/hashes@1.8.0)
-      prettier:
-        specifier: ^3.8.1
-        version: 3.8.1
       ts-morph:
         specifier: ^27.0.2
         version: 27.0.2
