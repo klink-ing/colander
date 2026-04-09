@@ -14,7 +14,8 @@ function generateCSS(configPath: string, outputPath: string, rootDir: string) {
   const raw = readFileSync(configPath, "utf-8");
   const stripped = raw
     .replace(/\/\/.*$/gm, "")
-    .replace(/\/\*[\s\S]*?\*\//g, "");
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/,\s*([}\]])/g, "$1");
   const config: BreakpointsConfig = JSON.parse(stripped);
   const { start, end, step, remPerUnit } = config;
 
@@ -29,8 +30,8 @@ function generateCSS(configPath: string, outputPath: string, rootDir: string) {
 
   lines.push("}\n");
   writeFileSync(outputPath, lines.join("\n"));
-  const oxfmtConfig = path.resolve(rootDir, "../.oxfmtrc.json");
-  execSync(`npx oxfmt -c ${oxfmtConfig} ${outputPath} --write`, {
+  execSync(`npx vp fmt ${outputPath}`, {
+    cwd: path.resolve(rootDir, ".."),
     stdio: "inherit",
   });
   console.log("[breakpoints] generated breakpoints.gen.css");

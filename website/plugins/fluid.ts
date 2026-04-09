@@ -27,7 +27,10 @@ function round(n: number, decimals: number) {
 function parseJsonc(filePath: string) {
   const raw = readFileSync(filePath, "utf-8");
   return JSON.parse(
-    raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, ""),
+    raw
+      .replace(/\/\/.*$/gm, "")
+      .replace(/\/\*[\s\S]*?\*\//g, "")
+      .replace(/,\s*([}\]])/g, "$1"),
   );
 }
 
@@ -91,8 +94,8 @@ function generateCSS(
 
   lines.push("}\n");
   writeFileSync(outputPath, lines.join("\n"));
-  const oxfmtConfig = path.resolve(rootDir, "../.oxfmtrc.json");
-  execSync(`npx oxfmt -c ${oxfmtConfig} ${outputPath} --write`, {
+  execSync(`npx vp fmt ${outputPath}`, {
+    cwd: path.resolve(rootDir, ".."),
     stdio: "inherit",
   });
   console.log("[fluid] generated fluid.gen.css");
