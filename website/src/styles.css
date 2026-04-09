@@ -158,6 +158,8 @@
   --spacing-64: calc(64 * var(--spacing)); /* 16rem = 256px */
   --spacing-w-focus: 2px;
 
+  --container-*: initial;
+
   --squircle-amt-default: 1.5;
   --squircle-amt-minimal: 1.15;
   --squircle-amt-lg: 1.5;
