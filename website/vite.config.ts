@@ -2,8 +2,8 @@ import path from "node:path";
 import { devtools } from "@tanstack/devtools-vite";
 import { defineConfig } from "vite";
 
-import netlify from "@netlify/vite-plugin-tanstack-start";
-import { tanstackStart } from "@tanstack/react-start/plugin/vite";
+import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import netlify from '@netlify/vite-plugin-tanstack-start'
 
 import tailwindcss from "@tailwindcss/vite";
 import viteReact from "@vitejs/plugin-react";
@@ -22,6 +22,8 @@ const config = defineConfig({
     },
   },
   plugins: [
+    tanstackStart(),
+    netlify(),
     breakpoints(),
     fluid(),
     imagetools({
@@ -29,10 +31,8 @@ const config = defineConfig({
       defaultDirectives: () => new URLSearchParams({ as: "metadata" }),
     }),
     devtools(),
-    tailwindcss(),
-    tanstackStart(),
-    netlify(),
     viteReact(),
+    tailwindcss(),
   ],
 });
 
