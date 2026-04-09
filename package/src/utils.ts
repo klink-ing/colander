@@ -1,5 +1,10 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import type { TemporalNamespace, DateValueObject, ValueFormat, WeekStartDay } from "./types";
+import type {
+  TemporalNamespace,
+  DateValueObject,
+  ValueFormat,
+  WeekStartDay,
+} from "./types";
 
 /**
  * Returns the default calendar system for a given locale (e.g. `"gregory"` for `"en-US"`).
@@ -7,7 +12,8 @@ import type { TemporalNamespace, DateValueObject, ValueFormat, WeekStartDay } fr
  * @param locale - A BCP 47 locale string. Falls back to the runtime default when empty.
  */
 export function calendarForLocale(locale: string): string {
-  return new Intl.DateTimeFormat(locale || undefined).resolvedOptions().calendar;
+  return new Intl.DateTimeFormat(locale || undefined).resolvedOptions()
+    .calendar;
 }
 
 /**
@@ -18,7 +24,9 @@ export function calendarForLocale(locale: string): string {
  *
  * @param provided - An explicit Temporal polyfill or namespace.
  */
-export function resolveTemporal(provided?: TemporalNamespace): TemporalNamespace {
+export function resolveTemporal(
+  provided?: TemporalNamespace,
+): TemporalNamespace {
   if (provided) return provided;
   if (typeof globalThis !== "undefined" && (globalThis as any).Temporal) {
     return (globalThis as any).Temporal;
@@ -65,7 +73,10 @@ export function toZonedDateTime(
       return pd.toZonedDateTime(timeZone);
     }
     case "PlainTime":
-      return now.toPlainDate().toPlainDateTime(tagged.value).toZonedDateTime(timeZone);
+      return now
+        .toPlainDate()
+        .toPlainDateTime(tagged.value)
+        .toZonedDateTime(timeZone);
     case "PlainYearMonth":
       return tagged.value.toPlainDate({ day: 1 }).toZonedDateTime(timeZone);
     case "ZonedDateTime":
@@ -193,11 +204,13 @@ export function getMonthWeeks(
   const lastOfMonth = T.PlainDate.from({ year, month, day: daysInMonth });
 
   const adjustedFirst =
-    ((firstOfMonth.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+    ((firstOfMonth.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+    daysInWeek;
   const gridStart = firstOfMonth.subtract({ days: adjustedFirst });
 
   const adjustedLast =
-    ((lastOfMonth.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+    ((lastOfMonth.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+    daysInWeek;
   const daysAfter = daysInWeek - 1 - adjustedLast;
   const gridEnd = lastOfMonth.add({ days: daysAfter });
 
@@ -242,7 +255,10 @@ export function zdtToNativeDate(zdt: Temporal.ZonedDateTime): Date {
  * @param a - A zoned date-time.
  * @param b - A plain date.
  */
-export function sameCalendarDay(a: Temporal.ZonedDateTime, b: Temporal.PlainDate): boolean {
+export function sameCalendarDay(
+  a: Temporal.ZonedDateTime,
+  b: Temporal.PlainDate,
+): boolean {
   return a.year === b.year && a.month === b.month && a.day === b.day;
 }
 
@@ -253,7 +269,10 @@ export function sameCalendarDay(a: Temporal.ZonedDateTime, b: Temporal.PlainDate
  * @param T - Temporal namespace.
  * @param weekStartDay - 0=Sunday (default), 1=Monday, etc.
  */
-export function getReferenceWeekStart(T: TemporalNamespace, weekStartDay = 0): Temporal.PlainDate {
+export function getReferenceWeekStart(
+  T: TemporalNamespace,
+  weekStartDay = 0,
+): Temporal.PlainDate {
   const refSunday = T.PlainDate.from("2024-01-07");
   return refSunday.add({ days: weekStartDay });
 }
@@ -295,7 +314,10 @@ export function focusedDateForMonth(
   targetMonth: { year: number; month: number },
   firstDay: Temporal.PlainDate,
 ): Temporal.PlainDate {
-  if (currentFocused.year === targetMonth.year && currentFocused.month === targetMonth.month) {
+  if (
+    currentFocused.year === targetMonth.year &&
+    currentFocused.month === targetMonth.month
+  ) {
     return currentFocused;
   }
   return firstDay;
@@ -330,7 +352,8 @@ export function resolveFocusTarget(
   gridHasFocus = true,
 ): Temporal.PlainDate {
   const allDays = weeks.flat();
-  const inGrid = (d: Temporal.PlainDate) => allDays.some((g) => T.PlainDate.compare(g, d) === 0);
+  const inGrid = (d: Temporal.PlainDate) =>
+    allDays.some((g) => T.PlainDate.compare(g, d) === 0);
 
   if (gridHasFocus && inGrid(focusedDate)) return focusedDate;
 
@@ -339,7 +362,10 @@ export function resolveFocusTarget(
   if (!gridHasFocus && inGrid(focusedDate)) return focusedDate;
 
   const firstEnabled = allDays.find(
-    (d) => d.year === currentMonth.year && d.month === currentMonth.month && !isDateDisabled(d),
+    (d) =>
+      d.year === currentMonth.year &&
+      d.month === currentMonth.month &&
+      !isDateDisabled(d),
   );
   return firstEnabled ?? allDays[0];
 }
@@ -353,7 +379,10 @@ export function resolveFocusTarget(
  * @param isFocused - Whether this cell is the logically focused date.
  * @param gridHasFocus - Whether the grid currently holds DOM focus.
  */
-export function shouldMoveDomFocus(isFocused: boolean, gridHasFocus: boolean): boolean {
+export function shouldMoveDomFocus(
+  isFocused: boolean,
+  gridHasFocus: boolean,
+): boolean {
   return isFocused && gridHasFocus;
 }
 
@@ -377,7 +406,10 @@ export function isInRange(
   if (!rangeStart && !rangeEnd) return false;
   const effectiveStart = rangeStart ?? rangeEnd!;
   const effectiveEnd = rangeEnd ?? rangeStart!;
-  if (T.PlainDate.compare(date, effectiveStart) < 0 || T.PlainDate.compare(date, effectiveEnd) > 0)
+  if (
+    T.PlainDate.compare(date, effectiveStart) < 0 ||
+    T.PlainDate.compare(date, effectiveEnd) > 0
+  )
     return false;
   const totalDays = effectiveEnd.since(effectiveStart).days;
   if (totalDays === 0) return 0;
@@ -437,13 +469,17 @@ export function computeWeekRangeInfo(
 
   let startIndex = 0;
   if (!extendsBefore) {
-    startIndex = weekDays.findIndex((d) => T.PlainDate.compare(d, effectiveStart) === 0);
+    startIndex = weekDays.findIndex(
+      (d) => T.PlainDate.compare(d, effectiveStart) === 0,
+    );
     if (startIndex === -1) return inactive;
   }
 
   let endIndex = weekDays.length - 1;
   if (!extendsAfter) {
-    endIndex = weekDays.findIndex((d) => T.PlainDate.compare(d, effectiveEnd) === 0);
+    endIndex = weekDays.findIndex(
+      (d) => T.PlainDate.compare(d, effectiveEnd) === 0,
+    );
     if (endIndex === -1) return inactive;
   }
 
@@ -458,7 +494,11 @@ export function computeWeekRangeInfo(
  * @param weekStartDay - 0=Sunday (default), 1=Monday, etc.
  * @returns An array of 7 objects with `long`, `short`, and `narrow` name variants.
  */
-export function getWeekdayNames(locale: string, T: TemporalNamespace, weekStartDay = 0) {
+export function getWeekdayNames(
+  locale: string,
+  T: TemporalNamespace,
+  weekStartDay = 0,
+) {
   const refStart = getReferenceWeekStart(T, weekStartDay);
   const daysInWeek = refStart.daysInWeek;
   const names: { long: string; short: string; narrow: string }[] = [];
@@ -481,7 +521,10 @@ export function getWeekdayNames(locale: string, T: TemporalNamespace, weekStartD
  * @param date - The date to compute the week number for.
  * @param T - Temporal namespace.
  */
-export function getISOWeekNumber(date: Temporal.PlainDate, T: TemporalNamespace): number {
+export function getISOWeekNumber(
+  date: Temporal.PlainDate,
+  T: TemporalNamespace,
+): number {
   // ISO dayOfWeek: 1=Mon...7=Sun
   // Find the Thursday of this ISO week
   const thursday = date.add({ days: 4 - date.dayOfWeek });

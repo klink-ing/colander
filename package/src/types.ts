@@ -88,10 +88,14 @@ export type DateValueObject =
 export type ValueFormat = DateValueObject["format"];
 
 /** Extracts the {@link DateValueObject} variant matching a given format `F`. */
-export type ValueForFormat<F extends ValueFormat> = Extract<DateValueObject, { format: F }>;
+export type ValueForFormat<F extends ValueFormat> = Extract<
+  DateValueObject,
+  { format: F }
+>;
 
 /** The runtime value type for a given format `F` (e.g. `Temporal.PlainDate` for `"PlainDate"`). */
-export type RawValueForFormat<F extends ValueFormat> = ValueForFormat<F>["value"];
+export type RawValueForFormat<F extends ValueFormat> =
+  ValueForFormat<F>["value"];
 
 /** A start/end date pair for range selection, typed to the given format `F`. */
 export type DateRange<F extends ValueFormat = ValueFormat> = {
@@ -360,7 +364,10 @@ interface RangeControlledProps<F extends ValueFormat = ValueFormat> {
   /** Not allowed in controlled mode. */
   defaultValue?: never;
   /** Called when the selected range changes. `null` means the selection was cleared. */
-  onValueChange?: (value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void;
+  onValueChange?: (
+    value: DateRange<F> | null,
+    meta: ValueChangeMeta<DateRange<F> | null>,
+  ) => void;
   /**
    * Controls how clicking inside an existing range behaves.
    * @default "nearest-end"
@@ -392,7 +399,10 @@ interface RangeUncontrolledProps<F extends ValueFormat = ValueFormat> {
   /** The initial selected range (uncontrolled). */
   defaultValue?: DateRange<F>;
   /** Called when the selected range changes. `null` means the selection was cleared. */
-  onValueChange?: (value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void;
+  onValueChange?: (
+    value: DateRange<F> | null,
+    meta: ValueChangeMeta<DateRange<F> | null>,
+  ) => void;
   /**
    * Controls how clicking inside an existing range behaves.
    * @default "nearest-end"
@@ -448,15 +458,16 @@ interface MultipleUncontrolledProps<F extends ValueFormat = ValueFormat> {
 }
 
 /** Own props accepted by `Root`, combining base config with selection-mode-specific props. */
-export type RootOwnProps<F extends ValueFormat = ValueFormat> = RootOwnPropsBase<F> &
-  (
-    | SingleControlledProps<F>
-    | SingleUncontrolledProps<F>
-    | RangeControlledProps<F>
-    | RangeUncontrolledProps<F>
-    | MultipleControlledProps<F>
-    | MultipleUncontrolledProps<F>
-  );
+export type RootOwnProps<F extends ValueFormat = ValueFormat> =
+  RootOwnPropsBase<F> &
+    (
+      | SingleControlledProps<F>
+      | SingleUncontrolledProps<F>
+      | RangeControlledProps<F>
+      | RangeUncontrolledProps<F>
+      | MultipleControlledProps<F>
+      | MultipleUncontrolledProps<F>
+    );
 
 type AllRootOwnPropKeys =
   | keyof RootOwnPropsBase
@@ -491,11 +502,8 @@ export interface DateStringOwnProps {
 }
 
 /** Full props for the `DateString` component. */
-export type DateStringProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "span",
-  DateStringState<F>
-> &
-  DateStringOwnProps;
+export type DateStringProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", DateStringState<F>> & DateStringOwnProps;
 
 /** State exposed by the `TimeString` component. */
 export type TimeStringState<F extends ValueFormat = ValueFormat> = {
@@ -514,11 +522,8 @@ export interface TimeStringOwnProps {
 }
 
 /** Full props for the `TimeString` component. */
-export type TimeStringProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "span",
-  TimeStringState<F>
-> &
-  TimeStringOwnProps;
+export type TimeStringProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", TimeStringState<F>> & TimeStringOwnProps;
 
 /** State exposed by the `MonthYearString` component. */
 export type MonthYearStringState<F extends ValueFormat = ValueFormat> = {
@@ -538,11 +543,9 @@ export interface MonthYearStringOwnProps {
 }
 
 /** Full props for the `MonthYearString` component. */
-export type MonthYearStringProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "span",
-  MonthYearStringState<F>
-> &
-  MonthYearStringOwnProps;
+export type MonthYearStringProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", MonthYearStringState<F>> &
+    MonthYearStringOwnProps;
 
 /** State exposed by `PrevMonthButton` and `NextMonthButton`. */
 export type NavButtonState<F extends ValueFormat = ValueFormat> = {
@@ -553,15 +556,11 @@ export type NavButtonState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `PrevMonthButton` component. */
-export type PrevMonthButtonProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "button",
-  NavButtonState<F>
->;
+export type PrevMonthButtonProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"button", NavButtonState<F>>;
 /** Full props for the `NextMonthButton` component. */
-export type NextMonthButtonProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "button",
-  NavButtonState<F>
->;
+export type NextMonthButtonProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"button", NavButtonState<F>>;
 
 /** State exposed by the `GridHeaderCell` component. */
 export type GridHeaderCellState<F extends ValueFormat = ValueFormat> = {
@@ -579,11 +578,9 @@ export interface GridHeaderCellOwnProps {
 }
 
 /** Full props for the `GridHeaderCell` component. */
-export type GridHeaderCellProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "th",
-  GridHeaderCellState<F>
-> &
-  GridHeaderCellOwnProps;
+export type GridHeaderCellProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"th", GridHeaderCellState<F>> &
+    GridHeaderCellOwnProps;
 
 /** State exposed by the `GridHeader` component. */
 export type GridHeaderState<F extends ValueFormat = ValueFormat> = {
@@ -591,10 +588,8 @@ export type GridHeaderState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `GridHeader` component. */
-export type GridHeaderProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "thead",
-  GridHeaderState<F>
->;
+export type GridHeaderProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"thead", GridHeaderState<F>>;
 
 /** State exposed by the `GridBody` component. */
 export type GridBodyState<F extends ValueFormat = ValueFormat> = {
@@ -602,10 +597,8 @@ export type GridBodyState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `GridBody` component. */
-export type GridBodyProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "tbody",
-  GridBodyState<F>
->;
+export type GridBodyProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"tbody", GridBodyState<F>>;
 
 /** State exposed by the `Grid` component. */
 export type GridState<F extends ValueFormat = ValueFormat> = {
@@ -628,11 +621,8 @@ export interface GridOwnProps {
 }
 
 /** Full props for the `Grid` component. */
-export type GridProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "table",
-  GridState<F>
-> &
-  GridOwnProps;
+export type GridProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"table", GridState<F>> & GridOwnProps;
 
 /** State exposed by the `WeekTemplate` component. */
 export type WeekTemplateState<F extends ValueFormat = ValueFormat> = {
@@ -643,10 +633,8 @@ export type WeekTemplateState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `WeekTemplate` component. */
-export type WeekTemplateProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "tr",
-  WeekTemplateState<F>
->;
+export type WeekTemplateProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"tr", WeekTemplateState<F>>;
 
 /** State exposed by the `DayCellTemplate` component. */
 export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
@@ -692,7 +680,8 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** State exposed by the `DayButton` component (same as `DayCellTemplateState`). */
-export type DayButtonState<F extends ValueFormat = ValueFormat> = DayCellTemplateState<F>;
+export type DayButtonState<F extends ValueFormat = ValueFormat> =
+  DayCellTemplateState<F>;
 
 /** Own props for the `DayCellTemplate` component. */
 export interface DayCellTemplateOwnProps {
@@ -701,11 +690,9 @@ export interface DayCellTemplateOwnProps {
 }
 
 /** Full props for the `DayCellTemplate` component. */
-export type DayCellTemplateProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "td",
-  DayCellTemplateState<F>
-> &
-  DayCellTemplateOwnProps;
+export type DayCellTemplateProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", DayCellTemplateState<F>> &
+    DayCellTemplateOwnProps;
 
 /** Own props for the `DayButton` component. */
 export interface DayButtonOwnProps {
@@ -714,11 +701,8 @@ export interface DayButtonOwnProps {
 }
 
 /** Full props for the `DayButton` component. */
-export type DayButtonProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "button",
-  DayButtonState<F>
-> &
-  DayButtonOwnProps;
+export type DayButtonProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"button", DayButtonState<F>> & DayButtonOwnProps;
 
 /** State exposed by the `RangeSelected` component. */
 export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
@@ -737,16 +721,16 @@ export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `RangeSelected` component. */
-export type RangeSelectedProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "td",
-  RangeSelectedState<F>
->;
+export type RangeSelectedProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", RangeSelectedState<F>>;
 
 /** State exposed by the `RangePreview` component (same shape as `RangeSelectedState`). */
-export type RangePreviewState<F extends ValueFormat = ValueFormat> = RangeSelectedState<F>;
+export type RangePreviewState<F extends ValueFormat = ValueFormat> =
+  RangeSelectedState<F>;
 
 /** Full props for the `RangePreview` component (same shape as `RangeSelectedProps`). */
-export type RangePreviewProps<F extends ValueFormat = ValueFormat> = RangeSelectedProps<F>;
+export type RangePreviewProps<F extends ValueFormat = ValueFormat> =
+  RangeSelectedProps<F>;
 
 /** Which end of a range the drag handle controls. */
 export type DragHandleEdge = "start" | "end";
@@ -769,17 +753,12 @@ export interface DragHandleOwnProps {
 }
 
 /** Full props for the `RangeDragHandle` component. */
-export type RangeDragHandleProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "span",
-  DragHandleState<F>
-> &
-  DragHandleOwnProps;
+export type RangeDragHandleProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"span", DragHandleState<F>> & DragHandleOwnProps;
 
 /** Props for `RangeStartDragHandle` (edge is fixed to `"start"`). */
-export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> = Omit<
-  RangeDragHandleProps<F>,
-  "edge"
->;
+export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> =
+  Omit<RangeDragHandleProps<F>, "edge">;
 
 /** Props for `RangeEndDragHandle` (edge is fixed to `"end"`). */
 export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> = Omit<
@@ -794,10 +773,8 @@ export type WeekNumberCellState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `WeekNumberCell` component. */
-export type WeekNumberCellProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "td",
-  WeekNumberCellState<F>
->;
+export type WeekNumberCellProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"td", WeekNumberCellState<F>>;
 
 /** State exposed by the `WeekNumberHeader` component. */
 export type WeekNumberHeaderState<F extends ValueFormat = ValueFormat> = {
@@ -805,10 +782,11 @@ export type WeekNumberHeaderState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `WeekNumberHeader` component. */
-export type WeekNumberHeaderProps<F extends ValueFormat = ValueFormat> = useRender.ComponentProps<
-  "th",
-  WeekNumberHeaderState<F>
->;
+export type WeekNumberHeaderProps<F extends ValueFormat = ValueFormat> =
+  useRender.ComponentProps<"th", WeekNumberHeaderState<F>>;
 
 /** Root props pre-narrowed to a specific format. */
-export type TypedRootProps<F extends ValueFormat> = Omit<RootProps<F>, "format" | "temporal">;
+export type TypedRootProps<F extends ValueFormat> = Omit<
+  RootProps<F>,
+  "format" | "temporal"
+>;

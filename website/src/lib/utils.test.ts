@@ -5,22 +5,26 @@ import { cn } from "./utils";
 describe("cn() typography composition with type-* utilities", () => {
   const cases = [
     {
-      title: "keeps type-* and removes preceding conflicting typography utilities",
+      title:
+        "keeps type-* and removes preceding conflicting typography utilities",
       input: "font-bold type-body-200",
       expected: "type-body-200",
     },
     {
-      title: "keeps type-* and allows later conflicting typography utilities to override",
+      title:
+        "keeps type-* and allows later conflicting typography utilities to override",
       input: "type-body-200 font-bold",
       expected: "type-body-200 font-bold",
     },
     {
-      title: "removes preceding font-size/leading utilities when type-* comes later",
+      title:
+        "removes preceding font-size/leading utilities when type-* comes later",
       input: "text-sm type-body-200",
       expected: "type-body-200",
     },
     {
-      title: "allows later font-size/leading utilities to override but keeps type-*",
+      title:
+        "allows later font-size/leading utilities to override but keeps type-*",
       input: "type-body-200 text-sm",
       expected: "type-body-200 text-sm",
     },
@@ -35,12 +39,14 @@ describe("cn() typography composition with type-* utilities", () => {
       expected: "type-body-200 italic",
     },
     {
-      title: "removes preceding text-transform utilities when type-* comes later",
+      title:
+        "removes preceding text-transform utilities when type-* comes later",
       input: "uppercase type-body-200",
       expected: "type-body-200",
     },
     {
-      title: "allows later text-transform utilities to override but keeps type-*",
+      title:
+        "allows later text-transform utilities to override but keeps type-*",
       input: "type-body-200 uppercase",
       expected: "type-body-200 uppercase",
     },
@@ -114,7 +120,8 @@ describe("cn() squircle / rounded conflict resolution", () => {
         expected: "squircle-tl-xl",
       },
       {
-        description: "squircle per-side clears preceding different-side rounded",
+        description:
+          "squircle per-side clears preceding different-side rounded",
         input: "rounded-b-lg squircle-t-xl",
         expected: "squircle-t-xl",
       },
@@ -148,7 +155,8 @@ describe("cn() squircle / rounded conflict resolution", () => {
         expected: "rounded-tl-lg",
       },
       {
-        description: "rounded per-corner clears preceding different-corner squircle",
+        description:
+          "rounded per-corner clears preceding different-corner squircle",
         input: "squircle-br-xl rounded-tl-lg",
         expected: "rounded-tl-lg",
       },
@@ -212,7 +220,8 @@ describe("cn() squircle / rounded conflict resolution", () => {
         expected: "squircle-xl",
       },
       {
-        description: "later per-corner squircle overrides earlier different-corner",
+        description:
+          "later per-corner squircle overrides earlier different-corner",
         input: "squircle-tl-lg squircle-br-xl",
         expected: "squircle-br-xl",
       },

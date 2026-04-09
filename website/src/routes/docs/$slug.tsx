@@ -3,7 +3,11 @@ import * as path from "node:path";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import MarkdocRenderer from "#/components/MarkdocRenderer";
-import { type DocFrontmatter, parseFrontmatter, parseMarkdoc } from "#/lib/markdoc";
+import {
+  type DocFrontmatter,
+  parseFrontmatter,
+  parseMarkdoc,
+} from "#/lib/markdoc";
 import { resolveExamples } from "#/lib/resolve-examples";
 
 const getDocContent = createServerFn()
@@ -71,10 +75,16 @@ function DocPage() {
   return (
     <div>
       <div className="mb-6">
-        <p className="mb-1 type-label-100 text-muted-foreground">{frontmatter.section}</p>
-        <h1 className="mb-2 type-heading-300 text-foreground">{frontmatter.title}</h1>
+        <p className="mb-1 type-label-100 text-muted-foreground">
+          {frontmatter.section}
+        </p>
+        <h1 className="mb-2 type-heading-300 text-foreground">
+          {frontmatter.title}
+        </h1>
         {frontmatter.description && (
-          <p className="type-body-200 text-muted-foreground">{frontmatter.description}</p>
+          <p className="type-body-200 text-muted-foreground">
+            {frontmatter.description}
+          </p>
         )}
       </div>
       <MarkdocRenderer content={content} />

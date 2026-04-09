@@ -94,9 +94,9 @@ describe("computeWeeksKeyNav", () => {
       shiftKey: true,
     });
     expect(result.action).toBe("move");
-    expect((result as Extract<typeof result, { action: "move" }>).date.toString()).toBe(
-      "2027-03-15",
-    );
+    expect(
+      (result as Extract<typeof result, { action: "move" }>).date.toString(),
+    ).toBe("2027-03-15");
     expect(result.followFocus).toBe(true);
     expect(result.windowShift).toBe(0);
   });
@@ -214,9 +214,9 @@ describe("computeWeeksKeyNav", () => {
       shiftKey: true,
     });
     expect(result.action).toBe("move");
-    expect((result as Extract<typeof result, { action: "move" }>).date.toString()).toBe(
-      "2025-03-15",
-    );
+    expect(
+      (result as Extract<typeof result, { action: "move" }>).date.toString(),
+    ).toBe("2025-03-15");
     expect(result.followFocus).toBe(true);
   });
 });

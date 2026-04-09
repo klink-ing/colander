@@ -30,7 +30,9 @@ export default function ExampleBlock({
             <span className="type-code-100 text-muted-foreground">{file}</span>
           </TabsContent>
           <TabsContent value="js" className="ml-auto pr-4">
-            <span className="type-code-100 text-muted-foreground">{jsFile}</span>
+            <span className="type-code-100 text-muted-foreground">
+              {jsFile}
+            </span>
           </TabsContent>
         </div>
         <TabsContent value="ts">

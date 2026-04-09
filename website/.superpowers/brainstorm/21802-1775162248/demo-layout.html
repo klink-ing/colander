@@ -1,10 +1,27 @@
 <h2>Demo Page Layout</h2>
 <p class="subtitle">Three interactive sections, single-page, responsive</p>
 
-<div style="display: flex; flex-direction: column; gap: 32px; max-width: 800px; margin: 0 auto">
+<div
+  style="
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    max-width: 800px;
+    margin: 0 auto;
+  "
+>
   <!-- Section 1 -->
-  <div style="border: 2px solid #6366f1; border-radius: 12px; padding: 24px; background: #1a1a2e">
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+  <div
+    style="
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      padding: 24px;
+      background: #1a1a2e;
+    "
+  >
+    <div
+      style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px"
+    >
       <span
         style="
           background: #6366f1;
@@ -19,9 +36,9 @@
       <strong style="color: #e0e0e0">Overlay Comparison</strong>
     </div>
     <p style="color: #999; font-size: 14px; margin-bottom: 16px">
-      A single box with one rounded corner. Two overlapping shapes — circular arc (red outline) vs
-      squircle with corrected radius (blue fill). The squircle radius is auto-adjusted by the
-      formula so both visually match.
+      A single box with one rounded corner. Two overlapping shapes — circular
+      arc (red outline) vs squircle with corrected radius (blue fill). The
+      squircle radius is auto-adjusted by the formula so both visually match.
     </p>
     <div style="display: flex; gap: 24px; align-items: center">
       <div
@@ -67,12 +84,30 @@
       <div style="flex: 1">
         <div style="margin-bottom: 12px">
           <label
-            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            style="
+              color: #999;
+              font-size: 12px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            "
             >Border Radius</label
           >
-          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-top: 4px;
+            "
+          >
             <div
-              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+              style="
+                flex: 1;
+                height: 6px;
+                background: #333;
+                border-radius: 3px;
+                position: relative;
+              "
             >
               <div
                 style="
@@ -87,20 +122,33 @@
                 "
               ></div>
             </div>
-            <span style="color: #6366f1; font-family: monospace; font-size: 14px">40px</span>
+            <span
+              style="color: #6366f1; font-family: monospace; font-size: 14px"
+              >40px</span
+            >
           </div>
         </div>
         <p style="color: #666; font-size: 13px">
-          Drag the slider to see how the overlay changes at different radii. The squircle radius is
-          automatically corrected so both corners occupy the same visual space.
+          Drag the slider to see how the overlay changes at different radii. The
+          squircle radius is automatically corrected so both corners occupy the
+          same visual space.
         </p>
       </div>
     </div>
   </div>
 
   <!-- Section 2 -->
-  <div style="border: 2px solid #f59e0b; border-radius: 12px; padding: 24px; background: #1a1a2e">
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+  <div
+    style="
+      border: 2px solid #f59e0b;
+      border-radius: 12px;
+      padding: 24px;
+      background: #1a1a2e;
+    "
+  >
+    <div
+      style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px"
+    >
       <span
         style="
           background: #f59e0b;
@@ -115,9 +163,15 @@
       <strong style="color: #e0e0e0">Why Correction Matters</strong>
     </div>
     <p style="color: #999; font-size: 14px; margin-bottom: 16px">
-      Side-by-side: same radius value applied naively with superellipse vs the corrected radius.
-      Shows the visual mismatch when you just slap
-      <code style="background: #333; padding: 2px 6px; border-radius: 4px; color: #f59e0b"
+      Side-by-side: same radius value applied naively with superellipse vs the
+      corrected radius. Shows the visual mismatch when you just slap
+      <code
+        style="
+          background: #333;
+          padding: 2px 6px;
+          border-radius: 4px;
+          color: #f59e0b;
+        "
         >corner-shape: superellipse()</code
       >
       on a rounded element without adjusting.
@@ -134,8 +188,12 @@
             margin-bottom: 8px;
           "
         ></div>
-        <span style="color: #ef4444; font-size: 13px; font-weight: 600">Naive</span>
-        <div style="color: #666; font-size: 11px; font-family: monospace">superellipse + 40px</div>
+        <span style="color: #ef4444; font-size: 13px; font-weight: 600"
+          >Naive</span
+        >
+        <div style="color: #666; font-size: 11px; font-family: monospace">
+          superellipse + 40px
+        </div>
       </div>
       <div style="text-align: center">
         <div
@@ -148,8 +206,12 @@
             margin-bottom: 8px;
           "
         ></div>
-        <span style="color: #22c55e; font-size: 13px; font-weight: 600">Corrected</span>
-        <div style="color: #666; font-size: 11px; font-family: monospace">superellipse + 52px</div>
+        <span style="color: #22c55e; font-size: 13px; font-weight: 600"
+          >Corrected</span
+        >
+        <div style="color: #666; font-size: 11px; font-family: monospace">
+          superellipse + 52px
+        </div>
       </div>
       <div style="text-align: center">
         <div
@@ -162,12 +224,22 @@
             margin-bottom: 8px;
           "
         ></div>
-        <span style="color: #999; font-size: 13px; font-weight: 600">Regular</span>
-        <div style="color: #666; font-size: 11px; font-family: monospace">circular + 40px</div>
+        <span style="color: #999; font-size: 13px; font-weight: 600"
+          >Regular</span
+        >
+        <div style="color: #666; font-size: 11px; font-family: monospace">
+          circular + 40px
+        </div>
       </div>
     </div>
     <div style="margin-top: 16px">
-      <label style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+      <label
+        style="
+          color: #999;
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 1px;
+        "
         >Border Radius</label
       >
       <div
@@ -196,8 +268,17 @@
   </div>
 
   <!-- Section 3 -->
-  <div style="border: 2px solid #22c55e; border-radius: 12px; padding: 24px; background: #1a1a2e">
-    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+  <div
+    style="
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 24px;
+      background: #1a1a2e;
+    "
+  >
+    <div
+      style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px"
+    >
       <span
         style="
           background: #22c55e;
@@ -212,8 +293,9 @@
       <strong style="color: #e0e0e0">Interactive Math Explorer</strong>
     </div>
     <p style="color: #999; font-size: 14px; margin-bottom: 16px">
-      SVG canvas showing the actual curve geometry. Circular arc vs superellipse curve at the same
-      radius, with a draggable 45° line to measure visual corner depth.
+      SVG canvas showing the actual curve geometry. Circular arc vs superellipse
+      curve at the same radius, with a draggable 45° line to measure visual
+      corner depth.
     </p>
     <div style="display: flex; gap: 24px; align-items: flex-start">
       <div
@@ -231,9 +313,22 @@
         "
       >
         <!-- Simulated SVG area -->
-        <svg width="200" height="200" viewBox="0 0 200 200" style="overflow: visible">
+        <svg
+          width="200"
+          height="200"
+          viewBox="0 0 200 200"
+          style="overflow: visible"
+        >
           <!-- Corner box -->
-          <rect x="0" y="0" width="200" height="200" fill="none" stroke="#333" stroke-width="1" />
+          <rect
+            x="0"
+            y="0"
+            width="200"
+            height="200"
+            fill="none"
+            stroke="#333"
+            stroke-width="1"
+          />
           <!-- Circular arc -->
           <path
             d="M 0 80 Q 0 0 80 0"
@@ -243,7 +338,12 @@
             stroke-dasharray="4,3"
           />
           <!-- Superellipse curve (approximated) -->
-          <path d="M 0 80 C 0 20 20 0 80 0" fill="none" stroke="#6366f1" stroke-width="2" />
+          <path
+            d="M 0 80 C 0 20 20 0 80 0"
+            fill="none"
+            stroke="#6366f1"
+            stroke-width="2"
+          />
           <!-- 45° line -->
           <line
             x1="0"
@@ -264,12 +364,30 @@
       <div style="flex: 1">
         <div style="margin-bottom: 16px">
           <label
-            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            style="
+              color: #999;
+              font-size: 12px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            "
             >Superellipse Exponent (n)</label
           >
-          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-top: 4px;
+            "
+          >
             <div
-              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+              style="
+                flex: 1;
+                height: 6px;
+                background: #333;
+                border-radius: 3px;
+                position: relative;
+              "
             >
               <div
                 style="
@@ -284,17 +402,38 @@
                 "
               ></div>
             </div>
-            <span style="color: #22c55e; font-family: monospace; font-size: 14px">n = 3.0</span>
+            <span
+              style="color: #22c55e; font-family: monospace; font-size: 14px"
+              >n = 3.0</span
+            >
           </div>
         </div>
         <div style="margin-bottom: 16px">
           <label
-            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            style="
+              color: #999;
+              font-size: 12px;
+              text-transform: uppercase;
+              letter-spacing: 1px;
+            "
             >Border Radius</label
           >
-          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              margin-top: 4px;
+            "
+          >
             <div
-              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+              style="
+                flex: 1;
+                height: 6px;
+                background: #333;
+                border-radius: 3px;
+                position: relative;
+              "
             >
               <div
                 style="
@@ -309,7 +448,10 @@
                 "
               ></div>
             </div>
-            <span style="color: #22c55e; font-family: monospace; font-size: 14px">80px</span>
+            <span
+              style="color: #22c55e; font-family: monospace; font-size: 14px"
+              >80px</span
+            >
           </div>
         </div>
         <div
@@ -324,15 +466,19 @@
         >
           <div style="color: #999; margin-bottom: 4px">Formula output:</div>
           <div style="color: #6366f1">
-            corrected_r = <span style="color: #22c55e">1.74</span>^(<span style="color: #22c55e"
+            corrected_r = <span style="color: #22c55e">1.74</span>^(<span
+              style="color: #22c55e"
               >3.0</span
             >^<span style="color: #22c55e">1.079</span> - 1) ×
             <span style="color: #f59e0b">80</span>
           </div>
-          <div style="color: #e0e0e0; margin-top: 4px">= <strong>104px</strong></div>
+          <div style="color: #e0e0e0; margin-top: 4px">
+            = <strong>104px</strong>
+          </div>
           <div style="color: #999; margin-top: 8px; font-size: 11px">
             Circle 45° depth: <span style="color: #ef4444">23.4px</span><br />
-            Superellipse 45° depth: <span style="color: #6366f1">17.1px</span><br />
+            Superellipse 45° depth: <span style="color: #6366f1">17.1px</span
+            ><br />
             Corrected 45° depth: <span style="color: #22c55e">23.2px</span> ✓
           </div>
         </div>
@@ -342,5 +488,6 @@
 </div>
 
 <p class="subtitle" style="margin-top: 24px; text-align: center">
-  This is a wireframe mockup — actual demo will use real CSS corner-shape rendering and SVG math
+  This is a wireframe mockup — actual demo will use real CSS corner-shape
+  rendering and SVG math
 </p>

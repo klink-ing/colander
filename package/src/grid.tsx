@@ -1,7 +1,14 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import type { Temporal } from "@js-temporal/polyfill";
-import { useContext, useMemo, useCallback, useEffect, useRef, forwardRef } from "react";
+import {
+  useContext,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  forwardRef,
+} from "react";
 import type { KeyboardEvent } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { WeekDataContext, GridContext, GridMonthContext } from "./context";
@@ -27,7 +34,11 @@ import type {
 import { useViewContext } from "./view-context";
 import { WeeksGrid } from "./weeks-grid";
 import { computeWeeksKeyNav } from "./weeks-keyboard";
-import { WeeksViewStateContext, useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
+import {
+  WeeksViewStateContext,
+  useWeeksViewState,
+  useWeeksViewStable,
+} from "./weeks-view-context";
 export { GridHeader, GridHeaderCell } from "./grid-header";
 export { DayCellTemplate, DayButton } from "./day-cell";
 
@@ -189,7 +200,10 @@ export const Grid = forwardRef(GridFn) as <F extends ValueFormat = ValueFormat>(
 // MonthGrid — existing month view rendering (unchanged logic)
 // ---------------------------------------------------------------------------
 
-function MonthGridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>) {
+function MonthGridFn(
+  props: GridProps,
+  ref: React.ForwardedRef<HTMLTableElement>,
+) {
   const {
     render,
     mode: _mode,
@@ -226,7 +240,8 @@ function MonthGridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>
 
   useEffect(() => {
     if (autoFocus && gridRef.current) {
-      const target = gridRef.current.querySelector<HTMLElement>('[tabindex="0"]');
+      const target =
+        gridRef.current.querySelector<HTMLElement>('[tabindex="0"]');
       if (target) {
         target.focus();
         gridFocusedRef.current = true;
@@ -322,7 +337,9 @@ function MonthGridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>
   );
 }
 
-const MonthGrid = forwardRef(MonthGridFn) as <F extends ValueFormat = ValueFormat>(
+const MonthGrid = forwardRef(MonthGridFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: GridProps<F> & React.RefAttributes<HTMLTableElement>,
 ) => React.ReactElement | null;
 
@@ -330,7 +347,10 @@ const MonthGrid = forwardRef(MonthGridFn) as <F extends ValueFormat = ValueForma
 // WeeksViewGrid — continuous week rows for WeeksView
 // ---------------------------------------------------------------------------
 
-function WeeksViewGridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>) {
+function WeeksViewGridFn(
+  props: GridProps,
+  ref: React.ForwardedRef<HTMLTableElement>,
+) {
   const {
     render,
     mode: _mode,
@@ -352,7 +372,8 @@ function WeeksViewGridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElem
 
   useEffect(() => {
     if (autoFocus && gridRef.current) {
-      const target = gridRef.current.querySelector<HTMLElement>('[tabindex="0"]');
+      const target =
+        gridRef.current.querySelector<HTMLElement>('[tabindex="0"]');
       if (target) {
         target.focus();
         gridFocusedRef.current = true;
@@ -478,7 +499,9 @@ function WeeksViewGridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElem
   );
 }
 
-const WeeksViewGrid = forwardRef(WeeksViewGridFn) as <F extends ValueFormat = ValueFormat>(
+const WeeksViewGrid = forwardRef(WeeksViewGridFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: GridProps<F> & React.RefAttributes<HTMLTableElement>,
 ) => React.ReactElement | null;
 
@@ -487,7 +510,10 @@ const gridBodyStateAttributesMapping = {
 } as const satisfies StateAttributesMapping<GridBodyState>;
 
 /** Table body wrapping the week rows. Renders a `<tbody>` by default. */
-function GridBodyFn(props: GridBodyProps, ref: React.ForwardedRef<HTMLTableSectionElement>) {
+function GridBodyFn(
+  props: GridBodyProps,
+  ref: React.ForwardedRef<HTMLTableSectionElement>,
+) {
   const weeksState = useContext(WeeksViewStateContext);
 
   // In WeeksView, delegate to WeeksGrid which handles week iteration
@@ -504,11 +530,16 @@ function GridBodyFn(props: GridBodyProps, ref: React.ForwardedRef<HTMLTableSecti
   return <MonthGridBody ref={ref} {...props} />;
 }
 
-export const GridBody = forwardRef(GridBodyFn) as <F extends ValueFormat = ValueFormat>(
+export const GridBody = forwardRef(GridBodyFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: GridBodyProps<F> & React.RefAttributes<HTMLTableSectionElement>,
 ) => React.ReactElement | null;
 
-function MonthGridBodyFn(props: GridBodyProps, ref: React.ForwardedRef<HTMLTableSectionElement>) {
+function MonthGridBodyFn(
+  props: GridBodyProps,
+  ref: React.ForwardedRef<HTMLTableSectionElement>,
+) {
   const { render, ...otherProps } = props;
   const { rootState } = useMonthViewState();
 
@@ -539,7 +570,9 @@ function MonthGridBodyFn(props: GridBodyProps, ref: React.ForwardedRef<HTMLTable
   });
 }
 
-const MonthGridBody = forwardRef(MonthGridBodyFn) as <F extends ValueFormat = ValueFormat>(
+const MonthGridBody = forwardRef(MonthGridBodyFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: GridBodyProps<F> & React.RefAttributes<HTMLTableSectionElement>,
 ) => React.ReactElement | null;
 
@@ -549,7 +582,9 @@ const weekInstanceStateAttributesMapping = {
   gridRowIndex: () => null,
 } as const satisfies StateAttributesMapping<WeekTemplateState>;
 
-function WeekInstance<F extends ValueFormat = ValueFormat>(props: WeekTemplateProps<F>) {
+function WeekInstance<F extends ValueFormat = ValueFormat>(
+  props: WeekTemplateProps<F>,
+) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
   const { rootState } = useMonthViewState();
@@ -577,13 +612,18 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(props: WeekTemplatePr
  * Iterates over the weeks in the current month and renders one `<tr>` per week.
  * Each instance receives its week's days and index via {@link WeekDataContext}.
  */
-export function WeekTemplate<F extends ValueFormat = ValueFormat>(props: WeekTemplateProps<F>) {
+export function WeekTemplate<F extends ValueFormat = ValueFormat>(
+  props: WeekTemplateProps<F>,
+) {
   const outerWeekData = useContext(WeekDataContext);
   const gridMonthCtx = useContext(GridMonthContext);
   const { weeks: defaultWeeks } = useMonthViewState();
   const weeks = gridMonthCtx?.weeks ?? defaultWeeks;
   const gridMonth = useMemo(
-    () => (gridMonthCtx ? { year: gridMonthCtx.year, month: gridMonthCtx.month } : undefined),
+    () =>
+      gridMonthCtx
+        ? { year: gridMonthCtx.year, month: gridMonthCtx.month }
+        : undefined,
     [gridMonthCtx],
   );
   const Instance = WeekInstance<F>;

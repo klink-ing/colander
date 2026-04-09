@@ -43,11 +43,15 @@
   --accent: oklch(0.97 0.001 106.424);
   --accent-foreground: oklch(0.216 0.006 56.043);
   --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
-  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(
+    from var(--secondary) calc(l + 0.08) calc(c + 0.01) h
+  );
   --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
   --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
   --destructive: oklch(0.577 0.245 27.325);
-  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --destructive-hover: oklch(
+    from var(--destructive) calc(l + 0.08) calc(c + 0.01) h
+  );
   --focus: oklch(0.5 0.4 221.723);
   --focus-destructive: oklch(0.577 0.245 27.325);
   --border: oklch(0.85 0.003 48.717);
@@ -180,11 +184,15 @@
   --accent: oklch(0.21 0.006 274);
   --accent-foreground: oklch(0.985 0.001 274);
   --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
-  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(
+    from var(--secondary) calc(l + 0.08) calc(c + 0.01) h
+  );
   --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
   --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
   --destructive: oklch(0.704 0.191 22.216);
-  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --destructive-hover: oklch(
+    from var(--destructive) calc(l + 0.08) calc(c + 0.01) h
+  );
   --border: oklch(0.3 0 0);
   --input: oklch(1 0 0 / 15%);
   --focus: oklch(0.7 0.16 251.22);
@@ -244,10 +252,11 @@
 
 @utility zipzap {
   --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0
-    calc(var(--spacing-w-focus) + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+    calc(var(--spacing-w-focus) + var(--tw-ring-offset-width))
+    var(--tw-ring-color, currentcolor);
   box-shadow:
-    var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow),
-    var(--tw-ring-shadow), var(--tw-shadow);
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
+    var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
 }
 
 @utility ring-w-focus {

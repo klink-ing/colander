@@ -24,7 +24,9 @@ function StateConsumer() {
   return (
     <div>
       <span data-testid="has-selection">{state.selected ? "yes" : "no"}</span>
-      <span data-testid="range-start">{state.rangeStart?.toString() ?? "none"}</span>
+      <span data-testid="range-start">
+        {state.rangeStart?.toString() ?? "none"}
+      </span>
     </div>
   );
 }
@@ -32,7 +34,10 @@ function StateConsumer() {
 function SelectButton() {
   const stable = useCalendarStable();
   return (
-    <button type="button" onClick={() => stable.onSelect(T.PlainDate.from("2026-03-15"))}>
+    <button
+      type="button"
+      onClick={() => stable.onSelect(T.PlainDate.from("2026-03-15"))}
+    >
       Select
     </button>
   );
@@ -76,7 +81,12 @@ describe("CalendarProvider", () => {
   it("calls onValueChange for controlled single selection", async () => {
     const onChange = vi.fn();
     const { getByText } = render(
-      <CalendarProvider temporal={T} selectionMode="single" value={null} onValueChange={onChange}>
+      <CalendarProvider
+        temporal={T}
+        selectionMode="single"
+        value={null}
+        onValueChange={onChange}
+      >
         <SelectButton />
       </CalendarProvider>,
     );
@@ -89,7 +99,11 @@ describe("CalendarProvider", () => {
   it("deselects when clicking an already-selected date in single mode", async () => {
     const onChange = vi.fn();
     const { getByTestId, getByText } = render(
-      <CalendarProvider temporal={T} selectionMode="single" onValueChange={onChange}>
+      <CalendarProvider
+        temporal={T}
+        selectionMode="single"
+        onValueChange={onChange}
+      >
         <StateConsumer />
         <SelectButton />
       </CalendarProvider>,

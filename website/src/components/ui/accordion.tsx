@@ -23,7 +23,11 @@ function AccordionItem({ className, ...props }: AccordionPrimitive.Item.Props) {
   );
 }
 
-function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.Trigger.Props) {
+function AccordionTrigger({
+  className,
+  children,
+  ...props
+}: AccordionPrimitive.Trigger.Props) {
   return (
     <AccordionPrimitive.Header className="flex">
       <AccordionPrimitive.Trigger
@@ -50,7 +54,11 @@ function AccordionTrigger({ className, children, ...props }: AccordionPrimitive.
   );
 }
 
-function AccordionContent({ className, children, ...props }: AccordionPrimitive.Panel.Props) {
+function AccordionContent({
+  className,
+  children,
+  ...props
+}: AccordionPrimitive.Panel.Props) {
   return (
     <AccordionPrimitive.Panel
       data-slot="accordion-content"
@@ -59,7 +67,10 @@ function AccordionContent({ className, children, ...props }: AccordionPrimitive.
     >
       <div className="h-(--accordion-panel-height) px-1 pt-1">
         <div
-          className={cn("pt-focus pb-4 data-ending-style:h-0 data-starting-style:h-0", className)}
+          className={cn(
+            "pt-focus pb-4 data-ending-style:h-0 data-starting-style:h-0",
+            className,
+          )}
         >
           {children}
         </div>

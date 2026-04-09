@@ -29,7 +29,9 @@ function renderInTable(ui: React.ReactElement, data = mockData) {
   return render(
     <table>
       <tbody>
-        <MonthSeparatorDataContext.Provider value={data}>{ui}</MonthSeparatorDataContext.Provider>
+        <MonthSeparatorDataContext.Provider value={data}>
+          {ui}
+        </MonthSeparatorDataContext.Provider>
       </tbody>
     </table>,
   );

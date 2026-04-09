@@ -37,7 +37,9 @@ export default function NavDrawer({ children }: { children: React.ReactNode }) {
         <Dialog.Popup
           aria-label="Navigation"
           finalFocus={() => {
-            const triggers = document.querySelectorAll<HTMLElement>("[data-nav-drawer-trigger]");
+            const triggers = document.querySelectorAll<HTMLElement>(
+              "[data-nav-drawer-trigger]",
+            );
             for (const el of triggers) {
               if (el.offsetParent !== null) return el;
             }

@@ -10,7 +10,9 @@ const NavDrawerContext = createContext<NavDrawerContextValue | null>(null);
 export function NavDrawerProvider({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <NavDrawerContext.Provider value={{ open, setOpen }}>{children}</NavDrawerContext.Provider>
+    <NavDrawerContext.Provider value={{ open, setOpen }}>
+      {children}
+    </NavDrawerContext.Provider>
   );
 }
 

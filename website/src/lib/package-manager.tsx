@@ -1,4 +1,11 @@
-import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  type ReactNode,
+} from "react";
 
 export type PackageManager = "npm" | "pnpm" | "yarn" | "ni";
 
@@ -8,7 +15,12 @@ const DEFAULT: PackageManager = "npm";
 function getStored(): PackageManager {
   if (typeof window === "undefined") return DEFAULT;
   const stored = window.localStorage.getItem(STORAGE_KEY);
-  if (stored === "npm" || stored === "pnpm" || stored === "yarn" || stored === "ni") {
+  if (
+    stored === "npm" ||
+    stored === "pnpm" ||
+    stored === "yarn" ||
+    stored === "ni"
+  ) {
     return stored;
   }
   return DEFAULT;
@@ -21,7 +33,10 @@ const installCommands: Record<PackageManager, (pkg: string) => string> = {
   ni: (pkg) => `ni ${pkg}`,
 };
 
-export function getInstallCommand(pm: PackageManager, packages: string): string {
+export function getInstallCommand(
+  pm: PackageManager,
+  packages: string,
+): string {
   return installCommands[pm](packages);
 }
 

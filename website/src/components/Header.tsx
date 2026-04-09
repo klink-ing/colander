@@ -26,7 +26,13 @@ export default function Header() {
           aria-label="Open navigation menu"
           className="bp-4.5:hidden flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent"
         >
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M3 5h14M3 10h14M3 15h14"
               stroke="currentColor"
@@ -37,7 +43,10 @@ export default function Header() {
         </button>
 
         <h2 className="m-0 shrink-0">
-          <Link to="/" className="-my-2 flex h-full items-center gap-2 pr-3 no-underline">
+          <Link
+            to="/"
+            className="-my-2 flex h-full items-center gap-2 pr-3 no-underline"
+          >
             <img
               src={heroImage.src}
               width={heroImage.width}
@@ -56,7 +65,10 @@ export default function Header() {
               const active = pathname.startsWith(link.to);
               return (
                 <NavigationMenuItem key={link.label}>
-                  <NavigationMenuLink render={<Link to={link.to} />} active={active}>
+                  <NavigationMenuLink
+                    render={<Link to={link.to} />}
+                    active={active}
+                  >
                     {link.label}
                   </NavigationMenuLink>
                 </NavigationMenuItem>

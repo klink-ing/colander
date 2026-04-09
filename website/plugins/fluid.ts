@@ -26,7 +26,9 @@ function round(n: number, decimals: number) {
 
 function parseJsonc(filePath: string) {
   const raw = readFileSync(filePath, "utf-8");
-  return JSON.parse(raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, ""));
+  return JSON.parse(
+    raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, ""),
+  );
 }
 
 function readRemPerUnit(rootDir: string): number {
@@ -60,7 +62,12 @@ function clampLine(
   return `  --fluid-${prefix}${name}: clamp(${round(minRem, 4)}rem, calc(${slopeVw}vw ${sign}${absIntercept}rem), ${round(maxRem, 4)}rem);`;
 }
 
-function generateCSS(configPath: string, outputPath: string, rootDir: string, remPerUnit: number) {
+function generateCSS(
+  configPath: string,
+  outputPath: string,
+  rootDir: string,
+  remPerUnit: number,
+) {
   const config = loadConfig(configPath);
   const lines: string[] = ["@theme {"];
 

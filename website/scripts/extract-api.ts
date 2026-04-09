@@ -9,7 +9,13 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { Project, type Type, type SourceFile, SyntaxKind, type Node } from "ts-morph";
+import {
+  Project,
+  type Type,
+  type SourceFile,
+  SyntaxKind,
+  type Node,
+} from "ts-morph";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -35,7 +41,14 @@ interface ExtractedParam {
 
 interface ExtractedSymbol {
   name: string;
-  kind: "component" | "hook" | "type" | "interface" | "function" | "const" | "context";
+  kind:
+    | "component"
+    | "hook"
+    | "type"
+    | "interface"
+    | "function"
+    | "const"
+    | "context";
   description: string;
   filePath: string;
   lineNumber: number;
@@ -155,7 +168,11 @@ function extractLocalProps(type: Type): ExtractedProperty[] {
 }
 
 /** Extract props from a component's props type into the symbol. */
-function extractComponentProps(propsType: Type, symbol: ExtractedSymbol, sourceFile?: SourceFile) {
+function extractComponentProps(
+  propsType: Type,
+  symbol: ExtractedSymbol,
+  sourceFile?: SourceFile,
+) {
   const propsTypeText = resolveTypeText(propsType);
   let cpMatch = propsTypeText.match(/ComponentProps<"(\w+)",\s*(\w+)/);
 
@@ -166,7 +183,9 @@ function extractComponentProps(propsType: Type, symbol: ExtractedSymbol, sourceF
     if (omitMatch) {
       const fileText = sourceFile.getText();
       const aliasMatch = fileText.match(
-        new RegExp(`type\\s+${omitMatch[1]}[^=]*=\\s*[^;]*ComponentProps<"(\\w+)",\\s*(\\w+)`),
+        new RegExp(
+          `type\\s+${omitMatch[1]}[^=]*=\\s*[^;]*ComponentProps<"(\\w+)",\\s*(\\w+)`,
+        ),
       );
       if (aliasMatch) {
         cpMatch = aliasMatch;
@@ -185,7 +204,10 @@ function extractComponentProps(propsType: Type, symbol: ExtractedSymbol, sourceF
   }
 }
 
-function classifySymbol(name: string, declarations: Node[]): ExtractedSymbol["kind"] {
+function classifySymbol(
+  name: string,
+  declarations: Node[],
+): ExtractedSymbol["kind"] {
   // Hooks start with "use"
   if (name.startsWith("use")) return "hook";
 
@@ -195,12 +217,18 @@ function classifySymbol(name: string, declarations: Node[]): ExtractedSymbol["ki
   for (const decl of declarations) {
     const kind = decl.getKind();
     // Type aliases and interfaces
-    if (kind === SyntaxKind.TypeAliasDeclaration || kind === SyntaxKind.InterfaceDeclaration) {
+    if (
+      kind === SyntaxKind.TypeAliasDeclaration ||
+      kind === SyntaxKind.InterfaceDeclaration
+    ) {
       return "interface";
     }
     // Functions (PascalCase = component, camelCase = function)
     if (kind === SyntaxKind.FunctionDeclaration) {
-      if (name[0] === name[0].toUpperCase() && name[0] !== name[0].toLowerCase()) {
+      if (
+        name[0] === name[0].toUpperCase() &&
+        name[0] !== name[0].toLowerCase()
+      ) {
         return "component";
       }
       return "function";
@@ -208,7 +236,10 @@ function classifySymbol(name: string, declarations: Node[]): ExtractedSymbol["ki
     // Variable declarations (components, constants)
     if (kind === SyntaxKind.VariableDeclaration) {
       // Check if it's a component (starts with uppercase)
-      if (name[0] === name[0].toUpperCase() && name[0] !== name[0].toLowerCase()) {
+      if (
+        name[0] === name[0].toUpperCase() &&
+        name[0] !== name[0].toLowerCase()
+      ) {
         return "component";
       }
       return "const";
@@ -279,14 +310,19 @@ function extract(): ExtractedSymbol[] {
 
       // Extract defaultElement and stateType from useRender.ComponentProps<"el", State>
       const aliasText = alias.getText();
-      const cpMatch = aliasText.match(/useRender\.ComponentProps<"(\w+)",\s*(\w+)/);
+      const cpMatch = aliasText.match(
+        /useRender\.ComponentProps<"(\w+)",\s*(\w+)/,
+      );
       if (cpMatch) {
         symbol.defaultElement = cpMatch[1];
         symbol.stateType = cpMatch[2];
       }
 
       // Extract properties from object, intersection, or union types
-      if ((type.isObject() || type.isIntersection() || type.isUnion()) && !type.isArray()) {
+      if (
+        (type.isObject() || type.isIntersection() || type.isUnion()) &&
+        !type.isArray()
+      ) {
         const props = extractLocalProps(type);
         if (props.length > 0) {
           symbol.properties = props;
@@ -327,7 +363,9 @@ function extract(): ExtractedSymbol[] {
 
     // Extract props from variable-declared components (forwardRef, Object.assign, etc.)
     if (declKind === SyntaxKind.VariableDeclaration && kind === "component") {
-      const varType = decl.asKindOrThrow(SyntaxKind.VariableDeclaration).getType();
+      const varType = decl
+        .asKindOrThrow(SyntaxKind.VariableDeclaration)
+        .getType();
 
       // Find call signatures — either directly on the type, or on intersection members
       // (Object.assign returns an intersection where one member has the call signature)
@@ -345,7 +383,11 @@ function extract(): ExtractedSymbol[] {
       if (callSigs.length > 0) {
         const propsParam = callSigs[0].getParameters()[0];
         if (propsParam) {
-          extractComponentProps(propsParam.getTypeAtLocation(decl), symbol, sourceFile);
+          extractComponentProps(
+            propsParam.getTypeAtLocation(decl),
+            symbol,
+            sourceFile,
+          );
         }
       }
     }

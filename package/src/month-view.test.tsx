@@ -6,7 +6,11 @@ import { useCalendarStable } from "./calendar-context";
 import { Grid } from "./grid";
 import { MonthView } from "./month-view";
 import { useMonthViewState } from "./month-view-context";
-import { MonthYearString, PrevMonthButton, NextMonthButton } from "./navigation";
+import {
+  MonthYearString,
+  PrevMonthButton,
+  NextMonthButton,
+} from "./navigation";
 import type { DateRange, ValueChangeMeta, MonthData } from "./types";
 import { useViewContext } from "./view-context";
 
@@ -32,7 +36,9 @@ const march20 = Temporal.PlainDate.from("2026-03-20");
 function SetRangeTrigger({
   onCapture,
 }: {
-  onCapture: (setRange: (start: Temporal.PlainDate, end: Temporal.PlainDate) => void) => void;
+  onCapture: (
+    setRange: (start: Temporal.PlainDate, end: Temporal.PlainDate) => void,
+  ) => void;
 }) {
   const { setRange } = useCalendarStable();
   onCapture(setRange);
@@ -65,7 +71,12 @@ describe("rangeMode", () => {
   ) => void;
 
   function renderRangeRoot(
-    rangeMode: "adjust-start" | "adjust-end" | "nearest-start" | "nearest-end" | "reset",
+    rangeMode:
+      | "adjust-start"
+      | "adjust-end"
+      | "nearest-start"
+      | "nearest-end"
+      | "reset",
     onValueChange: RangeChangeFn,
   ) {
     let selectFn: (date: Temporal.PlainDate) => void = () => {};
@@ -89,7 +100,12 @@ describe("rangeMode", () => {
 
   it.each<{
     description: string;
-    action: "adjust-start" | "adjust-end" | "nearest-start" | "nearest-end" | "reset";
+    action:
+      | "adjust-start"
+      | "adjust-end"
+      | "nearest-start"
+      | "nearest-end"
+      | "reset";
     clickDate: Temporal.PlainDate;
     expected: { start: string; end: string };
   }>([
@@ -214,10 +230,17 @@ describe("rangeMode", () => {
 describe("setRange normalization", () => {
   it("sorts start and end when called in order", () => {
     const onValueChange = vi.fn();
-    let captured: (s: Temporal.PlainDate, e: Temporal.PlainDate) => void = () => {};
+    let captured: (
+      s: Temporal.PlainDate,
+      e: Temporal.PlainDate,
+    ) => void = () => {};
 
     const { unmount } = render(
-      <MonthView {...defaultProps} selectionMode="range" onValueChange={onValueChange}>
+      <MonthView
+        {...defaultProps}
+        selectionMode="range"
+        onValueChange={onValueChange}
+      >
         <SetRangeTrigger
           onCapture={(fn) => {
             captured = fn;
@@ -240,10 +263,17 @@ describe("setRange normalization", () => {
 
   it("normalizes reversed arguments so start <= end", () => {
     const onValueChange = vi.fn();
-    let captured: (s: Temporal.PlainDate, e: Temporal.PlainDate) => void = () => {};
+    let captured: (
+      s: Temporal.PlainDate,
+      e: Temporal.PlainDate,
+    ) => void = () => {};
 
     const { unmount } = render(
-      <MonthView {...defaultProps} selectionMode="range" onValueChange={onValueChange}>
+      <MonthView
+        {...defaultProps}
+        selectionMode="range"
+        onValueChange={onValueChange}
+      >
         <SetRangeTrigger
           onCapture={(fn) => {
             captured = fn;
@@ -261,7 +291,9 @@ describe("setRange normalization", () => {
       DateRange<"PlainDate">,
       ValueChangeMeta<DateRange<"PlainDate"> | null>,
     ];
-    expect(Temporal.PlainDate.compare(value.start!, value.end!)).toBeLessThanOrEqual(0);
+    expect(
+      Temporal.PlainDate.compare(value.start!, value.end!),
+    ).toBeLessThanOrEqual(0);
     expect(value).toEqual({ start: march10, end: march20 });
 
     unmount();
@@ -269,10 +301,17 @@ describe("setRange normalization", () => {
 
   it("handles same date for both start and end", () => {
     const onValueChange = vi.fn();
-    let captured: (s: Temporal.PlainDate, e: Temporal.PlainDate) => void = () => {};
+    let captured: (
+      s: Temporal.PlainDate,
+      e: Temporal.PlainDate,
+    ) => void = () => {};
 
     const { unmount } = render(
-      <MonthView {...defaultProps} selectionMode="range" onValueChange={onValueChange}>
+      <MonthView
+        {...defaultProps}
+        selectionMode="range"
+        onValueChange={onValueChange}
+      >
         <SetRangeTrigger
           onCapture={(fn) => {
             captured = fn;
@@ -460,7 +499,10 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual(["2026-12", "2027-1"]);
+    expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
+      "2026-12",
+      "2027-1",
+    ]);
 
     unmount();
   });
@@ -597,7 +639,9 @@ describe("numberOfMonths", () => {
     // Press PageDown to move focus to April 15 — still within visible range
     const grid = container.querySelector('[role="grid"]')!;
     act(() => {
-      grid.dispatchEvent(new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }));
+      grid.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }),
+      );
     });
 
     expect(captured!.focusedDate).toBe("2026-04-15");
@@ -606,7 +650,9 @@ describe("numberOfMonths", () => {
 
     // Press PageDown again — May is outside the visible range, should shift
     act(() => {
-      grid.dispatchEvent(new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }));
+      grid.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }),
+      );
     });
 
     expect(captured!.focusedDate).toBe("2026-05-15");
@@ -637,7 +683,9 @@ describe("numberOfMonths", () => {
     // Press PageUp to move focus to March 15 — outside visible range
     const grid = container.querySelector('[role="grid"]')!;
     act(() => {
-      grid.dispatchEvent(new KeyboardEvent("keydown", { key: "PageUp", bubbles: true }));
+      grid.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "PageUp", bubbles: true }),
+      );
     });
 
     expect(captured!.focusedDate).toBe("2026-03-15");
@@ -657,14 +705,18 @@ describe("numberOfMonths", () => {
     const grids = container.querySelectorAll('[role="grid"]');
 
     // In grid 0 (March), outside-month dates should not be March dates
-    const grid0OutsideMonth = Array.from(grids[0].querySelectorAll("[data-outside-month]"));
+    const grid0OutsideMonth = Array.from(
+      grids[0].querySelectorAll("[data-outside-month]"),
+    );
     for (const el of grid0OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
       expect(dateStr.startsWith("2026-03")).toBe(false);
     }
 
     // In grid 1 (April), outside-month dates should not be April dates
-    const grid1OutsideMonth = Array.from(grids[1].querySelectorAll("[data-outside-month]"));
+    const grid1OutsideMonth = Array.from(
+      grids[1].querySelectorAll("[data-outside-month]"),
+    );
     for (const el of grid1OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
       expect(dateStr.startsWith("2026-04")).toBe(false);
@@ -706,7 +758,12 @@ describe("numberOfMonths", () => {
     it("next button disabled when last visible month reaches max", () => {
       const maxDate = Temporal.PlainDate.from("2026-05-31");
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3} max={maxDate}>
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={3}
+          max={maxDate}
+        >
           <NextMonthButton data-testid="next" />
         </MonthView>,
       );
@@ -721,7 +778,12 @@ describe("numberOfMonths", () => {
     it("prev button disabled when first visible month reaches min", () => {
       const minDate = Temporal.PlainDate.from("2026-03-01");
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2} min={minDate}>
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          min={minDate}
+        >
           <PrevMonthButton data-testid="prev" />
         </MonthView>,
       );
@@ -734,7 +796,9 @@ describe("numberOfMonths", () => {
     });
 
     it("clicking next shifts view by one month", () => {
-      let captured: { currentMonth: { year: number; month: number } } | undefined;
+      let captured:
+        | { currentMonth: { year: number; month: number } }
+        | undefined;
 
       const { container, unmount } = render(
         <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
@@ -762,7 +826,9 @@ describe("numberOfMonths", () => {
     });
 
     it("clicking prev shifts view by one month", () => {
-      let captured: { currentMonth: { year: number; month: number } } | undefined;
+      let captured:
+        | { currentMonth: { year: number; month: number } }
+        | undefined;
 
       const { container, unmount } = render(
         <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2}>
@@ -807,14 +873,22 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // Grid 0 (March): March 25-31 should be in range
-      const grid0InRange = Array.from(grids[0].querySelectorAll("[data-in-range]"));
-      const grid0InRangeDates = grid0InRange.map((el) => el.getAttribute("data-date"));
+      const grid0InRange = Array.from(
+        grids[0].querySelectorAll("[data-in-range]"),
+      );
+      const grid0InRangeDates = grid0InRange.map((el) =>
+        el.getAttribute("data-date"),
+      );
       expect(grid0InRangeDates).toContain("2026-03-25");
       expect(grid0InRangeDates).toContain("2026-03-31");
 
       // Grid 1 (April): April 1-5 should be in range
-      const grid1InRange = Array.from(grids[1].querySelectorAll("[data-in-range]"));
-      const grid1InRangeDates = grid1InRange.map((el) => el.getAttribute("data-date"));
+      const grid1InRange = Array.from(
+        grids[1].querySelectorAll("[data-in-range]"),
+      );
+      const grid1InRangeDates = grid1InRange.map((el) =>
+        el.getAttribute("data-date"),
+      );
       expect(grid1InRangeDates).toContain("2026-04-01");
       expect(grid1InRangeDates).toContain("2026-04-05");
 
@@ -840,11 +914,15 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // range-start should be in grid 0 (March 20)
-      const grid0RangeStart = grids[0].querySelector('[data-range-start][data-date="2026-03-20"]');
+      const grid0RangeStart = grids[0].querySelector(
+        '[data-range-start][data-date="2026-03-20"]',
+      );
       expect(grid0RangeStart).toBeTruthy();
 
       // range-end should be in grid 1 (April 10)
-      const grid1RangeEnd = grids[1].querySelector('[data-range-end][data-date="2026-04-10"]');
+      const grid1RangeEnd = grids[1].querySelector(
+        '[data-range-end][data-date="2026-04-10"]',
+      );
       expect(grid1RangeEnd).toBeTruthy();
 
       unmount();
@@ -926,7 +1004,9 @@ describe("numberOfMonths", () => {
       expect(grids).toHaveLength(1);
 
       const dates = Array.from(grids[0].querySelectorAll("[data-date]"));
-      const hasMarch = dates.some((el) => el.getAttribute("data-date")?.startsWith("2026-03"));
+      const hasMarch = dates.some((el) =>
+        el.getAttribute("data-date")?.startsWith("2026-03"),
+      );
       expect(hasMarch).toBe(true);
 
       unmount();
@@ -1082,7 +1162,9 @@ describe("numberOfMonths", () => {
       // ArrowRight → April 1, still within visible range
       const grid = container.querySelector('[role="grid"]')!;
       act(() => {
-        grid.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }));
+        grid.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+        );
       });
 
       expect(captured!.focusedDate).toBe("2026-04-01");
@@ -1104,7 +1186,9 @@ describe("outsideDays", () => {
         </MonthView>,
       );
 
-      const outsideCells = Array.from(container.querySelectorAll("td[data-outside-month]"));
+      const outsideCells = Array.from(
+        container.querySelectorAll("td[data-outside-month]"),
+      );
       expect(outsideCells.length).toBeGreaterThan(0);
 
       // None should have data-hidden
@@ -1130,12 +1214,18 @@ describe("outsideDays", () => {
   describe('outsideDays="readOnly"', () => {
     it("outside-month buttons render but are disabled", () => {
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} outsideDays="readOnly">
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          outsideDays="readOnly"
+        >
           <Grid />
         </MonthView>,
       );
 
-      const outsideCells = Array.from(container.querySelectorAll("td[data-outside-month]"));
+      const outsideCells = Array.from(
+        container.querySelectorAll("td[data-outside-month]"),
+      );
       expect(outsideCells.length).toBeGreaterThan(0);
 
       for (const cell of outsideCells) {
@@ -1194,7 +1284,9 @@ describe("outsideDays", () => {
         </MonthView>,
       );
 
-      const outsideCells = Array.from(container.querySelectorAll("td[data-outside-month]"));
+      const outsideCells = Array.from(
+        container.querySelectorAll("td[data-outside-month]"),
+      );
       expect(outsideCells.length).toBeGreaterThan(0);
 
       for (const cell of outsideCells) {
@@ -1215,12 +1307,18 @@ describe("outsideDays", () => {
   describe('outsideDays="hidden"', () => {
     it("outside-month cells are empty with data-hidden and aria-hidden", () => {
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} outsideDays="hidden">
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          outsideDays="hidden"
+        >
           <Grid />
         </MonthView>,
       );
 
-      const hiddenCells = Array.from(container.querySelectorAll("[data-hidden]"));
+      const hiddenCells = Array.from(
+        container.querySelectorAll("[data-hidden]"),
+      );
       expect(hiddenCells.length).toBeGreaterThan(0);
 
       for (const cell of hiddenCells) {
@@ -1247,7 +1345,9 @@ describe("outsideDays", () => {
         </MonthView>,
       );
 
-      const hiddenCells = Array.from(container.querySelectorAll("[data-hidden]"));
+      const hiddenCells = Array.from(
+        container.querySelectorAll("[data-hidden]"),
+      );
       expect(hiddenCells.length).toBeGreaterThan(0);
 
       for (const cell of hiddenCells) {
@@ -1284,7 +1384,9 @@ describe("outsideDays", () => {
       expect(rangeEnd).not.toBeNull();
       expect(rangeEnd!.getAttribute("data-date")).toBe("2026-03-25");
 
-      const inRangeCells = Array.from(container.querySelectorAll("[data-in-range]"));
+      const inRangeCells = Array.from(
+        container.querySelectorAll("[data-in-range]"),
+      );
       expect(inRangeCells.length).toBeGreaterThan(0);
 
       for (const cell of inRangeCells) {
@@ -1296,7 +1398,12 @@ describe("outsideDays", () => {
 
     it("works with multi-month: each grid hides its own outside-month cells", () => {
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={2} outsideDays="hidden">
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          outsideDays="hidden"
+        >
           <Grid monthIndex={0} />
           <Grid monthIndex={1} />
         </MonthView>,
@@ -1334,12 +1441,16 @@ describe("outsideDays", () => {
 
       const grids = Array.from(container.querySelectorAll("[role='grid']"));
 
-      const grid0Hidden = Array.from(grids[0].querySelectorAll("[data-hidden]"));
+      const grid0Hidden = Array.from(
+        grids[0].querySelectorAll("[data-hidden]"),
+      );
       for (const cell of grid0Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
 
-      const grid1Hidden = Array.from(grids[1].querySelectorAll("[data-hidden]"));
+      const grid1Hidden = Array.from(
+        grids[1].querySelectorAll("[data-hidden]"),
+      );
       for (const cell of grid1Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
@@ -1359,7 +1470,12 @@ describe("outsideDays", () => {
       const feb15 = Temporal.PlainDate.from("2026-02-15");
 
       const { container, unmount } = render(
-        <MonthView {...defaultProps} defaultValue={feb15} fixedWeeks outsideDays="hidden">
+        <MonthView
+          {...defaultProps}
+          defaultValue={feb15}
+          fixedWeeks
+          outsideDays="hidden"
+        >
           <Grid />
         </MonthView>,
       );
@@ -1399,7 +1515,9 @@ describe("outsideDays", () => {
 
       const grids1 = Array.from(c1.querySelectorAll("[role='grid']"));
       // Grid 0 (March): April dates should have no range attrs
-      const outsideInGrid0 = Array.from(grids1[0].querySelectorAll("[data-outside-month]"));
+      const outsideInGrid0 = Array.from(
+        grids1[0].querySelectorAll("[data-outside-month]"),
+      );
       for (const cell of outsideInGrid0) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }

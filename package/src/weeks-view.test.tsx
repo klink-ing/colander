@@ -1,7 +1,13 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { render, screen, act, cleanup, within } from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton } from "./grid";
+import {
+  Grid,
+  GridBody,
+  WeekTemplate,
+  DayCellTemplate,
+  DayButton,
+} from "./grid";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import {
   MonthSeparator,
@@ -28,8 +34,12 @@ function WindowDisplay() {
       <span data-testid="end">{state.windowInfo.windowEnd.toString()}</span>
       <span data-testid="count">{state.windowInfo.weekCount}</span>
       <span data-testid="day-count">{state.windowInfo.dayCount}</span>
-      <span data-testid="enabled-week-count">{state.windowInfo.enabledWeekCount}</span>
-      <span data-testid="enabled-day-count">{state.windowInfo.enabledDayCount}</span>
+      <span data-testid="enabled-week-count">
+        {state.windowInfo.enabledWeekCount}
+      </span>
+      <span data-testid="enabled-day-count">
+        {state.windowInfo.enabledDayCount}
+      </span>
     </div>
   );
 }
@@ -69,7 +79,11 @@ afterEach(() => {
 describe("WeeksView", () => {
   it("renders 8 weeks starting from firstWeek", () => {
     render(
-      <WeeksView temporal={T} weekCount={8} defaultFirstWeek={T.PlainDate.from("2026-03-01")}>
+      <WeeksView
+        temporal={T}
+        weekCount={8}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+      >
         <WindowDisplay />
       </WeeksView>,
     );
@@ -81,7 +95,11 @@ describe("WeeksView", () => {
 
   it("provides viewType=weeks", () => {
     render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={T.PlainDate.from("2026-03-01")}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+      >
         <ViewTypeDisplay />
       </WeeksView>,
     );
@@ -90,7 +108,11 @@ describe("WeeksView", () => {
 
   it("accepts { month, year } as firstWeek", () => {
     render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={{ month: 3, year: 2026 }}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={{ month: 3, year: 2026 }}
+      >
         <WindowDisplay />
       </WeeksView>,
     );
@@ -187,7 +209,11 @@ describe("WeeksView", () => {
 
   it("focuses first day of window when no selection", () => {
     render(
-      <WeeksView temporal={T} weekCount={8} defaultFirstWeek={T.PlainDate.from("2026-03-01")}>
+      <WeeksView
+        temporal={T}
+        weekCount={8}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+      >
         <FocusDisplay />
       </WeeksView>,
     );
@@ -197,7 +223,11 @@ describe("WeeksView", () => {
   it("snaps firstWeek to the start of the week (Sunday)", () => {
     // 2026-03-04 is a Wednesday; should snap back to 2026-03-01 (Sunday)
     render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={T.PlainDate.from("2026-03-04")}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-04")}
+      >
         <WindowDisplay />
       </WeeksView>,
     );
@@ -245,7 +275,11 @@ describe("WeeksView", () => {
 
   it("accepts { isoWeek, isoYear } as firstWeek", () => {
     render(
-      <WeeksView temporal={T} weekCount={1} defaultFirstWeek={{ isoWeek: 10, isoYear: 2026 }}>
+      <WeeksView
+        temporal={T}
+        weekCount={1}
+        defaultFirstWeek={{ isoWeek: 10, isoYear: 2026 }}
+      >
         <WindowDisplay />
       </WeeksView>,
     );
@@ -260,7 +294,11 @@ describe("WeeksView", () => {
     }
 
     render(
-      <WeeksView temporal={T} weekCount={6} defaultFirstWeek={T.PlainDate.from("2026-03-01")}>
+      <WeeksView
+        temporal={T}
+        weekCount={6}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+      >
         <WeeksDataDisplay />
       </WeeksView>,
     );
@@ -299,7 +337,11 @@ describe("WeeksView regression: no spurious data-outside-month (Bug #1)", () => 
     // in weeks view, so isCurrentMonth was always false and every day got
     // data-outside-month. Fix passes per-day { year, month }.
     const { container } = render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={T.PlainDate.from("2026-03-01")}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+      >
         <Grid>
           <GridHeader>
             <GridHeaderCell />
@@ -318,14 +360,20 @@ describe("WeeksView regression: no spurious data-outside-month (Bug #1)", () => 
     const cells = container.querySelectorAll("td[role='gridcell']");
     expect(cells.length).toBeGreaterThan(0);
 
-    const outsideMonthCells = container.querySelectorAll("td[data-outside-month]");
+    const outsideMonthCells = container.querySelectorAll(
+      "td[data-outside-month]",
+    );
     expect(outsideMonthCells.length).toBe(0);
   });
 
   it("days spanning a month boundary still have no data-outside-month", () => {
     // Window: 2026-03-22 through 2026-04-18 (4 weeks crossing March/April)
     const { container } = render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={T.PlainDate.from("2026-03-22")}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-22")}
+      >
         <Grid>
           <GridBody>
             <WeekTemplate>
@@ -336,7 +384,9 @@ describe("WeeksView regression: no spurious data-outside-month (Bug #1)", () => 
       </WeeksView>,
     );
 
-    const outsideMonthCells = container.querySelectorAll("td[data-outside-month]");
+    const outsideMonthCells = container.querySelectorAll(
+      "td[data-outside-month]",
+    );
     expect(outsideMonthCells.length).toBe(0);
   });
 });
@@ -346,7 +396,11 @@ describe("WeeksView regression: MonthSeparator renders in context (Bug #2)", () 
     // Window: 2026-03-22 through 2026-04-18 (4 weeks crossing March/April)
     // Should render separators for March and April.
     const { container } = render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={T.PlainDate.from("2026-03-22")}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-22")}
+      >
         <Grid>
           <GridBody>
             <MonthSeparator>
@@ -375,11 +429,16 @@ describe("WeeksView regression: MonthSeparator renders in context (Bug #2)", () 
     // March: weeks at index 0 (month=3) and 1 (month=3) -> weeksVisibleAfter=2
     // April: weeks at index 2 (month=4) and 3 (month=4) -> weeksVisibleAfter=2
     const { container } = render(
-      <WeeksView temporal={T} weekCount={4} defaultFirstWeek={T.PlainDate.from("2026-03-22")}>
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-22")}
+      >
         <Grid>
           <GridBody>
             <MonthSeparator>
-              <MonthSeparatorMonth /> <MonthSeparatorWeekCount data-testid="wc" />
+              <MonthSeparatorMonth />{" "}
+              <MonthSeparatorWeekCount data-testid="wc" />
             </MonthSeparator>
             <WeekTemplate>
               <DayCellTemplate />

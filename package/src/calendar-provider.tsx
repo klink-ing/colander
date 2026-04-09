@@ -1,6 +1,9 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { CalendarStableContext, CalendarStateContext } from "./calendar-context";
+import {
+  CalendarStableContext,
+  CalendarStateContext,
+} from "./calendar-context";
 import type {
   CalendarProviderProps,
   CalendarStableContextValue,
@@ -29,7 +32,9 @@ import { getSystemTimeZone, resolveTemporal } from "./utils";
  * Provides shared calendar state (selection, config, range preview) to all
  * descendant view components. Does NOT manage focus, navigation, or grid data.
  */
-function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarProviderProps<F>) {
+function CalendarProvider<F extends ValueFormat = "PlainDate">(
+  props: CalendarProviderProps<F>,
+) {
   const {
     format: formatProp,
     selectionMode: selectionModeProp,
@@ -75,9 +80,13 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
   const onValueChange = (props as any).onValueChange;
 
   const singleValue: RawValueForFormat<F> | null | undefined =
-    !isRange && !isMultiple ? (valueProp as RawValueForFormat<F> | null | undefined) : undefined;
+    !isRange && !isMultiple
+      ? (valueProp as RawValueForFormat<F> | null | undefined)
+      : undefined;
   const singleDefault: RawValueForFormat<F> | undefined =
-    !isRange && !isMultiple ? (defaultValueProp as RawValueForFormat<F> | undefined) : undefined;
+    !isRange && !isMultiple
+      ? (defaultValueProp as RawValueForFormat<F> | undefined)
+      : undefined;
 
   const rangeValue: DateRange<F> | null | undefined = isRange
     ? valueProp === null
@@ -87,7 +96,9 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
         : undefined
     : undefined;
   const rangeDefault: DateRange<F> | undefined =
-    isRange && defaultValueProp != null && isDateRange<F>(defaultValueProp as any)
+    isRange &&
+    defaultValueProp != null &&
+    isDateRange<F>(defaultValueProp as any)
       ? (defaultValueProp as DateRange<F>)
       : undefined;
 
@@ -143,14 +154,21 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
   );
 
   const sortDates = useCallback(
-    (dates: Temporal.PlainDate[]) => [...dates].sort((a, b) => T.PlainDate.compare(a, b)),
+    (dates: Temporal.PlainDate[]) =>
+      [...dates].sort((a, b) => T.PlainDate.compare(a, b)),
     [T],
   );
 
-  const maxDatesForMode = isMultiple ? Number.POSITIVE_INFINITY : isRange ? 2 : 1;
+  const maxDatesForMode = isMultiple
+    ? Number.POSITIVE_INFINITY
+    : isRange
+      ? 2
+      : 1;
 
   // --- Controlled/Uncontrolled dates ---
-  const controlledDates = useMemo<(Temporal.PlainDate | null)[] | undefined>(() => {
+  const controlledDates = useMemo<
+    (Temporal.PlainDate | null)[] | undefined
+  >(() => {
     if (isMultiple) {
       if (multipleValue === null) return [];
       if (multipleValue) return sortDates(multipleValue.map(rawToPlain));
@@ -159,7 +177,8 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
     if (isRange) {
       if (rangeValue === null) return [];
       if (rangeValue) {
-        const start = rangeValue.start != null ? rawToPlain(rangeValue.start) : null;
+        const start =
+          rangeValue.start != null ? rawToPlain(rangeValue.start) : null;
         const end = rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
         if (start === null && end === null) return [];
         if (start === null && end !== null) return [end, null];
@@ -170,7 +189,15 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
     if (singleValue === null) return [];
     if (singleValue !== undefined) return [rawToPlain(singleValue)];
     return undefined;
-  }, [isMultiple, isRange, multipleValue, rangeValue, singleValue, rawToPlain, sortDates]);
+  }, [
+    isMultiple,
+    isRange,
+    multipleValue,
+    rangeValue,
+    singleValue,
+    rawToPlain,
+    sortDates,
+  ]);
 
   const defaultDates = useMemo<(Temporal.PlainDate | null)[]>(() => {
     if (isMultiple) {
@@ -178,33 +205,53 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
       return [];
     }
     if (rangeDefault) {
-      const start = rangeDefault.start != null ? rawToPlain(rangeDefault.start) : null;
-      const end = rangeDefault.end != null ? rawToPlain(rangeDefault.end) : null;
+      const start =
+        rangeDefault.start != null ? rawToPlain(rangeDefault.start) : null;
+      const end =
+        rangeDefault.end != null ? rawToPlain(rangeDefault.end) : null;
       if (start === null && end === null) return [];
       if (start === null && end !== null) return [end, null];
       return [start, end];
     }
     if (singleDefault != null) return [rawToPlain(singleDefault)];
     return [];
-  }, [isMultiple, multipleDefault, rangeDefault, singleDefault, rawToPlain, sortDates]);
+  }, [
+    isMultiple,
+    multipleDefault,
+    rangeDefault,
+    singleDefault,
+    rawToPlain,
+    sortDates,
+  ]);
 
-  const [internalDates, setInternalDates] = useState<(Temporal.PlainDate | null)[]>(defaultDates);
+  const [internalDates, setInternalDates] =
+    useState<(Temporal.PlainDate | null)[]>(defaultDates);
 
   const isControlled = controlledDates !== undefined;
   const committedDates = isControlled ? controlledDates : internalDates;
 
   const rangeStart =
-    !isMultiple && committedDates.length > 0 ? (committedDates[0] ?? undefined) : undefined;
+    !isMultiple && committedDates.length > 0
+      ? (committedDates[0] ?? undefined)
+      : undefined;
   const rangeEnd =
-    !isMultiple && committedDates.length >= 2 ? (committedDates[1] ?? undefined) : undefined;
-  const committedStart = (committedDates[0] ?? undefined) as Temporal.PlainDate | undefined;
+    !isMultiple && committedDates.length >= 2
+      ? (committedDates[1] ?? undefined)
+      : undefined;
+  const committedStart = (committedDates[0] ?? undefined) as
+    | Temporal.PlainDate
+    | undefined;
   const committedEnd =
     committedDates.length > 1
-      ? ((committedDates[committedDates.length - 1] ?? undefined) as Temporal.PlainDate | undefined)
+      ? ((committedDates[committedDates.length - 1] ?? undefined) as
+          | Temporal.PlainDate
+          | undefined)
       : committedStart;
 
   // --- Hover state for range preview ---
-  const [hoveredDate, setHoveredDateRaw] = useState<Temporal.PlainDate | undefined>(undefined);
+  const [hoveredDate, setHoveredDateRaw] = useState<
+    Temporal.PlainDate | undefined
+  >(undefined);
 
   const setHoveredDate = useCallback(
     (date: Temporal.PlainDate | undefined) => {
@@ -219,7 +266,8 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
       const zdt = plain
         .toPlainDateTime({ hour: 0, minute: 0, second: 0 })
         .toZonedDateTime(timeZone);
-      return fromZonedDateTime(zdt, resolvedFormat, T).value as RawValueForFormat<F>;
+      return fromZonedDateTime(zdt, resolvedFormat, T)
+        .value as RawValueForFormat<F>;
     },
     [resolvedFormat, timeZone, T],
   );
@@ -256,7 +304,9 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
 
   const currentMultipleFormatted = useCallback(
     (): RawValueForFormat<F>[] =>
-      committedDates.filter((d): d is Temporal.PlainDate => d != null).map(plainToFormatValue),
+      committedDates
+        .filter((d): d is Temporal.PlainDate => d != null)
+        .map(plainToFormatValue),
     [committedDates, plainToFormatValue],
   );
 
@@ -266,11 +316,16 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
     if (committedDates.length === 0) return undefined;
     const first = committedDates[0];
     if (!first) return undefined;
-    const zdt = first.toPlainDateTime({ hour: 0, minute: 0, second: 0 }).toZonedDateTime(timeZone);
+    const zdt = first
+      .toPlainDateTime({ hour: 0, minute: 0, second: 0 })
+      .toZonedDateTime(timeZone);
     return fromZonedDateTime(zdt, resolvedFormat, T);
   }, [taggedValue, committedDates, timeZone, resolvedFormat, T]);
 
-  const selectedZdt = useMemo(() => selectedToZdt(selected, timeZone, T), [selected, timeZone, T]);
+  const selectedZdt = useMemo(
+    () => selectedToZdt(selected, timeZone, T),
+    [selected, timeZone, T],
+  );
 
   // --- Compute preview range ---
   const [previewStart, previewEnd] = useMemo<
@@ -278,7 +333,9 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
   >(() => {
     if (previewRangeProp !== undefined) {
       if (!previewRangeProp) return [undefined, undefined];
-      const rawToPlainLocal = (raw: RawValueForFormat<F>): Temporal.PlainDate => {
+      const rawToPlainLocal = (
+        raw: RawValueForFormat<F>,
+      ): Temporal.PlainDate => {
         const tagged = {
           format: resolvedFormat,
           value: raw,
@@ -286,8 +343,13 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
         return toZonedDateTime(tagged, timeZone, T).toPlainDate();
       };
       const s =
-        previewRangeProp.start != null ? rawToPlainLocal(previewRangeProp.start) : undefined;
-      const e = previewRangeProp.end != null ? rawToPlainLocal(previewRangeProp.end) : undefined;
+        previewRangeProp.start != null
+          ? rawToPlainLocal(previewRangeProp.start)
+          : undefined;
+      const e =
+        previewRangeProp.end != null
+          ? rawToPlainLocal(previewRangeProp.end)
+          : undefined;
       return [s, e];
     }
     if (!hoveredDate || !isRange) return [undefined, undefined];
@@ -311,7 +373,8 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
       timeZone,
       T,
     });
-    if (result.skip || result.newDates.length === 0) return [undefined, undefined];
+    if (result.skip || result.newDates.length === 0)
+      return [undefined, undefined];
     const ps = result.newDates[0];
     const pe = result.newDates.length > 1 ? result.newDates[1] : ps;
     if (ps == null || pe == null) return [undefined, undefined];
@@ -351,7 +414,13 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
         onValueChange,
       }),
     );
-  }, [selectionMode, maxDatesForMode, onValueChange, plainToFormatValue, isControlled]);
+  }, [
+    selectionMode,
+    maxDatesForMode,
+    onValueChange,
+    plainToFormatValue,
+    isControlled,
+  ]);
 
   // --- Out-of-bounds cleanup for single mode ---
   useEffect(() => {
@@ -524,12 +593,22 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(props: CalendarPr
       previewStart,
       previewEnd,
     }),
-    [selected, nonNullDates, rangeStart, rangeEnd, hoveredDate, previewStart, previewEnd],
+    [
+      selected,
+      nonNullDates,
+      rangeStart,
+      rangeEnd,
+      hoveredDate,
+      previewStart,
+      previewEnd,
+    ],
   );
 
   return (
     <CalendarStableContext.Provider value={stableCtx}>
-      <CalendarStateContext.Provider value={stateCtx}>{children}</CalendarStateContext.Provider>
+      <CalendarStateContext.Provider value={stateCtx}>
+        {children}
+      </CalendarStateContext.Provider>
     </CalendarStableContext.Provider>
   );
 }

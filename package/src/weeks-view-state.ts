@@ -3,7 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { computeWeeksInWindow } from "./compute-weeks-in-window";
 import { applyOverflow, type OverflowBehavior } from "./overflow";
-import { resolveFirstWeekSpec, resolveFirstWeek, type FirstWeekSpec } from "./resolve-first-week";
+import {
+  resolveFirstWeekSpec,
+  resolveFirstWeek,
+  type FirstWeekSpec,
+} from "./resolve-first-week";
 import { selectedToZdt, toZonedDateTime } from "./utils";
 import type { ViewContextValue } from "./view-context";
 import type {
@@ -29,35 +33,46 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
   } = props;
 
   const scrollBy = scrollByProp ?? "row";
-  const overflowBehavior: OverflowBehavior = overflowBehaviorProp ?? "unbounded";
+  const overflowBehavior: OverflowBehavior =
+    overflowBehaviorProp ?? "unbounded";
 
   // Read calendar-level context
   const calStable = useCalendarStable();
   const calState = useCalendarState();
 
   const T = calStable.temporal;
-  const { weekStartDay, isDateDisabled, minValue, maxValue, timeZone } = calStable;
+  const { weekStartDay, isDateDisabled, minValue, maxValue, timeZone } =
+    calStable;
 
   // --- Controlled/uncontrolled firstWeek ---
   const isControlled = firstWeekProp !== undefined;
 
   const resolveSpec = useCallback(
-    (spec: FirstWeekSpec): Temporal.PlainDate => resolveFirstWeekSpec(spec, weekStartDay, T),
+    (spec: FirstWeekSpec): Temporal.PlainDate =>
+      resolveFirstWeekSpec(spec, weekStartDay, T),
     [weekStartDay, T],
   );
 
-  const [internalFirstWeek, setInternalFirstWeek] = useState<Temporal.PlainDate>(() => {
-    if (firstWeekProp !== undefined) return resolveSpec(firstWeekProp);
-    if (defaultFirstWeekProp !== undefined) return resolveSpec(defaultFirstWeekProp);
-    // Derive from selection or today
-    if (calState.selected) {
-      const plain = toZonedDateTime(calState.selected, timeZone, T).toPlainDate();
-      return resolveSpec(plain);
-    }
-    return resolveSpec(T.Now.plainDateISO());
-  });
+  const [internalFirstWeek, setInternalFirstWeek] =
+    useState<Temporal.PlainDate>(() => {
+      if (firstWeekProp !== undefined) return resolveSpec(firstWeekProp);
+      if (defaultFirstWeekProp !== undefined)
+        return resolveSpec(defaultFirstWeekProp);
+      // Derive from selection or today
+      if (calState.selected) {
+        const plain = toZonedDateTime(
+          calState.selected,
+          timeZone,
+          T,
+        ).toPlainDate();
+        return resolveSpec(plain);
+      }
+      return resolveSpec(T.Now.plainDateISO());
+    });
 
-  const resolvedFirstWeek = isControlled ? resolveSpec(firstWeekProp) : internalFirstWeek;
+  const resolvedFirstWeek = isControlled
+    ? resolveSpec(firstWeekProp)
+    : internalFirstWeek;
 
   // --- Compute week window ---
   const rawWeeks = useMemo(
@@ -77,12 +92,21 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         weekStartDay,
         T,
       }),
-    [resolvedFirstWeek, weekCount, overflowBehavior, minValue, maxValue, weekStartDay, T],
+    [
+      resolvedFirstWeek,
+      weekCount,
+      overflowBehavior,
+      minValue,
+      maxValue,
+      weekStartDay,
+      T,
+    ],
   );
 
   // Recompute weeks if overflow adjusted the window
   const adjustedWeeks = useMemo(() => {
-    const sameFirst = T.PlainDate.compare(overflowResult.firstWeek, resolvedFirstWeek) === 0;
+    const sameFirst =
+      T.PlainDate.compare(overflowResult.firstWeek, resolvedFirstWeek) === 0;
     const sameCount = overflowResult.weekCount === weekCount;
     if (sameFirst && sameCount) return rawWeeks;
     return computeWeeksInWindow(
@@ -224,7 +248,8 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         if (d < 6) day = day.add({ days: 1 });
       }
     }
-    const inGrid = (d: Temporal.PlainDate) => allDays.some((g) => T.PlainDate.compare(g, d) === 0);
+    const inGrid = (d: Temporal.PlainDate) =>
+      allDays.some((g) => T.PlainDate.compare(g, d) === 0);
 
     if (gridHasFocus && inGrid(focusedDate)) return focusedDate;
     if (selectedPlain && inGrid(selectedPlain)) return selectedPlain;
@@ -334,9 +359,17 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
 
   // --- scrollToWeek ---
   const scrollToWeek = useCallback(
-    (target: FirstWeekSpec, options?: { snap?: "start" | "center" | "end" | "nearest" }) => {
+    (
+      target: FirstWeekSpec,
+      options?: { snap?: "start" | "center" | "end" | "nearest" },
+    ) => {
       const resolvedTarget = resolveSpec(target);
-      const newFirstWeek = resolveFirstWeek(resolvedFirstWeek, weekCount, resolvedTarget, options);
+      const newFirstWeek = resolveFirstWeek(
+        resolvedFirstWeek,
+        weekCount,
+        resolvedTarget,
+        options,
+      );
       const adjusted = applyOverflow({
         targetFirstWeek: newFirstWeek,
         weekCount,
@@ -391,7 +424,15 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       gridFocusedRef,
       setGridLabelId,
     }),
-    [weekCount, scrollBy, overflowBehavior, goNext, goPrev, scrollToWeek, setGridLabelId],
+    [
+      weekCount,
+      scrollBy,
+      overflowBehavior,
+      goNext,
+      goPrev,
+      scrollToWeek,
+      setGridLabelId,
+    ],
   );
 
   const stateCtx = useMemo<WeeksViewStateContextValue>(

@@ -15,6 +15,10 @@ const components = {
   InstallCmd,
 };
 
-export default function MarkdocRenderer({ content }: { content: RenderableTreeNodes }) {
+export default function MarkdocRenderer({
+  content,
+}: {
+  content: RenderableTreeNodes;
+}) {
   return <>{Markdoc.renderers.react(content, React, { components })}</>;
 }

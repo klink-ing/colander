@@ -1,4 +1,8 @@
-import { Tooltip, TooltipTrigger, TooltipContent } from "#/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "#/components/ui/tooltip";
 import { isKnownSymbol, getSymbolByName } from "#/lib/api-data";
 import { LinkInline } from "./LinkInline";
 
@@ -12,7 +16,11 @@ export default function TypeLink({ type }: { type: string }) {
   return (
     <>
       {parts.map((part, i) =>
-        part.linked ? <SymbolLink key={i} name={part.text} /> : <span key={i}>{part.text}</span>,
+        part.linked ? (
+          <SymbolLink key={i} name={part.text} />
+        ) : (
+          <span key={i}>{part.text}</span>
+        ),
       )}
     </>
   );
@@ -24,7 +32,11 @@ function SymbolLink({ name }: { name: string }) {
 
   if (!sym) {
     return (
-      <LinkInline to="/docs/api/$symbol" params={{ symbol: name }} className={linkClassName}>
+      <LinkInline
+        to="/docs/api/$symbol"
+        params={{ symbol: name }}
+        className={linkClassName}
+      >
         {name}
       </LinkInline>
     );
@@ -34,7 +46,11 @@ function SymbolLink({ name }: { name: string }) {
     <Tooltip>
       <TooltipTrigger
         render={
-          <LinkInline to="/docs/api/$symbol" params={{ symbol: name }} className={linkClassName} />
+          <LinkInline
+            to="/docs/api/$symbol"
+            params={{ symbol: name }}
+            className={linkClassName}
+          />
         }
       >
         {name}
@@ -50,18 +66,28 @@ function SymbolLink({ name }: { name: string }) {
   );
 }
 
-function TypeTooltipBody({ symbol }: { symbol: NonNullable<ReturnType<typeof getSymbolByName>> }) {
+function TypeTooltipBody({
+  symbol,
+}: {
+  symbol: NonNullable<ReturnType<typeof getSymbolByName>>;
+}) {
   const maxProps = 6;
 
   return (
     <div className="flex flex-col gap-2">
       <div className="mb-1 inline wrap-break-word">
-        <span className="pr-[1em] type-code-100 text-foreground-vivid">{symbol.kind}</span>
-        <span className="type-code-100 font-semibold text-foreground">{symbol.name}</span>
+        <span className="pr-[1em] type-code-100 text-foreground-vivid">
+          {symbol.kind}
+        </span>
+        <span className="type-code-100 font-semibold text-foreground">
+          {symbol.name}
+        </span>
       </div>
 
       {symbol.description && (
-        <p className="m-0 mb-2 type-body-100 text-muted-foreground">{symbol.description}</p>
+        <p className="m-0 mb-2 type-body-100 text-muted-foreground">
+          {symbol.description}
+        </p>
       )}
 
       {symbol.typeText && !symbol.properties?.length && (

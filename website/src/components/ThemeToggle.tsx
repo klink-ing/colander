@@ -56,7 +56,8 @@ export default function ThemeToggle() {
   }, [mode]);
 
   function toggleMode() {
-    const nextMode: ThemeMode = mode === "light" ? "dark" : mode === "dark" ? "auto" : "light";
+    const nextMode: ThemeMode =
+      mode === "light" ? "dark" : mode === "dark" ? "auto" : "light";
     setMode(nextMode);
     applyThemeMode(nextMode);
     window.localStorage.setItem("theme", nextMode);
@@ -119,7 +120,8 @@ export default function ThemeToggle() {
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              clipPath: "polygon(0 0, calc(100% - 1.5px) 0, 0 calc(100% - 1.5px))",
+              clipPath:
+                "polygon(0 0, calc(100% - 1.5px) 0, 0 calc(100% - 1.5px))",
             }}
           >
             <circle cx="12" cy="12" r="4" />
@@ -136,7 +138,8 @@ export default function ThemeToggle() {
             strokeLinecap="round"
             strokeLinejoin="round"
             style={{
-              clipPath: "polygon(100% calc(0% + 1.5px), 100% 100%, calc(0% + 1.5px) 100%)",
+              clipPath:
+                "polygon(100% calc(0% + 1.5px), 100% 100%, calc(0% + 1.5px) 100%)",
             }}
           >
             <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />

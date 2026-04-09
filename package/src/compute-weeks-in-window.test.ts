@@ -63,7 +63,9 @@ describe("computeWeeksInWindow", () => {
     expect(weeks).toHaveLength(expected.length);
     expect(weeks[0].startDate.toString()).toBe(expected.firstStart);
     expect(weeks[0].endDate.toString()).toBe(expected.firstEnd);
-    expect(weeks[weeks.length - 1].startDate.toString()).toBe(expected.lastStart);
+    expect(weeks[weeks.length - 1].startDate.toString()).toBe(
+      expected.lastStart,
+    );
     expect(weeks[weeks.length - 1].endDate.toString()).toBe(expected.lastEnd);
   });
 

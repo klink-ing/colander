@@ -19,7 +19,9 @@ const allRoundedGroups = [
   "rounded-bl",
 ] as const;
 
-export const twMerge = extendTailwindMerge<"type-style" | "squircle" | "squircle-amt">({
+export const twMerge = extendTailwindMerge<
+  "type-style" | "squircle" | "squircle-amt"
+>({
   extend: {
     classGroups: {
       "type-style": [{ type: [() => true] }],
@@ -52,7 +54,9 @@ export const twMerge = extendTailwindMerge<"type-style" | "squircle" | "squircle
       // Any squircle clears all rounded (corner-shape is incompatible)
       squircle: [...allRoundedGroups, "squircle-amt"],
       // Any rounded clears all squircle + squircle-amt
-      ...Object.fromEntries(allRoundedGroups.map((g) => [g, ["squircle", "squircle-amt"]])),
+      ...Object.fromEntries(
+        allRoundedGroups.map((g) => [g, ["squircle", "squircle-amt"]]),
+      ),
     },
   },
 });

@@ -8,7 +8,11 @@ import {
   type OverflowBehavior,
 } from "colander";
 import { useState, useMemo, useCallback } from "react";
-import { AppControls, TIMEZONES, formatTzLabel } from "#/components/demo/AppControls";
+import {
+  AppControls,
+  TIMEZONES,
+  formatTzLabel,
+} from "#/components/demo/AppControls";
 import { StyledMonthView } from "#/examples/styled-month-view";
 import { StyledWeeksView } from "#/examples/styled-weeks-view";
 
@@ -27,12 +31,16 @@ function DemoApp() {
 
   const [viewMode, setViewMode] = useState<"month" | "weeks">("month");
 
-  const [selectionMode, setSelectionMode] = useState<"single" | "range" | "multiple">("single");
+  const [selectionMode, setSelectionMode] = useState<
+    "single" | "range" | "multiple"
+  >("single");
   const [timeZone, setTimeZone] = useState("");
   const [locale, setLocale] = useState("en-US");
   const [disabled, setDisabled] = useState(false);
   const [readOnly, setReadOnly] = useState(false);
-  const [weekStartDay, setWeekStartDay] = useState<0 | 1 | 2 | 3 | 4 | 5 | 6>(0);
+  const [weekStartDay, setWeekStartDay] = useState<0 | 1 | 2 | 3 | 4 | 5 | 6>(
+    0,
+  );
   const [rangeMode, setRangeMode] = useState<RangeMode>("start-end");
   const [preventRangeReversal, setPreventRangeReversal] = useState(false);
 
@@ -41,17 +49,20 @@ function DemoApp() {
   const [outsideDays, setOutsideDays] = useState<OutsideDays>("enabled");
   const [autoFocus, setAutoFocus] = useState(false);
   const [showWeekNumbers, setShowWeekNumbers] = useState(false);
-  const [orientation, setOrientation] = useState<"horizontal" | "vertical">("horizontal");
+  const [orientation, setOrientation] = useState<"horizontal" | "vertical">(
+    "horizontal",
+  );
 
   const [weekCount, setWeekCount] = useState(6);
   const [scrollBy, setScrollBy] = useState<"row" | "page">("row");
-  const [overflowBehavior, setOverflowBehavior] = useState<OverflowBehavior>("unbounded");
+  const [overflowBehavior, setOverflowBehavior] =
+    useState<OverflowBehavior>("unbounded");
   const [showMonthSeparators, setShowMonthSeparators] = useState(true);
 
   const [disableDateMode, setDisableDateMode] = useState<string>("none");
-  const [monthOverflowBehavior, setMonthOverflowBehavior] = useState<"unbounded" | "stop">(
-    "unbounded",
-  );
+  const [monthOverflowBehavior, setMonthOverflowBehavior] = useState<
+    "unbounded" | "stop"
+  >("unbounded");
 
   interface EventLogEntry {
     timestamp: string;
@@ -66,9 +77,13 @@ function DemoApp() {
     ]);
   }, []);
 
-  const [singleDate, setSingleDate] = useState<Temporal.ZonedDateTime | null>(null);
+  const [singleDate, setSingleDate] = useState<Temporal.ZonedDateTime | null>(
+    null,
+  );
   const [range, setRange] = useState<DateRange<"ZonedDateTime"> | null>(null);
-  const [multipleDates, setMultipleDates] = useState<Temporal.ZonedDateTime[]>([]);
+  const [multipleDates, setMultipleDates] = useState<Temporal.ZonedDateTime[]>(
+    [],
+  );
 
   const defaultMin = useMemo(
     () => Temporal.Now.zonedDateTimeISO(systemTz).subtract({ months: 7 }),
@@ -180,7 +195,9 @@ function DemoApp() {
   );
 
   const tzOptions = useMemo(() => {
-    const all = TIMEZONES.includes(systemTz) ? TIMEZONES : [systemTz, ...TIMEZONES];
+    const all = TIMEZONES.includes(systemTz)
+      ? TIMEZONES
+      : [systemTz, ...TIMEZONES];
     return all.map((tz) => ({ value: tz, label: formatTzLabel(tz) }));
   }, [systemTz]);
 
@@ -372,7 +389,10 @@ function DemoApp() {
                 : selectionMode === "multiple"
                   ? multipleDates
                   : singleDate,
-              (_, v) => (v && typeof v === "object" && "epochNanoseconds" in v ? v.toString() : v),
+              (_, v) =>
+                v && typeof v === "object" && "epochNanoseconds" in v
+                  ? v.toString()
+                  : v,
               2,
             )}
           />
@@ -384,7 +404,10 @@ function DemoApp() {
             rows={6}
             value={JSON.stringify(
               eventLog,
-              (_, v) => (v && typeof v === "object" && "epochNanoseconds" in v ? v.toString() : v),
+              (_, v) =>
+                v && typeof v === "object" && "epochNanoseconds" in v
+                  ? v.toString()
+                  : v,
               2,
             )}
           />

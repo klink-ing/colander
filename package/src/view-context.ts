@@ -23,6 +23,9 @@ export const ViewContext = createContext<ViewContextValue | null>(null);
 /** Returns the nearest view context (MonthView or WeeksView). */
 export function useViewContext(): ViewContextValue {
   const ctx = useContext(ViewContext);
-  if (!ctx) throw new Error("useViewContext must be used within MonthView or WeeksView");
+  if (!ctx)
+    throw new Error(
+      "useViewContext must be used within MonthView or WeeksView",
+    );
   return ctx;
 }

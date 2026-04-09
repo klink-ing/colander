@@ -162,7 +162,9 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
         <tr
           {...renderProps}
           className={cn("col-span-full grid grid-cols-subgrid", className)}
-          style={state.gridRowIndex ? { gridRow: state.gridRowIndex } : undefined}
+          style={
+            state.gridRowIndex ? { gridRow: state.gridRowIndex } : undefined
+          }
         />
       )}
     />
@@ -199,14 +201,21 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
             : undefined;
         const isFirstOfMonth = showFirstOfMonthBorder && state.date.day === 1;
         return (
-          <td {...renderProps} style={gridStyle} className={cn("relative text-center", className)}>
+          <td
+            {...renderProps}
+            style={gridStyle}
+            className={cn("relative text-center", className)}
+          >
             {isFirstOfMonth && (
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-y-0 left-0 -ml-px w-0 border-l border-muted-foreground"
               />
             )}
-            <StyledDayButton date={state.date} preventRangeReversal={preventRangeReversal} />
+            <StyledDayButton
+              date={state.date}
+              preventRangeReversal={preventRangeReversal}
+            />
           </td>
         );
       }}
@@ -246,9 +255,17 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
                 "absolute z-0 hidden aspect-square size-[1.6em] rounded-full bg-muted group-data-in-range:bg-white/20 group-data-today:block group-data-selected:bg-white/20",
               )}
             />
-            <div className="isolate inline-block min-w-[2ch] text-right">{children}</div>
-            <StyledDragHandle edge="start" preventRangeReversal={preventRangeReversal} />
-            <StyledDragHandle edge="end" preventRangeReversal={preventRangeReversal} />
+            <div className="isolate inline-block min-w-[2ch] text-right">
+              {children}
+            </div>
+            <StyledDragHandle
+              edge="start"
+              preventRangeReversal={preventRangeReversal}
+            />
+            <StyledDragHandle
+              edge="end"
+              preventRangeReversal={preventRangeReversal}
+            />
           </button>
         );
       }}
@@ -287,7 +304,9 @@ export function StyledDragHandle({
   if (orientation === "horizontal") {
     classNames.push("items-center before:h-3 before:w-1.5");
     classNames.push(
-      isStart ? "justify-start before:rounded-r-full" : "justify-end before:rounded-l-full",
+      isStart
+        ? "justify-start before:rounded-r-full"
+        : "justify-end before:rounded-l-full",
     );
     if (bothActive) {
       classNames.push(isStart ? "right-1/2" : "left-1/2");
@@ -295,7 +314,9 @@ export function StyledDragHandle({
   } else {
     classNames.push("justify-center before:h-1.5 before:w-4");
     classNames.push(
-      isStart ? "items-start before:rounded-b-full" : "items-end before:rounded-t-full",
+      isStart
+        ? "items-start before:rounded-b-full"
+        : "items-end before:rounded-t-full",
     );
     if (bothActive) {
       classNames.push(isStart ? "bottom-1/2" : "top-1/2");
@@ -386,7 +407,11 @@ export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
           <td
             {...renderProps}
             data-testid="selected-range"
-            style={horizontal ? { gridColumn: span, gridRow: 1 } : { gridRow: span, gridColumn: 1 }}
+            style={
+              horizontal
+                ? { gridColumn: span, gridRow: 1 }
+                : { gridRow: span, gridColumn: 1 }
+            }
             className={cn(
               "squircle-xs rounded-xs bg-primary",
               horizontal

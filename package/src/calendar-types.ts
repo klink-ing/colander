@@ -97,7 +97,10 @@ interface CalendarRangeControlledProps<F extends ValueFormat = ValueFormat> {
   selectionMode: "range";
   value: DateRange<F> | null;
   defaultValue?: never;
-  onValueChange?: (value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void;
+  onValueChange?: (
+    value: DateRange<F> | null,
+    meta: ValueChangeMeta<DateRange<F> | null>,
+  ) => void;
   /** @default "nearest-end" */
   rangeMode?: RangeMode;
   /** @default false */
@@ -110,7 +113,10 @@ interface CalendarRangeUncontrolledProps<F extends ValueFormat = ValueFormat> {
   selectionMode: "range";
   value?: never;
   defaultValue?: DateRange<F>;
-  onValueChange?: (value: DateRange<F> | null, meta: ValueChangeMeta<DateRange<F> | null>) => void;
+  onValueChange?: (
+    value: DateRange<F> | null,
+    meta: ValueChangeMeta<DateRange<F> | null>,
+  ) => void;
   /** @default "nearest-end" */
   rangeMode?: RangeMode;
   /** @default false */
@@ -131,7 +137,9 @@ interface CalendarMultipleControlledProps<F extends ValueFormat = ValueFormat> {
   ) => void;
 }
 
-interface CalendarMultipleUncontrolledProps<F extends ValueFormat = ValueFormat> {
+interface CalendarMultipleUncontrolledProps<
+  F extends ValueFormat = ValueFormat,
+> {
   selectionMode: "multiple";
   value?: never;
   defaultValue?: RawValueForFormat<F>[];

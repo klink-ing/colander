@@ -3,7 +3,10 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
-import { MonthViewStableContext, MonthViewStateContext } from "./month-view-context";
+import {
+  MonthViewStableContext,
+  MonthViewStateContext,
+} from "./month-view-context";
 import type {
   MonthViewRootProps,
   MonthViewStableContextValue,
@@ -57,7 +60,8 @@ function MonthViewRoot(props: MonthViewRootProps) {
     month: number;
   }>(() => {
     if (monthProp) return { year: monthProp.year, month: monthProp.month };
-    if (defaultMonthProp) return { year: defaultMonthProp.year, month: defaultMonthProp.month };
+    if (defaultMonthProp)
+      return { year: defaultMonthProp.year, month: defaultMonthProp.month };
     // Derive from selection or today
     if (calState.selected) {
       const zdt = toZonedDateTime(calState.selected, timeZone, T);
@@ -84,18 +88,21 @@ function MonthViewRoot(props: MonthViewRootProps) {
 
   // --- Grid label IDs ---
   const [gridLabelIds, setGridLabelIds] = useState<Record<number, string>>({});
-  const setGridLabelId = useCallback((monthIndex: number, id: string | undefined) => {
-    setGridLabelIds((prev) => {
-      if (id === undefined) {
-        if (!(monthIndex in prev)) return prev;
-        const next = { ...prev };
-        delete next[monthIndex];
-        return next;
-      }
-      if (prev[monthIndex] === id) return prev;
-      return { ...prev, [monthIndex]: id };
-    });
-  }, []);
+  const setGridLabelId = useCallback(
+    (monthIndex: number, id: string | undefined) => {
+      setGridLabelIds((prev) => {
+        if (id === undefined) {
+          if (!(monthIndex in prev)) return prev;
+          const next = { ...prev };
+          delete next[monthIndex];
+          return next;
+        }
+        if (prev[monthIndex] === id) return prev;
+        return { ...prev, [monthIndex]: id };
+      });
+    },
+    [],
+  );
 
   // --- navigateToMonth: only shift if target not already visible ---
   const navigateToMonth = useCallback(
@@ -130,13 +137,17 @@ function MonthViewRoot(props: MonthViewRootProps) {
         "next",
         T,
       );
-      setFocusedDate((prev) => focusedDateForMonth(prev, { year, month }, firstDay));
+      setFocusedDate((prev) =>
+        focusedDateForMonth(prev, { year, month }, firstDay),
+      );
       // The effect on viewingYearMonth will fire onMonthChange
       return;
     }
     setInternalMonth((m) => {
       const { year, month, firstDay } = computeAdjacentMonth(m, "next", T);
-      setFocusedDate((prev) => focusedDateForMonth(prev, { year, month }, firstDay));
+      setFocusedDate((prev) =>
+        focusedDateForMonth(prev, { year, month }, firstDay),
+      );
       return { year, month };
     });
   }, [T, isMonthControlled, monthProp]);
@@ -148,12 +159,16 @@ function MonthViewRoot(props: MonthViewRootProps) {
         "prev",
         T,
       );
-      setFocusedDate((prev) => focusedDateForMonth(prev, { year, month }, firstDay));
+      setFocusedDate((prev) =>
+        focusedDateForMonth(prev, { year, month }, firstDay),
+      );
       return;
     }
     setInternalMonth((m) => {
       const { year, month, firstDay } = computeAdjacentMonth(m, "prev", T);
-      setFocusedDate((prev) => focusedDateForMonth(prev, { year, month }, firstDay));
+      setFocusedDate((prev) =>
+        focusedDateForMonth(prev, { year, month }, firstDay),
+      );
       return { year, month };
     });
   }, [T, isMonthControlled, monthProp]);
@@ -169,7 +184,14 @@ function MonthViewRoot(props: MonthViewRootProps) {
       result.push({ year: y, month: m, weeks: getMonthWeeks(y, m, T, opts) });
     }
     return result;
-  }, [currentMonth.year, currentMonth.month, T, weekStartDay, fixedWeeks, numberOfMonths]);
+  }, [
+    currentMonth.year,
+    currentMonth.month,
+    T,
+    weekStartDay,
+    fixedWeeks,
+    numberOfMonths,
+  ]);
 
   const weeks = allMonths[0].weeks;
 
@@ -216,7 +238,15 @@ function MonthViewRoot(props: MonthViewRootProps) {
         T,
         gridHasFocus,
       ),
-    [focusedDate, selectedPlain, weeks, currentMonth, isDateDisabledFn, T, gridHasFocus],
+    [
+      focusedDate,
+      selectedPlain,
+      weeks,
+      currentMonth,
+      isDateDisabledFn,
+      T,
+      gridHasFocus,
+    ],
   );
 
   // --- viewingYearMonth (for onMonthChange callback) ---
@@ -334,10 +364,12 @@ function MonthViewRoot(props: MonthViewRootProps) {
 // MonthView convenience wrapper — composes CalendarProvider + MonthView.Root
 // ---------------------------------------------------------------------------
 
-type MonthViewProps<F extends ValueFormat = "PlainDate"> = CalendarProviderProps<F> &
-  MonthViewRootProps;
+type MonthViewProps<F extends ValueFormat = "PlainDate"> =
+  CalendarProviderProps<F> & MonthViewRootProps;
 
-function MonthView<F extends ValueFormat = "PlainDate">(props: MonthViewProps<F>) {
+function MonthView<F extends ValueFormat = "PlainDate">(
+  props: MonthViewProps<F>,
+) {
   const {
     numberOfMonths,
     fixedWeeks,

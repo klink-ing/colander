@@ -9,7 +9,11 @@
  */
 
 import type { Temporal } from "@js-temporal/polyfill";
-import { useCalendarStable, useCalendarState, DayCellDataContext } from "colander";
+import {
+  useCalendarStable,
+  useCalendarState,
+  DayCellDataContext,
+} from "colander";
 import type { TemporalNamespace } from "colander";
 import { useContext, useEffect, useRef, useState } from "react";
 
@@ -114,7 +118,9 @@ export function useDragHandleDnD({
       const elementUnder = document.elementFromPoint(e.clientX, e.clientY);
       if (!elementUnder) return;
 
-      const dropTarget = elementUnder.closest("[data-drop-date]") as HTMLElement | null;
+      const dropTarget = elementUnder.closest(
+        "[data-drop-date]",
+      ) as HTMLElement | null;
       if (!dropTarget) return;
 
       const dateStr = dropTarget.dataset.dropDate;
@@ -177,7 +183,10 @@ export function useDragHandleDnD({
         }
       }
 
-      if (Tp.PlainDate.compare(newStart, start) !== 0 || Tp.PlainDate.compare(newEnd, end) !== 0) {
+      if (
+        Tp.PlainDate.compare(newStart, start) !== 0 ||
+        Tp.PlainDate.compare(newEnd, end) !== 0
+      ) {
         didLeaveRef.current = true;
         rangeRef.current = { start: newStart, end: newEnd };
         setRangeRef.current(newStart, newEnd);

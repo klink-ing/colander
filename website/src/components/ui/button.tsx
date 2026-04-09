@@ -83,7 +83,11 @@ function Button({
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     >
-      <ButtonContent iconStart={iconStart} iconEnd={iconEnd} children={children} />
+      <ButtonContent
+        iconStart={iconStart}
+        iconEnd={iconEnd}
+        children={children}
+      />
     </ButtonPrimitive>
   );
 }
@@ -97,7 +101,9 @@ function ButtonA({
   iconEnd,
   children,
   ...props
-}: useRender.ComponentProps<"a"> & VariantProps<typeof buttonVariants> & IconProps) {
+}: useRender.ComponentProps<"a"> &
+  VariantProps<typeof buttonVariants> &
+  IconProps) {
   return useRender({
     render: render ? render : <a />,
     props: {
@@ -106,7 +112,13 @@ function ButtonA({
         buttonVariants({ variant, size, className }),
       ),
       ...props,
-      children: <ButtonContent iconStart={iconStart} iconEnd={iconEnd} children={children} />,
+      children: (
+        <ButtonContent
+          iconStart={iconStart}
+          iconEnd={iconEnd}
+          children={children}
+        />
+      ),
     },
   });
 }

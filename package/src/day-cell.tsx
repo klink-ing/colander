@@ -39,7 +39,8 @@ export function computeDayCellState(
   previewStart?: TemporalPoly.PlainDate,
   previewEnd?: TemporalPoly.PlainDate,
 ): DayCellTemplateState & { isTabTarget: boolean } {
-  const isCurrentMonth = date.year === currentDateTime.year && date.month === currentDateTime.month;
+  const isCurrentMonth =
+    date.year === currentDateTime.year && date.month === currentDateTime.month;
   const hidden = !isCurrentMonth && outsideDays === "hidden";
 
   if (hidden) {
@@ -90,24 +91,32 @@ export function computeDayCellState(
   let previewLen: number | false = false;
 
   if (isRange) {
-    isRangeStart = rangeStart ? T.PlainDate.compare(date, rangeStart) === 0 : false;
+    isRangeStart = rangeStart
+      ? T.PlainDate.compare(date, rangeStart) === 0
+      : false;
     isRangeEnd = rangeEnd ? T.PlainDate.compare(date, rangeEnd) === 0 : false;
     isInRangeDay = isInRangeUtil(date, rangeStart, rangeEnd, T) !== false;
     const effectiveStart = rangeStart ?? rangeEnd;
     const effectiveEnd = rangeEnd ?? rangeStart;
-    rangeIdx = isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
+    rangeIdx =
+      isInRangeDay && effectiveStart ? date.since(effectiveStart).days : false;
     rangeLen =
       isInRangeDay && effectiveStart && effectiveEnd
         ? effectiveEnd.since(effectiveStart).days + 1
         : false;
 
-    isPreviewRangeStart = previewStart ? T.PlainDate.compare(date, previewStart) === 0 : false;
-    isPreviewRangeEnd = previewEnd ? T.PlainDate.compare(date, previewEnd) === 0 : false;
+    isPreviewRangeStart = previewStart
+      ? T.PlainDate.compare(date, previewStart) === 0
+      : false;
+    isPreviewRangeEnd = previewEnd
+      ? T.PlainDate.compare(date, previewEnd) === 0
+      : false;
     isInPreviewRange =
       previewStart && previewEnd
         ? isInRangeUtil(date, previewStart, previewEnd, T) !== false
         : false;
-    previewIdx = isInPreviewRange && previewStart ? date.since(previewStart).days : false;
+    previewIdx =
+      isInPreviewRange && previewStart ? date.since(previewStart).days : false;
     previewLen =
       isInPreviewRange && previewStart && previewEnd
         ? previewEnd.since(previewStart).days + 1
@@ -115,7 +124,8 @@ export function computeDayCellState(
   }
 
   const outsideNonInteractive = !isCurrentMonth && outsideDays !== "enabled";
-  const suppressRange = !isCurrentMonth && (outsideDays === "disabled" || outsideDays === "hidden");
+  const suppressRange =
+    !isCurrentMonth && (outsideDays === "disabled" || outsideDays === "hidden");
 
   if (outsideNonInteractive) {
     return {
@@ -135,16 +145,26 @@ export function computeDayCellState(
       inRange: suppressRange ? false : isInRangeDay,
       rangeIndex: suppressRange ? false : rangeIdx,
       rangeLength: suppressRange ? false : rangeLen,
-      rangeHasStart: suppressRange ? false : isInRangeDay && rangeStart !== undefined,
-      rangeHasEnd: suppressRange ? false : isInRangeDay && rangeEnd !== undefined,
+      rangeHasStart: suppressRange
+        ? false
+        : isInRangeDay && rangeStart !== undefined,
+      rangeHasEnd: suppressRange
+        ? false
+        : isInRangeDay && rangeEnd !== undefined,
       rangePreviewStart: suppressRange ? false : isPreviewRangeStart,
       rangePreviewEnd: suppressRange ? false : isPreviewRangeEnd,
-      rangePreviewBoundary: suppressRange ? false : isPreviewRangeStart || isPreviewRangeEnd,
+      rangePreviewBoundary: suppressRange
+        ? false
+        : isPreviewRangeStart || isPreviewRangeEnd,
       rangePreviewInRange: suppressRange ? false : isInPreviewRange,
       rangePreviewIndex: suppressRange ? false : previewIdx,
       rangePreviewLength: suppressRange ? false : previewLen,
-      rangePreviewHasStart: suppressRange ? false : isInPreviewRange && previewStart !== undefined,
-      rangePreviewHasEnd: suppressRange ? false : isInPreviewRange && previewEnd !== undefined,
+      rangePreviewHasStart: suppressRange
+        ? false
+        : isInPreviewRange && previewStart !== undefined,
+      rangePreviewHasEnd: suppressRange
+        ? false
+        : isInPreviewRange && previewEnd !== undefined,
       isTabTarget: false,
     };
   }
@@ -190,7 +210,8 @@ export function computeDayCellState(
 
 export const dayStateAttributesMapping = {
   root: () => null,
-  date: (v: TemporalPoly.PlainDate) => (v ? { "data-date": v.toString() } : null),
+  date: (v: TemporalPoly.PlainDate) =>
+    v ? { "data-date": v.toString() } : null,
   columnIndex: () => null,
   orientation: (v) => (v ? { "data-orientation": v } : null),
   selected: (v) => (v ? { "data-selected": "" } : null),
@@ -209,11 +230,16 @@ export const dayStateAttributesMapping = {
   rangeHasEnd: (v) => (v ? { "data-range-has-end": "" } : null),
   rangePreviewStart: (v) => (v ? { "data-range-preview-start": "" } : null),
   rangePreviewEnd: (v) => (v ? { "data-range-preview-end": "" } : null),
-  rangePreviewBoundary: (v) => (v ? { "data-range-preview-boundary": "" } : null),
-  rangePreviewInRange: (v) => (v ? { "data-range-preview-in-range": "" } : null),
-  rangePreviewIndex: (v) => (v !== false ? { "data-range-preview-index": String(v) } : null),
-  rangePreviewLength: (v) => (v !== false ? { "data-range-preview-length": String(v) } : null),
-  rangePreviewHasStart: (v) => (v ? { "data-range-preview-has-start": "" } : null),
+  rangePreviewBoundary: (v) =>
+    v ? { "data-range-preview-boundary": "" } : null,
+  rangePreviewInRange: (v) =>
+    v ? { "data-range-preview-in-range": "" } : null,
+  rangePreviewIndex: (v) =>
+    v !== false ? { "data-range-preview-index": String(v) } : null,
+  rangePreviewLength: (v) =>
+    v !== false ? { "data-range-preview-length": String(v) } : null,
+  rangePreviewHasStart: (v) =>
+    v ? { "data-range-preview-has-start": "" } : null,
   rangePreviewHasEnd: (v) => (v ? { "data-range-preview-has-end": "" } : null),
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
@@ -227,8 +253,11 @@ interface DayCellInstanceProps<F extends ValueFormat = ValueFormat> {
   [key: string]: unknown;
 }
 
-function DayCellInstanceFn<F extends ValueFormat = ValueFormat>(props: DayCellInstanceProps<F>) {
-  const { render, date, columnIndex, children, _derivedState, ...otherProps } = props;
+function DayCellInstanceFn<F extends ValueFormat = ValueFormat>(
+  props: DayCellInstanceProps<F>,
+) {
+  const { render, date, columnIndex, children, _derivedState, ...otherProps } =
+    props;
 
   const state = _derivedState as unknown as DayCellTemplateState<F>;
 
@@ -254,7 +283,8 @@ function DayCellInstanceFn<F extends ValueFormat = ValueFormat>(props: DayCellIn
     props: mergeProps<"td">(defaultProps, otherProps),
   });
 
-  const outsideDisabled = state.hidden || (state.outsideMonth && state.disabled);
+  const outsideDisabled =
+    state.hidden || (state.outsideMonth && state.disabled);
 
   return (
     <DayCellDataContext.Provider value={{ date, columnIndex, outsideDisabled }}>
@@ -332,7 +362,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
     weekStartDay,
   } = useCalendarStable();
 
-  const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } = useCalendarState();
+  const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
+    useCalendarState();
 
   const viewCtx = useViewContext();
   const { focusedDate, tabTargetDate } = viewCtx;
@@ -354,7 +385,9 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
 
   if (dateProp) {
     const daysInWeek = dateProp.daysInWeek;
-    const colIdx = ((dateProp.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+    const colIdx =
+      ((dateProp.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+      daysInWeek;
     const derived = computeDayCellState(
       dateProp,
       orientation,
@@ -374,7 +407,9 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
       previewStart,
       previewEnd,
     );
-    return <DayCellInstance {...restProps} date={dateProp} _derivedState={derived} />;
+    return (
+      <DayCellInstance {...restProps} date={dateProp} _derivedState={derived} />
+    );
   }
 
   const days = weekData ? weekData.days : weeks.flat();
@@ -386,7 +421,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
         const daysInWeek = day.daysInWeek;
         const colIdx = perWeek
           ? i
-          : ((day.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+          : ((day.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+            daysInWeek;
         const derived = computeDayCellState(
           day,
           orientation,
@@ -428,7 +464,10 @@ interface DayButtonInnerProps<F extends ValueFormat = ValueFormat> {
   [key: string]: unknown;
 }
 
-function DayButtonInnerFn(props: DayButtonInnerProps, ref: React.ForwardedRef<HTMLButtonElement>) {
+function DayButtonInnerFn(
+  props: DayButtonInnerProps,
+  ref: React.ForwardedRef<HTMLButtonElement>,
+) {
   const { render, date, _derivedState, ...otherProps } = props;
   const { onSelect, locale, readOnly, setHoveredDate } = useCalendarStable();
   const { setFocusedDate } = useViewContext();
@@ -443,7 +482,10 @@ function DayButtonInnerFn(props: DayButtonInnerProps, ref: React.ForwardedRef<HT
   const isDisabled = _derivedState?.disabled ?? false;
 
   useEffect(() => {
-    if (shouldMoveDomFocus(isFocused, gridFocusedRef.current) && internalRef.current) {
+    if (
+      shouldMoveDomFocus(isFocused, gridFocusedRef.current) &&
+      internalRef.current
+    ) {
       internalRef.current.focus();
     }
   }, [isFocused, gridFocusedRef]);
@@ -570,7 +612,9 @@ function DayButtonFn(
   );
 }
 
-export const DayButton = forwardRef(DayButtonFn) as <F extends ValueFormat = ValueFormat>(
+export const DayButton = forwardRef(DayButtonFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: DayButtonProps<F> & {
     _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
   } & React.RefAttributes<HTMLButtonElement>,
@@ -591,7 +635,8 @@ function DayButtonFallbackFn(
     temporal: T,
     weekStartDay,
   } = useCalendarStable();
-  const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } = useCalendarState();
+  const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
+    useCalendarState();
   const viewCtx = useViewContext();
   const { focusedDate, tabTargetDate } = viewCtx;
   const monthStable = useContext(MonthViewStableContext);
@@ -604,7 +649,8 @@ function DayButtonFallbackFn(
     ? { year: date.year, month: date.month }
     : (weekData?.gridMonth ?? currentDateTime);
   const daysInWeek = date.daysInWeek;
-  const colIdx = ((date.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+  const colIdx =
+    ((date.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
   const derived = computeDayCellState(
     date,
     orientation,
@@ -625,10 +671,19 @@ function DayButtonFallbackFn(
     previewEnd,
   );
 
-  return <DayButtonInner {...restProps} ref={ref} date={date} _derivedState={derived} />;
+  return (
+    <DayButtonInner
+      {...restProps}
+      ref={ref}
+      date={date}
+      _derivedState={derived}
+    />
+  );
 }
 
-const DayButtonFallback = forwardRef(DayButtonFallbackFn) as <F extends ValueFormat = ValueFormat>(
+const DayButtonFallback = forwardRef(DayButtonFallbackFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: Omit<DayButtonProps<F>, "date"> & {
     date: TemporalPoly.PlainDate;
   } & React.RefAttributes<HTMLButtonElement>,

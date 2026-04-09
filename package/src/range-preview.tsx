@@ -5,10 +5,20 @@ import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { WeekDataContext, GridContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
 import { MonthViewStableContext } from "./month-view-context";
-import { computeClippedRangeInfo, rangeOverlayStateAttributesMapping } from "./selected-range";
-import type { ValueFormat, RangePreviewState, RangePreviewProps } from "./types";
+import {
+  computeClippedRangeInfo,
+  rangeOverlayStateAttributesMapping,
+} from "./selected-range";
+import type {
+  ValueFormat,
+  RangePreviewState,
+  RangePreviewProps,
+} from "./types";
 
-function RangePreviewFn(props: RangePreviewProps, ref: React.ForwardedRef<HTMLTableCellElement>) {
+function RangePreviewFn(
+  props: RangePreviewProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { selectionMode } = useCalendarStable();
   if (selectionMode !== "range") {
     return null;
@@ -22,7 +32,9 @@ function RangePreviewFn(props: RangePreviewProps, ref: React.ForwardedRef<HTMLTa
  * {@link RangeSelected} but reads `previewStart`/`previewEnd` instead of
  * the committed range boundaries.
  */
-export const RangePreview = forwardRef(RangePreviewFn) as <F extends ValueFormat = ValueFormat>(
+export const RangePreview = forwardRef(RangePreviewFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangePreviewProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
@@ -43,7 +55,15 @@ function RangePreviewInnerFn(
   const gridMonth = weekData?.gridMonth;
 
   const info = useMemo(
-    () => computeClippedRangeInfo(days, previewStart, previewEnd, T, outsideDays, gridMonth),
+    () =>
+      computeClippedRangeInfo(
+        days,
+        previewStart,
+        previewEnd,
+        T,
+        outsideDays,
+        gridMonth,
+      ),
     [days, previewStart, previewEnd, T, outsideDays, gridMonth],
   );
 
@@ -67,7 +87,16 @@ function RangePreviewInnerFn(
       hasEnd: previewEnd !== undefined,
       orientation,
     }),
-    [rootState, info, weekIndex, startDate, endDate, previewStart, previewEnd, orientation],
+    [
+      rootState,
+      info,
+      weekIndex,
+      startDate,
+      endDate,
+      previewStart,
+      previewEnd,
+      orientation,
+    ],
   );
 
   const defaultProps: Record<string, unknown> = {
@@ -85,6 +114,8 @@ function RangePreviewInnerFn(
   });
 }
 
-const RangePreviewInner = forwardRef(RangePreviewInnerFn) as <F extends ValueFormat = ValueFormat>(
+const RangePreviewInner = forwardRef(RangePreviewInnerFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangePreviewProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;

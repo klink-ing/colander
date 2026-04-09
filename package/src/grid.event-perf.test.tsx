@@ -15,7 +15,12 @@ type RenderEntry = {
 
 function createProfiler() {
   const entries: RenderEntry[] = [];
-  const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration) => {
+  const onRender: ProfilerOnRenderCallback = (
+    id,
+    phase,
+    actualDuration,
+    baseDuration,
+  ) => {
     entries.push({
       id,
       phase: phase as RenderEntry["phase"],
@@ -56,7 +61,9 @@ const ITERATIONS = 5;
 function median(values: number[]): number {
   const sorted = [...values].sort((a, b) => a - b);
   const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+  return sorted.length % 2 === 0
+    ? (sorted[mid - 1] + sorted[mid]) / 2
+    : sorted[mid];
 }
 
 function p95(values: number[]): number {
@@ -90,7 +97,9 @@ describe("Grid event dispatch profiling", () => {
 
       entries.length = 0;
 
-      const button = container.querySelector<HTMLElement>('button[data-date="2026-03-20"]')!;
+      const button = container.querySelector<HTMLElement>(
+        'button[data-date="2026-03-20"]',
+      )!;
       expect(button).toBeTruthy();
 
       act(() => {
@@ -133,7 +142,9 @@ describe("Grid event dispatch profiling", () => {
 
       entries.length = 0;
 
-      const button = container.querySelector<HTMLElement>('button[data-date="2026-03-25"]')!;
+      const button = container.querySelector<HTMLElement>(
+        'button[data-date="2026-03-25"]',
+      )!;
       expect(button).toBeTruthy();
 
       act(() => {
@@ -178,7 +189,9 @@ describe("Grid event dispatch profiling", () => {
 
       const days = Array.from({ length: 7 }, (_, i) => {
         const day = String(i + 16).padStart(2, "0");
-        return container.querySelector<HTMLElement>(`button[data-date="2026-03-${day}"]`)!;
+        return container.querySelector<HTMLElement>(
+          `button[data-date="2026-03-${day}"]`,
+        )!;
       });
 
       for (const d of days) expect(d).toBeTruthy();
@@ -227,7 +240,9 @@ describe("Grid event dispatch profiling", () => {
       entries.length = 0;
 
       // Click a day outside the current range to trigger a new range selection
-      const button = container.querySelector<HTMLElement>('button[data-date="2026-03-25"]')!;
+      const button = container.querySelector<HTMLElement>(
+        'button[data-date="2026-03-25"]',
+      )!;
       expect(button).toBeTruthy();
 
       act(() => {

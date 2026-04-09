@@ -46,7 +46,9 @@ function SelectTrigger({
     >
       {children}
       <SelectPrimitive.Icon
-        render={<ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />}
+        render={
+          <ChevronDownIcon className="pointer-events-none size-4 text-muted-foreground" />
+        }
       />
     </SelectPrimitive.Trigger>
   );
@@ -86,7 +88,9 @@ function SelectContent({
           {...props}
         >
           <SelectScrollUpButton />
-          <SelectPrimitive.List className="flex w-max flex-col">{children}</SelectPrimitive.List>
+          <SelectPrimitive.List className="flex w-max flex-col">
+            {children}
+          </SelectPrimitive.List>
           <SelectScrollDownButton />
         </SelectPrimitive.Popup>
       </SelectPrimitive.Positioner>
@@ -94,7 +98,10 @@ function SelectContent({
   );
 }
 
-function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) {
+function SelectLabel({
+  className,
+  ...props
+}: SelectPrimitive.GroupLabel.Props) {
   return (
     <SelectPrimitive.GroupLabel
       data-slot="select-label"
@@ -104,7 +111,11 @@ function SelectLabel({ className, ...props }: SelectPrimitive.GroupLabel.Props) 
   );
 }
 
-function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Props) {
+function SelectItem({
+  className,
+  children,
+  ...props
+}: SelectPrimitive.Item.Props) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -115,7 +126,9 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
       {...props}
     >
       <SelectPrimitive.ItemText className="flex flex-1 shrink-0 grow-0 gap-2 whitespace-nowrap">
-        {children ? children : (props.value?.label ?? props.label ?? props.value)}
+        {children
+          ? children
+          : (props.value?.label ?? props.label ?? props.value)}
       </SelectPrimitive.ItemText>
       <SelectPrimitive.ItemIndicator
         render={
@@ -128,7 +141,10 @@ function SelectItem({ className, children, ...props }: SelectPrimitive.Item.Prop
   );
 }
 
-function SelectSeparator({ className, ...props }: SelectPrimitive.Separator.Props) {
+function SelectSeparator({
+  className,
+  ...props
+}: SelectPrimitive.Separator.Props) {
   return (
     <SelectPrimitive.Separator
       data-slot="select-separator"

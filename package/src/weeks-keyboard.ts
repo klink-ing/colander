@@ -77,7 +77,10 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
   const windowEnd = windowStart.add({ weeks: weekCount }).subtract({ days: 1 });
 
   function isOutsideWindow(date: Temporal.PlainDate): boolean {
-    return T.PlainDate.compare(date, windowStart) < 0 || T.PlainDate.compare(date, windowEnd) > 0;
+    return (
+      T.PlainDate.compare(date, windowStart) < 0 ||
+      T.PlainDate.compare(date, windowEnd) > 0
+    );
   }
 
   function windowShiftFor(target: Temporal.PlainDate): number {
@@ -96,8 +99,10 @@ export function computeWeeksKeyNav(input: WeeksKeyNavInput): WeeksKeyNavResult {
     followFocus: boolean,
   ): WeeksKeyNavResult {
     let clamped = target;
-    if (minValue && T.PlainDate.compare(clamped, minValue) < 0) clamped = minValue;
-    if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0) clamped = maxValue;
+    if (minValue && T.PlainDate.compare(clamped, minValue) < 0)
+      clamped = minValue;
+    if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0)
+      clamped = maxValue;
     if (T.PlainDate.compare(clamped, focusedDate) === 0) return NONE;
     return { action: "move", date: clamped, windowShift, followFocus };
   }

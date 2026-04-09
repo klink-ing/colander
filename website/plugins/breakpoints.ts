@@ -12,7 +12,9 @@ interface BreakpointsConfig {
 
 function generateCSS(configPath: string, outputPath: string, rootDir: string) {
   const raw = readFileSync(configPath, "utf-8");
-  const stripped = raw.replace(/\/\/.*$/gm, "").replace(/\/\*[\s\S]*?\*\//g, "");
+  const stripped = raw
+    .replace(/\/\/.*$/gm, "")
+    .replace(/\/\*[\s\S]*?\*\//g, "");
   const config: BreakpointsConfig = JSON.parse(stripped);
   const { start, end, step, remPerUnit } = config;
 

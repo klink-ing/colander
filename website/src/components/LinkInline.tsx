@@ -17,7 +17,11 @@ export function isExternalUrl(url: string) {
   return hasAbsoluteScheme || isSchemeRelative;
 }
 
-function AInline({ render, className, ...props }: useRender.ComponentProps<"a">) {
+function AInline({
+  render,
+  className,
+  ...props
+}: useRender.ComponentProps<"a">) {
   const isExternal = isExternalUrl(props.href ?? "");
   if (!isExternal) {
     console.error("External link detected, use LinkInline for internal links");
@@ -33,7 +37,10 @@ function AInline({ render, className, ...props }: useRender.ComponentProps<"a">)
   });
 }
 
-function LinkInline({ className, ...props }: LinkProps & ComponentPropsWithRef<"a">) {
+function LinkInline({
+  className,
+  ...props
+}: LinkProps & ComponentPropsWithRef<"a">) {
   return <Link className={cn(LINK_CLASSNAME, className)} {...props} />;
 }
 

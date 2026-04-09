@@ -38,7 +38,10 @@ const monthYearStringStateAttributesMapping = {
   year: () => null,
 } as const satisfies StateAttributesMapping<MonthYearStringState>;
 
-function DateStringFn(props: DateStringProps, ref: React.ForwardedRef<HTMLSpanElement>) {
+function DateStringFn(
+  props: DateStringProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, locales, options, ...otherProps } = props;
   const { locale, temporal: T, timeZone } = useCalendarStable();
   const { selected } = useCalendarState();
@@ -84,11 +87,16 @@ function DateStringFn(props: DateStringProps, ref: React.ForwardedRef<HTMLSpanEl
  * Displays the currently selected (or current) date as localized text.
  * Renders a `<span>` with `aria-live="polite"`.
  */
-export const DateString = forwardRef(DateStringFn) as <F extends ValueFormat = ValueFormat>(
+export const DateString = forwardRef(DateStringFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: DateStringProps<F> & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
-function TimeStringFn(props: TimeStringProps, ref: React.ForwardedRef<HTMLSpanElement>) {
+function TimeStringFn(
+  props: TimeStringProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, locales, options, ...otherProps } = props;
   const { locale, temporal: T, timeZone } = useCalendarStable();
   const { selected } = useCalendarState();
@@ -100,7 +108,10 @@ function TimeStringFn(props: TimeStringProps, ref: React.ForwardedRef<HTMLSpanEl
     : zdtToNativeDate(T.Now.zonedDateTimeISO(timeZone));
 
   const mergedOptions: Intl.DateTimeFormatOptions = { timeZone, ...options };
-  const formatted = displayDate.toLocaleTimeString(locales ?? locale, mergedOptions);
+  const formatted = displayDate.toLocaleTimeString(
+    locales ?? locale,
+    mergedOptions,
+  );
 
   const nowZdt = selZdt ?? T.Now.zonedDateTimeISO(timeZone);
   const hour = nowZdt.hour;
@@ -137,16 +148,31 @@ function TimeStringFn(props: TimeStringProps, ref: React.ForwardedRef<HTMLSpanEl
  * Falls back to the current time when nothing is selected.
  * Renders a `<span>` with `aria-live="polite"`.
  */
-export const TimeString = forwardRef(TimeStringFn) as <F extends ValueFormat = ValueFormat>(
+export const TimeString = forwardRef(TimeStringFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: TimeStringProps<F> & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
-function MonthYearStringFn(props: MonthYearStringProps, ref: React.ForwardedRef<HTMLSpanElement>) {
-  const { render, locales, options, monthIndex: monthIndexProp, ...otherProps } = props;
+function MonthYearStringFn(
+  props: MonthYearStringProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
+  const {
+    render,
+    locales,
+    options,
+    monthIndex: monthIndexProp,
+    ...otherProps
+  } = props;
   const monthIndex = monthIndexProp ?? 0;
   const { locale } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
-  const { currentMonth: currentDateTime, allMonths, rootState } = useMonthViewState();
+  const {
+    currentMonth: currentDateTime,
+    allMonths,
+    rootState,
+  } = useMonthViewState();
   const { setGridLabelId } = monthViewStable;
 
   const id = useId();
@@ -165,7 +191,10 @@ function MonthYearStringFn(props: MonthYearStringProps, ref: React.ForwardedRef<
     month: "long",
     year: "numeric",
   };
-  const formatted = displayDate.toLocaleDateString(locales ?? locale, defaultOptions);
+  const formatted = displayDate.toLocaleDateString(
+    locales ?? locale,
+    defaultOptions,
+  );
 
   const state = useMemo<MonthYearStringState>(
     () => ({
@@ -210,8 +239,16 @@ export const MonthYearString = forwardRef(MonthYearStringFn) as <
   props: MonthYearStringProps<F> & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
-function useNavButton<F extends ValueFormat = ValueFormat>(direction: "prev" | "next") {
-  const { disabled: globalDisabled, minValue, maxValue, locale, temporal: T } = useCalendarStable();
+function useNavButton<F extends ValueFormat = ValueFormat>(
+  direction: "prev" | "next",
+) {
+  const {
+    disabled: globalDisabled,
+    minValue,
+    maxValue,
+    locale,
+    temporal: T,
+  } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
   const monthViewState = useMonthViewState();
   const {
@@ -219,12 +256,18 @@ function useNavButton<F extends ValueFormat = ValueFormat>(direction: "prev" | "
     goPrevMonth: goToPrevMonth,
     numberOfMonths,
   } = monthViewStable;
-  const { currentMonth: currentDateTime, allMonths, rootState } = monthViewState;
+  const {
+    currentMonth: currentDateTime,
+    allMonths,
+    rootState,
+  } = monthViewState;
 
   // For "next", compute destination from the last visible month
   // For "prev", compute destination from the first visible month
   const refMonth =
-    direction === "next" ? (allMonths[numberOfMonths - 1] ?? currentDateTime) : currentDateTime;
+    direction === "next"
+      ? (allMonths[numberOfMonths - 1] ?? currentDateTime)
+      : currentDateTime;
 
   const destMonth =
     direction === "prev"
@@ -251,11 +294,13 @@ function useNavButton<F extends ValueFormat = ValueFormat>(direction: "prev" | "
     if (!boundValue) return false;
     if (direction === "prev") {
       return (
-        destYear < boundValue.year || (destYear === boundValue.year && destMonth < boundValue.month)
+        destYear < boundValue.year ||
+        (destYear === boundValue.year && destMonth < boundValue.month)
       );
     }
     return (
-      destYear > boundValue.year || (destYear === boundValue.year && destMonth > boundValue.month)
+      destYear > boundValue.year ||
+      (destYear === boundValue.year && destMonth > boundValue.month)
     );
   }, [globalDisabled, destYear, destMonth, boundValue, direction]);
 

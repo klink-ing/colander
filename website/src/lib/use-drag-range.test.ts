@@ -197,7 +197,8 @@ describe("drag range adjustment logic", () => {
         },
       },
       {
-        description: "move end before start WITH reversal (swaps edge to start)",
+        description:
+          "move end before start WITH reversal (swaps edge to start)",
         start: "2024-03-10",
         end: "2024-03-15",
         edge: "end" as Edge,

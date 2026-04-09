@@ -28,12 +28,21 @@ const SKIP_FORMATS = new Set(["PlainTime"]);
 
 function parseFormats(): string[] {
   const source = fs.readFileSync(TYPES_PATH, "utf-8");
-  const sf = ts.createSourceFile(TYPES_PATH, source, ts.ScriptTarget.Latest, true);
+  const sf = ts.createSourceFile(
+    TYPES_PATH,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+  );
 
   const formats: string[] = [];
 
   ts.forEachChild(sf, (node) => {
-    if (!ts.isTypeAliasDeclaration(node) || node.name.text !== "DateValueObject") return;
+    if (
+      !ts.isTypeAliasDeclaration(node) ||
+      node.name.text !== "DateValueObject"
+    )
+      return;
 
     const type = node.type;
     if (!ts.isUnionTypeNode(type)) return;
@@ -63,8 +72,12 @@ function parseFormats(): string[] {
 // 2. Detect generic exports (values and types) via TypeScript type checker
 // ---------------------------------------------------------------------------
 
-function isGenericOverValueFormat(checker: ts.TypeChecker, sym: ts.Symbol): boolean {
-  const resolved = sym.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(sym) : sym;
+function isGenericOverValueFormat(
+  checker: ts.TypeChecker,
+  sym: ts.Symbol,
+): boolean {
+  const resolved =
+    sym.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(sym) : sym;
 
   const decls = resolved.getDeclarations();
   if (!decls || decls.length === 0) return false;
@@ -78,7 +91,8 @@ function isGenericOverValueFormat(checker: ts.TypeChecker, sym: ts.Symbol): bool
           if (tp.constraint) {
             const cType = checker.getTypeAtLocation(tp.constraint);
             const cStr = checker.typeToString(cType);
-            if (cStr === "ValueFormat" || cStr.includes("ValueFormat")) return true;
+            if (cStr === "ValueFormat" || cStr.includes("ValueFormat"))
+              return true;
           }
         }
       }
@@ -99,7 +113,11 @@ function isGenericOverValueFormat(checker: ts.TypeChecker, sym: ts.Symbol): bool
   }
 
   // Fallback: check type string
-  const typeStr = checker.typeToString(type, undefined, ts.TypeFormatFlags.NoTruncation);
+  const typeStr = checker.typeToString(
+    type,
+    undefined,
+    ts.TypeFormatFlags.NoTruncation,
+  );
   if (typeStr.includes("F extends ValueFormat")) return true;
 
   // Last resort: check declaration source text
@@ -138,11 +156,13 @@ function findGenericSymbols(): {
   for (const sym of moduleExports) {
     if (!isGenericOverValueFormat(checker, sym)) continue;
 
-    const resolved = sym.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(sym) : sym;
+    const resolved =
+      sym.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(sym) : sym;
 
     // Determine if this is a type-only or value export
     const isTypeOnly =
-      resolved.flags & ts.SymbolFlags.TypeAlias && !(resolved.flags & ts.SymbolFlags.Value);
+      resolved.flags & ts.SymbolFlags.TypeAlias &&
+      !(resolved.flags & ts.SymbolFlags.Value);
 
     if (isTypeOnly) {
       genericTypes.add(sym.name);
@@ -167,7 +187,12 @@ interface ExportInfo {
 /** Parse index.ts AST to extract structured export info. */
 function parseIndexExports(): ExportInfo[] {
   const source = fs.readFileSync(INDEX_PATH, "utf-8");
-  const sf = ts.createSourceFile(INDEX_PATH, source, ts.ScriptTarget.Latest, true);
+  const sf = ts.createSourceFile(
+    INDEX_PATH,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+  );
 
   const result: ExportInfo[] = [];
 
@@ -259,8 +284,12 @@ const formats = parseFormats();
 const { genericValues, genericTypes } = findGenericSymbols();
 const exports = parseIndexExports();
 
-console.log(`Found ${genericValues.size} generic values: ${[...genericValues].sort().join(", ")}`);
-console.log(`Found ${genericTypes.size} generic types: ${[...genericTypes].sort().join(", ")}`);
+console.log(
+  `Found ${genericValues.size} generic values: ${[...genericValues].sort().join(", ")}`,
+);
+console.log(
+  `Found ${genericTypes.size} generic types: ${[...genericTypes].sort().join(", ")}`,
+);
 console.log(`Generating format entries for: ${formats.join(", ")}`);
 
 fs.mkdirSync(FORMATS_DIR, { recursive: true });
@@ -278,7 +307,12 @@ for (const file of fs.readdirSync(FORMATS_DIR)) {
 
 for (const format of formats) {
   const kebab = formatToKebab(format);
-  const content = generateFormatFile(format, exports, genericValues, genericTypes);
+  const content = generateFormatFile(
+    format,
+    exports,
+    genericValues,
+    genericTypes,
+  );
   const filePath = path.join(FORMATS_DIR, `${kebab}.ts`);
   fs.writeFileSync(filePath, content);
   console.log(`  wrote src/formats/${kebab}.ts`);

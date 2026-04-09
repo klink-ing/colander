@@ -37,7 +37,8 @@ export type MonthSeparatorState = {
 };
 
 /** Context providing MonthSeparator data to child components. */
-export const MonthSeparatorDataContext = createContext<MonthSeparatorState | null>(null);
+export const MonthSeparatorDataContext =
+  createContext<MonthSeparatorState | null>(null);
 
 function useMonthSeparatorData(): MonthSeparatorState {
   const ctx = useContext(MonthSeparatorDataContext);
@@ -58,7 +59,8 @@ const stateAttributesMapping = {
   weeksVisibleAfter: () => null,
   firstDayColumn: (v: number) => ({ "data-first-day-column": String(v) }),
   totalColumns: (v: number) => ({ "data-total-columns": String(v) }),
-  firstDayVisible: (v: boolean) => (v ? { "data-first-day-visible": "" } : null),
+  firstDayVisible: (v: boolean) =>
+    v ? { "data-first-day-visible": "" } : null,
   fullWeeksVisibleAfter: (v: number) => ({
     "data-full-weeks-visible-after": String(v),
   }),
@@ -74,7 +76,10 @@ type MonthChildProps = useRender.ComponentProps<"span", MonthSeparatorState> & {
   format?: "long" | "short" | "narrow";
 };
 
-function MonthSeparatorMonthFn(props: MonthChildProps, ref: React.ForwardedRef<HTMLSpanElement>) {
+function MonthSeparatorMonthFn(
+  props: MonthChildProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, locale = "en-US", format = "long", ...otherProps } = props;
   const data = useMonthSeparatorData();
 
@@ -99,7 +104,10 @@ const MonthSeparatorMonth = forwardRef(MonthSeparatorMonthFn);
 
 type YearChildProps = useRender.ComponentProps<"span", MonthSeparatorState>;
 
-function MonthSeparatorYearFn(props: YearChildProps, ref: React.ForwardedRef<HTMLSpanElement>) {
+function MonthSeparatorYearFn(
+  props: YearChildProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, ...otherProps } = props;
   const data = useMonthSeparatorData();
 
@@ -117,7 +125,10 @@ const MonthSeparatorYear = forwardRef(MonthSeparatorYearFn);
 
 // ─── Child: WeekCount ────────────────────────────────────────────────
 
-type WeekCountChildProps = useRender.ComponentProps<"span", MonthSeparatorState>;
+type WeekCountChildProps = useRender.ComponentProps<
+  "span",
+  MonthSeparatorState
+>;
 
 function MonthSeparatorWeekCountFn(
   props: WeekCountChildProps,
@@ -140,7 +151,10 @@ const MonthSeparatorWeekCount = forwardRef(MonthSeparatorWeekCountFn);
 
 // ─── MonthSeparatorRow ──────────────────────────────────────────────
 
-type MonthSeparatorRowProps = useRender.ComponentProps<"tr", MonthSeparatorState>;
+type MonthSeparatorRowProps = useRender.ComponentProps<
+  "tr",
+  MonthSeparatorState
+>;
 
 function MonthSeparatorRowFn(
   props: MonthSeparatorRowProps,
@@ -159,7 +173,9 @@ function MonthSeparatorRowFn(
   });
 
   return (
-    <MonthSeparatorDataContext.Provider value={data}>{rendered}</MonthSeparatorDataContext.Provider>
+    <MonthSeparatorDataContext.Provider value={data}>
+      {rendered}
+    </MonthSeparatorDataContext.Provider>
   );
 }
 
@@ -168,7 +184,10 @@ export const MonthSeparatorRow = forwardRef(MonthSeparatorRowFn);
 
 // ─── MonthSeparatorCell ─────────────────────────────────────────────
 
-type MonthSeparatorCellProps = useRender.ComponentProps<"td", MonthSeparatorState>;
+type MonthSeparatorCellProps = useRender.ComponentProps<
+  "td",
+  MonthSeparatorState
+>;
 
 function MonthSeparatorCellFn(
   props: MonthSeparatorCellProps,
@@ -224,7 +243,9 @@ function MonthSeparatorFn(
   });
 
   return (
-    <MonthSeparatorDataContext.Provider value={data}>{rendered}</MonthSeparatorDataContext.Provider>
+    <MonthSeparatorDataContext.Provider value={data}>
+      {rendered}
+    </MonthSeparatorDataContext.Provider>
   );
 }
 

@@ -40,7 +40,11 @@ export default function InlineDescription({
       const symbol = match[2];
       const display = match[3] ?? symbol;
       parts.push(
-        <LinkInline key={match.index} to="/docs/api/$symbol" params={{ symbol }}>
+        <LinkInline
+          key={match.index}
+          to="/docs/api/$symbol"
+          params={{ symbol }}
+        >
           {display}
         </LinkInline>,
       );

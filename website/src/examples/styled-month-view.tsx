@@ -76,13 +76,17 @@ function MonthGrid({
               )}
               render={({ children, ...props }: any) => (
                 <th {...props}>
-                  <span className="inline-block min-w-[2ch] text-right">{children}</span>
+                  <span className="inline-block min-w-[2ch] text-right">
+                    {children}
+                  </span>
                 </th>
               )}
             />
           )}
           <StyledGridHeaderCell
-            className={isVertical ? "flex w-fit items-center text-right" : undefined}
+            className={
+              isVertical ? "flex w-fit items-center text-right" : undefined
+            }
           />
         </StyledGridHeader>
         <StyledGridBody
@@ -94,7 +98,9 @@ function MonthGrid({
         >
           <StyledWeekTemplate
             className={
-              isVertical ? "col-auto row-span-full grid-cols-[unset] grid-rows-subgrid" : undefined
+              isVertical
+                ? "col-auto row-span-full grid-cols-[unset] grid-rows-subgrid"
+                : undefined
             }
           >
             {showWeekNumbers && (
@@ -106,7 +112,9 @@ function MonthGrid({
                 )}
                 render={({ children, ...props }: any) => (
                   <td {...props}>
-                    <span className="inline-block min-w-[2ch] text-right">{children}</span>
+                    <span className="inline-block min-w-[2ch] text-right">
+                      {children}
+                    </span>
                   </td>
                 )}
               />

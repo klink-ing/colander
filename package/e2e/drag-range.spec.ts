@@ -32,7 +32,11 @@ function getDragHandle(page: Page, edge: "start" | "end"): Locator {
  * Uses Playwright's page.mouse API to dispatch genuine browser events,
  * ensuring the full pointer event pipeline is exercised.
  */
-async function dragHandleToDay(page: Page, edge: "start" | "end", targetDay: string) {
+async function dragHandleToDay(
+  page: Page,
+  edge: "start" | "end",
+  targetDay: string,
+) {
   const handle = getDragHandle(page, edge);
   await expect(handle).toBeVisible();
 
@@ -108,8 +112,14 @@ test.describe("Drag Range Handles", () => {
     const startHandle = getDragHandle(page, "start");
     const endHandle = getDragHandle(page, "end");
 
-    await expect(startHandle).toHaveAttribute("aria-roledescription", "drag handle");
-    await expect(endHandle).toHaveAttribute("aria-roledescription", "drag handle");
+    await expect(startHandle).toHaveAttribute(
+      "aria-roledescription",
+      "drag handle",
+    );
+    await expect(endHandle).toHaveAttribute(
+      "aria-roledescription",
+      "drag handle",
+    );
     await expect(startHandle).toHaveAttribute("aria-label", "Range start date");
     await expect(endHandle).toHaveAttribute("aria-label", "Range end date");
   });
@@ -227,7 +237,9 @@ test.describe("Drag Range Handles", () => {
     expect(handleCenterX).toBeLessThanOrEqual(day8Box!.x + day8Box!.width);
   });
 
-  test("drag start handle backward when start clicked first (start-end mode)", async ({ page }) => {
+  test("drag start handle backward when start clicked first (start-end mode)", async ({
+    page,
+  }) => {
     // Ensure start-end range mode
     await page.locator("#range-mode").selectOption("start-end");
 
@@ -249,7 +261,9 @@ test.describe("Drag Range Handles", () => {
     expect(handleCenterX).toBeLessThanOrEqual(day9Box!.x + day9Box!.width);
   });
 
-  test("drag start handle backward when end clicked first (start-end mode)", async ({ page }) => {
+  test("drag start handle backward when end clicked first (start-end mode)", async ({
+    page,
+  }) => {
     // Ensure start-end range mode
     await page.locator("#range-mode").selectOption("start-end");
 

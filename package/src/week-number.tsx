@@ -72,7 +72,9 @@ function WeekNumberCellFn(
  * Renders the ISO 8601 week number for a week row. Must be used inside
  * a {@link WeekTemplate}. Renders a `<td>` with `role="rowheader"`.
  */
-export const WeekNumberCell = forwardRef(WeekNumberCellFn) as <F extends ValueFormat = ValueFormat>(
+export const WeekNumberCell = forwardRef(WeekNumberCellFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: WeekNumberCellProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 

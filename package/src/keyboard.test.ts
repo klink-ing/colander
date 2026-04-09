@@ -6,7 +6,9 @@ import { temporalVariants } from "./test-temporal";
 describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
   const d = (iso: string) => T.PlainDate.from(iso);
 
-  function nav(overrides: Partial<KeyboardNavInput> & { key: string }): KeyboardNavInput {
+  function nav(
+    overrides: Partial<KeyboardNavInput> & { key: string },
+  ): KeyboardNavInput {
     return {
       shiftKey: false,
       focusedDate: d("2026-03-15"),
@@ -114,9 +116,15 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
         ["2026-03-15", "2027-03-15"],
         ["2024-02-29", "2025-02-28"],
         ["2026-12-31", "2027-12-31"],
-      ] as const)("from %s → %s (day constrained for leap year)", (focused, expected) => {
-        expectMove(nav({ key: "PageDown", shiftKey: true, focusedDate: d(focused) }), expected);
-      });
+      ] as const)(
+        "from %s → %s (day constrained for leap year)",
+        (focused, expected) => {
+          expectMove(
+            nav({ key: "PageDown", shiftKey: true, focusedDate: d(focused) }),
+            expected,
+          );
+        },
+      );
     });
 
     describe("Shift+PageUp — previous year", () => {
@@ -124,9 +132,15 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
         ["2026-03-15", "2025-03-15"],
         ["2024-02-29", "2023-02-28"],
         ["2027-01-01", "2026-01-01"],
-      ] as const)("from %s → %s (day constrained for leap year)", (focused, expected) => {
-        expectMove(nav({ key: "PageUp", shiftKey: true, focusedDate: d(focused) }), expected);
-      });
+      ] as const)(
+        "from %s → %s (day constrained for leap year)",
+        (focused, expected) => {
+          expectMove(
+            nav({ key: "PageUp", shiftKey: true, focusedDate: d(focused) }),
+            expected,
+          );
+        },
+      );
     });
 
     describe("Enter and Space — select", () => {
@@ -161,9 +175,12 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
     });
 
     describe("unrecognized keys return none", () => {
-      it.each(["Tab", "Escape", "a", "Delete", "F1"] as const)("%s returns none", (key) => {
-        expectNone(nav({ key }));
-      });
+      it.each(["Tab", "Escape", "a", "Delete", "F1"] as const)(
+        "%s returns none",
+        (key) => {
+          expectNone(nav({ key }));
+        },
+      );
     });
 
     describe("min bound clamping", () => {
@@ -173,16 +190,25 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
         ["ArrowLeft", "2026-03-10"],
         ["ArrowUp", "2026-03-10"],
         ["Home", "2026-03-10"],
-      ] as const)("%s from %s is none (already at min boundary)", (key, focused) => {
-        expectNone(nav({ key, focusedDate: d(focused), minValue: min }));
-      });
+      ] as const)(
+        "%s from %s is none (already at min boundary)",
+        (key, focused) => {
+          expectNone(nav({ key, focusedDate: d(focused), minValue: min }));
+        },
+      );
 
       it.each([
         ["ArrowLeft", "2026-03-11", "2026-03-10"],
         ["ArrowRight", "2026-03-10", "2026-03-11"],
-      ] as const)("%s from %s → %s (at or above min)", (key, focused, expected) => {
-        expectMove(nav({ key, focusedDate: d(focused), minValue: min }), expected);
-      });
+      ] as const)(
+        "%s from %s → %s (at or above min)",
+        (key, focused, expected) => {
+          expectMove(
+            nav({ key, focusedDate: d(focused), minValue: min }),
+            expected,
+          );
+        },
+      );
 
       it("ArrowUp clamps to min when target is below min", () => {
         expectMove(
@@ -192,7 +218,10 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
       });
 
       it("Home clamps to min when start-of-week is below min", () => {
-        expectMove(nav({ key: "Home", focusedDate: d("2026-03-12"), minValue: min }), "2026-03-10");
+        expectMove(
+          nav({ key: "Home", focusedDate: d("2026-03-12"), minValue: min }),
+          "2026-03-10",
+        );
       });
 
       it("PageUp clamps to min when target month is before min", () => {
@@ -236,16 +265,25 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
         ["ArrowRight", "2026-03-20"],
         ["ArrowDown", "2026-03-20"],
         ["End", "2026-03-20"],
-      ] as const)("%s from %s is none (already at max boundary)", (key, focused) => {
-        expectNone(nav({ key, focusedDate: d(focused), maxValue: max }));
-      });
+      ] as const)(
+        "%s from %s is none (already at max boundary)",
+        (key, focused) => {
+          expectNone(nav({ key, focusedDate: d(focused), maxValue: max }));
+        },
+      );
 
       it.each([
         ["ArrowRight", "2026-03-19", "2026-03-20"],
         ["ArrowLeft", "2026-03-20", "2026-03-19"],
-      ] as const)("%s from %s → %s (at or below max)", (key, focused, expected) => {
-        expectMove(nav({ key, focusedDate: d(focused), maxValue: max }), expected);
-      });
+      ] as const)(
+        "%s from %s → %s (at or below max)",
+        (key, focused, expected) => {
+          expectMove(
+            nav({ key, focusedDate: d(focused), maxValue: max }),
+            expected,
+          );
+        },
+      );
 
       it("ArrowDown clamps to max when target exceeds max", () => {
         expectMove(
@@ -259,7 +297,10 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
       });
 
       it("End clamps to max when end-of-week exceeds max", () => {
-        expectMove(nav({ key: "End", focusedDate: d("2026-03-16"), maxValue: max }), "2026-03-20");
+        expectMove(
+          nav({ key: "End", focusedDate: d("2026-03-16"), maxValue: max }),
+          "2026-03-20",
+        );
       });
 
       it("PageDown clamps to max when target month exceeds max", () => {
@@ -396,17 +437,24 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
     });
 
     describe("readOnly suppresses select but allows move", () => {
-      it.each(["Enter", " "] as const)("%s returns none when readOnly", (key) => {
-        expectNone(nav({ key, readOnly: true }));
-      });
-
-      it.each(["ArrowRight", "ArrowLeft", "ArrowUp", "ArrowDown", "PageUp", "PageDown"] as const)(
-        "%s still works when readOnly",
+      it.each(["Enter", " "] as const)(
+        "%s returns none when readOnly",
         (key) => {
-          const result = computeNextFocusDate(nav({ key, readOnly: true }));
-          expect(result.action).toBe("move");
+          expectNone(nav({ key, readOnly: true }));
         },
       );
+
+      it.each([
+        "ArrowRight",
+        "ArrowLeft",
+        "ArrowUp",
+        "ArrowDown",
+        "PageUp",
+        "PageDown",
+      ] as const)("%s still works when readOnly", (key) => {
+        const result = computeNextFocusDate(nav({ key, readOnly: true }));
+        expect(result.action).toBe("move");
+      });
 
       it("Home still works when readOnly (from mid-week)", () => {
         const result = computeNextFocusDate(
@@ -429,24 +477,40 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
         ["2026-03-18", "2026-03-16"],
         ["2026-03-21", "2026-03-16"],
         ["2026-03-22", "2026-03-16"],
-      ] as const)("Home from %s → %s (Monday start of week)", (focused, expected) => {
-        expectMove(nav({ key: "Home", focusedDate: d(focused), weekStartDay: 1 }), expected);
-      });
+      ] as const)(
+        "Home from %s → %s (Monday start of week)",
+        (focused, expected) => {
+          expectMove(
+            nav({ key: "Home", focusedDate: d(focused), weekStartDay: 1 }),
+            expected,
+          );
+        },
+      );
 
       it("Home from Monday (already at start) → none", () => {
-        expectNone(nav({ key: "Home", focusedDate: d("2026-03-16"), weekStartDay: 1 }));
+        expectNone(
+          nav({ key: "Home", focusedDate: d("2026-03-16"), weekStartDay: 1 }),
+        );
       });
 
       it.each([
         ["2026-03-16", "2026-03-22"],
         ["2026-03-17", "2026-03-22"],
         ["2026-03-21", "2026-03-22"],
-      ] as const)("End from %s → %s (Sunday end of week)", (focused, expected) => {
-        expectMove(nav({ key: "End", focusedDate: d(focused), weekStartDay: 1 }), expected);
-      });
+      ] as const)(
+        "End from %s → %s (Sunday end of week)",
+        (focused, expected) => {
+          expectMove(
+            nav({ key: "End", focusedDate: d(focused), weekStartDay: 1 }),
+            expected,
+          );
+        },
+      );
 
       it("End from Sunday (already at end) → none", () => {
-        expectNone(nav({ key: "End", focusedDate: d("2026-03-22"), weekStartDay: 1 }));
+        expectNone(
+          nav({ key: "End", focusedDate: d("2026-03-22"), weekStartDay: 1 }),
+        );
       });
     });
 
@@ -459,7 +523,9 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
       });
 
       it("Home from Saturday (already at start) → none", () => {
-        expectNone(nav({ key: "Home", focusedDate: d("2026-03-14"), weekStartDay: 6 }));
+        expectNone(
+          nav({ key: "Home", focusedDate: d("2026-03-14"), weekStartDay: 6 }),
+        );
       });
 
       it("End from Saturday (2026-03-14) → Friday (2026-03-20)", () => {
@@ -470,7 +536,9 @@ describe.each(temporalVariants)("computeNextFocusDate ($name)", ({ T }) => {
       });
 
       it("End from Friday (already at end) → none", () => {
-        expectNone(nav({ key: "End", focusedDate: d("2026-03-20"), weekStartDay: 6 }));
+        expectNone(
+          nav({ key: "End", focusedDate: d("2026-03-20"), weekStartDay: 6 }),
+        );
       });
     });
 

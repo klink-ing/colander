@@ -48,19 +48,25 @@ export function computeClippedRangeInfo(
   gridMonth: { year: number; month: number } | undefined,
 ): RangeInfo {
   const raw = computeWeekRangeInfo(days, rangeStart, rangeEnd, T);
-  if ((outsideDays === "disabled" || outsideDays === "hidden") && raw.active && gridMonth) {
+  if (
+    (outsideDays === "disabled" || outsideDays === "hidden") &&
+    raw.active &&
+    gridMonth
+  ) {
     let { startIndex, endIndex, extendsBefore, extendsAfter } = raw;
     // Clip range to only in-month cells
     while (
       startIndex <= endIndex &&
-      (days[startIndex].year !== gridMonth.year || days[startIndex].month !== gridMonth.month)
+      (days[startIndex].year !== gridMonth.year ||
+        days[startIndex].month !== gridMonth.month)
     ) {
       startIndex++;
       extendsBefore = true;
     }
     while (
       endIndex >= startIndex &&
-      (days[endIndex].year !== gridMonth.year || days[endIndex].month !== gridMonth.month)
+      (days[endIndex].year !== gridMonth.year ||
+        days[endIndex].month !== gridMonth.month)
     ) {
       endIndex--;
       extendsAfter = true;
@@ -79,7 +85,10 @@ export function computeClippedRangeInfo(
   return raw;
 }
 
-function RangeSelectedFn(props: RangeSelectedProps, ref: React.ForwardedRef<HTMLTableCellElement>) {
+function RangeSelectedFn(
+  props: RangeSelectedProps,
+  ref: React.ForwardedRef<HTMLTableCellElement>,
+) {
   const { selectionMode } = useCalendarStable();
   if (selectionMode !== "range") {
     return null;
@@ -93,7 +102,9 @@ function RangeSelectedFn(props: RangeSelectedProps, ref: React.ForwardedRef<HTML
  * `active`, `week-index`, `start-index`, `end-index`, `start-date`,
  * `end-date`, `extends-before`, and `extends-after`.
  */
-export const RangeSelected = forwardRef(RangeSelectedFn) as <F extends ValueFormat = ValueFormat>(
+export const RangeSelected = forwardRef(RangeSelectedFn) as <
+  F extends ValueFormat = ValueFormat,
+>(
   props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
@@ -114,7 +125,15 @@ function RangeSelectedInnerFn(
   const gridMonth = weekData?.gridMonth;
 
   const info = useMemo(
-    () => computeClippedRangeInfo(days, rangeStart, rangeEnd, T, outsideDays, gridMonth),
+    () =>
+      computeClippedRangeInfo(
+        days,
+        rangeStart,
+        rangeEnd,
+        T,
+        outsideDays,
+        gridMonth,
+      ),
     [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
   );
 
@@ -138,7 +157,16 @@ function RangeSelectedInnerFn(
       hasEnd: rangeEnd !== undefined,
       orientation,
     }),
-    [rootState, info, weekIndex, startDate, endDate, rangeStart, rangeEnd, orientation],
+    [
+      rootState,
+      info,
+      weekIndex,
+      startDate,
+      endDate,
+      rangeStart,
+      rangeEnd,
+      orientation,
+    ],
   );
 
   const defaultProps: Record<string, unknown> = {

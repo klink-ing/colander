@@ -7,7 +7,11 @@ import React, { useMemo, Children, isValidElement } from "react";
 import { useCalendarStable } from "./calendar-context";
 import type { WeekDescriptor } from "./compute-weeks-in-window";
 import { WeekDataContext, GridMonthContext } from "./context";
-import { MonthSeparatorDataContext, MonthSeparator, MonthSeparatorRow } from "./month-separator";
+import {
+  MonthSeparatorDataContext,
+  MonthSeparator,
+  MonthSeparatorRow,
+} from "./month-separator";
 import type { MonthSeparatorState } from "./month-separator";
 import type { TemporalNamespace, WeekStartDay } from "./types";
 import { useWeeksViewState } from "./weeks-view-context";
@@ -15,7 +19,10 @@ import { useWeeksViewState } from "./weeks-view-context";
 /**
  * Expand a WeekDescriptor into the 7 PlainDate values for that week.
  */
-function weekDays(week: WeekDescriptor, _T: TemporalNamespace): Temporal.PlainDate[] {
+function weekDays(
+  week: WeekDescriptor,
+  _T: TemporalNamespace,
+): Temporal.PlainDate[] {
   const days: Temporal.PlainDate[] = [];
   let d = week.startDate;
   for (let i = 0; i < 7; i++) {
@@ -80,7 +87,10 @@ export function WeeksGrid(props: {
   });
 
   // Pre-compute days arrays for all weeks (memoised on weeks identity).
-  const weekDaysArrays = useMemo(() => weeks.map((w) => weekDays(w, T)), [weeks, T]);
+  const weekDaysArrays = useMemo(
+    () => weeks.map((w) => weekDays(w, T)),
+    [weeks, T],
+  );
 
   const totalColumns = hasWeekNumbers ? 8 : 7;
 
@@ -96,10 +106,14 @@ export function WeeksGrid(props: {
       const isFirstWeek = i === 0;
 
       // Find all distinct months in this week's days
-      const monthsInWeek: Array<{ month: number; year: number; key: string }> = [];
+      const monthsInWeek: Array<{ month: number; year: number; key: string }> =
+        [];
       for (const day of days) {
         const monthKey = `${day.year}-${day.month}`;
-        if (!seenMonths.has(monthKey) && !monthsInWeek.some((m) => m.key === monthKey)) {
+        if (
+          !seenMonths.has(monthKey) &&
+          !monthsInWeek.some((m) => m.key === monthKey)
+        ) {
           monthsInWeek.push({
             month: day.month,
             year: day.year,
@@ -110,7 +124,9 @@ export function WeeksGrid(props: {
 
       // If the first week spans two months, only show the second (newer) month
       const monthsToShow =
-        isFirstWeek && monthsInWeek.length > 1 ? monthsInWeek.slice(1) : monthsInWeek;
+        isFirstWeek && monthsInWeek.length > 1
+          ? monthsInWeek.slice(1)
+          : monthsInWeek;
 
       // Mark all months in this week as seen (even skipped ones)
       for (const m of monthsInWeek) {
@@ -124,7 +140,11 @@ export function WeeksGrid(props: {
           month: newMonth,
           day: 1,
         });
-        const firstDayCol = dayColumnIndex(firstOfMonth, weekStartDay, hasWeekNumbers);
+        const firstDayCol = dayColumnIndex(
+          firstOfMonth,
+          weekStartDay,
+          hasWeekNumbers,
+        );
 
         // Check if the 1st day of this month is actually visible in the window
         const windowStart = weekDaysArrays[0]?.[0];
@@ -140,7 +160,9 @@ export function WeeksGrid(props: {
         for (let j = i - 1; j >= 0; j--) {
           // Check if all days in that week are before this month
           const prevDays = weekDaysArrays[j];
-          const hasThisMonth = prevDays.some((d) => d.month === newMonth && d.year === newYear);
+          const hasThisMonth = prevDays.some(
+            (d) => d.month === newMonth && d.year === newYear,
+          );
           if (!hasThisMonth) {
             weeksVisibleBefore++;
           } else {
@@ -152,7 +174,9 @@ export function WeeksGrid(props: {
         let weeksVisibleAfter = 0;
         for (let j = i; j < weeks.length; j++) {
           const wDays = weekDaysArrays[j];
-          const hasThisMonth = wDays.some((d) => d.month === newMonth && d.year === newYear);
+          const hasThisMonth = wDays.some(
+            (d) => d.month === newMonth && d.year === newYear,
+          );
           if (hasThisMonth) {
             weeksVisibleAfter++;
           } else {
@@ -191,7 +215,8 @@ export function WeeksGrid(props: {
     // (accounting for header row offset +1).
     for (let b = 0; b < boundaries.length; b++) {
       const current = boundaries[b];
-      const nextIndex = b + 1 < boundaries.length ? boundaries[b + 1].index : weeks.length;
+      const nextIndex =
+        b + 1 < boundaries.length ? boundaries[b + 1].index : weeks.length;
       current.data.fullWeeksVisibleAfter = nextIndex - current.index;
       // Grid row: header is row 1, week rows start at row 2.
       // gridRowStart matches the week row it labels: index + 2 (1-based + header).

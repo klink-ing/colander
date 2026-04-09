@@ -25,7 +25,12 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
   { dragging: draggingProp }: { dragging?: boolean },
 ) {
-  const { temporal: T, setHoveredDate, readOnly, disabled } = useCalendarStable();
+  const {
+    temporal: T,
+    setHoveredDate,
+    readOnly,
+    disabled,
+  } = useCalendarStable();
   const { rangeStart, rangeEnd } = useCalendarState();
   const { rootState } = useMonthViewState();
   const cellData = useContext(DayCellDataContext);
@@ -75,11 +80,15 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   };
 }
 
-function RangeDragHandleFn(props: RangeDragHandleProps, ref: React.ForwardedRef<HTMLSpanElement>) {
+function RangeDragHandleFn(
+  props: RangeDragHandleProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, dragging, edge, ...otherProps } = props;
-  const { state, stateAttributesMapping, defaultProps, handleRef } = useDragHandle(edge, {
-    dragging,
-  });
+  const { state, stateAttributesMapping, defaultProps, handleRef } =
+    useDragHandle(edge, {
+      dragging,
+    });
   const { selectionMode } = useCalendarStable();
   const { rangeStart: rs, rangeEnd: re } = useCalendarState();
   const rangeIncomplete = !rs || !re;

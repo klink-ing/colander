@@ -1,7 +1,12 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { TemporalNamespace, WeekStartDay } from "./types";
 
-export type OverflowBehavior = "unbounded" | "stop" | "stop-shrink" | "snap" | "snap-shrink";
+export type OverflowBehavior =
+  | "unbounded"
+  | "stop"
+  | "stop-shrink"
+  | "snap"
+  | "snap-shrink";
 
 export type MonthOverflowBehavior = "unbounded" | "stop";
 
@@ -19,7 +24,10 @@ function weekHasValidDay(
   // Week spans [weekStart, weekStart+6]. Overlaps with [min, max] iff
   // weekStart <= max AND weekStart+6 >= min.
   const weekEnd = weekStart.add({ days: 6 });
-  return T.PlainDate.compare(weekStart, max) <= 0 && T.PlainDate.compare(weekEnd, min) >= 0;
+  return (
+    T.PlainDate.compare(weekStart, max) <= 0 &&
+    T.PlainDate.compare(weekEnd, min) >= 0
+  );
 }
 
 /**

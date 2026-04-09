@@ -1,11 +1,16 @@
 import { createContext, useContext } from "react";
-import type { MonthViewStableContextValue, MonthViewStateContextValue } from "./month-view-types";
+import type {
+  MonthViewStableContextValue,
+  MonthViewStateContextValue,
+} from "./month-view-types";
 
 /** @internal React context for MonthView stable values (config + callbacks). */
-export const MonthViewStableContext = createContext<MonthViewStableContextValue | null>(null);
+export const MonthViewStableContext =
+  createContext<MonthViewStableContextValue | null>(null);
 
 /** @internal React context for MonthView volatile state. */
-export const MonthViewStateContext = createContext<MonthViewStateContextValue | null>(null);
+export const MonthViewStateContext =
+  createContext<MonthViewStateContextValue | null>(null);
 
 /** Returns the MonthView stable context (config + callbacks). */
 export function useMonthViewStable(): MonthViewStableContextValue {

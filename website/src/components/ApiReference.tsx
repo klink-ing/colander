@@ -1,6 +1,10 @@
 import { useRender } from "@base-ui/react/use-render";
 import React, { useId, type ComponentProps } from "react";
-import { getSymbolByName, type ApiSymbol, type SymbolProperty } from "#/lib/api-data";
+import {
+  getSymbolByName,
+  type ApiSymbol,
+  type SymbolProperty,
+} from "#/lib/api-data";
 import { cn } from "#/lib/utils";
 import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
@@ -8,7 +12,11 @@ import { Code } from "./ui/code";
 
 const MDN_BASE = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element";
 
-export default function ApiReference({ symbol: symbolName }: { symbol: string }) {
+export default function ApiReference({
+  symbol: symbolName,
+}: {
+  symbol: string;
+}) {
   const sym = getSymbolByName(symbolName);
 
   if (!sym) {
@@ -22,9 +30,13 @@ export default function ApiReference({ symbol: symbolName }: { symbol: string })
   return (
     <div className="my-6">
       {sym.defaultElement && <DefaultElement symbol={sym} />}
-      {(sym.properties?.length || sym.defaultElement) && <PropsTable symbol={sym} />}
+      {(sym.properties?.length || sym.defaultElement) && (
+        <PropsTable symbol={sym} />
+      )}
       {sym.members && sym.members.length > 0 && <MembersTable symbol={sym} />}
-      {sym.kind === "function" && sym.parameters && <FunctionSignature symbol={sym} />}
+      {sym.kind === "function" && sym.parameters && (
+        <FunctionSignature symbol={sym} />
+      )}
       {sym.kind === "hook" && <HookSignature symbol={sym} />}
     </div>
   );
@@ -112,14 +124,19 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                   <Badge>
                     {prop.name}
                     {!prop.optional && (
-                      <span className="ml-0.5 relative top-[-.25em] text-muted-foreground">*</span>
+                      <span className="ml-0.5 relative top-[-.25em] text-muted-foreground">
+                        *
+                      </span>
                     )}
                   </Badge>
                 </Cell>
                 <Cell className="border-0 pb-3 type-code-100 wrap-break-word text-muted-foreground">
                   <TypeLink type={prop.type} />
                 </Cell>
-                <Cell className="border-0 pb-3 type-code-100 text-muted-foreground" lastInRow>
+                <Cell
+                  className="border-0 pb-3 type-code-100 text-muted-foreground"
+                  lastInRow
+                >
                   {prop.defaultValue || "—"}
                 </Cell>
                 <Cell className="col-start-2 -col-end-1 pt-0">
@@ -145,7 +162,10 @@ function Th({
   return (
     <th
       scope="col"
-      className={cn("pb-1 text-left type-label-200 text-muted-foreground", !lastInRow && "pr-4")}
+      className={cn(
+        "pb-1 text-left type-label-200 text-muted-foreground",
+        !lastInRow && "pr-4",
+      )}
       {...props}
     >
       {children}
@@ -177,7 +197,10 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
       <p className="mb-2 type-body-100-bold text-foreground">Members</p>
       <div className="flex flex-wrap gap-2">
         {symbol.members!.map((member) => (
-          <Code key={member} className="squircle-md border border-border bg-secondary px-2 py-1">
+          <Code
+            key={member}
+            className="squircle-md border border-border bg-secondary px-2 py-1"
+          >
             {member}
           </Code>
         ))}
@@ -210,7 +233,8 @@ function HookSignature({ symbol }: { symbol: ApiSymbol }) {
     <div className="overflow-x-auto">
       <pre className="squircle-lg border border-border bg-card p-4">
         <Code size={200}>
-          {symbol.name}(): {symbol.returnType && <TypeLink type={symbol.returnType} />}
+          {symbol.name}():{" "}
+          {symbol.returnType && <TypeLink type={symbol.returnType} />}
         </Code>
       </pre>
     </div>

@@ -113,7 +113,9 @@ export function StyledWeeksView({
                   className="w-8 p-1 text-center text-[0.7rem] font-normal text-muted-foreground"
                   render={({ children, ...props }: any) => (
                     <th {...props}>
-                      <span className="inline-block min-w-[2ch] text-right">{children}</span>
+                      <span className="inline-block min-w-[2ch] text-right">
+                        {children}
+                      </span>
                     </th>
                   )}
                 />
@@ -125,10 +127,14 @@ export function StyledWeeksView({
               {showMonthSeparators && (
                 <MonthSeparatorRow
                   render={(renderProps, state) => {
-                    const borderFromCol = state.firstDayColumn + 1 + (showWeekNumbers ? 1 : 0);
+                    const borderFromCol =
+                      state.firstDayColumn + 1 + (showWeekNumbers ? 1 : 0);
                     const showLabel = state.fullWeeksVisibleAfter >= 2;
                     return (
-                      <tr {...renderProps} className={cn(renderProps.className, "contents")}>
+                      <tr
+                        {...renderProps}
+                        className={cn(renderProps.className, "contents")}
+                      >
                         <td className="contents">
                           {state.firstDayVisible && (
                             <div
@@ -155,7 +161,10 @@ export function StyledWeeksView({
                                   textOrientation: "mixed",
                                 }}
                               >
-                                <MonthSeparatorMonth locale={locale} format="short" />
+                                <MonthSeparatorMonth
+                                  locale={locale}
+                                  format="short"
+                                />
                               </span>
                             </div>
                           )}
@@ -171,7 +180,9 @@ export function StyledWeeksView({
                     className="w-8 p-1 text-center text-[0.7rem] text-muted-foreground tabular-nums"
                     render={({ children, ...props }: any) => (
                       <td {...props}>
-                        <span className="inline-block min-w-[2ch] text-right">{children}</span>
+                        <span className="inline-block min-w-[2ch] text-right">
+                          {children}
+                        </span>
                       </td>
                     )}
                   />

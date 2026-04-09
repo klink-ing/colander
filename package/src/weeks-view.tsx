@@ -2,11 +2,17 @@ import type { Temporal } from "@js-temporal/polyfill";
 import React, { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
 import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
-import { MonthViewStableContext, MonthViewStateContext } from "./month-view-context";
+import {
+  MonthViewStableContext,
+  MonthViewStateContext,
+} from "./month-view-context";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { RootState, ValueFormat } from "./types";
 import { ViewContext } from "./view-context";
-import { WeeksViewStableContext, WeeksViewStateContext } from "./weeks-view-context";
+import {
+  WeeksViewStableContext,
+  WeeksViewStateContext,
+} from "./weeks-view-context";
 import { useWeeksViewRootState } from "./weeks-view-state";
 import type { WeeksViewRootProps } from "./weeks-view-types";
 
@@ -16,12 +22,19 @@ import type { WeeksViewRootProps } from "./weeks-view-types";
 
 /** Imperative handle exposed by WeeksView.Root via ref. */
 export interface WeeksViewRootHandle {
-  scrollToWeek: (target: FirstWeekSpec, options?: { snap?: ScrollToWeekSnap }) => void;
+  scrollToWeek: (
+    target: FirstWeekSpec,
+    options?: { snap?: ScrollToWeekSnap },
+  ) => void;
 }
 
-function WeeksViewRootFn(props: WeeksViewRootProps, ref: React.ForwardedRef<WeeksViewRootHandle>) {
+function WeeksViewRootFn(
+  props: WeeksViewRootProps,
+  ref: React.ForwardedRef<WeeksViewRootHandle>,
+) {
   const { children } = props;
-  const { stableCtx, stateCtx, viewCtx, scrollToWeek } = useWeeksViewRootState(props);
+  const { stableCtx, stateCtx, viewCtx, scrollToWeek } =
+    useWeeksViewRootState(props);
 
   useImperativeHandle(ref, () => ({ scrollToWeek }), [scrollToWeek]);
 
@@ -64,7 +77,9 @@ function WeeksViewRootFn(props: WeeksViewRootProps, ref: React.ForwardedRef<Week
       <MonthViewStateContext.Provider value={monthViewStateShim}>
         <WeeksViewStableContext.Provider value={stableCtx}>
           <WeeksViewStateContext.Provider value={stateCtx}>
-            <ViewContext.Provider value={viewCtx}>{children}</ViewContext.Provider>
+            <ViewContext.Provider value={viewCtx}>
+              {children}
+            </ViewContext.Provider>
           </WeeksViewStateContext.Provider>
         </WeeksViewStableContext.Provider>
       </MonthViewStateContext.Provider>
@@ -78,10 +93,13 @@ const WeeksViewRoot = forwardRef(WeeksViewRootFn);
 // WeeksView convenience wrapper — composes CalendarProvider + WeeksView.Root
 // ---------------------------------------------------------------------------
 
-type WeeksViewProps<F extends ValueFormat = "PlainDate"> = CalendarProviderProps<F> &
-  WeeksViewRootProps;
+type WeeksViewProps<F extends ValueFormat = "PlainDate"> =
+  CalendarProviderProps<F> & WeeksViewRootProps;
 
-function WeeksViewFn(props: WeeksViewProps, ref: React.ForwardedRef<WeeksViewRootHandle>) {
+function WeeksViewFn(
+  props: WeeksViewProps,
+  ref: React.ForwardedRef<WeeksViewRootHandle>,
+) {
   const {
     weekCount,
     firstWeek,

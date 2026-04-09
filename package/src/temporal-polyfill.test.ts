@@ -28,12 +28,18 @@ describe("PlainDate.from", () => {
   });
 
   it("constrains overflow day", () => {
-    const d = T.PlainDate.from({ year: 2026, month: 2, day: 31 }, { overflow: "constrain" });
+    const d = T.PlainDate.from(
+      { year: 2026, month: 2, day: 31 },
+      { overflow: "constrain" },
+    );
     expect(d.day).toBe(28);
   });
 
   it("constrains overflow day for leap year", () => {
-    const d = T.PlainDate.from({ year: 2024, month: 2, day: 31 }, { overflow: "constrain" });
+    const d = T.PlainDate.from(
+      { year: 2024, month: 2, day: 31 },
+      { overflow: "constrain" },
+    );
     expect(d.day).toBe(29);
   });
 });
@@ -98,11 +104,15 @@ describe("PlainDate add/subtract", () => {
   });
 
   it("subtracts days", () => {
-    expect(date("2026-03-15").subtract({ days: 5 }).toString()).toBe("2026-03-10");
+    expect(date("2026-03-15").subtract({ days: 5 }).toString()).toBe(
+      "2026-03-10",
+    );
   });
 
   it("subtracts months", () => {
-    expect(date("2026-03-31").subtract({ months: 1 }).toString()).toBe("2026-02-28");
+    expect(date("2026-03-31").subtract({ months: 1 }).toString()).toBe(
+      "2026-02-28",
+    );
   });
 
   it("crosses year boundary forward", () => {
@@ -110,7 +120,9 @@ describe("PlainDate add/subtract", () => {
   });
 
   it("crosses year boundary backward", () => {
-    expect(date("2027-01-01").subtract({ days: 1 }).toString()).toBe("2026-12-31");
+    expect(date("2027-01-01").subtract({ days: 1 }).toString()).toBe(
+      "2026-12-31",
+    );
   });
 
   it("adds months crossing year boundary", () => {
@@ -228,8 +240,12 @@ describe("PlainYearMonth", () => {
   });
 
   it("daysInMonth", () => {
-    expect(T.PlainYearMonth.from({ year: 2026, month: 2 }).daysInMonth).toBe(28);
-    expect(T.PlainYearMonth.from({ year: 2024, month: 2 }).daysInMonth).toBe(29);
+    expect(T.PlainYearMonth.from({ year: 2026, month: 2 }).daysInMonth).toBe(
+      28,
+    );
+    expect(T.PlainYearMonth.from({ year: 2024, month: 2 }).daysInMonth).toBe(
+      29,
+    );
   });
 });
 

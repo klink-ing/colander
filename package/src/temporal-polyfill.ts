@@ -45,7 +45,8 @@ function parseDateTimeISO(str: string): {
 } {
   const [datePart, timePart] = str.split("T");
   const [y, m, d] = datePart.split("-").map(Number);
-  if (!timePart) return { year: y, month: m, day: d, hour: 0, minute: 0, second: 0 };
+  if (!timePart)
+    return { year: y, month: m, day: d, hour: 0, minute: 0, second: 0 };
   const [h, min, s] = timePart.split(":").map(Number);
   return {
     year: y,
@@ -159,7 +160,12 @@ class MiniPlainDate {
     return `M${pad2(this.month)}`;
   }
 
-  add(dur: { days?: number; weeks?: number; months?: number; years?: number }): MiniPlainDate {
+  add(dur: {
+    days?: number;
+    weeks?: number;
+    months?: number;
+    years?: number;
+  }): MiniPlainDate {
     let y = this.year + (dur.years || 0);
     let m = this.month + (dur.months || 0);
 
@@ -182,10 +188,19 @@ class MiniPlainDate {
 
     const epoch = toUTC(y, m, d) + totalDays * 86400000;
     const ud = new Date(epoch);
-    return new MiniPlainDate(ud.getUTCFullYear(), ud.getUTCMonth() + 1, ud.getUTCDate());
+    return new MiniPlainDate(
+      ud.getUTCFullYear(),
+      ud.getUTCMonth() + 1,
+      ud.getUTCDate(),
+    );
   }
 
-  subtract(dur: { days?: number; weeks?: number; months?: number; years?: number }): MiniPlainDate {
+  subtract(dur: {
+    days?: number;
+    weeks?: number;
+    months?: number;
+    years?: number;
+  }): MiniPlainDate {
     return this.add({
       days: dur.days ? -dur.days : undefined,
       weeks: dur.weeks ? -dur.weeks : undefined,
@@ -207,7 +222,11 @@ class MiniPlainDate {
   }
 
   equals(other: MiniPlainDate): boolean {
-    return this.year === other.year && this.month === other.month && this.day === other.day;
+    return (
+      this.year === other.year &&
+      this.month === other.month &&
+      this.day === other.day
+    );
   }
 
   toString(): string {
@@ -242,11 +261,17 @@ class MiniPlainDate {
     return new MiniPlainYearMonth(this.year, this.month);
   }
 
-  toLocaleString(locale?: string | string[], options?: Intl.DateTimeFormatOptions): string {
-    return new Date(toUTC(this.year, this.month, this.day)).toLocaleDateString(locale, {
-      timeZone: "UTC",
-      ...options,
-    });
+  toLocaleString(
+    locale?: string | string[],
+    options?: Intl.DateTimeFormatOptions,
+  ): string {
+    return new Date(toUTC(this.year, this.month, this.day)).toLocaleDateString(
+      locale,
+      {
+        timeZone: "UTC",
+        ...options,
+      },
+    );
   }
 }
 
@@ -262,7 +287,14 @@ class MiniPlainDateTime {
   readonly minute: number;
   readonly second: number;
 
-  constructor(year: number, month: number, day: number, hour = 0, minute = 0, second = 0) {
+  constructor(
+    year: number,
+    month: number,
+    day: number,
+    hour = 0,
+    minute = 0,
+    second = 0,
+  ) {
     this.year = year;
     this.month = month;
     this.day = day;
@@ -466,7 +498,11 @@ const PlainDate = {
     if (typeof item === "string") {
       const { year, month, day } = parseDateISO(item);
       if (options?.overflow === "constrain") {
-        return new MiniPlainDate(year, month, clamp(day, 1, daysInMonth(year, month)));
+        return new MiniPlainDate(
+          year,
+          month,
+          clamp(day, 1, daysInMonth(year, month)),
+        );
       }
       return new MiniPlainDate(year, month, day);
     }
@@ -512,7 +548,9 @@ const PlainMonthDay = {
       if (parts.length >= 3) return new MiniPlainMonthDay(parts[1], parts[2]);
       return new MiniPlainMonthDay(parts[0], parts[1]);
     }
-    const month = item.month ?? (item.monthCode ? Number.parseInt(item.monthCode.slice(1), 10) : 1);
+    const month =
+      item.month ??
+      (item.monthCode ? Number.parseInt(item.monthCode.slice(1), 10) : 1);
     return new MiniPlainMonthDay(month, item.day);
   },
 };

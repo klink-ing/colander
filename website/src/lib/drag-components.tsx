@@ -17,7 +17,12 @@ export interface DragHandleProps {
   style?: React.CSSProperties;
 }
 
-export function DragHandle({ edge, preventRangeReversal, className, style }: DragHandleProps) {
+export function DragHandle({
+  edge,
+  preventRangeReversal,
+  className,
+  style,
+}: DragHandleProps) {
   const handleRef = useRef<HTMLSpanElement>(null);
   const { dragging, anyHandleDragging, didLeaveRef } = useDragHandleDnD({
     edge,

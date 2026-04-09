@@ -7,34 +7,44 @@
 }
 
 @utility squircle-* {
-  --squircle-r: calc(pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*));
+  --squircle-r: calc(
+    pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*)
+  );
   border-radius: var(--squircle-r);
   corner-shape: superellipse(var(--squircle-amt, 2));
 }
 
 @utility squircle-t-* {
-  --squircle-r: calc(pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*));
+  --squircle-r: calc(
+    pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*)
+  );
   border-top-left-radius: var(--squircle-r);
   border-top-right-radius: var(--squircle-r);
   corner-shape: superellipse(var(--squircle-amt, 2));
 }
 
 @utility squircle-r-* {
-  --squircle-r: calc(pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*));
+  --squircle-r: calc(
+    pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*)
+  );
   border-top-right-radius: var(--squircle-r);
   border-bottom-right-radius: var(--squircle-r);
   corner-shape: superellipse(var(--squircle-amt, 2));
 }
 
 @utility squircle-b-* {
-  --squircle-r: calc(pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*));
+  --squircle-r: calc(
+    pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*)
+  );
   border-bottom-left-radius: var(--squircle-r);
   border-bottom-right-radius: var(--squircle-r);
   corner-shape: superellipse(var(--squircle-amt, 2));
 }
 
 @utility squircle-l-* {
-  --squircle-r: calc(pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*));
+  --squircle-r: calc(
+    pow(1.74, (pow(var(--squircle-amt, 2), 1.079) - 1)) * --value(--radius-*)
+  );
   border-top-left-radius: var(--squircle-r);
   border-bottom-left-radius: var(--squircle-r);
   corner-shape: superellipse(var(--squircle-amt, 2));

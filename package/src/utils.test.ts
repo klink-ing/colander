@@ -106,7 +106,11 @@ describe("toZonedDateTime", () => {
 
   it("converts PlainYearMonth to ZonedDateTime (day 1)", () => {
     const pym = Temporal.PlainYearMonth.from({ year: 2026, month: 6 });
-    const zdt = toZonedDateTime({ format: "PlainYearMonth", value: pym }, tz, T);
+    const zdt = toZonedDateTime(
+      { format: "PlainYearMonth", value: pym },
+      tz,
+      T,
+    );
     expect(zdt.year).toBe(2026);
     expect(zdt.month).toBe(6);
     expect(zdt.day).toBe(1);
@@ -114,7 +118,11 @@ describe("toZonedDateTime", () => {
 
   it("passes through ZonedDateTime unchanged", () => {
     const orig = Temporal.PlainDate.from("2026-03-15").toZonedDateTime(tz);
-    const zdt = toZonedDateTime({ format: "ZonedDateTime", value: orig }, tz, T);
+    const zdt = toZonedDateTime(
+      { format: "ZonedDateTime", value: orig },
+      tz,
+      T,
+    );
     expect(Temporal.ZonedDateTime.compare(zdt, orig)).toBe(0);
   });
 
@@ -157,7 +165,9 @@ describe("toZonedDateTime", () => {
 
 describe("fromZonedDateTime", () => {
   const tz = "America/New_York";
-  const zdt = Temporal.PlainDateTime.from("2026-03-15T10:30:45").toZonedDateTime(tz);
+  const zdt = Temporal.PlainDateTime.from(
+    "2026-03-15T10:30:45",
+  ).toZonedDateTime(tz);
 
   it("extracts PlainDate", () => {
     const result = fromZonedDateTime(zdt, "PlainDate", T);
@@ -224,7 +234,11 @@ describe("fromZonedDateTime", () => {
 
   it("round-trips: toZonedDateTime → fromZonedDateTime preserves PlainDate", () => {
     const pd = Temporal.PlainDate.from("2026-06-20");
-    const intermediate = toZonedDateTime({ format: "PlainDate", value: pd }, tz, T);
+    const intermediate = toZonedDateTime(
+      { format: "PlainDate", value: pd },
+      tz,
+      T,
+    );
     const result = fromZonedDateTime(intermediate, "PlainDate", T);
     expect((result.value as Temporal.PlainDate).toString()).toBe("2026-06-20");
   });
@@ -249,14 +263,18 @@ describe("selectedToZdt", () => {
 
 describe("zdtToNativeDate", () => {
   it("converts a ZonedDateTime to a native Date with the correct epoch", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-01-01T00:00:00").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-01-01T00:00:00",
+    ).toZonedDateTime("UTC");
     const native = zdtToNativeDate(zdt);
     expect(native).toBeInstanceOf(Date);
     expect(native.toISOString()).toBe("2026-01-01T00:00:00.000Z");
   });
 
   it("preserves millisecond precision", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-06-15T12:30:00").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-06-15T12:30:00",
+    ).toZonedDateTime("UTC");
     const native = zdtToNativeDate(zdt);
     expect(native.getUTCHours()).toBe(12);
     expect(native.getUTCMinutes()).toBe(30);
@@ -265,31 +283,41 @@ describe("zdtToNativeDate", () => {
 
 describe("sameCalendarDay", () => {
   it("returns true when year, month, and day match", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-03-15T10:00:00").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-03-15T10:00:00",
+    ).toZonedDateTime("UTC");
     const pd = Temporal.PlainDate.from("2026-03-15");
     expect(sameCalendarDay(zdt, pd)).toBe(true);
   });
 
   it("returns true even when times differ", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-03-15T23:59:59").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-03-15T23:59:59",
+    ).toZonedDateTime("UTC");
     const pd = Temporal.PlainDate.from("2026-03-15");
     expect(sameCalendarDay(zdt, pd)).toBe(true);
   });
 
   it("returns false when days differ", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-03-15T10:00:00").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-03-15T10:00:00",
+    ).toZonedDateTime("UTC");
     const pd = Temporal.PlainDate.from("2026-03-16");
     expect(sameCalendarDay(zdt, pd)).toBe(false);
   });
 
   it("returns false when months differ", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-03-15T10:00:00").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-03-15T10:00:00",
+    ).toZonedDateTime("UTC");
     const pd = Temporal.PlainDate.from("2026-04-15");
     expect(sameCalendarDay(zdt, pd)).toBe(false);
   });
 
   it("returns false when years differ", () => {
-    const zdt = Temporal.PlainDateTime.from("2026-03-15T10:00:00").toZonedDateTime("UTC");
+    const zdt = Temporal.PlainDateTime.from(
+      "2026-03-15T10:00:00",
+    ).toZonedDateTime("UTC");
     const pd = Temporal.PlainDate.from("2027-03-15");
     expect(sameCalendarDay(zdt, pd)).toBe(false);
   });
@@ -568,14 +596,18 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
     const nextWeeks = getMonthWeeks(next.year, next.month, T);
     const allNextDays = nextWeeks.flat();
 
-    expect(allNextDays.some((dd) => T.PlainDate.compare(dd, newFocused) === 0)).toBe(true);
+    expect(
+      allNextDays.some((dd) => T.PlainDate.compare(dd, newFocused) === 0),
+    ).toBe(true);
 
     const prev = computeAdjacentMonth(current, "prev", T);
     const prevFocused = focusedDateForMonth(focusedDate, prev, prev.firstDay);
     const prevWeeks = getMonthWeeks(prev.year, prev.month, T);
     const allPrevDays = prevWeeks.flat();
 
-    expect(allPrevDays.some((dd) => T.PlainDate.compare(dd, prevFocused) === 0)).toBe(true);
+    expect(
+      allPrevDays.some((dd) => T.PlainDate.compare(dd, prevFocused) === 0),
+    ).toBe(true);
   });
 });
 
@@ -586,7 +618,14 @@ describe.each(temporalVariants)("resolveFocusTarget ($name)", ({ T }) => {
   const march = { year: 2026, month: 3 };
 
   it("priority 1: returns focusedDate when it is in the grid", () => {
-    const result = resolveFocusTarget(d("2026-03-15"), undefined, marchWeeks, march, noDisabled, T);
+    const result = resolveFocusTarget(
+      d("2026-03-15"),
+      undefined,
+      marchWeeks,
+      march,
+      noDisabled,
+      T,
+    );
     expect(result.toString()).toBe("2026-03-15");
   });
 
@@ -656,7 +695,8 @@ describe.each(temporalVariants)("resolveFocusTarget ($name)", ({ T }) => {
   });
 
   it("falls back to first grid day when all current-month days are disabled", () => {
-    const allDisabled = (dd: Temporal.PlainDate) => dd.year === 2026 && dd.month === 3;
+    const allDisabled = (dd: Temporal.PlainDate) =>
+      dd.year === 2026 && dd.month === 3;
     const result = resolveFocusTarget(
       d("2026-05-01"),
       undefined,
@@ -868,12 +908,22 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   });
 
   it("returns inactive when range has no overlap with week", () => {
-    const result = computeWeekRangeInfo(week1, d("2026-04-01"), d("2026-04-10"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      d("2026-04-01"),
+      d("2026-04-10"),
+      T,
+    );
     expect(result.active).toBe(false);
   });
 
   it("range fully within week", () => {
-    const result = computeWeekRangeInfo(week1, d("2026-03-09"), d("2026-03-12"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      d("2026-03-09"),
+      d("2026-03-12"),
+      T,
+    );
     expect(result.active).toBe(true);
     expect(result.extendsBefore).toBe(false);
     expect(result.extendsAfter).toBe(false);
@@ -884,7 +934,12 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   });
 
   it("range starts before week", () => {
-    const result = computeWeekRangeInfo(week1, d("2026-03-01"), d("2026-03-12"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      d("2026-03-01"),
+      d("2026-03-12"),
+      T,
+    );
     expect(result.active).toBe(true);
     expect(result.extendsBefore).toBe(true);
     expect(result.extendsAfter).toBe(false);
@@ -892,7 +947,12 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   });
 
   it("range ends after week", () => {
-    const result = computeWeekRangeInfo(week1, d("2026-03-09"), d("2026-03-25"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      d("2026-03-09"),
+      d("2026-03-25"),
+      T,
+    );
     expect(result.active).toBe(true);
     expect(result.extendsBefore).toBe(false);
     expect(result.extendsAfter).toBe(true);
@@ -900,7 +960,12 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   });
 
   it("range spans entire week", () => {
-    const result = computeWeekRangeInfo(week1, d("2026-03-01"), d("2026-03-25"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      d("2026-03-01"),
+      d("2026-03-25"),
+      T,
+    );
     expect(result.active).toBe(true);
     expect(result.extendsBefore).toBe(true);
     expect(result.extendsAfter).toBe(true);
@@ -918,13 +983,23 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   });
 
   it("two-day range within week", () => {
-    const result = computeWeekRangeInfo(week1, d("2026-03-10"), d("2026-03-11"), T);
+    const result = computeWeekRangeInfo(
+      week1,
+      d("2026-03-10"),
+      d("2026-03-11"),
+      T,
+    );
     expect(result.active).toBe(true);
     expect(result.endIndex - result.startIndex).toBe(1);
   });
 
   it("returns inactive for empty weekDays array", () => {
-    const result = computeWeekRangeInfo([], d("2026-03-10"), d("2026-03-15"), T);
+    const result = computeWeekRangeInfo(
+      [],
+      d("2026-03-10"),
+      d("2026-03-15"),
+      T,
+    );
     expect(result.active).toBe(false);
   });
 });

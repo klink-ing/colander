@@ -16,7 +16,10 @@ export type FirstWeekSpec =
 export type ScrollToWeekSnap = "start" | "center" | "end" | "nearest";
 
 /** Snaps `date` back to the start of its containing week (determined by `weekStartDay`). */
-function snapToWeekStart(date: Temporal.PlainDate, weekStartDay: WeekStartDay): Temporal.PlainDate {
+function snapToWeekStart(
+  date: Temporal.PlainDate,
+  weekStartDay: WeekStartDay,
+): Temporal.PlainDate {
   const dow = date.dayOfWeek % 7; // 0=Sun..6=Sat
   const offset = (dow - weekStartDay + 7) % 7;
   return date.subtract({ days: offset });
@@ -52,7 +55,8 @@ export function resolveFirstWeekSpec(
       day: "numeric",
     });
     const parts = fmt.formatToParts(spec);
-    const get = (type: string) => Number(parts.find((p) => p.type === type)?.value ?? 0);
+    const get = (type: string) =>
+      Number(parts.find((p) => p.type === type)?.value ?? 0);
     const plain = T.PlainDate.from({
       year: get("year"),
       month: get("month"),

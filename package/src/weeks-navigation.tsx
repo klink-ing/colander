@@ -25,11 +25,17 @@ export interface WeeksNavButtonOwnProps {
 }
 
 /** Full props for the `PrevWeeksButton` component. */
-export type PrevWeeksButtonProps = useRender.ComponentProps<"button", WeeksNavButtonState> &
+export type PrevWeeksButtonProps = useRender.ComponentProps<
+  "button",
+  WeeksNavButtonState
+> &
   WeeksNavButtonOwnProps;
 
 /** Full props for the `NextWeeksButton` component. */
-export type NextWeeksButtonProps = useRender.ComponentProps<"button", WeeksNavButtonState> &
+export type NextWeeksButtonProps = useRender.ComponentProps<
+  "button",
+  WeeksNavButtonState
+> &
   WeeksNavButtonOwnProps;
 
 /** State exposed by `WeeksView.WeekCount`. */
@@ -60,7 +66,10 @@ const weekCountStateAttributesMapping = {
 // Shared hook
 // ---------------------------------------------------------------------------
 
-function useWeeksNavButton(direction: "prev" | "next", shiftByProp: number | undefined) {
+function useWeeksNavButton(
+  direction: "prev" | "next",
+  shiftByProp: number | undefined,
+) {
   const {
     disabled: globalDisabled,
     minValue,
@@ -177,7 +186,10 @@ export const NextWeeksButton = forwardRef(NextWeeksButtonFn);
 // WeekCount
 // ---------------------------------------------------------------------------
 
-function WeekCountFn(props: WeekCountProps, ref: React.ForwardedRef<HTMLSpanElement>) {
+function WeekCountFn(
+  props: WeekCountProps,
+  ref: React.ForwardedRef<HTMLSpanElement>,
+) {
   const { render, ...otherProps } = props;
   const { windowInfo } = useWeeksViewState();
   const { rootState } = useMonthViewState();

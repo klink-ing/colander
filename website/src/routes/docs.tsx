@@ -45,7 +45,10 @@ function DocsLayout() {
 
   return (
     <main className="page-wrap flex gap-0 pt-8 pb-12">
-      <DocsNavSidebar entries={sectionNav.entries} apiEntries={sectionNav.apiEntries} />
+      <DocsNavSidebar
+        entries={sectionNav.entries}
+        apiEntries={sectionNav.apiEntries}
+      />
 
       <div className="min-w-0 flex-1">
         {/* Sidebar toggle — visible between bp-4.5 and bp-6 only */}
@@ -55,7 +58,13 @@ function DocsLayout() {
           onClick={() => setOpen(true)}
           className="bp-4.5:flex bp-7.5:hidden mb-4 hidden items-center gap-2 squircle-lg border border-border px-3 py-2 type-body-100 text-muted-foreground transition hover:bg-accent hover:text-foreground"
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
             <path
               d="M2 4h12M2 8h12M2 12h12"
               stroke="currentColor"

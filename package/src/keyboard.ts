@@ -58,9 +58,12 @@ function clampToBounds(
   T: TemporalNamespace,
 ): KeyboardNavResult {
   let clamped = target;
-  if (minValue && T.PlainDate.compare(clamped, minValue) < 0) clamped = minValue;
-  if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0) clamped = maxValue;
-  if (T.PlainDate.compare(clamped, focusedDate) === 0) return { action: "none" };
+  if (minValue && T.PlainDate.compare(clamped, minValue) < 0)
+    clamped = minValue;
+  if (maxValue && T.PlainDate.compare(clamped, maxValue) > 0)
+    clamped = maxValue;
+  if (T.PlainDate.compare(clamped, focusedDate) === 0)
+    return { action: "none" };
   return { action: "move", date: clamped };
 }
 
@@ -71,7 +74,9 @@ function clampToBounds(
  * PageUp/PageDown (±1 month, ±1 year with Shift), and Enter/Space (select).
  * Results are clamped to `minValue`/`maxValue` bounds.
  */
-export function computeNextFocusDate(input: KeyboardNavInput): KeyboardNavResult {
+export function computeNextFocusDate(
+  input: KeyboardNavInput,
+): KeyboardNavResult {
   const {
     key,
     shiftKey,
@@ -105,18 +110,24 @@ export function computeNextFocusDate(input: KeyboardNavInput): KeyboardNavResult
       break;
     case "Home": {
       const adjustedDow =
-        ((focusedDate.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+        ((focusedDate.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+        daysInWeek;
       nextDate = focusedDate.subtract({ days: adjustedDow });
       break;
     }
     case "End": {
       const adjustedDow =
-        ((focusedDate.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) % daysInWeek;
+        ((focusedDate.dayOfWeek % daysInWeek) - weekStartDay + daysInWeek) %
+        daysInWeek;
       nextDate = focusedDate.add({ days: daysInWeek - 1 - adjustedDow });
       break;
     }
     case "PageUp": {
-      const target = computeMonthJumpTarget(focusedDate, shiftKey ? -12 : -1, T);
+      const target = computeMonthJumpTarget(
+        focusedDate,
+        shiftKey ? -12 : -1,
+        T,
+      );
       return clampToBounds(target, focusedDate, minValue, maxValue, T);
     }
     case "PageDown": {

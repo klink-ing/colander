@@ -1,11 +1,16 @@
 import { createContext, useContext } from "react";
-import type { WeeksViewStableContextValue, WeeksViewStateContextValue } from "./weeks-view-types";
+import type {
+  WeeksViewStableContextValue,
+  WeeksViewStateContextValue,
+} from "./weeks-view-types";
 
 /** @internal React context for WeeksView stable values (config + callbacks). */
-export const WeeksViewStableContext = createContext<WeeksViewStableContextValue | null>(null);
+export const WeeksViewStableContext =
+  createContext<WeeksViewStableContextValue | null>(null);
 
 /** @internal React context for WeeksView volatile state. */
-export const WeeksViewStateContext = createContext<WeeksViewStateContextValue | null>(null);
+export const WeeksViewStateContext =
+  createContext<WeeksViewStateContextValue | null>(null);
 
 /** Returns the WeeksView stable context (config + callbacks). */
 export function useWeeksViewStable(): WeeksViewStableContextValue {

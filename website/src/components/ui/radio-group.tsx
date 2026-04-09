@@ -7,7 +7,10 @@ import { RadioGroup as RadioGroupPrimitive } from "@base-ui/react/radio-group";
 import type { ReactNode } from "react";
 import { cn } from "#/lib/utils";
 
-function RadioGroup<TValue = any>({ className, ...props }: RadioGroupPrimitive.Props<TValue>) {
+function RadioGroup<TValue = any>({
+  className,
+  ...props
+}: RadioGroupPrimitive.Props<TValue>) {
   return (
     <RadioGroupPrimitive<TValue>
       data-slot="radio-group"
@@ -40,7 +43,9 @@ function RadioGroupItem<TValue = "string">({
             <span className="absolute top-1/2 left-1/2 size-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary-foreground" />
           </RadioPrimitive.Indicator>
         </RadioPrimitive.Root>
-        <span className="text-trim-cap">{children ?? (props.value as ReactNode)}</span>
+        <span className="text-trim-cap">
+          {children ?? (props.value as ReactNode)}
+        </span>
       </FieldPrimitive.Label>
     </FieldPrimitive.Item>
   );

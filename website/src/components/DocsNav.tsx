@@ -69,7 +69,9 @@ export default function DocsNav({
     <nav aria-label="Documentation navigation">
       {Array.from(grouped.entries()).map(([section, entries]) => (
         <div key={section} className="mb-5">
-          <h4 className="mb-2 type-label-100 text-muted-foreground">{section}</h4>
+          <h4 className="mb-2 type-label-100 text-muted-foreground">
+            {section}
+          </h4>
           <ul className="space-y-0.5 m-0 list-none p-0">
             {entries.map((entry) => {
               const path = `/docs/${entry.slug}`;
