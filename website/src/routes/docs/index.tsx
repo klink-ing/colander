@@ -1,14 +1,14 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Card } from "#/components/ui/card";
-import { Route as docsRoute } from "#/routes/docs";
+import { useSectionNav } from "#/lib/use-section-nav";
 
 export const Route = createFileRoute("/docs/")({
   component: DocsIndex,
 });
 
 function DocsIndex() {
-  const { sectionNav } = docsRoute.useLoaderData();
-  const { entries } = sectionNav;
+  const sectionNav = useSectionNav();
+  const entries = sectionNav?.entries ?? [];
 
   return (
     <div>
