@@ -10,10 +10,11 @@ message="${2:?Usage: commit-if-changed.sh <path> <commit-message>}"
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
-if git diff --quiet "$path"; then
-  echo "No changes in $path"
+git add "$path"
+
+if git diff --cached --quiet; then
+  echo "No changes to commit"
 else
-  git add "$path"
-  git commit --no-verify -m "$message"
+  git commit -m "$message"
   git push
 fi
