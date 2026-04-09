@@ -45,7 +45,7 @@ export default function NavDrawer({ children }: { children: React.ReactNode }) {
             }
             return false;
           }}
-          className="w-[19rem] fixed inset-y-0 left-0 z-60 -translate-x-full overflow-y-auto bg-background p-6 shadow-xl transition-transform duration-200 ease-out data-ending-style:-translate-x-full data-ending-style:duration-150 data-ending-style:ease-in data-open:translate-x-0"
+          className="fixed inset-y-0 left-0 z-60 w-[19rem] -translate-x-full overflow-y-auto bg-background p-6 shadow-xl transition-transform duration-200 ease-out data-ending-style:-translate-x-full data-ending-style:duration-150 data-ending-style:ease-in data-open:translate-x-0"
         >
           {children}
         </Dialog.Popup>

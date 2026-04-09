@@ -25,7 +25,7 @@ jobs:
           run-install: true
 
       - name: Regenerate format files
-        run: vp run colander#generate-formats
+        run: vp run @klinking/colander#generate-formats
 
       - name: Commit if changed
         run: >-
