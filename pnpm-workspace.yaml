@@ -20,8 +20,8 @@ catalog:
 catalogMode: prefer
 
 overrides:
-  vite: "catalog:"
-  vitest: "catalog:"
+  # vite: "catalog:"
+  # vitest: "catalog:"
 
 peerDependencyRules:
   allowAny:
