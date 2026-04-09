@@ -1,0 +1,30 @@
+{
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "paths": {
+      "#/*": ["./src/*"],
+      "colander": ["../package/src/index.ts"],
+      "colander/plain-date": ["../package/src/formats/plain-date.ts"],
+      "colander/plain-date-time": ["../package/src/formats/plain-date-time.ts"],
+      "colander/plain-month-day": ["../package/src/formats/plain-month-day.ts"],
+      "colander/plain-year-month": ["../package/src/formats/plain-year-month.ts"],
+      "colander/zoned-date-time": ["../package/src/formats/zoned-date-time.ts"],
+      "colander/object": ["../package/src/formats/object.ts"],
+      "colander/date": ["../package/src/formats/date.ts"]
+    },
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "verbatimModuleSyntax": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true
+  }
+}

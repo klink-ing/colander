@@ -1,20 +1,7 @@
 {
   "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "printWidth": 80,
-  "sortPackageJson": true,
-  "sortImports": {
-    "partitionByNewline": true,
-    "newlinesBetween": false
-  },
-  "overrides": [
-    {
-      "files": ["site/**/*.{ts,tsx}"],
-      "options": {
-        "sortTailwindcss": {
-          "stylesheet": "./site/src/styles.css",
-          "functions": ["cn"]
-        }
-      }
-    }
-  ]
+  "ignorePatterns": [],
+  "sortTailwindcss": {
+    "stylesheet": "./website/src/styles.css"
+  }
 }

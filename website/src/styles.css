@@ -1,0 +1,255 @@
+@import "@fontsource-variable/roboto-flex/wdth.css";
+@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/lora";
+@import "@fontsource-variable/jetbrains-mono";
+
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/* Override shadcn's data-selected variant to support Base UI's presence pattern
+   alongside react-day-picker's data-selected="true" convention. */
+@custom-variant data-selected {
+  &:where([data-selected="true"]),
+  &:where([data-selected]:not([data-selected="false"])) {
+    @slot;
+  }
+}
+
+@import "./typography.css";
+@import "./squircle.css";
+
+@import "./breakpoints.gen.css";
+@import "./fluid.gen.css";
+
+@custom-variant dark (&:is(.dark *));
+
+/* ShadCN color tokens */
+:root {
+  --background: oklch(0.985 0 0);
+  --foreground: oklch(0.147 0.004 49.25);
+  --foreground-vivid: oklch(0.852 0.199 91.936);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.147 0.004 49.25);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.147 0.004 49.25);
+  --primary: oklch(0.9 0.199 91.936);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.967 0.001 286.375);
+  --secondary-foreground: oklch(0.21 0.006 285.885);
+  --muted: oklch(0.94 0.001 106.424);
+  --muted-foreground: oklch(0.553 0.013 58.071);
+  --accent: oklch(0.97 0.001 106.424);
+  --accent-foreground: oklch(0.216 0.006 56.043);
+  --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
+  --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --focus: oklch(0.5 0.4 221.723);
+  --focus-destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.85 0.003 48.717);
+  --input: oklch(0.923 0.003 48.717);
+  --chart-1: oklch(0.865 0.127 207.078);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.609 0.126 221.723);
+  --chart-4: oklch(0.52 0.105 223.128);
+  --chart-5: oklch(0.45 0.085 224.283);
+
+  --squircle-amt: 1.5;
+}
+
+/* ── Site color tokens ────────────────────────────────────────── */
+
+:root {
+  --link: oklch(0.5 0.2 255);
+  --link-hover: oklch(0.42 0.22 255);
+  --link-visited: oklch(0.5 0.15 285);
+}
+
+.dark {
+  --link: oklch(0.6 0.18 250);
+  --link-hover: oklch(0.5 0.16 250);
+  --link-visited: oklch(0.64 0.12 280);
+}
+
+@theme inline {
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-input: var(--input);
+  --color-focus: var(--focus);
+  --color-ring: var(--focus);
+  --color-focus-destructive: var(--focus-destructive);
+  --color-border: var(--border);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-foreground: var(--foreground);
+  --color-foreground-vivid: var(--foreground-vivid);
+  --color-background: var(--background);
+  --font-sans: "Figtree Variable", sans-serif;
+  --font-heading: "Lora Variable", serif;
+  --font-display: "Roboto Flex Variable", sans-serif;
+  --font-mono: "JetBrains Mono Variable", monospace;
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-accent: var(--accent);
+  --color-primary-hover: var(--primary-hover);
+  --color-secondary-hover: var(--secondary-hover);
+  --color-muted-hover: var(--muted-hover);
+  --color-accent-hover: var(--accent-hover);
+  --color-destructive-hover: var(--destructive-hover);
+}
+
+@theme {
+  --radius-*: initial; /* reset initial tailwind radii */
+  --radius-xs: calc(8em / 16);
+  --radius-sm: calc(10em / 16);
+  --radius-md: calc(12em / 16);
+  --radius-lg: calc(14em / 16);
+  --radius-xl: calc(16em / 16);
+  --radius-2xl: calc(24em / 16);
+  --radius-full: calc(infinity * 1px);
+
+  /* Same spacing scale as default Tailwind, but limited with possible values limited as the scale increases */
+  --spacing: 0.25rem; /* 0.25rem = 4px */
+  --spacing-*: initial; /* reset initial tailwind spacing */
+  --spacing-0: calc(0 * var(--spacing)); /* 0 rem = 0 */
+  --spacing-1: calc(1 * var(--spacing)); /* 0.25rem = 4 px */
+  --spacing-1.5: calc(1.5 * var(--spacing)); /* 0.375rem = 6px */
+  --spacing-2: calc(2 * var(--spacing)); /* 0.5rem = 8px */
+  --spacing-2.5: calc(2.5 * var(--spacing)); /* 0.625rem = 10px */
+  --spacing-3: calc(3 * var(--spacing)); /* 0.75rem = 12px */
+  --spacing-3.5: calc(3.5 * var(--spacing)); /* 0.875rem = 14px */
+  --spacing-4: calc(4 * var(--spacing)); /* 1rem = 16px */
+  --spacing-5: calc(5 * var(--spacing)); /* 1.25rem = 20px */
+  --spacing-6: calc(6 * var(--spacing)); /* 1.5rem = 24px */
+  --spacing-7: calc(7 * var(--spacing)); /* 1.75rem = 28px */
+  --spacing-8: calc(8 * var(--spacing)); /* 2rem = 32px */
+  --spacing-10: calc(10 * var(--spacing)); /* 2.5rem = 40px */
+  --spacing-12: calc(12 * var(--spacing)); /* 3rem = 48px */
+  --spacing-14: calc(14 * var(--spacing)); /* 3.5rem = 56px */
+  --spacing-16: calc(16 * var(--spacing)); /* 4rem = 64px */
+  --spacing-20: calc(20 * var(--spacing)); /* 5rem = 80px */
+  --spacing-24: calc(24 * var(--spacing)); /* 6rem = 96px */
+  --spacing-28: calc(28 * var(--spacing)); /* 7rem = 112px */
+  --spacing-32: calc(32 * var(--spacing)); /* 8rem = 128px */
+  --spacing-40: calc(40 * var(--spacing)); /* 10rem = 160px */
+  --spacing-48: calc(48 * var(--spacing)); /* 12rem = 192px */
+  --spacing-64: calc(64 * var(--spacing)); /* 16rem = 256px */
+  --spacing-w-focus: 2px;
+
+  --squircle-amt-default: 1.5;
+  --squircle-amt-minimal: 1.15;
+  --squircle-amt-lg: 1.5;
+}
+
+/* Site color tokens */
+@theme inline {
+  --color-link: var(--link);
+  --color-link-hover: var(--link-hover);
+  --color-link-visited: var(--link-visited);
+}
+
+.dark {
+  --background: oklch(0.15 0 0);
+  --foreground: oklch(0.985 0.001 106.423);
+  --foreground-vivid: oklch(0.795 0.184 86.047);
+  --card: oklch(0 0 0);
+  --card-foreground: oklch(0.985 0.001 106.423);
+  --popover: oklch(0.216 0.006 56.043);
+  --popover-foreground: oklch(0.985 0.001 274);
+  --primary: oklch(0.795 0.184 86.047);
+  --primary-foreground: oklch(0 0 0);
+  --secondary: oklch(0.274 0.006 274);
+  --secondary-foreground: oklch(0.985 0 274);
+  --muted: oklch(0.268 0.007 274);
+  --muted-foreground: oklch(0.809 0.01 274);
+  --accent: oklch(0.21 0.006 274);
+  --accent-foreground: oklch(0.985 0.001 274);
+  --primary-hover: oklch(from var(--primary) calc(l + 0.08) calc(c + 0.01) h);
+  --secondary-hover: oklch(from var(--secondary) calc(l + 0.08) calc(c + 0.01) h);
+  --muted-hover: oklch(from var(--muted) calc(l + 0.08) calc(c + 0.01) h);
+  --accent-hover: oklch(from var(--accent) calc(l + 0.08) calc(c + 0.01) h);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-hover: oklch(from var(--destructive) calc(l + 0.08) calc(c + 0.01) h);
+  --border: oklch(0.3 0 0);
+  --input: oklch(1 0 0 / 15%);
+  --focus: oklch(0.7 0.16 251.22);
+  --focus-destructive: oklch(0.577 0.245 27.325);
+  --chart-1: oklch(0.865 0.127 207.078);
+  --chart-2: oklch(0.715 0.143 215.221);
+  --chart-3: oklch(0.609 0.126 221.723);
+  --chart-4: oklch(0.52 0.105 223.128);
+  --chart-5: oklch(0.45 0.085 224.283);
+}
+
+@layer base {
+  /* ── Base resets ────────────────────────────────────────── */
+
+  * {
+    box-sizing: border-box;
+    /* default border and focus colors */
+    @apply border-border outline-focus;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+@layer components {
+  :root {
+    --page-max-bp: var(--breakpoint-bp-13);
+  }
+  .page-wrap {
+    width: min(
+      calc(var(--page-max-bp) - calc(var(--fluid-space-page-mx) * 2)),
+      calc(100% - calc(var(--fluid-space-page-mx) * 2))
+    );
+    margin-inline: auto;
+  }
+}
+
+@utility text-trim-cap {
+  text-box: trim-both cap alphabetic;
+}
+
+@utility zipzap {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0
+    calc(var(--spacing-w-focus) + var(--tw-ring-offset-width)) var(--tw-ring-color, currentcolor);
+  box-shadow:
+    var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow),
+    var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+@utility ring-w-focus {
+  @apply ring-2;
+}

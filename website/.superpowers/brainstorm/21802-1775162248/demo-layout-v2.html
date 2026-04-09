@@ -1,0 +1,325 @@
+<h2>Demo Page Layout v2</h2>
+<p class="subtitle">Two sections — overlay comparison + interactive math explorer</p>
+
+<div style="display: flex; flex-direction: column; gap: 32px; max-width: 800px; margin: 0 auto">
+  <!-- Section 1: Overlay Comparison -->
+  <div style="border: 2px solid #6366f1; border-radius: 12px; padding: 24px; background: #1a1a2e">
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+      <span
+        style="
+          background: #6366f1;
+          color: white;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 4px;
+        "
+        >SECTION 1</span
+      >
+      <strong style="color: #e0e0e0">Overlay Comparison</strong>
+    </div>
+    <p style="color: #999; font-size: 14px; margin-bottom: 16px">
+      Circular arc (red) overlaid with squircle (blue). Toggle correction to see the visual mismatch
+      when superellipse uses the raw radius.
+    </p>
+    <div style="display: flex; gap: 24px; align-items: center">
+      <div
+        style="width: 200px; height: 200px; background: #2a2a4a; position: relative; flex-shrink: 0"
+      >
+        <!-- Simulated overlaid corners — one corner only -->
+        <div
+          style="
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            border-top-right-radius: 60px;
+            border: 2px solid #ef4444;
+            background: transparent;
+          "
+        ></div>
+        <div
+          style="
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            border-top-right-radius: 78px;
+            background: rgba(99, 102, 241, 0.12);
+            border: 2px solid #6366f1;
+          "
+        ></div>
+        <div style="position: absolute; top: 8px; right: 8px; font-size: 11px; text-align: right">
+          <span style="color: #ef4444">● circular r=60</span><br />
+          <span style="color: #6366f1">● squircle r=78</span>
+        </div>
+        <div style="position: absolute; bottom: 8px; left: 8px; font-size: 10px; color: #666">
+          single corner
+        </div>
+      </div>
+      <div style="flex: 1">
+        <!-- Correction toggle -->
+        <div style="margin-bottom: 16px; display: flex; align-items: center; gap: 12px">
+          <div
+            style="
+              width: 44px;
+              height: 24px;
+              background: #6366f1;
+              border-radius: 12px;
+              position: relative;
+              cursor: pointer;
+            "
+          >
+            <div
+              style="
+                position: absolute;
+                right: 2px;
+                top: 2px;
+                width: 20px;
+                height: 20px;
+                background: white;
+                border-radius: 50%;
+              "
+            ></div>
+          </div>
+          <span style="color: #e0e0e0; font-size: 14px; font-weight: 600">Radius Correction</span>
+          <span
+            style="
+              color: #22c55e;
+              font-size: 12px;
+              background: #22c55e22;
+              padding: 2px 8px;
+              border-radius: 4px;
+            "
+            >ON</span
+          >
+        </div>
+        <div style="color: #666; font-size: 12px; margin-bottom: 16px">
+          When OFF, squircle uses the same raw radius — corners won't visually match.
+        </div>
+
+        <!-- Radius slider -->
+        <div style="margin-bottom: 12px">
+          <label
+            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            >Border Radius</label
+          >
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+            <div
+              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 50%;
+                  top: -5px;
+                  width: 16px;
+                  height: 16px;
+                  background: #6366f1;
+                  border-radius: 50%;
+                  transform: translateX(-50%);
+                "
+              ></div>
+            </div>
+            <span style="color: #6366f1; font-family: monospace; font-size: 14px">60px</span>
+          </div>
+        </div>
+
+        <!-- Exponent slider -->
+        <div style="margin-bottom: 12px">
+          <label
+            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            >Superellipse Exponent</label
+          >
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+            <div
+              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 25%;
+                  top: -5px;
+                  width: 16px;
+                  height: 16px;
+                  background: #f59e0b;
+                  border-radius: 50%;
+                  transform: translateX(-50%);
+                "
+              ></div>
+            </div>
+            <span style="color: #f59e0b; font-family: monospace; font-size: 14px">n = 1.5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section 2: Interactive Math Explorer -->
+  <div style="border: 2px solid #22c55e; border-radius: 12px; padding: 24px; background: #1a1a2e">
+    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px">
+      <span
+        style="
+          background: #22c55e;
+          color: black;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 2px 8px;
+          border-radius: 4px;
+        "
+        >SECTION 2</span
+      >
+      <strong style="color: #e0e0e0">Interactive Math Explorer</strong>
+    </div>
+    <p style="color: #999; font-size: 14px; margin-bottom: 16px">
+      Actual curve geometry in SVG. Drag the 45° bevel line from the corner outward until it's
+      tangent with the curve — like a chamfer measuring the corner depth.
+    </p>
+    <div style="display: flex; gap: 24px; align-items: flex-start">
+      <div
+        style="
+          width: 260px;
+          height: 260px;
+          background: #0a0a1a;
+          border: 1px solid #333;
+          border-radius: 8px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
+      >
+        <svg width="220" height="220" viewBox="0 0 220 220" style="overflow: visible">
+          <!-- Corner region - top-right, so origin is top-right -->
+          <!-- Box edges -->
+          <line x1="220" y1="0" x2="220" y2="220" stroke="#333" stroke-width="1" />
+          <line x1="0" y1="0" x2="220" y2="0" stroke="#333" stroke-width="1" />
+
+          <!-- Circular arc (quarter circle in top-right corner) -->
+          <path
+            d="M 120 0 A 100 100 0 0 1 220 100"
+            fill="none"
+            stroke="#ef4444"
+            stroke-width="2"
+            stroke-dasharray="4,3"
+          />
+
+          <!-- Superellipse curve (approximated, bulges outward) -->
+          <path d="M 120 0 C 180 0 220 40 220 100" fill="none" stroke="#6366f1" stroke-width="2" />
+
+          <!-- 45° bevel line from corner — perpendicular to the diagonal, like a chamfer -->
+          <!-- This goes from two points on the edges, creating a bevel/chamfer across the corner -->
+          <line x1="220" y1="70" x2="150" y2="0" stroke="#f59e0b" stroke-width="2" />
+          <!-- Draggable handle at the midpoint of the bevel -->
+          <circle cx="185" cy="35" r="6" fill="#f59e0b" style="cursor: grab" />
+
+          <!-- Fill the chamfer triangle to show "cut" area -->
+          <polygon points="220,0 220,70 150,0" fill="rgba(245,158,11,0.08)" stroke="none" />
+
+          <!-- Measurement annotations -->
+          <text x="188" y="50" fill="#f59e0b" font-size="11" font-weight="600">drag ↗</text>
+
+          <text x="125" y="16" fill="#ef4444" font-size="10">circle</text>
+          <text x="155" y="8" fill="#6366f1" font-size="10">superellipse</text>
+
+          <!-- Corner point -->
+          <circle cx="220" cy="0" r="3" fill="#666" />
+        </svg>
+      </div>
+      <div style="flex: 1">
+        <!-- Sliders -->
+        <div style="margin-bottom: 16px">
+          <label
+            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            >Superellipse Exponent (n)</label
+          >
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+            <div
+              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 30%;
+                  top: -5px;
+                  width: 16px;
+                  height: 16px;
+                  background: #22c55e;
+                  border-radius: 50%;
+                  transform: translateX(-50%);
+                "
+              ></div>
+            </div>
+            <span style="color: #22c55e; font-family: monospace; font-size: 14px">n = 3.0</span>
+          </div>
+        </div>
+        <div style="margin-bottom: 16px">
+          <label
+            style="color: #999; font-size: 12px; text-transform: uppercase; letter-spacing: 1px"
+            >Border Radius</label
+          >
+          <div style="display: flex; align-items: center; gap: 12px; margin-top: 4px">
+            <div
+              style="flex: 1; height: 6px; background: #333; border-radius: 3px; position: relative"
+            >
+              <div
+                style="
+                  position: absolute;
+                  left: 50%;
+                  top: -5px;
+                  width: 16px;
+                  height: 16px;
+                  background: #22c55e;
+                  border-radius: 50%;
+                  transform: translateX(-50%);
+                "
+              ></div>
+            </div>
+            <span style="color: #22c55e; font-family: monospace; font-size: 14px">100px</span>
+          </div>
+        </div>
+
+        <!-- Formula readout -->
+        <div
+          style="
+            background: #0a0a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: monospace;
+            font-size: 13px;
+          "
+        >
+          <div style="color: #999; margin-bottom: 4px">Correction formula:</div>
+          <div style="color: #6366f1">
+            r' = <span style="color: #22c55e">1.74</span>^(<span style="color: #f59e0b">n</span
+            >^<span style="color: #22c55e">1.079</span> - 1) ×
+            <span style="color: #f59e0b">r</span>
+          </div>
+          <div style="color: #e0e0e0; margin-top: 4px">= <strong>130px</strong></div>
+          <div
+            style="
+              color: #999;
+              margin-top: 12px;
+              font-size: 11px;
+              border-top: 1px solid #222;
+              padding-top: 8px;
+            "
+          >
+            <div style="margin-bottom: 4px">Bevel depth (45° tangent distance from corner):</div>
+            <span style="color: #ef4444">Circle: 29.3px</span><br />
+            <span style="color: #6366f1">Superellipse: 20.6px</span><br />
+            <span style="color: #22c55e">Corrected: 29.1px ✓</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 24px; text-align: center">
+  Wireframe — the bevel line drags perpendicular to the corner diagonal, like a chamfer measuring
+  how far the curve cuts into the corner
+</p>

@@ -10,5 +10,5 @@ stats.html
 .claude/worktrees
 .claude/plans
 /.superpowers
-site/node_modules
-site/api-data/
+website/node_modules
+website/api-data/
