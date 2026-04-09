@@ -28,4 +28,7 @@ jobs:
         run: vp run colander#generate-formats
 
       - name: Commit if changed
-        run: bash scripts/commit-if-changed.sh package/src/formats/ "chore: regenerate format files [skip ci]"
+        run: >-
+          bash scripts/commit-if-changed.sh
+          package/src/formats/
+          "chore: regenerate format files [skip ci]"

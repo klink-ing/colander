@@ -116,7 +116,7 @@ function findGenericSymbols(): {
   genericValues: Set<string>;
   genericTypes: Set<string>;
 } {
-  const configPath = path.join(ROOT, "tsconfig.json");
+  const configPath = path.resolve(ROOT, "..", "tsconfig.json");
   const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
   const parsed = ts.parseJsonConfigFileContent(configFile.config, ts.sys, ROOT);
 
