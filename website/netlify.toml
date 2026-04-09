@@ -1,6 +1,6 @@
 [build]
-  command = "pnpm build"
-  publish = "dist/client"
+command = "pnpm build"
+publish = "dist/client"
 
 [functions]
-  directory = ".netlify/v1/functions"
+directory = ".netlify/v1/functions"
