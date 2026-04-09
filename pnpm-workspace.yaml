@@ -7,20 +7,17 @@ catalog:
   "@semantic-release/commit-analyzer": ^13.0.1
   "@semantic-release/github": ^11.0.1
   "@semantic-release/release-notes-generator": ^14.0.3
+  '@tanstack/react-start': ^1.167.16
   "@types/node": ^24
   conventional-changelog-conventionalcommits: ^9.3.1
   semantic-release: ^25.0.3
   tailwindcss: ^4.1.18
   typescript: ^5
-  vite: npm:@voidzero-dev/vite-plus-core@latest
+  vite: npm:@voidzero-dev/vite-plus-core@^0.1.16
   vite-plus: latest
   vitest: npm:@voidzero-dev/vite-plus-test@latest
 
 catalogMode: prefer
-
-overrides:
-  vite: "catalog:"
-  vitest: "catalog:"
 
 peerDependencyRules:
   allowAny:

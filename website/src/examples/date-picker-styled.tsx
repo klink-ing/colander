@@ -16,7 +16,7 @@ import {
   useCalendarState,
   DayCellDataContext,
   GridContext,
-} from "colander";
+} from "@klinking/colander";
 import type {
   ValueFormat,
   GridProps,
@@ -31,7 +31,7 @@ import type {
   NextMonthButtonProps,
   RangeSelectedProps,
   RangePreviewProps,
-} from "colander";
+} from "@klinking/colander";
 import { DragHandle, DragDayButton } from "#/lib/drag-components";
 import { cn } from "#/lib/utils";
 

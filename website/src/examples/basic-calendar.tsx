@@ -9,7 +9,7 @@ import {
   WeekTemplate,
   DayCellTemplate,
   DayButton,
-} from "colander";
+} from "@klinking/colander";
 
 export function BasicCalendar({
   onSelect,

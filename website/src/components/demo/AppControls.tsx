@@ -1,7 +1,11 @@
 import { Field as FieldPrimitive } from "@base-ui/react/field";
 import { Fieldset as FieldsetPrimitive } from "@base-ui/react/fieldset";
 import { Temporal } from "@js-temporal/polyfill";
-import type { OutsideDays, OverflowBehavior, RangeMode } from "colander";
+import type {
+  OutsideDays,
+  OverflowBehavior,
+  RangeMode,
+} from "@klinking/colander";
 import type { ComponentProps } from "react";
 import {
   Accordion,
