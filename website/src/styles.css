@@ -138,6 +138,7 @@
   --spacing-3: calc(3 * var(--spacing)); /* 0.75rem = 12px */
   --spacing-3.5: calc(3.5 * var(--spacing)); /* 0.875rem = 14px */
   --spacing-4: calc(4 * var(--spacing)); /* 1rem = 16px */
+  --spacing-4.5: calc(4.5 * var(--spacing)); /* 1.125rem = 18px */
   --spacing-5: calc(5 * var(--spacing)); /* 1.25rem = 20px */
   --spacing-6: calc(6 * var(--spacing)); /* 1.5rem = 24px */
   --spacing-7: calc(7 * var(--spacing)); /* 1.75rem = 28px */
