@@ -1,0 +1,38 @@
+name: Sync generated files
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - package/src/index.ts
+      - package/scripts/generate-formats.ts
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - uses: voidzero-dev/setup-vp@v1
+        with:
+          node-version-file: ".node-version"
+          cache: true
+          run-install: true
+
+      - name: Regenerate format files
+        run: cd package && vp exec tsx scripts/generate-formats.ts
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git diff --quiet package/src/formats/ || {
+            git add package/src/formats/
+            git commit -m "chore: regenerate format files [skip ci]"
+            git push
+          }
