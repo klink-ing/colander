@@ -17,7 +17,7 @@ function DocsIndex() {
         Learn how to use {import.meta.env.VITE_PROJECT_NAME} to build
         accessible, customizable calendar components.
       </p>
-      <div className="bp-6:grid-cols-2 grid gap-4">
+      <div className="grid gap-4 bp-6:grid-cols-2">
         {entries.map((entry) => (
           <Card
             key={entry.slug}

@@ -40,5 +40,5 @@ export default function NavDrawerContent() {
 function DocsNavSeparator() {
   const data = useSectionNav();
   if (!data) return null;
-  return <hr className="bp-4.5:hidden border-border" />;
+  return <hr className="border-border bp-4.5:hidden" />;
 }

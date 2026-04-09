@@ -56,7 +56,7 @@ function App() {
         </div>
       </section>
 
-      <section className="bp-6:grid-cols-2 bp-10:grid-cols-5 mt-8 grid gap-4">
+      <section className="mt-8 grid gap-4 bp-6:grid-cols-2 bp-10:grid-cols-5">
         {[
           [
             "MonthView",

@@ -56,7 +56,7 @@ function DocsLayout() {
           type="button"
           data-nav-drawer-trigger
           onClick={() => setOpen(true)}
-          className="bp-4.5:flex bp-7.5:hidden mb-4 hidden items-center gap-2 squircle-lg border border-border px-3 py-2 type-body-100 text-muted-foreground transition hover:bg-accent hover:text-foreground"
+          className="mb-4 hidden items-center gap-2 squircle-lg border border-border px-3 py-2 type-body-100 text-muted-foreground transition hover:bg-accent hover:text-foreground bp-4.5:flex bp-7.5:hidden"
         >
           <svg
             width="16"

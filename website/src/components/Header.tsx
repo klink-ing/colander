@@ -17,14 +17,14 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-lg">
-      <nav className="page-wrap bp-4.5:py-4 flex items-center gap-x-3 py-3">
+      <nav className="page-wrap flex items-center gap-x-3 py-3 bp-4.5:py-4">
         {/* Hamburger — visible below bp-4.5 */}
         <button
           type="button"
           data-nav-drawer-trigger
           onClick={() => setOpen(true)}
           aria-label="Open navigation menu"
-          className="bp-4.5:hidden flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent"
+          className="flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent bp-4.5:hidden"
         >
           <svg
             width="20"
@@ -59,7 +59,7 @@ export default function Header() {
         </h2>
 
         {/* Desktop nav — hidden below bp-4.5, renders from NAV_LINKS */}
-        <NavigationMenu viewport={false} className="bp-4.5:flex hidden">
+        <NavigationMenu viewport={false} className="hidden bp-4.5:flex">
           <NavigationMenuList className="gap-2">
             {NAV_LINKS.map((link) => {
               const active = pathname.startsWith(link.to);
@@ -77,7 +77,7 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="bp-4.5:gap-2 ml-auto flex items-center gap-1.5">
+        <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
           <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">
             pre-alpha
           </div>
