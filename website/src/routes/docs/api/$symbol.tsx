@@ -50,7 +50,7 @@ function ApiSymbolPage() {
         </p>
         <div className="flex items-baseline gap-3">
           <h1 className="type-heading-300 text-foreground">{sym.name}</h1>
-          <span className="py-0.5 squircle-md border border-border bg-secondary px-2 type-code-100 text-muted-foreground">
+          <span className="squircle-md border border-border bg-secondary px-2 py-0.5 type-code-100 text-muted-foreground">
             {sym.kind}
           </span>
         </div>

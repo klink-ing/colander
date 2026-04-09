@@ -26,7 +26,7 @@ function DocsIndex() {
                 key={entry.slug}
                 to="/docs/$slug"
                 params={{ slug: entry.slug }}
-                className="hover:-translate-y-0.5 block p-5 no-underline"
+                className="block p-5 no-underline hover:-translate-y-0.5"
               />
             }
           >

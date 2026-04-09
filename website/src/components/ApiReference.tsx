@@ -124,7 +124,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                   <Badge>
                     {prop.name}
                     {!prop.optional && (
-                      <span className="ml-0.5 relative top-[-.25em] text-muted-foreground">
+                      <span className="relative top-[-.25em] ml-0.5 text-muted-foreground">
                         *
                       </span>
                     )}

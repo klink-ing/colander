@@ -72,7 +72,7 @@ export default function DocsNav({
           <h4 className="mb-2 type-label-100 text-muted-foreground">
             {section}
           </h4>
-          <ul className="space-y-0.5 m-0 list-none p-0">
+          <ul className="m-0 list-none space-y-0.5 p-0">
             {entries.map((entry) => {
               const path = `/docs/${entry.slug}`;
               const isActive = location.pathname === path;
@@ -104,7 +104,7 @@ export default function DocsNav({
             <h4 className="mb-2 type-label-100 text-muted-foreground">
               {kindLabels[kind] ?? kind}
             </h4>
-            <ul className="space-y-0.5 m-0 list-none p-0">
+            <ul className="m-0 list-none space-y-0.5 p-0">
               {items.map((item) => {
                 const path = `/docs/api/${item.name}`;
                 const isActive = location.pathname === path;

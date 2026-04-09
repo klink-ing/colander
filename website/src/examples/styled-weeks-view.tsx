@@ -148,7 +148,7 @@ export function StyledWeeksView({
                           )}
                           {showLabel && (
                             <div
-                              className="px-0.5 flex h-full items-start justify-center pt-2 text-[0.8rem] font-semibold text-foreground"
+                              className="flex h-full items-start justify-center px-0.5 pt-2 text-[0.8rem] font-semibold text-foreground"
                               style={{
                                 gridColumn: "-2 / -1",
                                 gridRow: `${state.gridRowStart} / span ${state.fullWeeksVisibleAfter}`,
