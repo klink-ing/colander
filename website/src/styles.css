@@ -128,34 +128,34 @@
   --radius-full: calc(infinity * 1px);
 
   /* Same spacing scale as default Tailwind, but limited with possible values limited as the scale increases */
-  --spacing-*: initial; /* reset initial tailwind spacing */
-  --spacing: 0.25rem; /* 0.25rem = 4px */
-  --spacing-0: calc(0 * var(--spacing)); /* 0 rem = 0 */
-  --spacing-0.5: calc(0.5 * var(--spacing)); /* 0.125rem = 2px */
-  --spacing-1: calc(1 * var(--spacing)); /* 0.25rem = 4 px */
-  --spacing-1.5: calc(1.5 * var(--spacing)); /* 0.375rem = 6px */
-  --spacing-2: calc(2 * var(--spacing)); /* 0.5rem = 8px */
-  --spacing-2.5: calc(2.5 * var(--spacing)); /* 0.625rem = 10px */
-  --spacing-3: calc(3 * var(--spacing)); /* 0.75rem = 12px */
-  --spacing-3.5: calc(3.5 * var(--spacing)); /* 0.875rem = 14px */
-  --spacing-4: calc(4 * var(--spacing)); /* 1rem = 16px */
-  --spacing-4.5: calc(4.5 * var(--spacing)); /* 1.125rem = 18px */
-  --spacing-5: calc(5 * var(--spacing)); /* 1.25rem = 20px */
-  --spacing-6: calc(6 * var(--spacing)); /* 1.5rem = 24px */
-  --spacing-7: calc(7 * var(--spacing)); /* 1.75rem = 28px */
-  --spacing-8: calc(8 * var(--spacing)); /* 2rem = 32px */
-  --spacing-9: calc(9 * var(--spacing)); /* 2.25rem = 36px */
-  --spacing-10: calc(10 * var(--spacing)); /* 2.5rem = 40px */
-  --spacing-12: calc(12 * var(--spacing)); /* 3rem = 48px */
-  --spacing-14: calc(14 * var(--spacing)); /* 3.5rem = 56px */
-  --spacing-16: calc(16 * var(--spacing)); /* 4rem = 64px */
-  --spacing-20: calc(20 * var(--spacing)); /* 5rem = 80px */
-  --spacing-24: calc(24 * var(--spacing)); /* 6rem = 96px */
-  --spacing-28: calc(28 * var(--spacing)); /* 7rem = 112px */
-  --spacing-32: calc(32 * var(--spacing)); /* 8rem = 128px */
-  --spacing-40: calc(40 * var(--spacing)); /* 10rem = 160px */
-  --spacing-48: calc(48 * var(--spacing)); /* 12rem = 192px */
-  --spacing-64: calc(64 * var(--spacing)); /* 16rem = 256px */
+  --sp: 0.25rem; /* base spacing unit = 4px */
+  --spacing-*: initial; /* reset default tailwind spacing scale */
+  --spacing-0: calc(0 * var(--sp)); /* 0 rem = 0 */
+  --spacing-0.5: calc(0.5 * var(--sp)); /* 0.125rem = 2px */
+  --spacing-1: calc(1 * var(--sp)); /* 0.25rem = 4 px */
+  --spacing-1.5: calc(1.5 * var(--sp)); /* 0.375rem = 6px */
+  --spacing-2: calc(2 * var(--sp)); /* 0.5rem = 8px */
+  --spacing-2.5: calc(2.5 * var(--sp)); /* 0.625rem = 10px */
+  --spacing-3: calc(3 * var(--sp)); /* 0.75rem = 12px */
+  --spacing-3.5: calc(3.5 * var(--sp)); /* 0.875rem = 14px */
+  --spacing-4: calc(4 * var(--sp)); /* 1rem = 16px */
+  --spacing-4.5: calc(4.5 * var(--sp)); /* 1.125rem = 18px */
+  --spacing-5: calc(5 * var(--sp)); /* 1.25rem = 20px */
+  --spacing-6: calc(6 * var(--sp)); /* 1.5rem = 24px */
+  --spacing-7: calc(7 * var(--sp)); /* 1.75rem = 28px */
+  --spacing-8: calc(8 * var(--sp)); /* 2rem = 32px */
+  --spacing-9: calc(9 * var(--sp)); /* 2.25rem = 36px */
+  --spacing-10: calc(10 * var(--sp)); /* 2.5rem = 40px */
+  --spacing-12: calc(12 * var(--sp)); /* 3rem = 48px */
+  --spacing-14: calc(14 * var(--sp)); /* 3.5rem = 56px */
+  --spacing-16: calc(16 * var(--sp)); /* 4rem = 64px */
+  --spacing-20: calc(20 * var(--sp)); /* 5rem = 80px */
+  --spacing-24: calc(24 * var(--sp)); /* 6rem = 96px */
+  --spacing-28: calc(28 * var(--sp)); /* 7rem = 112px */
+  --spacing-32: calc(32 * var(--sp)); /* 8rem = 128px */
+  --spacing-40: calc(40 * var(--sp)); /* 10rem = 160px */
+  --spacing-48: calc(48 * var(--sp)); /* 12rem = 192px */
+  --spacing-64: calc(64 * var(--sp)); /* 16rem = 256px */
   --spacing-w-focus: 2px;
 
   --container-*: initial;
