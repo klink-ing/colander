@@ -17,6 +17,7 @@
     "conventional-changelog-conventionalcommits": "catalog:",
     "eslint-plugin-tailwind-canonical-classes": "^1.3.1",
     "semantic-release": "catalog:",
+    "tsx": "^4.21.0",
     "vite-plus": "catalog:"
   },
   "engines": {

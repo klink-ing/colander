@@ -8,8 +8,8 @@
   },
   "scripts": {
     "dev": "vp dev --port 3000",
-    "build": "vp build",
-    "preview": "vp preview",
+    "build": "vp exec vite build",
+    "preview": "vp exec vite preview",
     "test": "vp test run"
   },
   "dependencies": {

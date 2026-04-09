@@ -1,3 +1,4 @@
+import path from "node:path";
 import { devtools } from "@tanstack/devtools-vite";
 import { defineConfig } from "vite";
 
@@ -12,6 +13,12 @@ import { fluid } from "./plugins/fluid.ts";
 const config = defineConfig({
   resolve: {
     tsconfigPaths: true,
+    alias: {
+      "@klinking/colander": path.resolve(
+        __dirname,
+        "../package/src/index.ts",
+      ),
+    },
   },
   plugins: [
     breakpoints(),
