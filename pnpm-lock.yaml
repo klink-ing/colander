@@ -218,9 +218,6 @@ importers:
       tailwind-merge:
         specifier: ^3.5.0
         version: 3.5.0
-      ts-blank-space:
-        specifier: ^0.8.0
-        version: 0.8.0
       tw-animate-css:
         specifier: ^1.4.0
         version: 1.4.0
@@ -6538,10 +6535,6 @@ packages:
     engines: {node: '>=18.12'}
     peerDependencies:
       typescript: '>=4.8.4'
-
-  ts-blank-space@0.8.0:
-    resolution: {integrity: sha512-6Yg1WYcRAicoleoeOSX83mtcby3DGXNKjNlch0bJ2j1rrKMCWHLmh7Fo2zfxpjgtp1wWwICH27rFG9S0ttw/AQ==}
-    engines: {node: '>=18.0.0'}
 
   ts-deepmerge@7.0.3:
     resolution: {integrity: sha512-Du/ZW2RfwV/D4cmA5rXafYjBQVuvu4qGiEEla4EmEHVHgRdx68Gftx7i66jn2bzHPwSVZY36Ae6OuDn9el4ZKA==}
@@ -13724,10 +13717,6 @@ snapshots:
   triple-beam@1.4.1: {}
 
   ts-api-utils@2.5.0(typescript@5.9.3):
-    dependencies:
-      typescript: 5.9.3
-
-  ts-blank-space@0.8.0:
     dependencies:
       typescript: 5.9.3
 
