@@ -11,6 +11,7 @@ import { imagetools } from "vite-imagetools";
 import { breakpoints } from "./plugins/breakpoints.ts";
 import { extractApi } from "./plugins/extract-api.ts";
 import { fluid } from "./plugins/fluid.ts";
+import { highlightExamples } from "./plugins/highlight-examples.ts";
 
 const config = defineConfig({
   resolve: {
@@ -28,6 +29,7 @@ const config = defineConfig({
     breakpoints(),
     extractApi(),
     fluid(),
+    highlightExamples(),
     imagetools({
       include: "src/assets/images/**/*",
       defaultDirectives: () => new URLSearchParams({ as: "metadata" }),

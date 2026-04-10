@@ -8,8 +8,6 @@ import {
   parseFrontmatter,
   parseMarkdoc,
 } from "#/lib/markdoc";
-import { resolveExamples } from "#/lib/resolve-examples";
-
 const getDocContent = createServerFn()
   .inputValidator((slug: unknown) => slug as string)
   .handler(async ({ data: slug }) => {
@@ -23,8 +21,6 @@ const getDocContent = createServerFn()
       const raw = fs.readFileSync(filePath, "utf-8");
       const { frontmatter, content } = parseFrontmatter(raw);
       const transformed = parseMarkdoc(content);
-      // Inject formatted, highlighted example code into ExampleBlock nodes
-      await resolveExamples(transformed);
 
       return {
         frontmatter,

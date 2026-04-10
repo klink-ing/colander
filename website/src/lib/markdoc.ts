@@ -39,10 +39,6 @@ const exampleTag: Schema = {
   selfClosing: true,
   attributes: {
     file: { type: String, required: true },
-    // These are injected server-side by resolveExamples()
-    tsHtml: { type: String },
-    jsHtml: { type: String },
-    language: { type: String },
   },
 };
 
