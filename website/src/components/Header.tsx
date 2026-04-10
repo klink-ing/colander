@@ -7,9 +7,9 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from "#/components/ui/navigation-menu";
+import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { NAV_LINKS } from "#/lib/nav-links";
-import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import ThemeToggle from "./ThemeToggle";
 import { ButtonA } from "./ui/button";
 
@@ -47,7 +47,7 @@ export default function Header() {
         <h2 className="m-0 shrink-0 pr-3">
           <Link
             to="/"
-            className="-my-2 -mx-1 flex h-full items-center gap-2 no-underline p-1 squircle-md"
+            className="-mx-1 -my-2 flex h-full items-center gap-2 squircle-md p-1 no-underline"
           >
             <img
               src={heroImage.src}
@@ -77,7 +77,7 @@ export default function Header() {
               );
             })}
           </NavigationMenuList>
-        </NavigationMenu> 
+        </NavigationMenu>
 
         <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-1">
           <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">

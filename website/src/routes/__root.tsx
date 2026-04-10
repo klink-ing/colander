@@ -1,7 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
-import { PROJECT_NAME } from "#/config";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { PROJECT_NAME } from "#/config";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import NavDrawer from "../components/NavDrawer";

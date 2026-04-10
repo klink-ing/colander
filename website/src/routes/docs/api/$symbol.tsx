@@ -1,9 +1,9 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { PROJECT_NAME } from "#/config";
 import { createServerFn } from "@tanstack/react-start";
 import ApiReference from "#/components/ApiReference";
 import InlineDescription from "#/components/InlineDescription";
 import SourceLink from "#/components/SourceLink";
+import { PROJECT_NAME } from "#/config";
 import { getAllSymbols } from "#/lib/api-data";
 
 const getSymbolData = createServerFn()

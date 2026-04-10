@@ -26,7 +26,7 @@ export function isExternalUrl(url: string) {
 function LinkInline({
   className,
   ...props
-}: LinkProps & { href: AllowedExternalHref } & Omit<
+}: LinkProps & { href?: AllowedExternalHref } & Omit<
     ComponentPropsWithRef<"a">,
     "href"
   >) {

@@ -1,6 +1,6 @@
 import { Code } from "#/components/ui/code";
 import { GITHUB_MAIN_BRANCH, GITHUB_REPO_URL } from "#/config";
-import { LinkInline, type AllowedExternalHref } from "./LinkInline";
+import { LinkInline } from "./LinkInline";
 
 const repoUrl = GITHUB_REPO_URL;
 const branch = GITHUB_MAIN_BRANCH;

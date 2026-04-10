@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { PROJECT_NAME } from "#/config";
 import { createServerFn } from "@tanstack/react-start";
 import MarkdocRenderer from "#/components/MarkdocRenderer";
+import { PROJECT_NAME } from "#/config";
 import {
   type DocFrontmatter,
   parseFrontmatter,
