@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "ready": "vp fmt && vp lint && vp run -r test",
-    "dev": "vp dev",
     "prepare": "vp config"
   },
   "devDependencies": {
