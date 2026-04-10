@@ -29,13 +29,9 @@ export default function ExampleBlock({ file }: { file: string }) {
     <div className="my-6">
       <Tabs defaultValue="ts" className="gap-0">
         <div className="flex items-center squircle-t-lg border border-b-0 border-border bg-card">
-          <TabsList variant="line" className="h-auto p-0">
-            <TabsTrigger value="ts" className="px-4 py-2 type-body-100-bold">
-              TypeScript
-            </TabsTrigger>
-            <TabsTrigger value="js" className="px-4 py-2 type-body-100-bold">
-              JavaScript
-            </TabsTrigger>
+          <TabsList variant="line">
+            <TabsTrigger value="ts">TypeScript</TabsTrigger>
+            <TabsTrigger value="js">JavaScript</TabsTrigger>
           </TabsList>
         </div>
         <TabsContent value="ts">
