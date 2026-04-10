@@ -80,6 +80,7 @@ export default function ThemeToggle() {
     >
       {mode === "light" ? (
         <svg
+          className="size-5"
           width="20"
           height="20"
           viewBox="0 0 24 24"
@@ -95,6 +96,7 @@ export default function ThemeToggle() {
         </svg>
       ) : mode === "dark" ? (
         <svg
+          className="size-5"
           width="20"
           height="20"
           viewBox="0 0 24 24"
@@ -108,43 +110,24 @@ export default function ThemeToggle() {
           <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
         </svg>
       ) : (
-        <span className="relative inline-flex h-5 w-5" aria-hidden="true">
-          <svg
-            className="absolute inset-0"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              clipPath:
-                "polygon(0 0, calc(100% - 1.5px) 0, 0 calc(100% - 1.5px))",
-            }}
-          >
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-          </svg>
-          <svg
-            className="absolute inset-0"
-            width="20"
-            height="20"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            style={{
-              clipPath:
-                "polygon(100% calc(0% + 1.5px), 100% 100%, calc(0% + 1.5px) 100%)",
-            }}
-          >
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-          </svg>
-        </span>
+            <svg
+            className="size-5"
+
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 0v1.5M12 22.5v1.5M4.22 4.22l1.06 1.06M18.72 18.72l1.06 1.06M0 12h1.5M22.5 12h1.5M5.28 18.72l-1.06 1.06M18.72 4.22l1.06 1.06" />
+          <line x1="7.625" y1="17" x2="12" y2="7" strokeWidth="1" />
+          <line x1="16.375" y1="17" x2="12" y2="7" strokeWidth="1" />
+          <line x1="9.375" y1="13" x2="14.625" y2="13" strokeWidth="1" />
+        </svg>
       )}
     </Button>
   );

@@ -10,6 +10,7 @@ import {
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { NAV_LINKS } from "#/lib/nav-links";
 import ThemeToggle from "./ThemeToggle";
+import { ButtonA } from "./ui/button";
 
 export default function Header() {
   const { setOpen } = useNavDrawer();
@@ -42,10 +43,10 @@ export default function Header() {
           </svg>
         </button>
 
-        <h2 className="m-0 shrink-0">
+        <h2 className="m-0 shrink-0 pr-3">
           <Link
             to="/"
-            className="-my-2 flex h-full items-center gap-2 pr-3 no-underline"
+            className="-my-2 -mx-1 flex h-full items-center gap-2 no-underline p-1 squircle-md"
           >
             <img
               src={heroImage.src}
@@ -75,21 +76,23 @@ export default function Header() {
               );
             })}
           </NavigationMenuList>
-        </NavigationMenu>
+        </NavigationMenu> 
 
         <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
           <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">
             alpha
           </div>
-          <a
+         
+          <ButtonA
+            size="icon"
+            variant="ghost"
             href={import.meta.env.VITE_GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub repository"
-            className="flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent"
           >
             <GithubIcon className="size-5" />
-          </a>
+          </ButtonA>
           <ThemeToggle />
         </div>
       </nav>
