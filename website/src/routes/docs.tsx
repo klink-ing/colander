@@ -1,41 +1,37 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
 import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { type DocsNavEntry, type ApiDocsNavEntry } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
 import { getAllSymbols } from "#/lib/api-data";
-import { parseFrontmatter } from "#/lib/markdoc";
+import type { DocFrontmatter } from "#/lib/markdoc";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 
-const getDocEntries = createServerFn().handler(async () => {
-  try {
-    const contentDir = path.resolve(process.cwd(), "content/docs");
-    const files = fs.readdirSync(contentDir).filter((f) => f.endsWith(".md"));
+const docsData = import.meta.glob<{ frontmatter: DocFrontmatter }>(
+  "../docs-data/*.doc.gen.json",
+  { eager: true },
+);
 
-    const entries: DocsNavEntry[] = files.map((file) => {
-      const slug = file.replace(/\.md$/, "");
-      const raw = fs.readFileSync(path.join(contentDir, file), "utf-8");
-      const { frontmatter } = parseFrontmatter(raw);
-      return { slug, frontmatter };
-    });
+function getDocEntries(): DocsNavEntry[] {
+  return Object.entries(docsData).map(([key, data]) => {
+    const slug = key.replace(/^.*\//, "").replace(/\.doc\.gen\.json$/, "");
+    return { slug, frontmatter: data.frontmatter };
+  });
+}
 
-    entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order);
+const getNavData = createServerFn().handler(async () => {
+  const entries = getDocEntries();
+  entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order);
 
-    const apiEntries: ApiDocsNavEntry[] = getAllSymbols().map((s) => ({
-      name: s.name,
-      kind: s.kind,
-    }));
+  const apiEntries: ApiDocsNavEntry[] = getAllSymbols().map((s) => ({
+    name: s.name,
+    kind: s.kind,
+  }));
 
-    return { sectionNav: { entries, apiEntries } };
-  } catch (error) {
-    console.error("Failed to load doc entries:", error);
-    return { sectionNav: { entries: [], apiEntries: [] } };
-  }
+  return { sectionNav: { entries, apiEntries } };
 });
 
 export const Route = createFileRoute("/docs")({
-  loader: () => getDocEntries(),
+  loader: () => getNavData(),
   component: DocsLayout,
 });
 

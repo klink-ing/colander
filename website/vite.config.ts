@@ -11,6 +11,7 @@ import { imagetools } from "vite-imagetools";
 import { breakpoints } from "./plugins/breakpoints.ts";
 import { extractApi } from "./plugins/extract-api.ts";
 import { fluid } from "./plugins/fluid.ts";
+import { generateDocs } from "./plugins/generate-docs.ts";
 import { highlightExamples } from "./plugins/highlight-examples.ts";
 
 const config = defineConfig({
@@ -29,6 +30,7 @@ const config = defineConfig({
     breakpoints(),
     extractApi(),
     fluid(),
+    generateDocs(),
     highlightExamples(),
     imagetools({
       include: "src/assets/images/**/*",
