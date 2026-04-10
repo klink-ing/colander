@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { PROJECT_NAME } from "#/config";
 import { createServerFn } from "@tanstack/react-start";
 import MarkdocRenderer from "#/components/MarkdocRenderer";
 import {
@@ -56,7 +57,7 @@ export const Route = createFileRoute("/docs/$slug")({
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: `${loaderData?.frontmatter.title} - ${import.meta.env.VITE_PROJECT_NAME}`,
+        title: `${loaderData?.frontmatter.title} - ${PROJECT_NAME}`,
       },
       ...(loaderData?.frontmatter.description
         ? [{ name: "description", content: loaderData.frontmatter.description }]

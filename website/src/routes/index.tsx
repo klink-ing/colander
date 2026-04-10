@@ -4,6 +4,7 @@ import heroImage from "#/assets/images/colander.png";
 import { GithubIcon } from "#/components/icons/GithubIcon";
 import { ButtonA } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
+import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/")({ component: App });
@@ -17,7 +18,7 @@ function App() {
             "mb-10 pt-8 pb-4 type-display-300 text-foreground text-trim-cap",
           )}
         >
-          {import.meta.env.VITE_PROJECT_NAME}
+          {PROJECT_NAME}
         </h1>
         <Image
           src={heroImage.src}
@@ -46,7 +47,7 @@ function App() {
           <ButtonA
             variant="secondary"
             size="xl"
-            href={import.meta.env.VITE_GITHUB_REPO_URL}
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             iconStart={<GithubIcon className="size-5" />}

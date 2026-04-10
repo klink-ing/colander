@@ -9,6 +9,7 @@ import {
 } from "#/components/ui/navigation-menu";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { NAV_LINKS } from "#/lib/nav-links";
+import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
@@ -54,7 +55,7 @@ export default function Header() {
               alt=""
               className="h-auto w-14"
             />
-            <span className="sr-only">{import.meta.env.VITE_PROJECT_NAME}</span>
+            <span className="sr-only">{PROJECT_NAME}</span>
           </Link>
         </h2>
 
@@ -82,7 +83,7 @@ export default function Header() {
             pre-alpha
           </div>
           <a
-            href={import.meta.env.VITE_GITHUB_REPO_URL}
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub repository"
