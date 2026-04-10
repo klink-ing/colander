@@ -1,43 +1,30 @@
-import * as fs from "node:fs";
-import * as path from "node:path";
+import type { RenderableTreeNodes } from "@markdoc/markdoc";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import MarkdocRenderer from "#/components/MarkdocRenderer";
 import { PROJECT_NAME } from "#/config";
-import {
-  type DocFrontmatter,
-  parseFrontmatter,
-  parseMarkdoc,
-} from "#/lib/markdoc";
+import type { DocFrontmatter } from "#/lib/markdoc";
+
+interface DocData {
+  frontmatter: DocFrontmatter;
+  content: RenderableTreeNodes;
+}
+
+const docsData = import.meta.glob<DocData>("../../docs-data/*.doc.gen.json", {
+  eager: true,
+});
+
+function getDocBySlug(slug: string): DocData | undefined {
+  const key = `../../docs-data/${slug}.doc.gen.json`;
+  return docsData[key];
+}
+
 const getDocContent = createServerFn()
   .inputValidator((slug: unknown) => slug as string)
   .handler(async ({ data: slug }) => {
-    const filePath = path.resolve(process.cwd(), "content/docs", `${slug}.md`);
-
-    try {
-      if (!fs.existsSync(filePath)) {
-        throw notFound();
-      }
-
-      const raw = fs.readFileSync(filePath, "utf-8");
-      const { frontmatter, content } = parseFrontmatter(raw);
-      const transformed = parseMarkdoc(content);
-
-      return {
-        frontmatter,
-        // Markdoc's RenderableTreeNode contains non-serializable properties;
-        // round-tripping through JSON strips them so the data can cross the
-        // server/client boundary.
-        content: JSON.parse(JSON.stringify(transformed)),
-      };
-    } catch (error) {
-      // Re-throw notFound errors so TanStack Router handles them
-      if (error && typeof error === "object" && "isNotFound" in error) {
-        throw error;
-      }
-      console.error(`Failed to load doc "${slug}":`, error);
-      throw notFound();
-    }
+    const doc = getDocBySlug(slug);
+    if (!doc) throw notFound();
+    return doc;
   });
 
 export const Route = createFileRoute("/docs/$slug")({
@@ -64,10 +51,7 @@ export const Route = createFileRoute("/docs/$slug")({
 });
 
 function DocPage() {
-  const { frontmatter, content } = Route.useLoaderData() as {
-    frontmatter: DocFrontmatter;
-    content: Parameters<typeof MarkdocRenderer>[0]["content"];
-  };
+  const { frontmatter, content } = Route.useLoaderData();
 
   return (
     <div>

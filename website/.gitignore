@@ -13,3 +13,4 @@ __unconfig*
 todos.json
 api-data/symbols.gen.json
 src/examples/*.highlighted.gen.json
+src/docs-data/*.doc.gen.json

@@ -31,7 +31,7 @@ function LinkInline({
     "href"
   >) {
   const isExternal = isExternalUrl(props.href ?? "");
-  if (!isExternal) {
+  if (props.to == undefined && !isExternal) {
     console.error(
       `Internal link detected, use LinkInline for internal links: ${props.href}`,
     );

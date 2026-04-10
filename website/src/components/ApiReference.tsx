@@ -1,5 +1,5 @@
 import { useRender } from "@base-ui/react/use-render";
-import React, { useId, type ComponentProps } from "react";
+import React, { Fragment, useId, type ComponentProps } from "react";
 import {
   getSymbolByName,
   type ApiSymbol,
@@ -115,7 +115,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
       <tbody className="contents">
         {allProps.map((prop) => {
           return (
-            <>
+            <Fragment key={prop.name}>
               <tr
                 key={prop.name}
                 className="col-span-full grid grid-cols-subgrid border-t border-border"
@@ -143,7 +143,7 @@ function PropsTable({ symbol }: { symbol: ApiSymbol }) {
                   <InlineDescription text={prop.description} />
                 </Cell>
               </tr>
-            </>
+            </Fragment>
           );
         })}
       </tbody>
