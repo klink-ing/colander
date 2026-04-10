@@ -1,12 +1,13 @@
 import { Code } from "#/components/ui/code";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "#/components/ui/tabs";
+import { PACKAGE_NAME } from "#/config";
 import {
   usePackageManager,
   getInstallCommand,
   type PackageManager,
 } from "#/lib/package-manager";
 
-const packageName = import.meta.env.VITE_PACKAGE_NAME ?? "colander";
+const packageName = PACKAGE_NAME;
 const packages = `${packageName} @js-temporal/polyfill`;
 
 const managers: PackageManager[] = ["npm", "pnpm", "yarn", "ni"];

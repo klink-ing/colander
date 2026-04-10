@@ -9,6 +9,7 @@ import {
 } from "#/components/ui/navigation-menu";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { NAV_LINKS } from "#/lib/nav-links";
+import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import ThemeToggle from "./ThemeToggle";
 import { ButtonA } from "./ui/button";
 
@@ -55,7 +56,7 @@ export default function Header() {
               alt=""
               className="h-auto w-14"
             />
-            <span className="sr-only">{import.meta.env.VITE_PROJECT_NAME}</span>
+            <span className="sr-only">{PROJECT_NAME}</span>
           </Link>
         </h2>
 
@@ -78,15 +79,14 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu> 
 
-        <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
+        <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-1">
           <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">
             alpha
           </div>
-         
           <ButtonA
             size="icon"
             variant="ghost"
-            href={import.meta.env.VITE_GITHUB_REPO_URL}
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub repository"

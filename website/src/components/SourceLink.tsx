@@ -1,10 +1,9 @@
 import { Code } from "#/components/ui/code";
+import { GITHUB_MAIN_BRANCH, GITHUB_REPO_URL } from "#/config";
 import { LinkInline, type AllowedExternalHref } from "./LinkInline";
 
-const repoUrl = import.meta.env.VITE_GITHUB_REPO_URL as
-  | AllowedExternalHref
-  | undefined;
-const branch = import.meta.env.VITE_GITHUB_MAIN_BRANCH as string | undefined;
+const repoUrl = GITHUB_REPO_URL;
+const branch = GITHUB_MAIN_BRANCH;
 
 export default function SourceLink({
   filePath,

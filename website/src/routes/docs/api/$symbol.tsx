@@ -1,4 +1,5 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
+import { PROJECT_NAME } from "#/config";
 import { createServerFn } from "@tanstack/react-start";
 import ApiReference from "#/components/ApiReference";
 import InlineDescription from "#/components/InlineDescription";
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/docs/api/$symbol")({
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: `${loaderData?.name ?? "API"} - ${import.meta.env.VITE_PROJECT_NAME}`,
+        title: `${loaderData?.name ?? "API"} - ${PROJECT_NAME}`,
       },
       ...(loaderData?.description
         ? [{ name: "description", content: loaderData.description }]

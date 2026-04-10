@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { AUTHOR_NAME, GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 
 export default function Footer() {
   const year = useMemo(() => new Date().getFullYear(), []);
@@ -7,18 +8,18 @@ export default function Footer() {
     <footer className="mt-20 border-t border-border px-4 pt-10 pb-14 text-muted-foreground">
       <div className="page-wrap flex flex-col items-center justify-between gap-4 text-center bp-6:flex-row bp-6:text-left">
         <p className="m-0 type-body-100">
-          &copy; {year} {import.meta.env.VITE_AUTHOR_NAME}. All rights reserved.
+          &copy; {year} {AUTHOR_NAME}. All rights reserved.
         </p>
         <p className="m-0 type-label-100 text-muted-foreground">MIT License</p>
       </div>
       <div className="mt-4 flex justify-center gap-4">
         <a
-          href={import.meta.env.VITE_GITHUB_REPO_URL}
+          href={GITHUB_REPO_URL}
           target="_blank"
           rel="noreferrer"
           className="squircle-xl p-2 text-muted-foreground transition hover:bg-accent hover:text-foreground"
         >
-          <span className="sr-only">{`${import.meta.env.VITE_PROJECT_NAME} on GitHub`}</span>
+          <span className="sr-only">{`${PROJECT_NAME} on GitHub`}</span>
           <svg viewBox="0 0 16 16" aria-hidden="true" width="32" height="32">
             <path
               fill="currentColor"

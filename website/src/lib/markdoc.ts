@@ -1,4 +1,5 @@
 import Markdoc, { type Config, type Schema } from "@markdoc/markdoc";
+import { PACKAGE_NAME, PROJECT_NAME } from "#/config";
 import { cn } from "./utils";
 
 export interface DocFrontmatter {
@@ -10,8 +11,8 @@ export interface DocFrontmatter {
 
 /** Global variables available in Markdoc content as {% $varName %}. */
 export const markdocVariables: Record<string, string> = {
-  projectName: process.env.VITE_PROJECT_NAME ?? "Colander",
-  packageName: process.env.VITE_PACKAGE_NAME ?? "colander",
+  projectName: PROJECT_NAME,
+  packageName: PACKAGE_NAME,
 };
 
 const apiTag: Schema = {
