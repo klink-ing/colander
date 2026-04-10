@@ -1,10 +1,16 @@
-import { useRender } from "@base-ui/react/use-render";
 import { Link, type LinkProps } from "@tanstack/react-router";
 import type { ComponentPropsWithRef } from "react";
 import { cn } from "#/lib/utils";
 
-const LINK_CLASSNAME =
-  "text-link underline decoration-link/40 hover:text-link-hover hover:decoration-link-hover visited:text-link-visited px-1 -mx-1";
+const LINK_INLINE_CLASSNAME =
+  "text-link underline underline-offset-[0.15em]  decoration-link/30 hover:text-link-hover hover:decoration-link-hover visited:text-link-visited px-1 -mx-1 transition-all duration-200";
+
+/** External / special `href` values allowed on `AInline`. */
+export type AllowedExternalHref =
+  | `//${string}`
+  | `https://${string}`
+  | `tel:${string}`
+  | `mailto:${string}`;
 
 // RFC 3986:
 // - §3.1 scheme: ALPHA *( ALPHA / DIGIT / "+" / "-" / "." ), then ":" (hierarchical uses "//", opaque e.g. tel:, mailto:).
@@ -17,31 +23,26 @@ export function isExternalUrl(url: string) {
   return hasAbsoluteScheme || isSchemeRelative;
 }
 
-function AInline({
-  render,
-  className,
-  ...props
-}: useRender.ComponentProps<"a">) {
-  const isExternal = isExternalUrl(props.href ?? "");
-  if (!isExternal) {
-    console.error("External link detected, use LinkInline for internal links");
-  }
-  return useRender({
-    defaultTagName: "a" as const,
-    render,
-    props: {
-      className: cn(LINK_CLASSNAME, className),
-      ...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {}),
-      ...props,
-    },
-  });
-}
-
 function LinkInline({
   className,
   ...props
-}: LinkProps & ComponentPropsWithRef<"a">) {
-  return <Link className={cn(LINK_CLASSNAME, className)} {...props} />;
+}: LinkProps & { href: AllowedExternalHref } & Omit<
+    ComponentPropsWithRef<"a">,
+    "href"
+  >) {
+  const isExternal = isExternalUrl(props.href ?? "");
+  if (!isExternal) {
+    console.error(
+      `Internal link detected, use LinkInline for internal links: ${props.href}`,
+    );
+  }
+  return (
+    <Link
+      className={cn(LINK_INLINE_CLASSNAME, className)}
+      {...(isExternal ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+      {...props}
+    />
+  );
 }
 
-export { AInline, LinkInline };
+export { LinkInline };

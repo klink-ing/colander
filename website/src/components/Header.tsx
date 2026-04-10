@@ -79,7 +79,7 @@ export default function Header() {
 
         <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
           <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">
-            pre-alpha
+            alpha
           </div>
           <a
             href={import.meta.env.VITE_GITHUB_REPO_URL}
