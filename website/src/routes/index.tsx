@@ -2,8 +2,10 @@ import { Link, createFileRoute } from "@tanstack/react-router";
 import { Image } from "@unpic/react";
 import heroImage from "#/assets/images/colander.png";
 import { GithubIcon } from "#/components/icons/GithubIcon";
+import { LinkInline } from "#/components/LinkInline";
 import { ButtonA } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
+import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import { cn } from "#/lib/utils";
 
 export const Route = createFileRoute("/")({ component: App });
@@ -14,10 +16,10 @@ function App() {
       <section className="relative flex flex-col items-center text-center">
         <h1
           className={cn(
-            "mb-10 pt-8 pb-4 type-display-300 text-foreground text-trim-cap",
+            "mb-10 pt-4 pb-4 type-display-300 text-foreground text-trim-cap bp-6:pt-8",
           )}
         >
-          {import.meta.env.VITE_PROJECT_NAME}
+          {PROJECT_NAME}
         </h1>
         <Image
           src={heroImage.src}
@@ -27,10 +29,14 @@ function App() {
           className="h-auto w-full max-w-[max(80vh,50vw,100px)]"
         />
         <p className="mb-8 max-w-[60ch] pt-6 type-body-300-semi text-balance text-muted-foreground">
-          Accessible, customizable calendar components for React. Built on Base
-          UI and the Temporal API.
+          Accessible, customizable calendar components for React. Built on{" "}
+          <LinkInline href="https://base-ui.com">Base UI</LinkInline> and the{" "}
+          <LinkInline href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Temporal">
+            Temporal API
+          </LinkInline>
+          .
         </p>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-center gap-3">
           <ButtonA variant="default" size="xl" render={<Link to="/demo" />}>
             See Demo
           </ButtonA>
@@ -46,7 +52,7 @@ function App() {
           <ButtonA
             variant="secondary"
             size="xl"
-            href={import.meta.env.VITE_GITHUB_REPO_URL}
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noopener noreferrer"
             iconStart={<GithubIcon className="size-5" />}

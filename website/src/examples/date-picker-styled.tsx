@@ -16,7 +16,7 @@ import {
   useCalendarState,
   DayCellDataContext,
   GridContext,
-} from "colander";
+} from "@klinking/colander";
 import type {
   ValueFormat,
   GridProps,
@@ -31,7 +31,7 @@ import type {
   NextMonthButtonProps,
   RangeSelectedProps,
   RangePreviewProps,
-} from "colander";
+} from "@klinking/colander";
 import { DragHandle, DragDayButton } from "#/lib/drag-components";
 import { cn } from "#/lib/utils";
 
@@ -237,7 +237,9 @@ export function StyledDayButton<F extends ValueFormat = ValueFormat>({
       date={date}
       {...(props as DayButtonProps)}
       className={cn(
-        "group relative inline-flex min-w-[calc(2ch+(4*var(--spacing)))] items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
+        // oxlint-disable-next-line tailwind-canonical-classes/tailwind-canonical-classes
+        "min-w-[calc(2ch+theme(spacing.4))]",
+        "group relative inline-flex items-center justify-center rounded-md px-2 py-1 text-sm font-normal tabular-nums",
         "focus-visible:z-10 focus-visible:ring-w-focus focus-visible:ring-focus focus-visible:outline-none",
         "text-foreground not-aria-disabled:hover:bg-accent not-aria-disabled:hover:data-in-range:bg-white/20",
         "data-outside-month:text-muted-foreground data-outside-month:opacity-40",

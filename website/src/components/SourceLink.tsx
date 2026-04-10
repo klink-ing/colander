@@ -1,8 +1,9 @@
 import { Code } from "#/components/ui/code";
-import { AInline } from "./LinkInline";
+import { GITHUB_MAIN_BRANCH, GITHUB_REPO_URL } from "#/config";
+import { LinkInline } from "./LinkInline";
 
-const repoUrl = import.meta.env.VITE_GITHUB_REPO_URL as string | undefined;
-const branch = import.meta.env.VITE_GITHUB_MAIN_BRANCH as string | undefined;
+const repoUrl = GITHUB_REPO_URL;
+const branch = GITHUB_MAIN_BRANCH;
 
 export default function SourceLink({
   filePath,
@@ -17,11 +18,12 @@ export default function SourceLink({
     return <Code>{label}</Code>;
   }
 
-  const href = `${repoUrl}/blob/${branch ?? "main"}/${filePath}#L${lineNumber}`;
+  const href =
+    `${repoUrl}/blob/${branch ?? "main"}/${filePath}#L${lineNumber}` as const;
 
   return (
-    <AInline href={href} className="type-code-100">
+    <LinkInline href={href} className="type-code-100">
       {label}
-    </AInline>
+    </LinkInline>
   );
 }

@@ -1,21 +1,35 @@
+import path from "node:path";
 import { devtools } from "@tanstack/devtools-vite";
 import { defineConfig } from "vite";
 
+import netlify from "@netlify/vite-plugin-tanstack-start";
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
 
 import tailwindcss from "@tailwindcss/vite";
 import viteReact from "@vitejs/plugin-react";
 import { imagetools } from "vite-imagetools";
 import { breakpoints } from "./plugins/breakpoints.ts";
+import { extractApi } from "./plugins/extract-api.ts";
 import { fluid } from "./plugins/fluid.ts";
+import { highlightExamples } from "./plugins/highlight-examples.ts";
 
 const config = defineConfig({
   resolve: {
     tsconfigPaths: true,
+    alias: {
+      "@klinking/colander": path.resolve(__dirname, "../package/src/index.ts"),
+    },
+  },
+  build: {
+    rollupOptions: {
+      external: ["typescript"],
+    },
   },
   plugins: [
     breakpoints(),
+    extractApi(),
     fluid(),
+    highlightExamples(),
     imagetools({
       include: "src/assets/images/**/*",
       defaultDirectives: () => new URLSearchParams({ as: "metadata" }),
@@ -23,6 +37,7 @@ const config = defineConfig({
     devtools(),
     tailwindcss(),
     tanstackStart(),
+    netlify(),
     viteReact(),
   ],
 });

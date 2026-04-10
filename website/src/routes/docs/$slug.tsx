@@ -3,13 +3,12 @@ import * as path from "node:path";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import MarkdocRenderer from "#/components/MarkdocRenderer";
+import { PROJECT_NAME } from "#/config";
 import {
   type DocFrontmatter,
   parseFrontmatter,
   parseMarkdoc,
 } from "#/lib/markdoc";
-import { resolveExamples } from "#/lib/resolve-examples";
-
 const getDocContent = createServerFn()
   .inputValidator((slug: unknown) => slug as string)
   .handler(async ({ data: slug }) => {
@@ -23,8 +22,6 @@ const getDocContent = createServerFn()
       const raw = fs.readFileSync(filePath, "utf-8");
       const { frontmatter, content } = parseFrontmatter(raw);
       const transformed = parseMarkdoc(content);
-      // Inject formatted, highlighted example code into ExampleBlock nodes
-      await resolveExamples(transformed);
 
       return {
         frontmatter,
@@ -56,7 +53,7 @@ export const Route = createFileRoute("/docs/$slug")({
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: `${loaderData?.frontmatter.title} - ${import.meta.env.VITE_PROJECT_NAME}`,
+        title: `${loaderData?.frontmatter.title} - ${PROJECT_NAME}`,
       },
       ...(loaderData?.frontmatter.description
         ? [{ name: "description", content: loaderData.frontmatter.description }]

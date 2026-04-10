@@ -13,8 +13,8 @@ import {
   useCalendarStable,
   useCalendarState,
   DayCellDataContext,
-} from "colander";
-import type { TemporalNamespace } from "colander";
+} from "@klinking/colander";
+import type { TemporalNamespace } from "@klinking/colander";
 import { useContext, useEffect, useRef, useState } from "react";
 
 export const DRAG_TYPE = "date-range-handle";

@@ -7,9 +7,11 @@ import {
   NavigationMenuItem,
   NavigationMenuLink,
 } from "#/components/ui/navigation-menu";
+import { GITHUB_REPO_URL, PROJECT_NAME } from "#/config";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { NAV_LINKS } from "#/lib/nav-links";
 import ThemeToggle from "./ThemeToggle";
+import { ButtonA } from "./ui/button";
 
 export default function Header() {
   const { setOpen } = useNavDrawer();
@@ -42,10 +44,10 @@ export default function Header() {
           </svg>
         </button>
 
-        <h2 className="m-0 shrink-0">
+        <h2 className="m-0 shrink-0 pr-3">
           <Link
             to="/"
-            className="-my-2 flex h-full items-center gap-2 pr-3 no-underline"
+            className="-mx-1 -my-2 flex h-full items-center gap-2 squircle-md p-1 no-underline"
           >
             <img
               src={heroImage.src}
@@ -54,7 +56,7 @@ export default function Header() {
               alt=""
               className="h-auto w-14"
             />
-            <span className="sr-only">{import.meta.env.VITE_PROJECT_NAME}</span>
+            <span className="sr-only">{PROJECT_NAME}</span>
           </Link>
         </h2>
 
@@ -77,19 +79,20 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
 
-        <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-2">
+        <div className="ml-auto flex items-center gap-1.5 bp-4.5:gap-1">
           <div className="squircle-full border border-border px-3 py-1 type-label-100 squircle-amt-minimal text-trim-cap">
-            pre-alpha
+            alpha
           </div>
-          <a
-            href={import.meta.env.VITE_GITHUB_REPO_URL}
+          <ButtonA
+            size="icon"
+            variant="ghost"
+            href={GITHUB_REPO_URL}
             target="_blank"
             rel="noreferrer"
             aria-label="GitHub repository"
-            className="flex items-center justify-center squircle-lg p-2 text-foreground transition hover:bg-accent"
           >
             <GithubIcon className="size-5" />
-          </a>
+          </ButtonA>
           <ThemeToggle />
         </div>
       </nav>

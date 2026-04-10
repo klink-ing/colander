@@ -1,4 +1,5 @@
 {
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
   "editor.defaultFormatter": "oxc.oxc-vscode",
   "editor.formatOnSave": true,
   "[typescript]": {

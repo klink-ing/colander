@@ -1,21 +1,22 @@
 import { Link, createFileRoute } from "@tanstack/react-router";
 import { Card } from "#/components/ui/card";
-import { Route as docsRoute } from "#/routes/docs";
+import { PROJECT_NAME } from "#/config";
+import { useSectionNav } from "#/lib/use-section-nav";
 
 export const Route = createFileRoute("/docs/")({
   component: DocsIndex,
 });
 
 function DocsIndex() {
-  const { sectionNav } = docsRoute.useLoaderData();
-  const { entries } = sectionNav;
+  const sectionNav = useSectionNav();
+  const entries = sectionNav?.entries ?? [];
 
   return (
     <div>
       <h1 className="mb-4 type-display-200 text-foreground">Documentation</h1>
       <p className="mb-8 type-body-200 text-muted-foreground">
-        Learn how to use {import.meta.env.VITE_PROJECT_NAME} to build
-        accessible, customizable calendar components.
+        Learn how to use {PROJECT_NAME} to build accessible, customizable
+        calendar components.
       </p>
       <div className="grid gap-4 bp-6:grid-cols-2">
         {entries.map((entry) => (

@@ -5,8 +5,12 @@
  * functional DnD behavior. Styled versions can wrap these and pass className.
  */
 
-import { RangeStartDragHandle, RangeEndDragHandle, DayButton } from "colander";
-import type { DayButtonProps, ValueFormat } from "colander";
+import {
+  RangeStartDragHandle,
+  RangeEndDragHandle,
+  DayButton,
+} from "@klinking/colander";
+import type { DayButtonProps, ValueFormat } from "@klinking/colander";
 import { useRef } from "react";
 import { useDragHandleDnD, useDayDropTarget } from "./use-drag-range";
 

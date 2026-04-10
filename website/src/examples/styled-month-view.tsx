@@ -1,6 +1,10 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import { MonthView, WeekNumberCell, WeekNumberHeader } from "colander";
-import type { OutsideDays } from "colander";
+import {
+  MonthView,
+  WeekNumberCell,
+  WeekNumberHeader,
+} from "@klinking/colander";
+import type { OutsideDays } from "@klinking/colander";
 import { cn } from "#/lib/utils";
 import {
   StyledPrevMonthButton,

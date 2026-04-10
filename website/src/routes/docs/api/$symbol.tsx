@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import ApiReference from "#/components/ApiReference";
 import InlineDescription from "#/components/InlineDescription";
 import SourceLink from "#/components/SourceLink";
+import { PROJECT_NAME } from "#/config";
 import { getAllSymbols } from "#/lib/api-data";
 
 const getSymbolData = createServerFn()
@@ -29,7 +30,7 @@ export const Route = createFileRoute("/docs/api/$symbol")({
   head: ({ loaderData }) => ({
     meta: [
       {
-        title: `${loaderData?.name ?? "API"} - ${import.meta.env.VITE_PROJECT_NAME}`,
+        title: `${loaderData?.name ?? "API"} - ${PROJECT_NAME}`,
       },
       ...(loaderData?.description
         ? [{ name: "description", content: loaderData.description }]
