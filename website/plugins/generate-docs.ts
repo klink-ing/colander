@@ -209,6 +209,9 @@ export function generateDocs(): Plugin {
     },
 
     configureServer(server) {
+      // Watch the content directory (outside src/) for markdown changes.
+      // Writing updated .tsx files into src/docs-data/ is enough — Vite's
+      // built-in HMR detects those writes and reloads the affected modules.
       server.watcher.add(contentDir);
 
       const handleChange = (changedPath: string) => {
@@ -222,7 +225,6 @@ export function generateDocs(): Plugin {
         const file = path.basename(resolved);
         try {
           generateOne(file, contentDir, outDir);
-          server.ws.send({ type: "full-reload" });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
@@ -231,7 +233,6 @@ export function generateDocs(): Plugin {
         }
       };
 
-      // Regenerate on file changes, additions, and deletions
       server.watcher.on("change", handleChange);
       server.watcher.on("add", handleChange);
       server.watcher.on("unlink", (changedPath) => {
@@ -244,7 +245,6 @@ export function generateDocs(): Plugin {
         }
         try {
           generateIndex(contentDir, outDir);
-          server.ws.send({ type: "full-reload" });
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
