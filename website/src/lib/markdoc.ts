@@ -84,6 +84,15 @@ const fenceNode: Schema = {
     content: { type: String },
     language: { type: String },
   },
+  transform(node) {
+    const attrs: Record<string, unknown> = {};
+    if (node.attributes.language) {
+      attrs["data-language"] = node.attributes.language;
+    }
+    return new Markdoc.Tag("CodeBlock", attrs, [
+      node.attributes.content as string,
+    ]);
+  },
 };
 
 const config: Config = {

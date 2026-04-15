@@ -9,20 +9,198 @@ import path from "node:path";
 import type { Plugin, ResolvedConfig } from "vite";
 import { parseFrontmatter, parseMarkdoc } from "../src/lib/markdoc.ts";
 
-function outputPath(outDir: string, file: string): string {
-  const slug = file.replace(/\.md$/, "");
-  return path.join(outDir, `${slug}.doc.gen.json`);
+/** Maps PascalCase Markdoc tag names to their import paths. */
+const componentImports: Record<string, string> = {
+  Heading: "#/components/Heading",
+  Paragraph: "#/components/Paragraph",
+  CodeBlock: "#/components/CodeBlock",
+  ApiReference: "#/components/ApiReference",
+  Callout: "#/components/Callout",
+  ExampleBlock: "#/components/ExampleBlock",
+  InstallCmd: "#/components/InstallCmd",
+};
+
+// ---------------------------------------------------------------------------
+// AST → JSX source-code conversion
+// ---------------------------------------------------------------------------
+
+interface TagNode {
+  $$mdtype: "Tag";
+  name: string;
+  attributes: Record<string, unknown>;
+  children: AstNode[];
 }
 
-function processDoc(file: string, contentDir: string) {
+type AstNode = string | TagNode | null | AstNode[];
+
+/** Escape special JSX characters in text content. */
+function escapeJsxText(text: string): string {
+  if (!/[{}<>]/.test(text)) return text;
+  return `{${JSON.stringify(text)}}`;
+}
+
+/** Render a single attribute value as JSX source. */
+function renderAttrValue(value: unknown): string {
+  if (typeof value === "string") {
+    if (/["{}<>]/.test(value)) return `{${JSON.stringify(value)}}`;
+    return `"${value}"`;
+  }
+  if (typeof value === "number") return `{${value}}`;
+  if (typeof value === "boolean") return value ? "" : `{false}`;
+  return `{${JSON.stringify(value)}}`;
+}
+
+/** Render an attribute list as JSX source. */
+function renderAttrs(
+  attrs: Record<string, unknown>,
+  isHtmlElement: boolean,
+): string {
+  const parts: string[] = [];
+  for (const [key, value] of Object.entries(attrs)) {
+    if (value === undefined || value === null) continue;
+
+    // Markdoc uses "class"; JSX needs "className" for HTML elements
+    const propName = key === "class" && isHtmlElement ? "className" : key;
+
+    const rendered = renderAttrValue(value);
+    // Boolean true → bare attribute
+    if (typeof value === "boolean" && value) {
+      parts.push(propName);
+    } else {
+      parts.push(`${propName}=${rendered}`);
+    }
+  }
+  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
+}
+
+/** Recursively convert a Markdoc AST node to JSX source code. */
+function renderToJsx(node: AstNode): string {
+  if (node === null || node === undefined) return "";
+  if (typeof node === "string") return escapeJsxText(node);
+  if (Array.isArray(node)) return node.map(renderToJsx).join("\n");
+
+  const { name, attributes = {}, children = [] } = node;
+  const isHtml = name[0] === name[0].toLowerCase();
+  const attrStr = renderAttrs(attributes, isHtml);
+  const childStr = children.map(renderToJsx).join("");
+
+  if (!childStr) return `<${name}${attrStr} />`;
+  return `<${name}${attrStr}>${childStr}</${name}>`;
+}
+
+/** Walk the AST and collect all PascalCase component names. */
+function collectComponents(node: AstNode): Set<string> {
+  const result = new Set<string>();
+  if (node === null || node === undefined || typeof node === "string")
+    return result;
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      for (const name of collectComponents(child)) result.add(name);
+    }
+    return result;
+  }
+  if (node.name && node.name[0] !== node.name[0].toLowerCase()) {
+    result.add(node.name);
+  }
+  for (const child of node.children ?? []) {
+    for (const name of collectComponents(child)) result.add(name);
+  }
+  return result;
+}
+
+// ---------------------------------------------------------------------------
+// File generation
+// ---------------------------------------------------------------------------
+
+function outputPath(outDir: string, file: string): string {
+  const slug = file.replace(/\.md$/, "");
+  return path.join(outDir, `${slug}.doc.gen.tsx`);
+}
+
+function processDoc(file: string, contentDir: string): string {
   const raw = readFileSync(path.join(contentDir, file), "utf-8");
   const { frontmatter, content } = parseFrontmatter(raw);
   const transformed = parseMarkdoc(content);
-  return {
-    frontmatter,
-    // Round-trip through JSON to strip non-serializable Markdoc properties
-    content: JSON.parse(JSON.stringify(transformed)),
-  };
+
+  // Round-trip through JSON to get plain objects (strips Markdoc Tag instances)
+  const ast: AstNode = JSON.parse(JSON.stringify(transformed));
+
+  const usedComponents = collectComponents(ast);
+
+  const imports: string[] = [];
+  for (const name of [...usedComponents].sort()) {
+    const importPath = componentImports[name];
+    if (importPath) {
+      imports.push(`import ${name} from "${importPath}";`);
+    }
+  }
+
+  const jsxBody = renderToJsx(ast);
+
+  const lines = [
+    "// Auto-generated — do not edit",
+    ...imports,
+    "",
+    `export const frontmatter = ${JSON.stringify(frontmatter)};`,
+    "",
+    "export default function DocContent() {",
+    "  return (",
+    "    <>",
+    `      ${jsxBody}`,
+    "    </>",
+    "  );",
+    "}",
+    "",
+  ];
+
+  return lines.join("\n");
+}
+
+/** Convert a slug like "getting-started" to PascalCase like "GettingStarted". */
+function slugToPascal(slug: string): string {
+  return slug
+    .split("-")
+    .map((part) => part[0].toUpperCase() + part.slice(1))
+    .join("");
+}
+
+function generateIndex(contentDir: string, outDir: string) {
+  const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
+  const slugs = files.map((f) => f.replace(/\.md$/, "")).sort();
+
+  const lines: string[] = [
+    "// Auto-generated — do not edit",
+    'import type { ComponentType } from "react";',
+    'import type { DocFrontmatter } from "#/lib/markdoc";',
+    "",
+  ];
+
+  for (let i = 0; i < slugs.length; i++) {
+    const slug = slugs[i];
+    const varName = slugToPascal(slug);
+    lines.push(
+      `import ${varName}, { frontmatter as fm${i} } from "./${slug}.doc.gen";`,
+    );
+  }
+
+  lines.push("");
+  lines.push("export interface DocEntry {");
+  lines.push("  Component: ComponentType;");
+  lines.push("  frontmatter: DocFrontmatter;");
+  lines.push("}");
+  lines.push("");
+  lines.push("export const docs: Record<string, DocEntry> = {");
+
+  for (let i = 0; i < slugs.length; i++) {
+    const slug = slugs[i];
+    const varName = slugToPascal(slug);
+    lines.push(`  "${slug}": { Component: ${varName}, frontmatter: fm${i} },`);
+  }
+
+  lines.push("};");
+  lines.push("");
+
+  writeFileSync(path.join(outDir, "index.gen.ts"), lines.join("\n"));
 }
 
 function generateAll(contentDir: string, outDir: string) {
@@ -33,10 +211,11 @@ function generateAll(contentDir: string, outDir: string) {
   const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
 
   for (const file of files) {
-    const data = processDoc(file, contentDir);
-    writeFileSync(outputPath(outDir, file), JSON.stringify(data));
+    const source = processDoc(file, contentDir);
+    writeFileSync(outputPath(outDir, file), source);
   }
 
+  generateIndex(contentDir, outDir);
   console.log(`[generate-docs] generated ${files.length} doc(s)`);
 }
 
@@ -45,8 +224,9 @@ function generateOne(file: string, contentDir: string, outDir: string) {
     mkdirSync(outDir, { recursive: true });
   }
 
-  const data = processDoc(file, contentDir);
-  writeFileSync(outputPath(outDir, file), JSON.stringify(data));
+  const source = processDoc(file, contentDir);
+  writeFileSync(outputPath(outDir, file), source);
+  generateIndex(contentDir, outDir);
   console.log(`[generate-docs] regenerated ${file}`);
 }
 
@@ -70,7 +250,8 @@ export function generateDocs(): Plugin {
 
     configureServer(server) {
       server.watcher.add(contentDir);
-      server.watcher.on("change", (changedPath) => {
+
+      const handleChange = (changedPath: string) => {
         const resolved = path.resolve(changedPath);
         if (
           !resolved.startsWith(path.resolve(contentDir)) ||
@@ -86,6 +267,28 @@ export function generateDocs(): Plugin {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
             `[generate-docs] failed to regenerate ${file}:\n  ${msg}`,
+          );
+        }
+      };
+
+      // Regenerate on file changes, additions, and deletions
+      server.watcher.on("change", handleChange);
+      server.watcher.on("add", handleChange);
+      server.watcher.on("unlink", (changedPath) => {
+        const resolved = path.resolve(changedPath);
+        if (
+          !resolved.startsWith(path.resolve(contentDir)) ||
+          !resolved.endsWith(".md")
+        ) {
+          return;
+        }
+        try {
+          generateIndex(contentDir, outDir);
+          server.ws.send({ type: "full-reload" });
+        } catch (e) {
+          const msg = e instanceof Error ? e.message : String(e);
+          console.error(
+            `[generate-docs] failed to regenerate index:\n  ${msg}`,
           );
         }
       });

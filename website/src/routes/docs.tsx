@@ -1,37 +1,29 @@
 import { Outlet, createFileRoute } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
 import { type DocsNavEntry, type ApiDocsNavEntry } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
 import { getAllSymbols } from "#/lib/api-data";
-import type { DocFrontmatter } from "#/lib/markdoc";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
-
-const docsData = import.meta.glob<{ frontmatter: DocFrontmatter }>(
-  "../docs-data/*.doc.gen.json",
-  { eager: true },
-);
+import { docs } from "../docs-data/index.gen";
 
 function getDocEntries(): DocsNavEntry[] {
-  return Object.entries(docsData).map(([key, data]) => {
-    const slug = key.replace(/^.*\//, "").replace(/\.doc\.gen\.json$/, "");
-    return { slug, frontmatter: data.frontmatter };
-  });
+  return Object.entries(docs).map(([slug, { frontmatter }]) => ({
+    slug,
+    frontmatter,
+  }));
 }
 
-const getNavData = createServerFn().handler(async () => {
-  const entries = getDocEntries();
-  entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order);
-
-  const apiEntries: ApiDocsNavEntry[] = getAllSymbols().map((s) => ({
-    name: s.name,
-    kind: s.kind,
-  }));
-
-  return { sectionNav: { entries, apiEntries } };
-});
-
 export const Route = createFileRoute("/docs")({
-  loader: () => getNavData(),
+  loader: () => {
+    const entries = getDocEntries();
+    entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order);
+
+    const apiEntries: ApiDocsNavEntry[] = getAllSymbols().map((s) => ({
+      name: s.name,
+      kind: s.kind,
+    }));
+
+    return { sectionNav: { entries, apiEntries } };
+  },
   component: DocsLayout,
 });
 
