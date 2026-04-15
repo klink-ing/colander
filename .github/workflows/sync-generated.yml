@@ -38,7 +38,7 @@ jobs:
           "chore: regenerate format files [skip ci]"
 
       - name: Regenerate doc files via build
-        run: pnpm --filter website build
+        run: vp run website#build
 
       - name: Commit doc files if changed
         run: >-
