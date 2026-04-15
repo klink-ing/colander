@@ -9,17 +9,6 @@ import path from "node:path";
 import type { Plugin, ResolvedConfig } from "vite";
 import { parseFrontmatter, parseMarkdoc } from "../src/lib/markdoc.ts";
 
-/** Maps PascalCase Markdoc tag names to their import paths. */
-const componentImports: Record<string, string> = {
-  Heading: "#/components/Heading",
-  Paragraph: "#/components/Paragraph",
-  CodeBlock: "#/components/CodeBlock",
-  ApiReference: "#/components/ApiReference",
-  Callout: "#/components/Callout",
-  ExampleBlock: "#/components/ExampleBlock",
-  InstallCmd: "#/components/InstallCmd",
-};
-
 // ---------------------------------------------------------------------------
 // AST → JSX source-code conversion
 // ---------------------------------------------------------------------------
@@ -81,31 +70,12 @@ function renderToJsx(node: AstNode): string {
 
   const { name, attributes = {}, children = [] } = node;
   const isHtml = name[0] === name[0].toLowerCase();
+  const tag = isHtml ? name : `Tags.${name}`;
   const attrStr = renderAttrs(attributes, isHtml);
   const childStr = children.map(renderToJsx).join("");
 
-  if (!childStr) return `<${name}${attrStr} />`;
-  return `<${name}${attrStr}>${childStr}</${name}>`;
-}
-
-/** Walk the AST and collect all PascalCase component names. */
-function collectComponents(node: AstNode): Set<string> {
-  const result = new Set<string>();
-  if (node === null || node === undefined || typeof node === "string")
-    return result;
-  if (Array.isArray(node)) {
-    for (const child of node) {
-      for (const name of collectComponents(child)) result.add(name);
-    }
-    return result;
-  }
-  if (node.name && node.name[0] !== node.name[0].toLowerCase()) {
-    result.add(node.name);
-  }
-  for (const child of node.children ?? []) {
-    for (const name of collectComponents(child)) result.add(name);
-  }
-  return result;
+  if (!childStr) return `<${tag}${attrStr} />`;
+  return `<${tag}${attrStr}>${childStr}</${tag}>`;
 }
 
 // ---------------------------------------------------------------------------
@@ -125,21 +95,11 @@ function processDoc(file: string, contentDir: string): string {
   // Round-trip through JSON to get plain objects (strips Markdoc Tag instances)
   const ast: AstNode = JSON.parse(JSON.stringify(transformed));
 
-  const usedComponents = collectComponents(ast);
-
-  const imports: string[] = [];
-  for (const name of [...usedComponents].sort()) {
-    const importPath = componentImports[name];
-    if (importPath) {
-      imports.push(`import ${name} from "${importPath}";`);
-    }
-  }
-
   const jsxBody = renderToJsx(ast);
 
   const lines = [
     "// Auto-generated — do not edit",
-    ...imports,
+    'import * as Tags from "#/components/markdoc-tags";',
     "",
     `export const frontmatter = ${JSON.stringify(frontmatter)};`,
     "",
