@@ -163,7 +163,7 @@ function generateIndex(contentDir: string, outDir: string) {
   writeFileSync(path.join(outDir, "index.gen.ts"), lines.join("\n"));
 }
 
-function generateAll(contentDir: string, outDir: string) {
+export function generateAll(contentDir: string, outDir: string) {
   if (!existsSync(outDir)) {
     mkdirSync(outDir, { recursive: true });
   }

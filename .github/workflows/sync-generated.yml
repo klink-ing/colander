@@ -6,6 +6,10 @@ on:
     paths:
       - package/src/index.ts
       - package/scripts/generate-formats.ts
+      - website/content/docs/**
+      - website/src/lib/markdoc.ts
+      - website/src/components/markdoc-tags.ts
+      - website/plugins/generate-docs.ts
 
 permissions:
   contents: write
@@ -27,8 +31,18 @@ jobs:
       - name: Regenerate format files
         run: vp run @klinking/colander#generate-formats
 
-      - name: Commit if changed
+      - name: Commit format files if changed
         run: >-
           bash scripts/commit-if-changed.sh
           package/src/formats/
           "chore: regenerate format files [skip ci]"
+
+      - name: Regenerate doc files
+        working-directory: website
+        run: npx tsx scripts/generate-docs.ts
+
+      - name: Commit doc files if changed
+        run: >-
+          bash scripts/commit-if-changed.sh
+          website/src/docs-data/
+          "chore: regenerate doc files [skip ci]"
