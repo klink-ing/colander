@@ -37,9 +37,8 @@ jobs:
           package/src/formats/
           "chore: regenerate format files [skip ci]"
 
-      - name: Regenerate doc files
-        working-directory: website
-        run: npx tsx scripts/generate-docs.ts
+      - name: Regenerate doc files via build
+        run: pnpm --filter website build
 
       - name: Commit doc files if changed
         run: >-
