@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import ApiReference from "#/components/ApiReference";
 import InlineDescription from "#/components/InlineDescription";
 import SourceLink from "#/components/SourceLink";
-import { useDocsSymbols } from "#/lib/use-docs-symbols";
+import { useApiData } from "#/lib/use-api-data";
 
 export const Route = createFileRoute("/docs/api/$symbol")({
   loader: ({ params }) => ({ symbolName: params.symbol }),
@@ -21,7 +21,7 @@ export const Route = createFileRoute("/docs/api/$symbol")({
 
 function ApiSymbolPage() {
   const { symbolName } = Route.useLoaderData();
-  const symbols = useDocsSymbols();
+  const { symbols } = useApiData();
   const sym = symbols.find((s) => s.name === symbolName);
 
   if (!sym) {

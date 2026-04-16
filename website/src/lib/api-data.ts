@@ -1,6 +1,6 @@
 export interface SymbolProperty {
   name: string;
-  type: string;
+  type: number;
   description: string;
   optional: boolean;
   defaultValue?: string;
@@ -8,7 +8,7 @@ export interface SymbolProperty {
 
 export interface SymbolParameter {
   name: string;
-  type: string;
+  type: number;
   description: string;
   optional: boolean;
 }
@@ -23,8 +23,13 @@ export interface ApiSymbol {
   properties?: SymbolProperty[];
   members?: string[];
   parameters?: SymbolParameter[];
-  returnType?: string;
+  returnType?: number;
   tags?: Record<string, string>;
   defaultElement?: string;
-  stateType?: string;
+  stateType?: number;
+}
+
+export interface ApiData {
+  types: string[];
+  symbols: ApiSymbol[];
 }

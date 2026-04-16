@@ -418,8 +418,43 @@ function extract(): ExtractedSymbol[] {
 // Run
 // ---------------------------------------------------------------------------
 
-const symbols = extract();
+const extractedSymbols = extract();
+
+// Deduplicate type strings into a flat list, rewriting inline types as ids.
+const typeIndex = new Map<string, number>();
+function intern(t: string): number {
+  let id = typeIndex.get(t);
+  if (id === undefined) {
+    id = typeIndex.size;
+    typeIndex.set(t, id);
+  }
+  return id;
+}
+
+const normalizedSymbols = extractedSymbols.map((sym) => {
+  const next: Record<string, unknown> = { ...sym };
+  if (sym.properties)
+    next.properties = sym.properties.map((p) => ({
+      ...p,
+      type: intern(p.type),
+    }));
+  if (sym.parameters)
+    next.parameters = sym.parameters.map((p) => ({
+      ...p,
+      type: intern(p.type),
+    }));
+  if (sym.returnType !== undefined) next.returnType = intern(sym.returnType);
+  if (sym.stateType !== undefined) next.stateType = intern(sym.stateType);
+  return next;
+});
+
+const types: string[] = Array.from({ length: typeIndex.size });
+for (const [str, id] of typeIndex) types[id] = str;
+
+const output = { types, symbols: normalizedSymbols };
 const outputPath = path.resolve(__dirname, "../api-data/symbols.gen.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-fs.writeFileSync(outputPath, JSON.stringify(symbols, null, 2));
-console.log(`Wrote ${symbols.length} symbols to ${outputPath}`);
+fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
+console.log(
+  `Wrote ${normalizedSymbols.length} symbols (${types.length} unique types) to ${outputPath}`,
+);

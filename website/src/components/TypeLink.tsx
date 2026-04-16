@@ -4,18 +4,23 @@ import {
   TooltipContent,
 } from "#/components/ui/tooltip";
 import type { ApiSymbol } from "#/lib/api-data";
-import { useDocsSymbols } from "#/lib/use-docs-symbols";
+import { useApiData } from "#/lib/use-api-data";
 import { LinkInline } from "./LinkInline";
 
 export default function TypeLink({ type }: { type: string }) {
-  const symbols = useDocsSymbols();
+  const { symbols, types } = useApiData();
   const parts = tokenize(type, symbols);
 
   return (
     <>
       {parts.map((part, i) =>
         part.linked ? (
-          <SymbolLink key={i} name={part.text} symbols={symbols} />
+          <SymbolLink
+            key={i}
+            name={part.text}
+            symbols={symbols}
+            types={types}
+          />
         ) : (
           <span key={i}>{part.text}</span>
         ),
@@ -24,7 +29,15 @@ export default function TypeLink({ type }: { type: string }) {
   );
 }
 
-function SymbolLink({ name, symbols }: { name: string; symbols: ApiSymbol[] }) {
+function SymbolLink({
+  name,
+  symbols,
+  types,
+}: {
+  name: string;
+  symbols: ApiSymbol[];
+  types: string[];
+}) {
   const sym = symbols.find((s) => s.name === name);
   const linkClassName = "no-underline hover:underline";
 
@@ -58,13 +71,19 @@ function SymbolLink({ name, symbols }: { name: string; symbols: ApiSymbol[] }) {
         align="start"
         className="max-w-sm squircle-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg"
       >
-        <TypeTooltipBody symbol={sym} />
+        <TypeTooltipBody symbol={sym} types={types} />
       </TooltipContent>
     </Tooltip>
   );
 }
 
-function TypeTooltipBody({ symbol }: { symbol: ApiSymbol }) {
+function TypeTooltipBody({
+  symbol,
+  types,
+}: {
+  symbol: ApiSymbol;
+  types: string[];
+}) {
   const maxProps = 6;
 
   return (
@@ -96,7 +115,7 @@ function TypeTooltipBody({ symbol }: { symbol: ApiSymbol }) {
           {symbol.properties.slice(0, maxProps).map((p) => (
             <div key={p.name} className="pl-3">
               <span className="text-foreground">{p.name}</span>
-              {p.optional ? "?" : ""}: {p.type}
+              {p.optional ? "?" : ""}: {types[p.type]}
             </div>
           ))}
           {symbol.properties.length > maxProps && (

@@ -1,24 +1,22 @@
 import { Outlet, createFileRoute, useMatches } from "@tanstack/react-router";
 import { type ApiDocsNavEntry } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
-import type { ApiSymbol } from "#/lib/api-data";
+import type { ApiData } from "#/lib/api-data";
 import type { DocFrontmatter } from "#/lib/markdoc";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { docEntries } from "../docs-data/nav.gen";
 
 export const Route = createFileRoute("/docs")({
   loader: async () => {
-    const { default: symbols } =
-      (await import("../../api-data/symbols.gen.json")) as {
-        default: ApiSymbol[];
-      };
+    const apiData = (await import("../../api-data/symbols.gen.json"))
+      .default as ApiData;
 
-    const apiEntries: ApiDocsNavEntry[] = symbols.map((s) => ({
+    const apiEntries: ApiDocsNavEntry[] = apiData.symbols.map((s) => ({
       name: s.name,
       kind: s.kind,
     }));
 
-    return { sectionNav: { entries: docEntries, apiEntries }, symbols };
+    return { sectionNav: { entries: docEntries, apiEntries }, apiData };
   },
   component: DocsLayout,
 });
