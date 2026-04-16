@@ -13,7 +13,10 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DemoRouteImport } from './routes/demo'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
-import { Route as DocsSlugRouteImport } from './routes/docs/$slug'
+import { Route as DocsWeeksViewRouteImport } from './routes/docs/weeks-view'
+import { Route as DocsMonthViewRouteImport } from './routes/docs/month-view'
+import { Route as DocsGettingStartedRouteImport } from './routes/docs/getting-started'
+import { Route as DocsCalendarProviderRouteImport } from './routes/docs/calendar-provider'
 import { Route as DocsApiSymbolRouteImport } from './routes/docs/api/$symbol'
 
 const DocsRoute = DocsRouteImport.update({
@@ -36,9 +39,24 @@ const DocsIndexRoute = DocsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DocsRoute,
 } as any)
-const DocsSlugRoute = DocsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
+const DocsWeeksViewRoute = DocsWeeksViewRouteImport.update({
+  id: '/weeks-view',
+  path: '/weeks-view',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsMonthViewRoute = DocsMonthViewRouteImport.update({
+  id: '/month-view',
+  path: '/month-view',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsCalendarProviderRoute = DocsCalendarProviderRouteImport.update({
+  id: '/calendar-provider',
+  path: '/calendar-provider',
   getParentRoute: () => DocsRoute,
 } as any)
 const DocsApiSymbolRoute = DocsApiSymbolRouteImport.update({
@@ -51,14 +69,20 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRouteWithChildren
-  '/docs/$slug': typeof DocsSlugRoute
+  '/docs/calendar-provider': typeof DocsCalendarProviderRoute
+  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/month-view': typeof DocsMonthViewRoute
+  '/docs/weeks-view': typeof DocsWeeksViewRoute
   '/docs/': typeof DocsIndexRoute
   '/docs/api/$symbol': typeof DocsApiSymbolRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
-  '/docs/$slug': typeof DocsSlugRoute
+  '/docs/calendar-provider': typeof DocsCalendarProviderRoute
+  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/month-view': typeof DocsMonthViewRoute
+  '/docs/weeks-view': typeof DocsWeeksViewRoute
   '/docs': typeof DocsIndexRoute
   '/docs/api/$symbol': typeof DocsApiSymbolRoute
 }
@@ -67,7 +91,10 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRouteWithChildren
-  '/docs/$slug': typeof DocsSlugRoute
+  '/docs/calendar-provider': typeof DocsCalendarProviderRoute
+  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/month-view': typeof DocsMonthViewRoute
+  '/docs/weeks-view': typeof DocsWeeksViewRoute
   '/docs/': typeof DocsIndexRoute
   '/docs/api/$symbol': typeof DocsApiSymbolRoute
 }
@@ -77,17 +104,31 @@ export interface FileRouteTypes {
     | '/'
     | '/demo'
     | '/docs'
-    | '/docs/$slug'
+    | '/docs/calendar-provider'
+    | '/docs/getting-started'
+    | '/docs/month-view'
+    | '/docs/weeks-view'
     | '/docs/'
     | '/docs/api/$symbol'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/demo' | '/docs/$slug' | '/docs' | '/docs/api/$symbol'
+  to:
+    | '/'
+    | '/demo'
+    | '/docs/calendar-provider'
+    | '/docs/getting-started'
+    | '/docs/month-view'
+    | '/docs/weeks-view'
+    | '/docs'
+    | '/docs/api/$symbol'
   id:
     | '__root__'
     | '/'
     | '/demo'
     | '/docs'
-    | '/docs/$slug'
+    | '/docs/calendar-provider'
+    | '/docs/getting-started'
+    | '/docs/month-view'
+    | '/docs/weeks-view'
     | '/docs/'
     | '/docs/api/$symbol'
   fileRoutesById: FileRoutesById
@@ -128,11 +169,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsIndexRouteImport
       parentRoute: typeof DocsRoute
     }
-    '/docs/$slug': {
-      id: '/docs/$slug'
-      path: '/$slug'
-      fullPath: '/docs/$slug'
-      preLoaderRoute: typeof DocsSlugRouteImport
+    '/docs/weeks-view': {
+      id: '/docs/weeks-view'
+      path: '/weeks-view'
+      fullPath: '/docs/weeks-view'
+      preLoaderRoute: typeof DocsWeeksViewRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/month-view': {
+      id: '/docs/month-view'
+      path: '/month-view'
+      fullPath: '/docs/month-view'
+      preLoaderRoute: typeof DocsMonthViewRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/getting-started': {
+      id: '/docs/getting-started'
+      path: '/getting-started'
+      fullPath: '/docs/getting-started'
+      preLoaderRoute: typeof DocsGettingStartedRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/calendar-provider': {
+      id: '/docs/calendar-provider'
+      path: '/calendar-provider'
+      fullPath: '/docs/calendar-provider'
+      preLoaderRoute: typeof DocsCalendarProviderRouteImport
       parentRoute: typeof DocsRoute
     }
     '/docs/api/$symbol': {
@@ -146,13 +208,19 @@ declare module '@tanstack/react-router' {
 }
 
 interface DocsRouteChildren {
-  DocsSlugRoute: typeof DocsSlugRoute
+  DocsCalendarProviderRoute: typeof DocsCalendarProviderRoute
+  DocsGettingStartedRoute: typeof DocsGettingStartedRoute
+  DocsMonthViewRoute: typeof DocsMonthViewRoute
+  DocsWeeksViewRoute: typeof DocsWeeksViewRoute
   DocsIndexRoute: typeof DocsIndexRoute
   DocsApiSymbolRoute: typeof DocsApiSymbolRoute
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
-  DocsSlugRoute: DocsSlugRoute,
+  DocsCalendarProviderRoute: DocsCalendarProviderRoute,
+  DocsGettingStartedRoute: DocsGettingStartedRoute,
+  DocsMonthViewRoute: DocsMonthViewRoute,
+  DocsWeeksViewRoute: DocsWeeksViewRoute,
   DocsIndexRoute: DocsIndexRoute,
   DocsApiSymbolRoute: DocsApiSymbolRoute,
 }

@@ -24,9 +24,7 @@ function DocsIndex() {
             key={entry.slug}
             render={
               <Link
-                key={entry.slug}
-                to="/docs/$slug"
-                params={{ slug: entry.slug }}
+                to={`/docs/${entry.slug}` as string}
                 className="block p-5 no-underline hover:-translate-y-0.5"
               />
             }

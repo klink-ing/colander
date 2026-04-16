@@ -3,19 +3,14 @@ import { type DocsNavEntry, type ApiDocsNavEntry } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
 import { getAllSymbols } from "#/lib/api-data";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
-import { docs } from "../docs-data/index.gen";
-
-function getDocEntries(): DocsNavEntry[] {
-  return Object.entries(docs).map(([slug, { frontmatter }]) => ({
-    slug,
-    frontmatter,
-  }));
-}
+import { docEntries } from "../docs-data/nav.gen";
 
 export const Route = createFileRoute("/docs")({
   loader: () => {
-    const entries = getDocEntries();
-    entries.sort((a, b) => a.frontmatter.order - b.frontmatter.order);
+    const entries: DocsNavEntry[] = docEntries.map((e) => ({
+      slug: e.slug,
+      frontmatter: e.frontmatter,
+    }));
 
     const apiEntries: ApiDocsNavEntry[] = getAllSymbols().map((s) => ({
       name: s.name,

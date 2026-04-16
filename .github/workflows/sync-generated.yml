@@ -34,8 +34,8 @@ jobs:
       - name: Commit format files if changed
         run: >-
           bash scripts/commit-if-changed.sh
-          package/src/formats/
           "chore: regenerate format files [skip ci]"
+          package/src/formats/
 
       - name: Regenerate doc files via build
         run: vp run website#build
@@ -43,5 +43,6 @@ jobs:
       - name: Commit doc files if changed
         run: >-
           bash scripts/commit-if-changed.sh
-          website/src/docs-data/
           "chore: regenerate doc files [skip ci]"
+          website/src/routes/docs/
+          website/src/docs-data/

@@ -82,126 +82,137 @@ function renderToJsx(node: AstNode): string {
 // File generation
 // ---------------------------------------------------------------------------
 
-function outputPath(outDir: string, file: string): string {
+function processRoute(file: string, contentDir: string): string {
   const slug = file.replace(/\.md$/, "");
-  return path.join(outDir, `${slug}.doc.gen.tsx`);
-}
-
-function processDoc(file: string, contentDir: string): string {
   const raw = readFileSync(path.join(contentDir, file), "utf-8");
   const { frontmatter, content } = parseFrontmatter(raw);
   const transformed = parseMarkdoc(content);
 
   // Round-trip through JSON to get plain objects (strips Markdoc Tag instances)
   const ast: AstNode = JSON.parse(JSON.stringify(transformed));
-
   const jsxBody = renderToJsx(ast);
 
-  const lines = [
-    "// Auto-generated — do not edit",
+  return [
+    `// Auto-generated from ${file} — do not edit`,
+    'import { createFileRoute } from "@tanstack/react-router";',
     'import * as Tags from "#/components/markdoc-tags";',
+    'import { PROJECT_NAME } from "#/config";',
     "",
-    `export const frontmatter = ${JSON.stringify(frontmatter)};`,
+    `const frontmatter = ${JSON.stringify(frontmatter)};`,
     "",
-    "export default function DocContent() {",
+    `export const Route = createFileRoute("/docs/${slug}")({`,
+    "  head: () => ({",
+    "    meta: [",
+    "      { title: `${frontmatter.title} - ${PROJECT_NAME}` },",
+    "      ...(frontmatter.description",
+    '        ? [{ name: "description", content: frontmatter.description }]',
+    "        : []),",
+    "    ],",
+    "  }),",
+    "  component: DocPage,",
+    "});",
+    "",
+    "function DocPage() {",
     "  return (",
-    "    <>",
+    "    <div>",
+    '      <div className="mb-6">',
+    '        <p className="mb-1 type-label-100 text-muted-foreground">',
+    "          {frontmatter.section}",
+    "        </p>",
+    '        <h1 className="mb-2 type-heading-300 text-foreground">',
+    "          {frontmatter.title}",
+    "        </h1>",
+    "        {frontmatter.description && (",
+    '          <p className="type-body-200 text-muted-foreground">',
+    "            {frontmatter.description}",
+    "          </p>",
+    "        )}",
+    "      </div>",
     `      ${jsxBody}`,
-    "    </>",
+    "    </div>",
     "  );",
     "}",
     "",
-  ];
-
-  return lines.join("\n");
+  ].join("\n");
 }
 
-/** Convert a slug like "getting-started" to PascalCase like "GettingStarted". */
-function slugToPascal(slug: string): string {
-  return slug
-    .split("-")
-    .map((part) => part[0].toUpperCase() + part.slice(1))
-    .join("");
-}
+function generateNavManifest(contentDir: string, outDir: string) {
+  if (!existsSync(outDir)) {
+    mkdirSync(outDir, { recursive: true });
+  }
 
-function generateIndex(contentDir: string, outDir: string) {
   const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
-  const slugs = files.map((f) => f.replace(/\.md$/, "")).sort();
+  const entries: { slug: string; frontmatter: Record<string, unknown> }[] = [];
 
-  const lines: string[] = [
+  for (const file of files) {
+    const slug = file.replace(/\.md$/, "");
+    const raw = readFileSync(path.join(contentDir, file), "utf-8");
+    const { frontmatter } = parseFrontmatter(raw);
+    entries.push({ slug, frontmatter });
+  }
+
+  entries.sort(
+    (a, b) => (a.frontmatter.order as number) - (b.frontmatter.order as number),
+  );
+
+  const lines = [
     "// Auto-generated — do not edit",
-    'import type { ComponentType } from "react";',
-    'import type { DocFrontmatter } from "#/lib/markdoc";',
+    "",
+    "export const docEntries = " + JSON.stringify(entries, null, 2) + ";",
     "",
   ];
 
-  for (let i = 0; i < slugs.length; i++) {
-    const slug = slugs[i];
-    const varName = slugToPascal(slug);
-    lines.push(
-      `import ${varName}, { frontmatter as fm${i} } from "./${slug}.doc.gen";`,
-    );
-  }
-
-  lines.push("");
-  lines.push("export interface DocEntry {");
-  lines.push("  Component: ComponentType;");
-  lines.push("  frontmatter: DocFrontmatter;");
-  lines.push("}");
-  lines.push("");
-  lines.push("export const docs: Record<string, DocEntry> = {");
-
-  for (let i = 0; i < slugs.length; i++) {
-    const slug = slugs[i];
-    const varName = slugToPascal(slug);
-    lines.push(`  "${slug}": { Component: ${varName}, frontmatter: fm${i} },`);
-  }
-
-  lines.push("};");
-  lines.push("");
-
-  writeFileSync(path.join(outDir, "index.gen.ts"), lines.join("\n"));
+  writeFileSync(path.join(outDir, "nav.gen.ts"), lines.join("\n"));
 }
 
-function generateAll(contentDir: string, outDir: string) {
-  if (!existsSync(outDir)) {
-    mkdirSync(outDir, { recursive: true });
+function generateAll(contentDir: string, routeDir: string, dataDir: string) {
+  if (!existsSync(routeDir)) {
+    mkdirSync(routeDir, { recursive: true });
   }
 
   const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
 
   for (const file of files) {
-    const source = processDoc(file, contentDir);
-    writeFileSync(outputPath(outDir, file), source);
+    const slug = file.replace(/\.md$/, "");
+    const source = processRoute(file, contentDir);
+    writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
   }
 
-  generateIndex(contentDir, outDir);
-  console.log(`[generate-docs] generated ${files.length} doc(s)`);
+  generateNavManifest(contentDir, dataDir);
+  console.log(`[generate-docs] generated ${files.length} doc route(s)`);
 }
 
-function generateOne(file: string, contentDir: string, outDir: string) {
-  if (!existsSync(outDir)) {
-    mkdirSync(outDir, { recursive: true });
+function generateOne(
+  file: string,
+  contentDir: string,
+  routeDir: string,
+  dataDir: string,
+) {
+  if (!existsSync(routeDir)) {
+    mkdirSync(routeDir, { recursive: true });
   }
 
-  const source = processDoc(file, contentDir);
-  writeFileSync(outputPath(outDir, file), source);
-  generateIndex(contentDir, outDir);
+  const slug = file.replace(/\.md$/, "");
+  const source = processRoute(file, contentDir);
+  writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
+  generateNavManifest(contentDir, dataDir);
   console.log(`[generate-docs] regenerated ${file}`);
 }
 
 export function generateDocs(): Plugin {
   let contentDir: string;
-  let outDir: string;
+  let routeDir: string;
+  let dataDir: string;
 
   return {
     name: "generate-docs",
 
     configResolved(config: ResolvedConfig) {
       contentDir = path.join(config.root, "content/docs");
-      outDir = path.join(config.root, "src/docs-data");
+      routeDir = path.join(config.root, "src/routes/docs");
+      dataDir = path.join(config.root, "src/docs-data");
       try {
-        generateAll(contentDir, outDir);
+        generateAll(contentDir, routeDir, dataDir);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         console.error(`[generate-docs] initial generation failed:\n  ${msg}`);
@@ -209,9 +220,6 @@ export function generateDocs(): Plugin {
     },
 
     configureServer(server) {
-      // Watch the content directory (outside src/) for markdown changes.
-      // Writing updated .tsx files into src/docs-data/ is enough — Vite's
-      // built-in HMR detects those writes and reloads the affected modules.
       server.watcher.add(contentDir);
 
       const handleChange = (changedPath: string) => {
@@ -224,7 +232,7 @@ export function generateDocs(): Plugin {
         }
         const file = path.basename(resolved);
         try {
-          generateOne(file, contentDir, outDir);
+          generateOne(file, contentDir, routeDir, dataDir);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
@@ -244,11 +252,11 @@ export function generateDocs(): Plugin {
           return;
         }
         try {
-          generateIndex(contentDir, outDir);
+          generateNavManifest(contentDir, dataDir);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
-            `[generate-docs] failed to regenerate index:\n  ${msg}`,
+            `[generate-docs] failed to regenerate nav manifest:\n  ${msg}`,
           );
         }
       });
