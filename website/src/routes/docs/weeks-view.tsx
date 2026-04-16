@@ -1,6 +1,6 @@
 // Auto-generated from weeks-view.md — do not edit
 import { createFileRoute } from "@tanstack/react-router";
-import * as Tags from "#/components/markdoc-tags";
+import * as Tags from "#/components/markdoc";
 import { PROJECT_NAME } from "#/config";
 
 const frontmatter = {

@@ -10,79 +10,7 @@ import path from "node:path";
 import type { Plugin, ResolvedConfig } from "vite";
 import type { DocFrontmatter } from "../src/lib/markdoc.ts";
 import { parseFrontmatter, parseMarkdoc } from "../src/lib/markdoc.ts";
-
-// ---------------------------------------------------------------------------
-// AST → JSX source-code conversion
-// ---------------------------------------------------------------------------
-
-interface TagNode {
-  $$mdtype: "Tag";
-  name: string;
-  attributes: Record<string, unknown>;
-  children: AstNode[];
-}
-
-type AstNode = string | TagNode | null | AstNode[];
-
-/** Escape special JSX characters in text content. */
-function escapeJsxText(text: string): string {
-  if (!/[{}<>]/.test(text)) return text;
-  return `{${JSON.stringify(text)}}`;
-}
-
-/** Render a single attribute value as JSX source. */
-function renderAttrValue(value: unknown): string {
-  if (typeof value === "string") {
-    if (/["{}<>]/.test(value)) return `{${JSON.stringify(value)}}`;
-    return `"${value}"`;
-  }
-  if (typeof value === "number") return `{${value}}`;
-  if (typeof value === "boolean") return value ? "" : `{false}`;
-  return `{${JSON.stringify(value)}}`;
-}
-
-/** Render an attribute list as JSX source. */
-function renderAttrs(
-  attrs: Record<string, unknown>,
-  isHtmlElement: boolean,
-): string {
-  const parts: string[] = [];
-  for (const [key, value] of Object.entries(attrs)) {
-    if (value === undefined || value === null) continue;
-
-    // Markdoc uses "class"; JSX needs "className" for HTML elements
-    const propName = key === "class" && isHtmlElement ? "className" : key;
-
-    const rendered = renderAttrValue(value);
-    // Boolean true → bare attribute
-    if (typeof value === "boolean" && value) {
-      parts.push(propName);
-    } else {
-      parts.push(`${propName}=${rendered}`);
-    }
-  }
-  return parts.length > 0 ? ` ${parts.join(" ")}` : "";
-}
-
-/** Recursively convert a Markdoc AST node to JSX source code. */
-function renderToJsx(node: AstNode): string {
-  if (node === null || node === undefined) return "";
-  if (typeof node === "string") return escapeJsxText(node);
-  if (Array.isArray(node)) return node.map(renderToJsx).join("");
-
-  const { name, attributes = {}, children = [] } = node;
-  const isHtml = name[0] === name[0].toLowerCase();
-  const tag = isHtml ? name : `Tags.${name}`;
-  const attrStr = renderAttrs(attributes, isHtml);
-  const childStr = children.map(renderToJsx).join("");
-
-  if (!childStr) return `<${tag}${attrStr} />`;
-  return `<${tag}${attrStr}>${childStr}</${tag}>`;
-}
-
-// ---------------------------------------------------------------------------
-// File generation
-// ---------------------------------------------------------------------------
+import { type AstNode, renderToJsx } from "./render-jsx.ts";
 
 interface ProcessedDoc {
   slug: string;
@@ -103,7 +31,7 @@ function processRoute(file: string, contentDir: string): ProcessedDoc {
   const source = [
     `// Auto-generated from ${file} — do not edit`,
     'import { createFileRoute } from "@tanstack/react-router";',
-    'import * as Tags from "#/components/markdoc-tags";',
+    'import * as Tags from "#/components/markdoc";',
     'import { PROJECT_NAME } from "#/config";',
     "",
     `const frontmatter = ${JSON.stringify(frontmatter)};`,

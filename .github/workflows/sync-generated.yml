@@ -9,7 +9,7 @@ on:
       - package/src/formats/**
       - website/content/docs/**
       - website/src/lib/markdoc.ts
-      - website/src/components/markdoc-tags.ts
+      - website/src/components/markdoc/**
       - website/plugins/generate-docs.ts
       - website/src/routes/docs/**
       - website/src/docs-data/**
