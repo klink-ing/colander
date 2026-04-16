@@ -8,7 +8,6 @@ import {
 } from "node:fs";
 import path from "node:path";
 import type { Plugin, ResolvedConfig } from "vite";
-import type { ApiSymbol } from "../src/lib/api-data.ts";
 import type { DocFrontmatter } from "../src/lib/markdoc.ts";
 import { parseFrontmatter, parseMarkdoc } from "../src/lib/markdoc.ts";
 import { type AstNode, renderToJsx } from "./render-jsx.ts";
@@ -19,33 +18,7 @@ interface ProcessedDoc {
   source: string;
 }
 
-function collectApiSymbolNames(node: AstNode): string[] {
-  if (node === null || node === undefined || typeof node === "string")
-    return [];
-  if (Array.isArray(node)) return node.flatMap(collectApiSymbolNames);
-  const names: string[] = [];
-  if (
-    node.name === "ApiReference" &&
-    typeof node.attributes.symbol === "string"
-  )
-    names.push(node.attributes.symbol);
-  for (const child of node.children ?? [])
-    names.push(...collectApiSymbolNames(child));
-  return names;
-}
-
-function loadSymbolsMap(apiDataDir: string): Map<string, ApiSymbol> {
-  const filePath = path.join(apiDataDir, "symbols.gen.json");
-  if (!existsSync(filePath)) return new Map();
-  const symbols = JSON.parse(readFileSync(filePath, "utf-8")) as ApiSymbol[];
-  return new Map(symbols.map((s) => [s.name, s]));
-}
-
-function processRoute(
-  file: string,
-  contentDir: string,
-  symbolsMap: Map<string, ApiSymbol>,
-): ProcessedDoc {
+function processRoute(file: string, contentDir: string): ProcessedDoc {
   const slug = file.replace(/\.md$/, "");
   const raw = readFileSync(path.join(contentDir, file), "utf-8");
   const { frontmatter, content } = parseFrontmatter(raw);
@@ -53,17 +26,8 @@ function processRoute(
 
   // Round-trip through JSON to get plain objects (strips Markdoc Tag instances)
   const ast: AstNode = JSON.parse(JSON.stringify(transformed));
-
-  const neededSymbols = collectApiSymbolNames(ast);
-  const resolvedSymbols: Record<string, ApiSymbol> = {};
-  for (const name of neededSymbols) {
-    const sym = symbolsMap.get(name);
-    if (sym) resolvedSymbols[name] = sym;
-  }
-
   const jsxBody = renderToJsx(ast);
 
-  const hasSymbols = neededSymbols.length > 0;
   const source = [
     `// Auto-generated from ${file} — do not edit`,
     'import { createFileRoute } from "@tanstack/react-router";',
@@ -71,9 +35,6 @@ function processRoute(
     'import { PROJECT_NAME } from "#/config";',
     "",
     `const frontmatter = ${JSON.stringify(frontmatter)};`,
-    ...(hasSymbols
-      ? ["", `const apiSymbols = ${JSON.stringify(resolvedSymbols)};`]
-      : []),
     "",
     `export const Route = createFileRoute("/docs/${slug}")({`,
     "  loader: () => ({ frontmatter }),",
@@ -132,26 +93,16 @@ function writeNavManifest(
   writeFileSync(path.join(outDir, "nav.gen.ts"), lines.join("\n"));
 }
 
-function generateAll(
-  contentDir: string,
-  routeDir: string,
-  dataDir: string,
-  apiDataDir: string,
-) {
+function generateAll(contentDir: string, routeDir: string, dataDir: string) {
   if (!existsSync(routeDir)) {
     mkdirSync(routeDir, { recursive: true });
   }
 
-  const symbolsMap = loadSymbolsMap(apiDataDir);
   const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
   const entries: { slug: string; frontmatter: DocFrontmatter }[] = [];
 
   for (const file of files) {
-    const { slug, frontmatter, source } = processRoute(
-      file,
-      contentDir,
-      symbolsMap,
-    );
+    const { slug, frontmatter, source } = processRoute(file, contentDir);
     writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
     entries.push({ slug, frontmatter });
   }
@@ -165,21 +116,15 @@ function generateOne(
   contentDir: string,
   routeDir: string,
   dataDir: string,
-  apiDataDir: string,
 ) {
   if (!existsSync(routeDir)) {
     mkdirSync(routeDir, { recursive: true });
   }
 
-  const symbolsMap = loadSymbolsMap(apiDataDir);
   const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
   const entries: { slug: string; frontmatter: DocFrontmatter }[] = [];
 
-  const { slug, frontmatter, source } = processRoute(
-    file,
-    contentDir,
-    symbolsMap,
-  );
+  const { slug, frontmatter, source } = processRoute(file, contentDir);
   writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
 
   for (const f of files) {
@@ -201,7 +146,6 @@ export function generateDocs(): Plugin {
   let contentDir: string;
   let routeDir: string;
   let dataDir: string;
-  let apiDataDir: string;
 
   return {
     name: "generate-docs",
@@ -210,9 +154,8 @@ export function generateDocs(): Plugin {
       contentDir = path.join(config.root, "content/docs");
       routeDir = path.join(config.root, "src/routes/docs");
       dataDir = path.join(config.root, "src/docs-data");
-      apiDataDir = path.join(config.root, "api-data");
       try {
-        generateAll(contentDir, routeDir, dataDir, apiDataDir);
+        generateAll(contentDir, routeDir, dataDir);
       } catch (e) {
         const msg = e instanceof Error ? e.message : String(e);
         console.error(`[generate-docs] initial generation failed:\n  ${msg}`);
@@ -232,7 +175,7 @@ export function generateDocs(): Plugin {
         }
         const file = path.basename(resolved);
         try {
-          generateOne(file, contentDir, routeDir, dataDir, apiDataDir);
+          generateOne(file, contentDir, routeDir, dataDir);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
@@ -258,7 +201,7 @@ export function generateDocs(): Plugin {
             unlinkSync(routeFile);
             console.log(`[generate-docs] removed ${slug}.tsx`);
           }
-          generateAll(contentDir, routeDir, dataDir, apiDataDir);
+          generateAll(contentDir, routeDir, dataDir);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(

@@ -3,21 +3,19 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "#/components/ui/tooltip";
-import { isKnownSymbol, getSymbolByName } from "#/lib/api-data";
+import type { ApiSymbol } from "#/lib/api-data";
+import { useDocsSymbols } from "#/lib/use-docs-symbols";
 import { LinkInline } from "./LinkInline";
 
-/**
- * Parses a type string and turns recognized symbol names into links
- * with VS Code-style hover tooltips showing type details.
- */
 export default function TypeLink({ type }: { type: string }) {
-  const parts = tokenize(type);
+  const symbols = useDocsSymbols();
+  const parts = tokenize(type, symbols);
 
   return (
     <>
       {parts.map((part, i) =>
         part.linked ? (
-          <SymbolLink key={i} name={part.text} />
+          <SymbolLink key={i} name={part.text} symbols={symbols} />
         ) : (
           <span key={i}>{part.text}</span>
         ),
@@ -26,8 +24,8 @@ export default function TypeLink({ type }: { type: string }) {
   );
 }
 
-function SymbolLink({ name }: { name: string }) {
-  const sym = getSymbolByName(name);
+function SymbolLink({ name, symbols }: { name: string; symbols: ApiSymbol[] }) {
+  const sym = symbols.find((s) => s.name === name);
   const linkClassName = "no-underline hover:underline";
 
   if (!sym) {
@@ -66,11 +64,7 @@ function SymbolLink({ name }: { name: string }) {
   );
 }
 
-function TypeTooltipBody({
-  symbol,
-}: {
-  symbol: NonNullable<ReturnType<typeof getSymbolByName>>;
-}) {
+function TypeTooltipBody({ symbol }: { symbol: ApiSymbol }) {
   const maxProps = 6;
 
   return (
@@ -128,8 +122,8 @@ interface Token {
   linked: boolean;
 }
 
-/** Split a type string into linkable identifiers and plain text fragments. */
-function tokenize(type: string): Token[] {
+function tokenize(type: string, symbols: ApiSymbol[]): Token[] {
+  const symbolNames = new Set(symbols.map((s) => s.name));
   const regex = /([A-Z][A-Za-z0-9]*)/g;
   const tokens: Token[] = [];
   let lastIndex = 0;
@@ -140,7 +134,7 @@ function tokenize(type: string): Token[] {
       tokens.push({ text: type.slice(lastIndex, start), linked: false });
     }
     const name = match[1];
-    tokens.push({ text: name, linked: isKnownSymbol(name) });
+    tokens.push({ text: name, linked: symbolNames.has(name) });
     lastIndex = start + name.length;
   }
 

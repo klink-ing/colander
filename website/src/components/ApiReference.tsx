@@ -1,6 +1,7 @@
 import { useRender } from "@base-ui/react/use-render";
 import React, { Fragment, useId, type ComponentProps } from "react";
 import { type ApiSymbol, type SymbolProperty } from "#/lib/api-data";
+import { useDocsSymbols } from "#/lib/use-docs-symbols";
 import { cn } from "#/lib/utils";
 import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
@@ -8,7 +9,22 @@ import { Code } from "./ui/code";
 
 const MDN_BASE = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element";
 
-export default function ApiReference({ symbol }: { symbol: ApiSymbol }) {
+export default function ApiReference({
+  symbol: symbolName,
+}: {
+  symbol: string;
+}) {
+  const symbols = useDocsSymbols();
+  const symbol = symbols.find((s) => s.name === symbolName);
+
+  if (!symbol) {
+    return (
+      <div className="border-callout-error-border bg-callout-error-bg text-callout-error-text my-4 squircle-lg border p-4 type-body-100">
+        Symbol <Code>{symbolName}</Code> not found in API data.
+      </div>
+    );
+  }
+
   return (
     <div className="my-6">
       {symbol.defaultElement && <DefaultElement symbol={symbol} />}

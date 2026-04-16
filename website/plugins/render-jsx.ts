@@ -25,12 +25,8 @@ function renderAttrValue(value: unknown): string {
 function renderAttrs(
   attrs: Record<string, unknown>,
   isHtmlElement: boolean,
-  rawOverrides: Record<string, string> = {},
 ): string {
   const parts: string[] = [];
-  for (const [key, raw] of Object.entries(rawOverrides)) {
-    parts.push(`${key}=${raw}`);
-  }
   for (const [key, value] of Object.entries(attrs)) {
     if (value === undefined || value === null) continue;
 
@@ -55,15 +51,7 @@ export function renderToJsx(node: AstNode): string {
   const { name, attributes = {}, children = [] } = node;
   const isHtml = name[0] === name[0].toLowerCase();
   const tag = isHtml ? name : `Tags.${name}`;
-
-  let attrs = { ...attributes };
-  const overrides: Record<string, string> = {};
-  if (name === "ApiReference" && typeof attrs.symbol === "string") {
-    overrides.symbol = `{apiSymbols[${JSON.stringify(attrs.symbol)}]}`;
-    delete attrs.symbol;
-  }
-
-  const attrStr = renderAttrs(attrs, isHtml, overrides);
+  const attrStr = renderAttrs(attributes, isHtml);
   const childStr = children.map(renderToJsx).join("");
 
   if (!childStr) return `<${tag}${attrStr} />`;
