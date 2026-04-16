@@ -1,10 +1,6 @@
 import { useRender } from "@base-ui/react/use-render";
 import React, { Fragment, useId, type ComponentProps } from "react";
-import {
-  getSymbolByName,
-  type ApiSymbol,
-  type SymbolProperty,
-} from "#/lib/api-data";
+import { type ApiSymbol, type SymbolProperty } from "#/lib/api-data";
 import { cn } from "#/lib/utils";
 import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
@@ -12,32 +8,20 @@ import { Code } from "./ui/code";
 
 const MDN_BASE = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element";
 
-export default function ApiReference({
-  symbol: symbolName,
-}: {
-  symbol: string;
-}) {
-  const sym = getSymbolByName(symbolName);
-
-  if (!sym) {
-    return (
-      <div className="border-callout-error-border bg-callout-error-bg text-callout-error-text my-4 squircle-lg border p-4 type-body-100">
-        Symbol <Code>{symbolName}</Code> not found in API data.
-      </div>
-    );
-  }
-
+export default function ApiReference({ symbol }: { symbol: ApiSymbol }) {
   return (
     <div className="my-6">
-      {sym.defaultElement && <DefaultElement symbol={sym} />}
-      {(sym.properties?.length || sym.defaultElement) && (
-        <PropsTable symbol={sym} />
+      {symbol.defaultElement && <DefaultElement symbol={symbol} />}
+      {(symbol.properties?.length || symbol.defaultElement) && (
+        <PropsTable symbol={symbol} />
       )}
-      {sym.members && sym.members.length > 0 && <MembersTable symbol={sym} />}
-      {sym.kind === "function" && sym.parameters && (
-        <FunctionSignature symbol={sym} />
+      {symbol.members && symbol.members.length > 0 && (
+        <MembersTable symbol={symbol} />
       )}
-      {sym.kind === "hook" && <HookSignature symbol={sym} />}
+      {symbol.kind === "function" && symbol.parameters && (
+        <FunctionSignature symbol={symbol} />
+      )}
+      {symbol.kind === "hook" && <HookSignature symbol={symbol} />}
     </div>
   );
 }

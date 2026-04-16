@@ -67,7 +67,7 @@ function ApiSymbolPage() {
           </p>
         )}
       </div>
-      <ApiReference symbol={sym.name} />
+      <ApiReference symbol={sym} />
     </div>
   );
 }
