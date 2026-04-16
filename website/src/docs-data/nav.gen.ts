@@ -1,6 +1,7 @@
 // Auto-generated — do not edit
+import type { DocFrontmatter } from "#/lib/markdoc";
 
-export const docEntries = [
+export const docEntries: { slug: string; frontmatter: DocFrontmatter }[] = [
   {
     slug: "getting-started",
     frontmatter: {

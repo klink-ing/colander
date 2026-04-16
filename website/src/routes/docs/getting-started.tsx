@@ -12,6 +12,7 @@ const frontmatter = {
 };
 
 export const Route = createFileRoute("/docs/getting-started")({
+  loader: () => ({ frontmatter }),
   head: () => ({
     meta: [
       { title: `${frontmatter.title} - ${PROJECT_NAME}` },
@@ -20,50 +21,35 @@ export const Route = createFileRoute("/docs/getting-started")({
         : []),
     ],
   }),
-  component: DocPage,
+  component: DocContent,
 });
 
-function DocPage() {
+function DocContent() {
   return (
-    <div>
-      <div className="mb-6">
-        <p className="mb-1 type-label-100 text-muted-foreground">
-          {frontmatter.section}
-        </p>
-        <h1 className="mb-2 type-heading-300 text-foreground">
-          {frontmatter.title}
-        </h1>
-        {frontmatter.description && (
-          <p className="type-body-200 text-muted-foreground">
-            {frontmatter.description}
-          </p>
-        )}
-      </div>
-      <article>
-        <Tags.Heading level={2} id="installation">
-          Installation
-        </Tags.Heading>
-        <Tags.InstallCmd />
-        <Tags.Heading level={2} id="basic-usage">
-          Basic Usage
-        </Tags.Heading>
-        <Tags.Paragraph>
-          Colander provides two calendar views that share state via{" "}
-          <code>CalendarProvider</code>:
-        </Tags.Paragraph>
-        <ul>
-          <li>
-            <strong>MonthView</strong> — Traditional month grid
-          </li>
-          <li>
-            <strong>WeeksView</strong> — Continuous scrolling weeks
-          </li>
-        </ul>
-        <Tags.Heading level={2} id="quick-example">
-          Quick Example
-        </Tags.Heading>
-        <Tags.ExampleBlock file="basic-calendar.tsx" />
-      </article>
-    </div>
+    <article>
+      <Tags.Heading level={2} id="installation">
+        Installation
+      </Tags.Heading>
+      <Tags.InstallCmd />
+      <Tags.Heading level={2} id="basic-usage">
+        Basic Usage
+      </Tags.Heading>
+      <Tags.Paragraph>
+        Colander provides two calendar views that share state via{" "}
+        <code>CalendarProvider</code>:
+      </Tags.Paragraph>
+      <ul>
+        <li>
+          <strong>MonthView</strong> — Traditional month grid
+        </li>
+        <li>
+          <strong>WeeksView</strong> — Continuous scrolling weeks
+        </li>
+      </ul>
+      <Tags.Heading level={2} id="quick-example">
+        Quick Example
+      </Tags.Heading>
+      <Tags.ExampleBlock file="basic-calendar.tsx" />
+    </article>
   );
 }

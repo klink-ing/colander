@@ -1,7 +1,8 @@
-import { Outlet, createFileRoute } from "@tanstack/react-router";
+import { Outlet, createFileRoute, useMatches } from "@tanstack/react-router";
 import { type DocsNavEntry, type ApiDocsNavEntry } from "#/components/DocsNav";
 import DocsNavSidebar from "#/components/DocsNavSidebar";
 import { getAllSymbols } from "#/lib/api-data";
+import type { DocFrontmatter } from "#/lib/markdoc";
 import { useNavDrawer } from "#/lib/nav-drawer-context";
 import { docEntries } from "../docs-data/nav.gen";
 
@@ -22,9 +23,19 @@ export const Route = createFileRoute("/docs")({
   component: DocsLayout,
 });
 
+function useDocFrontmatter(): DocFrontmatter | undefined {
+  const matches = useMatches();
+  const leaf = matches[matches.length - 1];
+  const loaderData = leaf?.loaderData as
+    | { frontmatter?: DocFrontmatter }
+    | undefined;
+  return loaderData?.frontmatter;
+}
+
 function DocsLayout() {
   const { sectionNav } = Route.useLoaderData();
   const { setOpen } = useNavDrawer();
+  const frontmatter = useDocFrontmatter();
 
   return (
     <main className="page-wrap flex gap-0 pt-8 pb-12">
@@ -59,6 +70,21 @@ function DocsLayout() {
         </button>
 
         <article className="max-w-none">
+          {frontmatter && (
+            <div className="mb-6">
+              <p className="mb-1 type-label-100 text-muted-foreground">
+                {frontmatter.section}
+              </p>
+              <h1 className="mb-2 type-heading-300 text-foreground">
+                {frontmatter.title}
+              </h1>
+              {frontmatter.description && (
+                <p className="type-body-200 text-muted-foreground">
+                  {frontmatter.description}
+                </p>
+              )}
+            </div>
+          )}
           <Outlet />
         </article>
       </div>

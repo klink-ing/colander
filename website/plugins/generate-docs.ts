@@ -3,10 +3,12 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  unlinkSync,
   writeFileSync,
 } from "node:fs";
 import path from "node:path";
 import type { Plugin, ResolvedConfig } from "vite";
+import type { DocFrontmatter } from "../src/lib/markdoc.ts";
 import { parseFrontmatter, parseMarkdoc } from "../src/lib/markdoc.ts";
 
 // ---------------------------------------------------------------------------
@@ -66,7 +68,7 @@ function renderAttrs(
 function renderToJsx(node: AstNode): string {
   if (node === null || node === undefined) return "";
   if (typeof node === "string") return escapeJsxText(node);
-  if (Array.isArray(node)) return node.map(renderToJsx).join("\n");
+  if (Array.isArray(node)) return node.map(renderToJsx).join("");
 
   const { name, attributes = {}, children = [] } = node;
   const isHtml = name[0] === name[0].toLowerCase();
@@ -82,7 +84,13 @@ function renderToJsx(node: AstNode): string {
 // File generation
 // ---------------------------------------------------------------------------
 
-function processRoute(file: string, contentDir: string): string {
+interface ProcessedDoc {
+  slug: string;
+  frontmatter: DocFrontmatter;
+  source: string;
+}
+
+function processRoute(file: string, contentDir: string): ProcessedDoc {
   const slug = file.replace(/\.md$/, "");
   const raw = readFileSync(path.join(contentDir, file), "utf-8");
   const { frontmatter, content } = parseFrontmatter(raw);
@@ -92,7 +100,7 @@ function processRoute(file: string, contentDir: string): string {
   const ast: AstNode = JSON.parse(JSON.stringify(transformed));
   const jsxBody = renderToJsx(ast);
 
-  return [
+  const source = [
     `// Auto-generated from ${file} — do not edit`,
     'import { createFileRoute } from "@tanstack/react-router";',
     'import * as Tags from "#/components/markdoc-tags";',
@@ -101,6 +109,7 @@ function processRoute(file: string, contentDir: string): string {
     `const frontmatter = ${JSON.stringify(frontmatter)};`,
     "",
     `export const Route = createFileRoute("/docs/${slug}")({`,
+    "  loader: () => ({ frontmatter }),",
     "  head: () => ({",
     "    meta: [",
     "      { title: `${frontmatter.title} - ${PROJECT_NAME}` },",
@@ -109,56 +118,39 @@ function processRoute(file: string, contentDir: string): string {
     "        : []),",
     "    ],",
     "  }),",
-    "  component: DocPage,",
+    "  component: DocContent,",
     "});",
     "",
-    "function DocPage() {",
+    "function DocContent() {",
     "  return (",
-    "    <div>",
-    '      <div className="mb-6">',
-    '        <p className="mb-1 type-label-100 text-muted-foreground">',
-    "          {frontmatter.section}",
-    "        </p>",
-    '        <h1 className="mb-2 type-heading-300 text-foreground">',
-    "          {frontmatter.title}",
-    "        </h1>",
-    "        {frontmatter.description && (",
-    '          <p className="type-body-200 text-muted-foreground">',
-    "            {frontmatter.description}",
-    "          </p>",
-    "        )}",
-    "      </div>",
-    `      ${jsxBody}`,
-    "    </div>",
+    `    ${jsxBody}`,
     "  );",
     "}",
     "",
   ].join("\n");
+
+  return { slug, frontmatter, source };
 }
 
-function generateNavManifest(contentDir: string, outDir: string) {
+function writeNavManifest(
+  entries: { slug: string; frontmatter: DocFrontmatter }[],
+  outDir: string,
+) {
   if (!existsSync(outDir)) {
     mkdirSync(outDir, { recursive: true });
   }
 
-  const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
-  const entries: { slug: string; frontmatter: Record<string, unknown> }[] = [];
-
-  for (const file of files) {
-    const slug = file.replace(/\.md$/, "");
-    const raw = readFileSync(path.join(contentDir, file), "utf-8");
-    const { frontmatter } = parseFrontmatter(raw);
-    entries.push({ slug, frontmatter });
-  }
-
-  entries.sort(
-    (a, b) => (a.frontmatter.order as number) - (b.frontmatter.order as number),
+  const sorted = [...entries].sort(
+    (a, b) => a.frontmatter.order - b.frontmatter.order,
   );
 
   const lines = [
     "// Auto-generated — do not edit",
+    'import type { DocFrontmatter } from "#/lib/markdoc";',
     "",
-    "export const docEntries = " + JSON.stringify(entries, null, 2) + ";",
+    "export const docEntries: { slug: string; frontmatter: DocFrontmatter }[] = " +
+      JSON.stringify(sorted, null, 2) +
+      ";",
     "",
   ];
 
@@ -171,14 +163,15 @@ function generateAll(contentDir: string, routeDir: string, dataDir: string) {
   }
 
   const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
+  const entries: { slug: string; frontmatter: DocFrontmatter }[] = [];
 
   for (const file of files) {
-    const slug = file.replace(/\.md$/, "");
-    const source = processRoute(file, contentDir);
+    const { slug, frontmatter, source } = processRoute(file, contentDir);
     writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
+    entries.push({ slug, frontmatter });
   }
 
-  generateNavManifest(contentDir, dataDir);
+  writeNavManifest(entries, dataDir);
   console.log(`[generate-docs] generated ${files.length} doc route(s)`);
 }
 
@@ -192,10 +185,24 @@ function generateOne(
     mkdirSync(routeDir, { recursive: true });
   }
 
-  const slug = file.replace(/\.md$/, "");
-  const source = processRoute(file, contentDir);
+  const files = readdirSync(contentDir).filter((f) => f.endsWith(".md"));
+  const entries: { slug: string; frontmatter: DocFrontmatter }[] = [];
+
+  const { slug, frontmatter, source } = processRoute(file, contentDir);
   writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
-  generateNavManifest(contentDir, dataDir);
+
+  for (const f of files) {
+    if (f === file) {
+      entries.push({ slug, frontmatter });
+    } else {
+      const s = f.replace(/\.md$/, "");
+      const raw = readFileSync(path.join(contentDir, f), "utf-8");
+      const { frontmatter: fm } = parseFrontmatter(raw);
+      entries.push({ slug: s, frontmatter: fm });
+    }
+  }
+
+  writeNavManifest(entries, dataDir);
   console.log(`[generate-docs] regenerated ${file}`);
 }
 
@@ -252,11 +259,17 @@ export function generateDocs(): Plugin {
           return;
         }
         try {
-          generateNavManifest(contentDir, dataDir);
+          const slug = path.basename(resolved).replace(/\.md$/, "");
+          const routeFile = path.join(routeDir, `${slug}.tsx`);
+          if (existsSync(routeFile)) {
+            unlinkSync(routeFile);
+            console.log(`[generate-docs] removed ${slug}.tsx`);
+          }
+          generateAll(contentDir, routeDir, dataDir);
         } catch (e) {
           const msg = e instanceof Error ? e.message : String(e);
           console.error(
-            `[generate-docs] failed to regenerate nav manifest:\n  ${msg}`,
+            `[generate-docs] failed to handle file removal:\n  ${msg}`,
           );
         }
       });

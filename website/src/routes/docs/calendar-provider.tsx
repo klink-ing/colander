@@ -12,6 +12,7 @@ const frontmatter = {
 };
 
 export const Route = createFileRoute("/docs/calendar-provider")({
+  loader: () => ({ frontmatter }),
   head: () => ({
     meta: [
       { title: `${frontmatter.title} - ${PROJECT_NAME}` },
@@ -20,39 +21,24 @@ export const Route = createFileRoute("/docs/calendar-provider")({
         : []),
     ],
   }),
-  component: DocPage,
+  component: DocContent,
 });
 
-function DocPage() {
+function DocContent() {
   return (
-    <div>
-      <div className="mb-6">
-        <p className="mb-1 type-label-100 text-muted-foreground">
-          {frontmatter.section}
-        </p>
-        <h1 className="mb-2 type-heading-300 text-foreground">
-          {frontmatter.title}
-        </h1>
-        {frontmatter.description && (
-          <p className="type-body-200 text-muted-foreground">
-            {frontmatter.description}
-          </p>
-        )}
-      </div>
-      <article>
-        <Tags.Heading level={2} id="props">
-          Props
-        </Tags.Heading>
-        <Tags.ApiReference symbol="CalendarProviderProps" />
-        <Tags.Heading level={2} id="stable-context">
-          Stable Context
-        </Tags.Heading>
-        <Tags.ApiReference symbol="CalendarStableContextValue" />
-        <Tags.Heading level={2} id="state-context">
-          State Context
-        </Tags.Heading>
-        <Tags.ApiReference symbol="CalendarStateContextValue" />
-      </article>
-    </div>
+    <article>
+      <Tags.Heading level={2} id="props">
+        Props
+      </Tags.Heading>
+      <Tags.ApiReference symbol="CalendarProviderProps" />
+      <Tags.Heading level={2} id="stable-context">
+        Stable Context
+      </Tags.Heading>
+      <Tags.ApiReference symbol="CalendarStableContextValue" />
+      <Tags.Heading level={2} id="state-context">
+        State Context
+      </Tags.Heading>
+      <Tags.ApiReference symbol="CalendarStateContextValue" />
+    </article>
   );
 }
