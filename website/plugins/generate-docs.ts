@@ -144,13 +144,21 @@ function writeNavManifest(
     (a, b) => a.frontmatter.order - b.frontmatter.order,
   );
 
+  const navEntries = sorted.map(({ slug, frontmatter }) => ({
+    slug,
+    frontmatter: {
+      title: frontmatter.title,
+      description: frontmatter.description,
+      section: frontmatter.section,
+    },
+  }));
+
   const lines = [
     "// Auto-generated — do not edit",
-    'import type { DocFrontmatter } from "#/lib/markdoc";',
     "",
-    "export const docEntries: { slug: string; frontmatter: DocFrontmatter }[] = " +
-      JSON.stringify(sorted, null, 2) +
-      ";",
+    "export const docEntries = " +
+      JSON.stringify(navEntries, null, 2) +
+      " as const;",
     "",
   ];
 
