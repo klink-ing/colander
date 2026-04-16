@@ -21,10 +21,17 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
-          token: ${{ secrets.CI_PAT }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: voidzero-dev/setup-vp@v1
         with:
