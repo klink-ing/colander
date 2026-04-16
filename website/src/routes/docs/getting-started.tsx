@@ -1,4 +1,5 @@
 // Auto-generated from getting-started.md — do not edit
+// CI should remove this line
 import { createFileRoute } from "@tanstack/react-router";
 import * as Tags from "#/components/markdoc-tags";
 import { PROJECT_NAME } from "#/config";
