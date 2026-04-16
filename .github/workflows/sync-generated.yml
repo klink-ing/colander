@@ -6,10 +6,13 @@ on:
     paths:
       - package/src/index.ts
       - package/scripts/generate-formats.ts
+      - package/src/formats/**
       - website/content/docs/**
       - website/src/lib/markdoc.ts
       - website/src/components/markdoc-tags.ts
       - website/plugins/generate-docs.ts
+      - website/src/routes/docs/**
+      - website/src/docs-data/**
 
 permissions:
   contents: write
