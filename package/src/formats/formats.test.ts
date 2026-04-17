@@ -1,12 +1,9 @@
 import * as root from "@klinking/colander";
 import { describe, it, expect } from "vitest";
 
-const formatModules = import.meta.glob<Record<string, unknown>>(
-  ["./*.ts", "!./*.test.ts"],
-  {
-    eager: true,
-  },
-);
+const formatModules = import.meta.glob<Record<string, unknown>>(["./*.ts", "!./*.test.ts"], {
+  eager: true,
+});
 
 describe("format subpath exports", () => {
   const rootKeys = Object.keys(root).sort();
