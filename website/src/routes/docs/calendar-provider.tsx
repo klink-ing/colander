@@ -5,8 +5,7 @@ import { PROJECT_NAME } from "#/config";
 
 const frontmatter = {
   title: "CalendarProvider",
-  description:
-    "Manages shared state across calendar views — selection, bounds, locale, and more.",
+  description: "Manages shared state across calendar views — selection, bounds, locale, and more.",
   order: 2,
   section: "Components",
 };
