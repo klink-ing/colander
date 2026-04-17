@@ -66,11 +66,7 @@ function SymbolLink({
       >
         {name}
       </TooltipTrigger>
-      <TooltipContent
-        side="top"
-        align="start"
-        className="max-w-sm squircle-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg"
-      >
+      <TooltipContent>
         <TypeTooltipBody symbol={sym} types={types} />
       </TooltipContent>
     </Tooltip>

@@ -20,6 +20,7 @@
     "@fontsource-variable/roboto-flex": "catalog:",
     "@fontsource/unica-one": "catalog:",
     "@js-temporal/polyfill": "catalog:",
+    "@klinking/squircle": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@unpic/react": "catalog:",
     "class-variance-authority": "catalog:",

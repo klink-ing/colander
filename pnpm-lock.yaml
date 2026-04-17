@@ -30,6 +30,9 @@ catalogs:
     '@js-temporal/polyfill':
       specifier: ^0.5.1
       version: 0.5.1
+    '@klinking/squircle':
+      specifier: ^0.8.0
+      version: 0.8.0
     '@markdoc/markdoc':
       specifier: ^0.5.6
       version: 0.5.7
@@ -319,6 +322,9 @@ importers:
       '@js-temporal/polyfill':
         specifier: 'catalog:'
         version: 0.5.1
+      '@klinking/squircle':
+        specifier: 'catalog:'
+        version: 0.8.0(tailwind-merge@3.5.0)(tailwindcss@4.2.2)
       '@tailwindcss/vite':
         specifier: 'catalog:'
         version: 4.2.2(vite@8.0.8(@types/node@24.12.2)(esbuild@0.27.7)(jiti@2.6.1)(tsx@4.21.0)(yaml@2.8.3))
@@ -1365,6 +1371,15 @@ packages:
   '@js-temporal/polyfill@0.5.1':
     resolution: {integrity: sha512-hloP58zRVCRSpgDxmqCWJNlizAlUgJFqG2ypq79DCvyv9tHjRYMDOcPFjzfl/A1/YxDvRCZz8wvZvmapQnKwFQ==}
     engines: {node: '>=12'}
+
+  '@klinking/squircle@0.8.0':
+    resolution: {integrity: sha512-owES7l48Kl3TgcShXZV1Z+UpUuaE3C769LnuZb2oNUXbKYjmBZ3JpqOTZP/dvwck/M4z4ARou/tbWUwRelln9A==}
+    peerDependencies:
+      tailwind-merge: '>=2.0.0'
+      tailwindcss: '>=4.0.0'
+    peerDependenciesMeta:
+      tailwind-merge:
+        optional: true
 
   '@mapbox/node-pre-gyp@2.0.3':
     resolution: {integrity: sha512-uwPAhccfFJlsfCxMYTwOdVfOz3xqyj8xYL3zJj8f0pb30tLohnnFPhLuqp4/qoEz8sNxe4SESZedcBojRefIzg==}
@@ -8206,6 +8221,12 @@ snapshots:
   '@js-temporal/polyfill@0.5.1':
     dependencies:
       jsbi: 4.3.2
+
+  '@klinking/squircle@0.8.0(tailwind-merge@3.5.0)(tailwindcss@4.2.2)':
+    dependencies:
+      tailwindcss: 4.2.2
+    optionalDependencies:
+      tailwind-merge: 3.5.0
 
   '@mapbox/node-pre-gyp@2.0.3':
     dependencies:

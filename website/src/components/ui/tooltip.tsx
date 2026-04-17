@@ -25,18 +25,23 @@ function TooltipTrigger({ ...props }: TooltipPrimitive.Trigger.Props) {
   return <TooltipPrimitive.Trigger data-slot="tooltip-trigger" {...props} />;
 }
 
+const borderWidth = 1;
+const borderOffset = Math.sqrt(borderWidth * borderWidth * 0.5) - borderWidth;
+const arrowCenterOffset = 4;
+
 function TooltipContent({
   className,
   side = "top",
-  sideOffset = 4,
+  sideOffset = 10,
   align = "center",
   alignOffset = 0,
+  arrowPadding = 12,
   children,
   ...props
 }: TooltipPrimitive.Popup.Props &
   Pick<
     TooltipPrimitive.Positioner.Props,
-    "align" | "alignOffset" | "side" | "sideOffset"
+    "align" | "alignOffset" | "side" | "sideOffset" | "arrowPadding"
   >) {
   return (
     <TooltipPrimitive.Portal>
@@ -44,19 +49,77 @@ function TooltipContent({
         align={align}
         alignOffset={alignOffset}
         side={side}
+        arrowPadding={arrowPadding}
         sideOffset={sideOffset}
-        className="isolate z-50"
+        className="isolate z-50 flex max-h-(--available-height) w-fit max-w-[min(100%,var(--breakpoint-bp-4))] transition-all duration-150"
       >
         <TooltipPrimitive.Popup
           data-slot="tooltip-content"
           className={cn(
-            "z-50 inline-flex w-fit max-w-[20.5rem] origin-(--transform-origin) items-center gap-1.5 squircle-md bg-foreground px-3 py-1.5 text-xs text-background has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 **:data-[slot=kbd]:squircle-sm data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "flex max-h-full w-fit max-w-full grow-0 items-center squircle-md border-border bg-card text-xs shadow-2xl transition-all duration-150 has-data-[slot=kbd]:pr-1.5 data-[side=bottom]:slide-in-from-top-2 data-[side=inline-end]:slide-in-from-left-2 data-[side=inline-start]:slide-in-from-right-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 **:data-[slot=kbd]:relative **:data-[slot=kbd]:isolate **:data-[slot=kbd]:z-50 data-[state=delayed-open]:animate-in data-[state=delayed-open]:fade-in-0 data-[state=delayed-open]:zoom-in-95 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             className,
           )}
           {...props}
+          render={({ style, ...props }) => (
+            <div
+              {...props}
+              style={{
+                ...style,
+                borderWidth,
+              }}
+            />
+          )}
         >
-          {children}
-          <TooltipPrimitive.Arrow className="z-50 size-2.5 translate-y-[calc(-50%-2px)] rotate-45 squircle-xs bg-foreground fill-foreground data-[side=bottom]:top-1 data-[side=inline-end]:top-1/2! data-[side=inline-end]:-left-1 data-[side=inline-end]:-translate-y-1/2 data-[side=inline-start]:top-1/2! data-[side=inline-start]:-right-1 data-[side=inline-start]:-translate-y-1/2 data-[side=left]:top-1/2! data-[side=left]:-right-1 data-[side=left]:-translate-y-1/2 data-[side=right]:top-1/2! data-[side=right]:-left-1 data-[side=right]:-translate-y-1/2 data-[side=top]:-bottom-2.5" />
+          <div className="scrollbar-track-background/20 z-20 h-full w-full overflow-auto px-3 py-1.5 [scrollbar-color:var(--color-red-500)] [scrollbar-width:thin] bg-red-500 squircle-[calc(var(--radius-md)-1px)]">
+            {children}
+          </div>
+          <TooltipPrimitive.Arrow
+            className=""
+            render={({ className, style, ...props }, state) => (
+              <div
+                {...props}
+                className={cn(
+                  "absolute z-10 size-2 origin-center translate-x-[-50%] translate-y-[-50%] border-border bg-card",
+                  className,
+                )}
+                style={{
+                  ...style,
+                  borderRightWidth: borderWidth,
+                  borderBottomWidth: borderWidth,
+                  top:
+                    state.side === "top"
+                      ? `calc(100% + ${borderOffset}px)`
+                      : state.side === "bottom"
+                        ? `${borderOffset}px`
+                        : state.align === "start"
+                          ? arrowPadding + arrowCenterOffset
+                          : state.align === "end"
+                            ? `calc(100% - ${arrowPadding + arrowCenterOffset}px)`
+                            : "50%",
+                  left:
+                    state.side === "top" || state.side === "bottom"
+                      ? state.align === "start"
+                        ? arrowPadding + 5
+                        : state.align === "end"
+                          ? `calc(100% - ${arrowPadding + arrowCenterOffset}px)`
+                          : `50%`
+                      : state.side === "left" || state.side === "inline-start"
+                        ? `calc(100% + ${borderOffset}px)`
+                        : `${borderOffset}px`,
+                  rotate: `${
+                    state.side === "left"
+                      ? -45
+                      : state.side === "bottom"
+                        ? -135
+                        : state.side === "top"
+                          ? 45
+                          : 135
+                  }deg`,
+                  translate: `${state.side === "right" ? "0" : state.side === "left" ? "100%" : "50%"} ${state.side === "bottom" ? "100%" : state.side === "top" ? "0" : "50%"})`,
+                }}
+              />
+            )}
+          />
         </TooltipPrimitive.Popup>
       </TooltipPrimitive.Positioner>
     </TooltipPrimitive.Portal>
