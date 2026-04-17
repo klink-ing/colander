@@ -5,7 +5,8 @@ import { PROJECT_NAME } from "#/config";
 
 const frontmatter = {
   title: "Getting Started",
-  description: "Install Colander and start building accessible calendar components.",
+  description:
+    "Install Colander and start building accessible calendar components.",
   order: 1,
   section: "Guides",
 };
@@ -34,7 +35,8 @@ function DocContent() {
         Basic Usage
       </Tags.Heading>
       <Tags.Paragraph>
-        Colander provides two calendar views that share state via <code>CalendarProvider</code>:
+        Colander provides two calendar views that share state via{" "}
+        <code>CalendarProvider</code>:
       </Tags.Paragraph>
       <ul>
         <li>

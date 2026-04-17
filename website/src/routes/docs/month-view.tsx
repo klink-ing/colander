@@ -5,7 +5,8 @@ import { PROJECT_NAME } from "#/config";
 
 const frontmatter = {
   title: "MonthView",
-  description: "Displays a traditional calendar grid with month-level navigation.",
+  description:
+    "Displays a traditional calendar grid with month-level navigation.",
   order: 3,
   section: "Components",
 };

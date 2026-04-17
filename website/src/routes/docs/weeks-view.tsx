@@ -5,7 +5,8 @@ import { PROJECT_NAME } from "#/config";
 
 const frontmatter = {
   title: "WeeksView",
-  description: "Displays a configurable window of continuous week rows that span month boundaries.",
+  description:
+    "Displays a configurable window of continuous week rows that span month boundaries.",
   order: 4,
   section: "Components",
 };

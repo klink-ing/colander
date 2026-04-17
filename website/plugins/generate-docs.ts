@@ -1,3 +1,4 @@
+import { spawnSync } from "node:child_process";
 import {
   existsSync,
   mkdirSync,
@@ -11,6 +12,31 @@ import type { Plugin, ResolvedConfig } from "vite";
 import type { DocFrontmatter } from "../src/lib/markdoc.ts";
 import { parseFrontmatter, parseMarkdoc } from "../src/lib/markdoc.ts";
 import { type AstNode, renderToJsx } from "./render-jsx.ts";
+
+// `vp fmt` loads the nearest vite config; running it from the website dir
+// trips on config-time imports. Invoking from the monorepo root avoids that
+// and still picks up `.oxfmtrc.json` (which lives there).
+let formatterCwd: string | undefined;
+
+function formatSource(source: string, filename: string): string {
+  const result = spawnSync(
+    "npx",
+    ["vp", "fmt", `--stdin-filepath=${filename}`],
+    { input: source, encoding: "utf-8", cwd: formatterCwd },
+  );
+  if (result.error || result.status !== 0) {
+    const msg = result.error?.message || result.stderr?.trim() || "";
+    console.error(
+      `[generate-docs] formatter failed for ${filename} (falling back to unformatted): ${msg}`,
+    );
+    return source;
+  }
+  return result.stdout;
+}
+
+function writeFormatted(filePath: string, source: string) {
+  writeFileSync(filePath, formatSource(source, path.basename(filePath)));
+}
 
 interface ProcessedDoc {
   slug: string;
@@ -90,7 +116,7 @@ function writeNavManifest(
     "",
   ];
 
-  writeFileSync(path.join(outDir, "nav.gen.ts"), lines.join("\n"));
+  writeFormatted(path.join(outDir, "nav.gen.ts"), lines.join("\n"));
 }
 
 function generateAll(contentDir: string, routeDir: string, dataDir: string) {
@@ -103,7 +129,7 @@ function generateAll(contentDir: string, routeDir: string, dataDir: string) {
 
   for (const file of files) {
     const { slug, frontmatter, source } = processRoute(file, contentDir);
-    writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
+    writeFormatted(path.join(routeDir, `${slug}.tsx`), source);
     entries.push({ slug, frontmatter });
   }
 
@@ -125,7 +151,7 @@ function generateOne(
   const entries: { slug: string; frontmatter: DocFrontmatter }[] = [];
 
   const { slug, frontmatter, source } = processRoute(file, contentDir);
-  writeFileSync(path.join(routeDir, `${slug}.tsx`), source);
+  writeFormatted(path.join(routeDir, `${slug}.tsx`), source);
 
   for (const f of files) {
     if (f === file) {
@@ -154,6 +180,7 @@ export function generateDocs(): Plugin {
       contentDir = path.join(config.root, "content/docs");
       routeDir = path.join(config.root, "src/routes/docs");
       dataDir = path.join(config.root, "src/docs-data");
+      formatterCwd = path.resolve(config.root, "..");
       try {
         generateAll(contentDir, routeDir, dataDir);
       } catch (e) {

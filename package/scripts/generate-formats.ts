@@ -318,17 +318,13 @@ for (const format of formats) {
   console.log(`  wrote src/formats/${kebab}.ts`);
 }
 
-// Run linting and formatting on generated files
+// Run linting and formatting on generated files using vp's bundled toolchain
+// so output matches `vp fmt` / `vp check --fix` behavior everywhere.
 console.log("Running linter and formatter...");
 try {
-  execSync(`npx oxlint --fix ${FORMATS_DIR}`, { cwd: ROOT, stdio: "pipe" });
+  execSync(`npx vp check --fix ${FORMATS_DIR}`, { cwd: ROOT, stdio: "pipe" });
 } catch {
-  // oxlint may exit non-zero for unfixable issues; that's OK
-}
-try {
-  execSync(`npx oxfmt ${FORMATS_DIR}`, { cwd: ROOT, stdio: "pipe" });
-} catch {
-  // oxfmt may fail if not installed; proceed anyway
+  // vp check --fix may exit non-zero for unfixable issues; that's OK
 }
 
 console.log("Done.");
