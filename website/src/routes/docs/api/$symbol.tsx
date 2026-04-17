@@ -8,7 +8,9 @@ export const Route = createFileRoute("/docs/api/$symbol")({
   loader: ({ params }) => ({ symbolName: params.symbol }),
   notFoundComponent: () => (
     <div className="py-12 text-center">
-      <h1 className="mb-2 type-heading-300 text-foreground">Symbol not found</h1>
+      <h1 className="mb-2 type-heading-300 text-foreground">
+        Symbol not found
+      </h1>
       <p className="type-body-200 text-muted-foreground">
         The API symbol you requested does not exist.
       </p>
@@ -25,7 +27,9 @@ function ApiSymbolPage() {
   if (!sym) {
     return (
       <div className="py-12 text-center">
-        <h1 className="mb-2 type-heading-300 text-foreground">Symbol not found</h1>
+        <h1 className="mb-2 type-heading-300 text-foreground">
+          Symbol not found
+        </h1>
         <p className="type-body-200 text-muted-foreground">
           The API symbol you requested does not exist.
         </p>
@@ -36,7 +40,9 @@ function ApiSymbolPage() {
   return (
     <div>
       <div className="mb-6">
-        <p className="mb-1 type-label-100 text-muted-foreground">API Reference</p>
+        <p className="mb-1 type-label-100 text-muted-foreground">
+          API Reference
+        </p>
         <div className="flex items-baseline gap-3">
           <h1 className="type-heading-300 text-foreground">{sym.name}</h1>
           <span className="squircle-md border border-border bg-secondary px-2 py-0.5 type-code-100 text-muted-foreground">
@@ -50,7 +56,8 @@ function ApiSymbolPage() {
         )}
         {sym.filePath && (
           <p className="mt-1 type-code-100 text-muted-foreground">
-            Defined in <SourceLink filePath={sym.filePath} lineNumber={sym.lineNumber} />
+            Defined in{" "}
+            <SourceLink filePath={sym.filePath} lineNumber={sym.lineNumber} />
           </p>
         )}
       </div>
