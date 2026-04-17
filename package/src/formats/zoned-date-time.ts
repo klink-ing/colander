@@ -24,10 +24,7 @@ const DayCellTemplate = _DayCellTemplate<F>;
 const DayButton = _DayButton<F>;
 export { Grid, GridBody, WeekTemplate, DayCellTemplate, DayButton };
 
-import {
-  GridHeader as _GridHeader,
-  GridHeaderCell as _GridHeaderCell,
-} from "../grid-header";
+import { GridHeader as _GridHeader, GridHeaderCell as _GridHeaderCell } from "../grid-header";
 const GridHeader = _GridHeader<F>;
 const GridHeaderCell = _GridHeaderCell<F>;
 export { GridHeader, GridHeaderCell };
@@ -44,13 +41,7 @@ const TimeString = _TimeString<F>;
 const MonthYearString = _MonthYearString<F>;
 const PrevMonthButton = _PrevMonthButton<F>;
 const NextMonthButton = _NextMonthButton<F>;
-export {
-  DateString,
-  TimeString,
-  MonthYearString,
-  PrevMonthButton,
-  NextMonthButton,
-};
+export { DateString, TimeString, MonthYearString, PrevMonthButton, NextMonthButton };
 
 import { RangeSelected as _RangeSelected } from "../selected-range";
 const RangeSelected = _RangeSelected<F>;
@@ -78,11 +69,7 @@ export { WeekNumberCell, WeekNumberHeader };
 
 export { WeeksView, WeeksViewRoot } from "../weeks-view";
 
-export {
-  PrevWeeksButton,
-  NextWeeksButton,
-  WeekCount,
-} from "../weeks-navigation";
+export { PrevWeeksButton, NextWeeksButton, WeekCount } from "../weeks-navigation";
 
 export {
   MonthSeparator,
@@ -203,10 +190,7 @@ export type {
 import type { CalendarProviderProps as _CalendarProviderProps } from "../calendar-types";
 export type CalendarProviderProps = _CalendarProviderProps<F>;
 
-export type {
-  CalendarStableContextValue,
-  CalendarStateContextValue,
-} from "../calendar-types";
+export type { CalendarStableContextValue, CalendarStateContextValue } from "../calendar-types";
 
 export type {
   MonthViewRootProps,
