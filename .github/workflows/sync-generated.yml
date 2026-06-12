@@ -1,18 +1,11 @@
 name: Sync generated files
 
+# Runs on every PR rather than a hand-maintained paths filter: the generator
+# input graph (markdoc lib, render-jsx, config, package TSDoc, ...) drifts too
+# easily, and commit-if-changed exits clean when nothing was regenerated.
 on:
   pull_request:
     branches: [main]
-    paths:
-      - package/src/index.ts
-      - package/scripts/generate-formats.ts
-      - package/src/formats/**
-      - website/content/docs/**
-      - website/src/lib/markdoc.ts
-      - website/src/components/markdoc/**
-      - website/plugins/generate-docs.ts
-      - website/src/routes/docs/**
-      - website/src/docs-data/**
 
 permissions:
   contents: write
@@ -58,3 +51,4 @@ jobs:
           website/src/routes/docs/
           website/src/docs-data/
           website/api-data/
+          website/src/routeTree.gen.ts
