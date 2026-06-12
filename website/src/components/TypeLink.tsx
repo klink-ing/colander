@@ -137,8 +137,21 @@ interface Token {
   linked: boolean;
 }
 
+// Cache the name lookup per symbols array (stable loader-data reference) —
+// tokenize runs for every TypeLink on a page, on every render.
+const symbolNameCache = new WeakMap<ApiSymbol[], Set<string>>();
+
+function getSymbolNames(symbols: ApiSymbol[]): Set<string> {
+  let names = symbolNameCache.get(symbols);
+  if (!names) {
+    names = new Set(symbols.map((s) => s.name));
+    symbolNameCache.set(symbols, names);
+  }
+  return names;
+}
+
 function tokenize(type: string, symbols: ApiSymbol[]): Token[] {
-  const symbolNames = new Set(symbols.map((s) => s.name));
+  const symbolNames = getSymbolNames(symbols);
   const regex = /([A-Z][A-Za-z0-9]*)/g;
   const tokens: Token[] = [];
   let lastIndex = 0;

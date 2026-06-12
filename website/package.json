@@ -52,7 +52,6 @@
     "tailwindcss": "catalog:",
     "ts-morph": "catalog:",
     "tsx": "catalog:",
-    "type-fest": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:website",
     "vite-imagetools": "catalog:",

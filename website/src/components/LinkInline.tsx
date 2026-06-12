@@ -111,5 +111,4 @@ function LinkInline(props: TanstackLinkProps | AProps) {
   return <TanstackLinkInline {...props} />;
 }
 
-export { LinkInline, isExternalUrl };
-export type { AllowedExternalHref };
+export { LinkInline };
