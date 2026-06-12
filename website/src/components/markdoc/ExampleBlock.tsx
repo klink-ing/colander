@@ -4,10 +4,10 @@ const highlighted = import.meta.glob<{
   tsHtml: string;
   jsHtml: string;
   language: string;
-}>("../examples/*.highlighted.gen.json", { eager: true });
+}>("../../examples/*.highlighted.gen.json", { eager: true });
 
 function getHighlighted(file: string) {
-  const key = `../examples/${file.replace(/\.tsx?$/, "")}.highlighted.gen.json`;
+  const key = `../../examples/${file.replace(/\.tsx?$/, "")}.highlighted.gen.json`;
   return highlighted[key];
 }
 
