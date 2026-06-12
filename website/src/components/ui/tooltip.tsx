@@ -115,7 +115,7 @@ function TooltipContent({
                           ? 45
                           : 135
                   }deg`,
-                  translate: `${state.side === "right" ? "0" : state.side === "left" ? "100%" : "50%"} ${state.side === "bottom" ? "100%" : state.side === "top" ? "0" : "50%"})`,
+                  translate: `${state.side === "right" ? "0" : state.side === "left" ? "100%" : "50%"} ${state.side === "bottom" ? "100%" : state.side === "top" ? "0" : "50%"}`,
                 }}
               />
             )}
