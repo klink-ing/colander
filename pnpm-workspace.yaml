@@ -18,9 +18,6 @@ catalog:
   "@semantic-release/commit-analyzer": ^13.0.1
   "@semantic-release/github": ^11.0.1
   "@semantic-release/release-notes-generator": ^14.0.3
-  "@size-limit/esbuild": ^12.0.1
-  "@size-limit/esbuild-why": ^12.0.1
-  "@size-limit/file": ^12.0.1
   "@tailwindcss/vite": ^4.2.2
   "@tanstack/devtools-vite": latest
   "@tanstack/react-devtools": ^0.10.2
@@ -48,7 +45,6 @@ catalog:
   semantic-release: ^25.0.3
   shadcn: ^4.1.0
   shiki: ^4.0.2
-  size-limit: ^12.0.1
   tailwind-merge: ^3.5.0
   tailwindcss: ^4.2.2
   ts-morph: ^27.0.2
