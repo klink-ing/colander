@@ -103,6 +103,7 @@ function writeNavManifest(
     frontmatter: {
       title: frontmatter.title,
       description: frontmatter.description,
+      order: frontmatter.order,
       section: frontmatter.section,
     },
   }));
@@ -110,9 +111,11 @@ function writeNavManifest(
   const lines = [
     "// Auto-generated — do not edit",
     "",
+    'import type { DocsNavEntry } from "#/components/DocsNav";',
+    "",
     "export const docEntries = " +
       JSON.stringify(navEntries, null, 2) +
-      " as const;",
+      " satisfies DocsNavEntry[];",
     "",
   ];
 

@@ -1,5 +1,7 @@
 // Auto-generated — do not edit
 
+import type { DocsNavEntry } from "#/components/DocsNav";
+
 export const docEntries = [
   {
     slug: "getting-started",
@@ -7,6 +9,7 @@ export const docEntries = [
       title: "Getting Started",
       description:
         "Install Colander and start building accessible calendar components.",
+      order: 1,
       section: "Guides",
     },
   },
@@ -16,6 +19,7 @@ export const docEntries = [
       title: "CalendarProvider",
       description:
         "Manages shared state across calendar views — selection, bounds, locale, and more.",
+      order: 2,
       section: "Components",
     },
   },
@@ -25,6 +29,7 @@ export const docEntries = [
       title: "MonthView",
       description:
         "Displays a traditional calendar grid with month-level navigation.",
+      order: 3,
       section: "Components",
     },
   },
@@ -34,7 +39,8 @@ export const docEntries = [
       title: "WeeksView",
       description:
         "Displays a configurable window of continuous week rows that span month boundaries.",
+      order: 4,
       section: "Components",
     },
   },
-] as const;
+] satisfies DocsNavEntry[];
