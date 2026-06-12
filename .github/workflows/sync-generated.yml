@@ -57,3 +57,4 @@ jobs:
           "chore: regenerate doc files [skip ci]"
           website/src/routes/docs/
           website/src/docs-data/
+          website/api-data/

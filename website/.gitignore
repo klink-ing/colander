@@ -11,5 +11,4 @@ dist-ssr
 .vinxi
 __unconfig*
 todos.json
-api-data/symbols.gen.json
 src/examples/*.highlighted.gen.json

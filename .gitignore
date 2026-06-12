@@ -11,5 +11,4 @@ stats.html
 .claude/plans
 /.superpowers
 website/node_modules
-website/api-data/
 .vite-hooks/
