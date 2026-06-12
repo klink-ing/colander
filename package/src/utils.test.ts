@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { describe, it, expect } from "vitest";
+import { assert, describe, it, expect } from "vitest";
 import { temporalVariants } from "./test-temporal";
 import type { TemporalNamespace } from "./types";
 import {
@@ -352,14 +352,18 @@ describe.each(temporalVariants)("getWeekdayNames ($name)", ({ T }) => {
 
   it("starts with Sunday for en-US", () => {
     const names = getWeekdayNames("en-US", T);
-    expect(names[0]!.long).toBe("Sunday");
-    expect(names[0]!.short).toBe("Sun");
-    expect(names[0]!.narrow).toBe("S");
+    const sunday = names[0];
+    assert(sunday, "expected weekday names");
+    expect(sunday.long).toBe("Sunday");
+    expect(sunday.short).toBe("Sun");
+    expect(sunday.narrow).toBe("S");
   });
 
   it("ends with Saturday for en-US", () => {
     const names = getWeekdayNames("en-US", T);
-    expect(names[6]!.long).toBe("Saturday");
+    const last = names[6];
+    assert(last, "expected 7 weekday names");
+    expect(last.long).toBe("Saturday");
   });
 
   it("contains all 7 unique long names", () => {
@@ -382,19 +386,27 @@ describe.each(temporalVariants)("getWeekdayNames ($name)", ({ T }) => {
 
   it("produces localized names for a non-English locale", () => {
     const names = getWeekdayNames("de-DE", T);
-    expect(names[0]!.long).toBe("Sonntag");
+    const first = names[0];
+    assert(first, "expected weekday names");
+    expect(first.long).toBe("Sonntag");
   });
 
   it("starts with Monday when weekStartDay=1", () => {
     const names = getWeekdayNames("en-US", T, 1);
-    expect(names[0]!.long).toBe("Monday");
-    expect(names[6]!.long).toBe("Sunday");
+    const first = names[0];
+    const last = names[6];
+    assert(first && last, "expected 7 weekday names");
+    expect(first.long).toBe("Monday");
+    expect(last.long).toBe("Sunday");
   });
 
   it("starts with Saturday when weekStartDay=6", () => {
     const names = getWeekdayNames("en-US", T, 6);
-    expect(names[0]!.long).toBe("Saturday");
-    expect(names[1]!.long).toBe("Sunday");
+    const first = names[0];
+    const second = names[1];
+    assert(first && second, "expected weekday names");
+    expect(first.long).toBe("Saturday");
+    expect(second.long).toBe("Sunday");
   });
 });
 
@@ -509,14 +521,18 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
   it("starts each week on Sunday (dayOfWeek === 7 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T);
     for (const week of weeks) {
-      expect(week[0]!.dayOfWeek).toBe(7);
+      const firstDay = week[0];
+      assert(firstDay, "expected a full week");
+      expect(firstDay.dayOfWeek).toBe(7);
     }
   });
 
   it("ends each week on Saturday (dayOfWeek === 6 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T);
     for (const week of weeks) {
-      expect(week[6]!.dayOfWeek).toBe(6);
+      const lastDay = week[6];
+      assert(lastDay, "expected a full week");
+      expect(lastDay.dayOfWeek).toBe(6);
     }
   });
 
@@ -537,28 +553,36 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
   it("Monday-start: starts each week on Monday (dayOfWeek === 1 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 1 });
     for (const week of weeks) {
-      expect(week[0]!.dayOfWeek).toBe(1);
+      const firstDay = week[0];
+      assert(firstDay, "expected a full week");
+      expect(firstDay.dayOfWeek).toBe(1);
     }
   });
 
   it("Monday-start: ends each week on Sunday (dayOfWeek === 7 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 1 });
     for (const week of weeks) {
-      expect(week[6]!.dayOfWeek).toBe(7);
+      const lastDay = week[6];
+      assert(lastDay, "expected a full week");
+      expect(lastDay.dayOfWeek).toBe(7);
     }
   });
 
   it("Saturday-start: starts each week on Saturday (dayOfWeek === 6 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 6 });
     for (const week of weeks) {
-      expect(week[0]!.dayOfWeek).toBe(6);
+      const firstDay = week[0];
+      assert(firstDay, "expected a full week");
+      expect(firstDay.dayOfWeek).toBe(6);
     }
   });
 
   it("Saturday-start: ends each week on Friday (dayOfWeek === 5 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 6 });
     for (const week of weeks) {
-      expect(week[6]!.dayOfWeek).toBe(5);
+      const lastDay = week[6];
+      assert(lastDay, "expected a full week");
+      expect(lastDay.dayOfWeek).toBe(5);
     }
   });
 
@@ -582,7 +606,9 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
       });
       expect(weeks.length).toBe(6);
       for (const week of weeks) {
-        expect(week[0]!.dayOfWeek).toBe(1);
+        const firstDay = week[0];
+        assert(firstDay, "expected a full week");
+        expect(firstDay.dayOfWeek).toBe(1);
       }
     }
   });
@@ -705,7 +731,8 @@ describe.each(temporalVariants)("resolveFocusTarget ($name)", ({ T }) => {
       allDisabled,
       T,
     );
-    const firstGridDay = marchWeeks[0]![0]!;
+    const firstGridDay = marchWeeks[0]?.[0];
+    assert(firstGridDay, "expected a non-empty grid");
     expect(result.toString()).toBe(firstGridDay.toString());
   });
 
@@ -899,7 +926,8 @@ describe.each(temporalVariants)("isInRange ($name)", ({ T }) => {
 describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   const d = (iso: string) => T.PlainDate.from(iso);
   const marchWeeks = getMonthWeeks(2026, 3, T);
-  const week1 = marchWeeks[1]!;
+  const week1 = marchWeeks[1];
+  assert(week1, "expected March 2026 to have a second week");
 
   it("treats undefined rangeStart as single-day range at rangeEnd", () => {
     const result = computeWeekRangeInfo(week1, undefined, d("2026-03-10"), T);
@@ -939,8 +967,9 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
     expect(result.active).toBe(true);
     expect(result.extendsBefore).toBe(false);
     expect(result.extendsAfter).toBe(false);
-    const startDay = week1[result.startIndex]!;
-    const endDay = week1[result.endIndex]!;
+    const startDay = week1[result.startIndex];
+    const endDay = week1[result.endIndex];
+    assert(startDay && endDay, "expected range indices within the week");
     expect(startDay.toString()).toBe("2026-03-09");
     expect(endDay.toString()).toBe("2026-03-12");
   });

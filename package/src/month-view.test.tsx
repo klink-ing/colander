@@ -1,7 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { render, act } from "@testing-library/react";
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from "vitest";
+import { assert, describe, it, expect, vi } from "vitest";
 import { useCalendarStable } from "./calendar-context";
 import { Grid } from "./grid";
 import { MonthView } from "./month-view";
@@ -159,7 +159,9 @@ describe("rangeMode", () => {
       select(clickDate);
     });
 
-    const [value] = onValueChange.mock.calls[0]!;
+    const call = onValueChange.mock.calls[0];
+    assert(call, "expected onValueChange to have been called");
+    const [value] = call;
     expect(value!.start!.toString()).toBe(expected.start);
     expect(value!.end!.toString()).toBe(expected.end);
 
@@ -174,7 +176,9 @@ describe("rangeMode", () => {
       select(march5);
     });
 
-    const [value] = onValueChange.mock.calls[0]!;
+    const call = onValueChange.mock.calls[0];
+    assert(call, "expected onValueChange to have been called");
+    const [value] = call;
     expect(value?.start?.toString()).toBe("2026-03-05");
     expect(value?.end?.toString()).toBe("2026-03-20");
 
@@ -189,7 +193,9 @@ describe("rangeMode", () => {
       select(march25);
     });
 
-    const [value] = onValueChange.mock.calls[0]!;
+    const call = onValueChange.mock.calls[0];
+    assert(call, "expected onValueChange to have been called");
+    const [value] = call;
     expect(value?.start?.toString()).toBe("2026-03-10");
     expect(value?.end?.toString()).toBe("2026-03-25");
 
@@ -204,7 +210,9 @@ describe("rangeMode", () => {
       select(march10);
     });
 
-    const [value] = onValueChange.mock.calls[0]!;
+    const call = onValueChange.mock.calls[0];
+    assert(call, "expected onValueChange to have been called");
+    const [value] = call;
     expect(value!.start!.toString()).toBe("2026-03-10");
     expect(value!.end!.toString()).toBe("2026-03-10");
 
@@ -219,7 +227,9 @@ describe("rangeMode", () => {
       select(march20);
     });
 
-    const [value] = onValueChange.mock.calls[0]!;
+    const call = onValueChange.mock.calls[0];
+    assert(call, "expected onValueChange to have been called");
+    const [value] = call;
     expect(value!.start!.toString()).toBe("2026-03-20");
     expect(value!.end!.toString()).toBe("2026-03-20");
 
@@ -370,8 +380,9 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.allMonths).toHaveLength(3);
-    expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
+    assert(captured, "expected capture");
+    expect(captured.allMonths).toHaveLength(3);
+    expect(captured.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
       "2026-3",
       "2026-4",
       "2026-5",
@@ -393,9 +404,12 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.allMonths).toHaveLength(1);
-    expect(captured!.allMonths[0]!.year).toBe(2026);
-    expect(captured!.allMonths[0]!.month).toBe(3);
+    assert(captured, "expected capture");
+    expect(captured.allMonths).toHaveLength(1);
+    const firstMonth = captured.allMonths[0];
+    assert(firstMonth, "expected a month");
+    expect(firstMonth.year).toBe(2026);
+    expect(firstMonth.month).toBe(3);
 
     unmount();
   });
@@ -419,14 +433,15 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+    assert(captured, "expected capture");
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
     // Select a date in April (second visible month) — should NOT shift
     act(() => {
       selectFn(april15);
     });
 
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
     unmount();
   });
@@ -456,7 +471,8 @@ describe("numberOfMonths", () => {
       selectFn(june15);
     });
 
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 6 });
+    assert(captured, "expected capture");
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 6 });
 
     unmount();
   });
@@ -474,7 +490,8 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    for (const monthData of captured!.allMonths) {
+    assert(captured, "expected capture");
+    for (const monthData of captured.allMonths) {
       expect(monthData.weeks.length).toBeGreaterThanOrEqual(4);
       expect(monthData.weeks.length).toBeLessThanOrEqual(6);
       for (const week of monthData.weeks) {
@@ -499,7 +516,8 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
+    assert(captured, "expected capture");
+    expect(captured.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
       "2026-12",
       "2027-1",
     ]);
@@ -520,8 +538,11 @@ describe("numberOfMonths", () => {
     const grids = container.querySelectorAll('[role="grid"]');
     expect(grids).toHaveLength(2);
 
-    const labelledBy0 = grids[0]!.getAttribute("aria-labelledby");
-    const labelledBy1 = grids[1]!.getAttribute("aria-labelledby");
+    const grid0 = grids[0];
+    const grid1 = grids[1];
+    assert(grid0 && grid1, "expected two grids");
+    const labelledBy0 = grid0.getAttribute("aria-labelledby");
+    const labelledBy1 = grid1.getAttribute("aria-labelledby");
     expect(labelledBy0).toBeTruthy();
     expect(labelledBy1).toBeTruthy();
     expect(labelledBy0).not.toBe(labelledBy1);
@@ -543,8 +564,11 @@ describe("numberOfMonths", () => {
     );
 
     const grids = container.querySelectorAll('[role="grid"]');
-    const grid0Dates = grids[0]!.querySelectorAll("[data-date]");
-    const grid1Dates = grids[1]!.querySelectorAll("[data-date]");
+    const grid0 = grids[0];
+    const grid1 = grids[1];
+    assert(grid0 && grid1, "expected two grids");
+    const grid0Dates = grid0.querySelectorAll("[data-date]");
+    const grid1Dates = grid1.querySelectorAll("[data-date]");
 
     expect(grid0Dates.length).toBeGreaterThan(0);
     expect(grid1Dates.length).toBeGreaterThan(0);
@@ -574,7 +598,8 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.allMonths).toHaveLength(1);
+    assert(captured, "expected capture");
+    expect(captured.allMonths).toHaveLength(1);
 
     rerender(
       <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
@@ -586,8 +611,8 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    expect(captured!.allMonths).toHaveLength(3);
-    expect(captured!.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
+    expect(captured.allMonths).toHaveLength(3);
+    expect(captured.allMonths.map((m) => `${m.year}-${m.month}`)).toEqual([
       "2026-3",
       "2026-4",
       "2026-5",
@@ -610,7 +635,8 @@ describe("numberOfMonths", () => {
     );
 
     // 0 should be clamped to 1
-    expect(captured!.allMonths).toHaveLength(1);
+    assert(captured, "expected capture");
+    expect(captured.allMonths).toHaveLength(1);
 
     unmount();
   });
@@ -633,8 +659,9 @@ describe("numberOfMonths", () => {
     );
 
     // Initially March+April, focused on March 15
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
-    expect(captured!.focusedDate).toBe("2026-03-15");
+    assert(captured, "expected capture");
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
+    expect(captured.focusedDate).toBe("2026-03-15");
 
     // Press PageDown to move focus to April 15 — still within visible range
     const grid = container.querySelector('[role="grid"]')!;
@@ -644,9 +671,9 @@ describe("numberOfMonths", () => {
       );
     });
 
-    expect(captured!.focusedDate).toBe("2026-04-15");
+    expect(captured.focusedDate).toBe("2026-04-15");
     // April is the second visible month, so currentMonth stays at March
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
     // Press PageDown again — May is outside the visible range, should shift
     act(() => {
@@ -655,8 +682,8 @@ describe("numberOfMonths", () => {
       );
     });
 
-    expect(captured!.focusedDate).toBe("2026-05-15");
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 5 });
+    expect(captured.focusedDate).toBe("2026-05-15");
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 5 });
 
     unmount();
   });
@@ -678,7 +705,8 @@ describe("numberOfMonths", () => {
     );
 
     // Initially April+May, focused on April 15
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 4 });
+    assert(captured, "expected capture");
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 4 });
 
     // Press PageUp to move focus to March 15 — outside visible range
     const grid = container.querySelector('[role="grid"]')!;
@@ -688,8 +716,8 @@ describe("numberOfMonths", () => {
       );
     });
 
-    expect(captured!.focusedDate).toBe("2026-03-15");
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+    expect(captured.focusedDate).toBe("2026-03-15");
+    expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
     unmount();
   });
@@ -703,10 +731,13 @@ describe("numberOfMonths", () => {
     );
 
     const grids = container.querySelectorAll('[role="grid"]');
+    const grid0 = grids[0];
+    const grid1 = grids[1];
+    assert(grid0 && grid1, "expected two grids");
 
     // In grid 0 (March), outside-month dates should not be March dates
     const grid0OutsideMonth = Array.from(
-      grids[0]!.querySelectorAll("[data-outside-month]"),
+      grid0.querySelectorAll("[data-outside-month]"),
     );
     for (const el of grid0OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
@@ -715,7 +746,7 @@ describe("numberOfMonths", () => {
 
     // In grid 1 (April), outside-month dates should not be April dates
     const grid1OutsideMonth = Array.from(
-      grids[1]!.querySelectorAll("[data-outside-month]"),
+      grid1.querySelectorAll("[data-outside-month]"),
     );
     for (const el of grid1OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
@@ -811,7 +842,8 @@ describe("numberOfMonths", () => {
         </MonthView>,
       );
 
-      expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+      assert(captured, "expected capture");
+      expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
       act(() => {
         container
@@ -820,7 +852,7 @@ describe("numberOfMonths", () => {
       });
 
       // Shifts by 1 month, not by numberOfMonths
-      expect(captured!.currentMonth).toEqual({ year: 2026, month: 4 });
+      expect(captured.currentMonth).toEqual({ year: 2026, month: 4 });
 
       unmount();
     });
@@ -847,7 +879,8 @@ describe("numberOfMonths", () => {
           .dispatchEvent(new MouseEvent("click", { bubbles: true }));
       });
 
-      expect(captured!.currentMonth).toEqual({ year: 2026, month: 2 });
+      assert(captured, "expected capture");
+      expect(captured.currentMonth).toEqual({ year: 2026, month: 2 });
 
       unmount();
     });
@@ -871,10 +904,13 @@ describe("numberOfMonths", () => {
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
+      const grid0 = grids[0];
+      const grid1 = grids[1];
+      assert(grid0 && grid1, "expected two grids");
 
       // Grid 0 (March): March 25-31 should be in range
       const grid0InRange = Array.from(
-        grids[0]!.querySelectorAll("[data-in-range]"),
+        grid0.querySelectorAll("[data-in-range]"),
       );
       const grid0InRangeDates = grid0InRange.map((el) =>
         el.getAttribute("data-date"),
@@ -884,7 +920,7 @@ describe("numberOfMonths", () => {
 
       // Grid 1 (April): April 1-5 should be in range
       const grid1InRange = Array.from(
-        grids[1]!.querySelectorAll("[data-in-range]"),
+        grid1.querySelectorAll("[data-in-range]"),
       );
       const grid1InRangeDates = grid1InRange.map((el) =>
         el.getAttribute("data-date"),
@@ -912,15 +948,18 @@ describe("numberOfMonths", () => {
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
+      const grid0 = grids[0];
+      const grid1 = grids[1];
+      assert(grid0 && grid1, "expected two grids");
 
       // range-start should be in grid 0 (March 20)
-      const grid0RangeStart = grids[0]!.querySelector(
+      const grid0RangeStart = grid0.querySelector(
         '[data-range-start][data-date="2026-03-20"]',
       );
       expect(grid0RangeStart).toBeTruthy();
 
       // range-end should be in grid 1 (April 10)
-      const grid1RangeEnd = grids[1]!.querySelector(
+      const grid1RangeEnd = grid1.querySelector(
         '[data-range-end][data-date="2026-04-10"]',
       );
       expect(grid1RangeEnd).toBeTruthy();
@@ -939,12 +978,15 @@ describe("numberOfMonths", () => {
       );
 
       const grids = container.querySelectorAll('[role="grid"]');
+      const grid0 = grids[0];
+      const grid1 = grids[1];
+      assert(grid0 && grid1, "expected two grids");
 
       // Grid state attributes reflect each grid's month
-      expect(grids[0]!.getAttribute("data-weeks-in-month")).toBeTruthy();
-      expect(grids[0]!.getAttribute("data-days-per-week")).toBe("7");
-      expect(grids[1]!.getAttribute("data-weeks-in-month")).toBeTruthy();
-      expect(grids[1]!.getAttribute("data-days-per-week")).toBe("7");
+      expect(grid0.getAttribute("data-weeks-in-month")).toBeTruthy();
+      expect(grid0.getAttribute("data-days-per-week")).toBe("7");
+      expect(grid1.getAttribute("data-weeks-in-month")).toBeTruthy();
+      expect(grid1.getAttribute("data-days-per-week")).toBe("7");
 
       unmount();
     });
@@ -984,7 +1026,9 @@ describe("numberOfMonths", () => {
       expect(grids).toHaveLength(1);
 
       // Grid should have aria-labelledby pointing to the MonthYearString
-      const labelledBy = grids[0]!.getAttribute("aria-labelledby");
+      const grid0 = grids[0];
+      assert(grid0, "expected a grid");
+      const labelledBy = grid0.getAttribute("aria-labelledby");
       expect(labelledBy).toBeTruthy();
       const label = document.getElementById(labelledBy!);
       expect(label?.textContent).toContain("March");
@@ -1003,7 +1047,9 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
       expect(grids).toHaveLength(1);
 
-      const dates = Array.from(grids[0]!.querySelectorAll("[data-date]"));
+      const grid0 = grids[0];
+      assert(grid0, "expected a grid");
+      const dates = Array.from(grid0.querySelectorAll("[data-date]"));
       const hasMarch = dates.some((el) =>
         el.getAttribute("data-date")?.startsWith("2026-03"),
       );
@@ -1038,7 +1084,9 @@ describe("numberOfMonths", () => {
       });
 
       expect(onMonthChange).toHaveBeenCalledTimes(1);
-      const arg = onMonthChange.mock.calls[0]![0];
+      const call = onMonthChange.mock.calls[0];
+      assert(call, "expected onMonthChange to have been called");
+      const [arg] = call;
       // Should report the new first visible month (April)
       expect(arg.month).toBe(4);
       expect(arg.year).toBe(2026);
@@ -1090,7 +1138,8 @@ describe("numberOfMonths", () => {
         </MonthView>,
       );
 
-      expect(captured!.focusedDate).toBe("2026-03-15");
+      assert(captured, "expected capture");
+      expect(captured.focusedDate).toBe("2026-03-15");
 
       rerender(
         <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={3}>
@@ -1103,7 +1152,7 @@ describe("numberOfMonths", () => {
       );
 
       // focusedDate should not change when numberOfMonths grows
-      expect(captured!.focusedDate).toBe("2026-03-15");
+      expect(captured.focusedDate).toBe("2026-03-15");
 
       unmount();
     });
@@ -1121,7 +1170,8 @@ describe("numberOfMonths", () => {
         </MonthView>,
       );
 
-      expect(captured!.focusedDate).toBe("2026-03-15");
+      assert(captured, "expected capture");
+      expect(captured.focusedDate).toBe("2026-03-15");
 
       rerender(
         <MonthView {...defaultProps} defaultValue={march15} numberOfMonths={1}>
@@ -1133,7 +1183,7 @@ describe("numberOfMonths", () => {
         </MonthView>,
       );
 
-      expect(captured!.focusedDate).toBe("2026-03-15");
+      expect(captured.focusedDate).toBe("2026-03-15");
 
       unmount();
     });
@@ -1156,8 +1206,9 @@ describe("numberOfMonths", () => {
         </MonthView>,
       );
 
-      expect(captured!.focusedDate).toBe("2026-03-31");
-      expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+      assert(captured, "expected capture");
+      expect(captured.focusedDate).toBe("2026-03-31");
+      expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
       // ArrowRight → April 1, still within visible range
       const grid = container.querySelector('[role="grid"]')!;
@@ -1167,8 +1218,8 @@ describe("numberOfMonths", () => {
         );
       });
 
-      expect(captured!.focusedDate).toBe("2026-04-01");
-      expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
+      expect(captured.focusedDate).toBe("2026-04-01");
+      expect(captured.currentMonth).toEqual({ year: 2026, month: 3 });
 
       unmount();
     });
@@ -1440,26 +1491,25 @@ describe("outsideDays", () => {
       );
 
       const grids = Array.from(container.querySelectorAll("[role='grid']"));
+      const grid0 = grids[0];
+      const grid1 = grids[1];
+      assert(grid0 && grid1, "expected two grids");
 
-      const grid0Hidden = Array.from(
-        grids[0]!.querySelectorAll("[data-hidden]"),
-      );
+      const grid0Hidden = Array.from(grid0.querySelectorAll("[data-hidden]"));
       for (const cell of grid0Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
 
-      const grid1Hidden = Array.from(
-        grids[1]!.querySelectorAll("[data-hidden]"),
-      );
+      const grid1Hidden = Array.from(grid1.querySelectorAll("[data-hidden]"));
       for (const cell of grid1Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
 
-      const rangeStartInGrid0 = grids[0]!.querySelector("[data-range-start]");
+      const rangeStartInGrid0 = grid0.querySelector("[data-range-start]");
       expect(rangeStartInGrid0).not.toBeNull();
       expect(rangeStartInGrid0!.getAttribute("data-date")).toBe("2026-03-25");
 
-      const rangeEndInGrid1 = grids[1]!.querySelector("[data-range-end]");
+      const rangeEndInGrid1 = grid1.querySelector("[data-range-end]");
       expect(rangeEndInGrid1).not.toBeNull();
       expect(rangeEndInGrid1!.getAttribute("data-date")).toBe("2026-04-05");
 
@@ -1483,7 +1533,8 @@ describe("outsideDays", () => {
       const rows = container.querySelectorAll("tbody tr");
       expect(rows.length).toBe(6);
 
-      const lastRow = rows[rows.length - 1]!;
+      const lastRow = rows[rows.length - 1];
+      assert(lastRow, "expected at least one row");
       const cells = lastRow.querySelectorAll("td");
       const allHidden = Array.from(cells).every(
         (cell) => cell.getAttribute("data-hidden") !== null,
@@ -1514,9 +1565,11 @@ describe("outsideDays", () => {
       );
 
       const grids1 = Array.from(c1.querySelectorAll("[role='grid']"));
+      const grid1of1 = grids1[0];
+      assert(grid1of1, "expected a grid");
       // Grid 0 (March): April dates should have no range attrs
       const outsideInGrid0 = Array.from(
-        grids1[0]!.querySelectorAll("[data-outside-month]"),
+        grid1of1.querySelectorAll("[data-outside-month]"),
       );
       for (const cell of outsideInGrid0) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
@@ -1539,9 +1592,11 @@ describe("outsideDays", () => {
       );
 
       const grids2 = Array.from(c2.querySelectorAll("[role='grid']"));
+      const grid1of2 = grids2[0];
+      assert(grid1of2, "expected a grid");
       // Grid 0 (March): April dates should still have range attrs with readonly
       const outsideInGrid0Readonly = Array.from(
-        grids2[0]!.querySelectorAll("[data-outside-month][data-in-range]"),
+        grid1of2.querySelectorAll("[data-outside-month][data-in-range]"),
       );
       expect(outsideInGrid0Readonly.length).toBeGreaterThan(0);
 

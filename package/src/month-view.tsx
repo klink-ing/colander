@@ -194,7 +194,11 @@ function MonthViewRoot(props: MonthViewRootProps) {
   ]);
 
   // numberOfMonths >= 1, so allMonths always has at least one entry
-  const weeks = allMonths[0]!.weeks;
+  const firstMonth = allMonths[0];
+  if (firstMonth === undefined) {
+    throw new Error("MonthView: numberOfMonths must be at least 1.");
+  }
+  const weeks = firstMonth.weeks;
 
   // --- currentDateTime ---
   const selectedZdt = useMemo(

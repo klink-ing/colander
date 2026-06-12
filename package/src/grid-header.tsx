@@ -24,7 +24,12 @@ function useGridHeaderCellState(index: number) {
 
   const state = useMemo<GridHeaderCellState>(() => {
     // getWeekdayNames always returns one entry per weekday; index is 0-6
-    const names = weekdayNames[index]!;
+    const names = weekdayNames[index];
+    if (names === undefined) {
+      throw new Error(
+        `GridHeaderCell: index must be between 0 and ${weekdayNames.length - 1}, got ${index}.`,
+      );
+    }
     return {
       root: rootState as unknown as GridHeaderCellState["root"],
       dayOfWeek: index,
