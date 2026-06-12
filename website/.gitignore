@@ -12,3 +12,4 @@ dist-ssr
 __unconfig*
 todos.json
 src/examples/*.highlighted.gen.json
+api-data/symbols.gen.json
