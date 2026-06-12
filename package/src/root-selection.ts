@@ -286,10 +286,10 @@ export function computeSelectionUpdate<F extends ValueFormat>(opts: {
 
     // Complete range [date1, date2]
     if (isComplete) {
-      const start = committedDates[0]!;
-      const end = committedDates[1]!;
-      const isOnStart = T.PlainDate.compare(date, start) === 0;
-      const isOnEnd = T.PlainDate.compare(date, end) === 0;
+      const start = committedDates[0];
+      const end = committedDates[1];
+      const isOnStart = start != null && T.PlainDate.compare(date, start) === 0;
+      const isOnEnd = end != null && T.PlainDate.compare(date, end) === 0;
 
       // Click boundary → deselect
       if (isOnStart || isOnEnd) {
@@ -675,9 +675,9 @@ export function computePreviewRange(
     ? rawStart === null && rawEnd !== null
       ? ([rawEnd, null] as const)
       : ([rawStart, rawEnd] as const)
-    : undefined;
-  const committedStart = committedDates?.[0] ?? undefined;
-  const committedEnd = committedDates?.[1] ?? undefined;
+    : [] as const;
+  const committedStart = (committedDates[0] ?? undefined) 
+  const committedEnd = (committedDates[1] ?? undefined)
 
   const noop = () => [] as any;
   const result = computeSelectionUpdate<"PlainDate">({
@@ -686,7 +686,7 @@ export function computePreviewRange(
     isDateDisabled: () => false,
     isMultiple: false,
     isRange: true,
-    committedDates: committedDates ?? [],
+    committedDates,
     committedStart,
     committedEnd,
     selectedZdt: undefined,
