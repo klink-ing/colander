@@ -5,7 +5,8 @@ export const docEntries = [
     slug: "getting-started",
     frontmatter: {
       title: "Getting Started",
-      description: "Install Colander and start building accessible calendar components.",
+      description:
+        "Install Colander and start building accessible calendar components.",
       section: "Guides",
     },
   },
@@ -22,7 +23,8 @@ export const docEntries = [
     slug: "month-view",
     frontmatter: {
       title: "MonthView",
-      description: "Displays a traditional calendar grid with month-level navigation.",
+      description:
+        "Displays a traditional calendar grid with month-level navigation.",
       section: "Components",
     },
   },

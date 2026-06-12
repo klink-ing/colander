@@ -19,6 +19,7 @@
   },
   "oxc.enable.oxlint": true,
   "oxc.enable.oxfmt": true,
+  "oxc.fmt.configPath": "./vite.config.ts",
   "oxc.typeAware": true,
   "biome.enabled": false,
   "explorer.excludeGitIgnored": false,
