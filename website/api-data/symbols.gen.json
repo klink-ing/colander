@@ -2517,10 +2517,7 @@
           "optional": false
         }
       ],
-      "members": [
-        "\"unbounded\"",
-        "\"stop\""
-      ]
+      "members": ["\"unbounded\"", "\"stop\""]
     },
     {
       "name": "MonthSeparatorState",
@@ -3354,12 +3351,7 @@
           "optional": false
         }
       ],
-      "members": [
-        "\"enabled\"",
-        "\"readOnly\"",
-        "\"disabled\"",
-        "\"hidden\""
-      ]
+      "members": ["\"enabled\"", "\"readOnly\"", "\"disabled\"", "\"hidden\""]
     },
     {
       "name": "OverflowBehavior",
@@ -8082,12 +8074,7 @@
           "optional": false
         }
       ],
-      "members": [
-        "\"center\"",
-        "\"start\"",
-        "\"end\"",
-        "\"nearest\""
-      ]
+      "members": ["\"center\"", "\"start\"", "\"end\"", "\"nearest\""]
     },
     {
       "name": "TemporalNamespace",
@@ -8848,15 +8835,7 @@
           "optional": false
         }
       ],
-      "members": [
-        "0",
-        "1",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6"
-      ]
+      "members": ["0", "1", "2", "3", "4", "5", "6"]
     },
     {
       "name": "WeeksViewProps",
