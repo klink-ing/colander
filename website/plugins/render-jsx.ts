@@ -8,7 +8,10 @@ interface TagNode {
 export type AstNode = string | TagNode | null | AstNode[];
 
 function escapeJsxText(text: string): string {
-  if (!/[{}<>]/.test(text)) return text;
+  // Braces/angle brackets are JSX syntax; newlines and runs of spaces are
+  // collapsed by JSX whitespace rules. Either way the text would not
+  // round-trip, so emit it as a string expression instead.
+  if (!/[{}<>\n\r]|\s{2,}/.test(text)) return text;
   return `{${JSON.stringify(text)}}`;
 }
 
@@ -22,15 +25,12 @@ function renderAttrValue(value: unknown): string {
   return `{${JSON.stringify(value)}}`;
 }
 
-function renderAttrs(
-  attrs: Record<string, unknown>,
-  isHtmlElement: boolean,
-): string {
+function renderAttrs(attrs: Record<string, unknown>): string {
   const parts: string[] = [];
   for (const [key, value] of Object.entries(attrs)) {
     if (value === undefined || value === null) continue;
 
-    const propName = key === "class" && isHtmlElement ? "className" : key;
+    const propName = key === "class" ? "className" : key;
 
     const rendered = renderAttrValue(value);
     if (typeof value === "boolean" && value) {
@@ -51,7 +51,7 @@ export function renderToJsx(node: AstNode): string {
   const { name, attributes, children } = node;
   const isHtml = name[0] === name[0].toLowerCase();
   const tag = isHtml ? name : `Tags.${name}`;
-  const attrStr = renderAttrs(attributes, isHtml);
+  const attrStr = renderAttrs(attributes);
   const childStr = children.map(renderToJsx).join("");
 
   if (!childStr) return `<${tag}${attrStr} />`;
