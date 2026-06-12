@@ -48,7 +48,7 @@ export function renderToJsx(node: AstNode): string {
   if (typeof node === "string") return escapeJsxText(node);
   if (Array.isArray(node)) return node.map(renderToJsx).join("");
 
-  const { name, attributes = {}, children = [] } = node;
+  const { name, attributes, children } = node;
   const isHtml = name[0] === name[0].toLowerCase();
   const tag = isHtml ? name : `Tags.${name}`;
   const attrStr = renderAttrs(attributes, isHtml);

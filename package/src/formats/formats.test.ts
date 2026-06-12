@@ -1,3 +1,4 @@
+/// <reference types="vite/client" />
 import * as root from "@klinking/colander";
 import { describe, it, expect } from "vitest";
 
