@@ -16,6 +16,7 @@ import {
   SyntaxKind,
   type Node,
 } from "ts-morph";
+import { formatSource } from "../plugins/format.ts";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -454,7 +455,16 @@ for (const [str, id] of typeIndex) types[id] = str;
 const output = { types, symbols: normalizedSymbols };
 const outputPath = path.resolve(__dirname, "../api-data/symbols.gen.json");
 fs.mkdirSync(path.dirname(outputPath), { recursive: true });
-fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
+// Format with vp fmt so the checked-in file matches what a repo-wide
+// `vp fmt` (CI's ready gate) would produce — otherwise the two churn.
+fs.writeFileSync(
+  outputPath,
+  formatSource(
+    JSON.stringify(output, null, 2),
+    outputPath,
+    path.resolve(__dirname, ".."),
+  ),
+);
 console.log(
   `Wrote ${normalizedSymbols.length} symbols (${types.length} unique types) to ${outputPath}`,
 );
