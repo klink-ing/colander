@@ -1,11 +1,11 @@
 name: Sync generated files
 
+# Runs on every PR rather than a hand-maintained paths filter: the generator
+# input graph (markdoc lib, render-jsx, config, package TSDoc, ...) drifts too
+# easily, and commit-if-changed exits clean when nothing was regenerated.
 on:
   pull_request:
     branches: [main]
-    paths:
-      - package/src/index.ts
-      - package/scripts/generate-formats.ts
 
 permissions:
   contents: write
@@ -14,9 +14,17 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.head_ref }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - uses: voidzero-dev/setup-vp@v1
         with:
@@ -27,8 +35,19 @@ jobs:
       - name: Regenerate format files
         run: vp run @klinking/colander#generate-formats
 
-      - name: Commit if changed
+      - name: Commit format files if changed
         run: >-
           bash scripts/commit-if-changed.sh
-          package/src/formats/
           "chore: regenerate format files [skip ci]"
+          package/src/formats/
+
+      - name: Regenerate doc files via build
+        run: vp run website#build
+
+      - name: Commit doc files if changed
+        run: >-
+          bash scripts/commit-if-changed.sh
+          "chore: regenerate doc files [skip ci]"
+          website/src/routes/docs/
+          website/src/docs-data/
+          website/src/routeTree.gen.ts

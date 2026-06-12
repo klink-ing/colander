@@ -1,22 +1,11 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
+import { createFileRoute } from "@tanstack/react-router";
 import ApiReference from "#/components/ApiReference";
 import InlineDescription from "#/components/InlineDescription";
 import SourceLink from "#/components/SourceLink";
-import { PROJECT_NAME } from "#/config";
-import { getAllSymbols } from "#/lib/api-data";
-
-const getSymbolData = createServerFn()
-  .inputValidator((name: unknown) => name as string)
-  .handler(async ({ data: name }) => {
-    const symbols = getAllSymbols();
-    const sym = symbols.find((s) => s.name === name);
-    if (!sym) throw notFound();
-    return sym;
-  });
+import { useApiData } from "#/lib/use-api-data";
 
 export const Route = createFileRoute("/docs/api/$symbol")({
-  loader: ({ params }) => getSymbolData({ data: params.symbol }),
+  loader: ({ params }) => ({ symbolName: params.symbol }),
   notFoundComponent: () => (
     <div className="py-12 text-center">
       <h1 className="mb-2 type-heading-300 text-foreground">
@@ -27,21 +16,26 @@ export const Route = createFileRoute("/docs/api/$symbol")({
       </p>
     </div>
   ),
-  head: ({ loaderData }) => ({
-    meta: [
-      {
-        title: `${loaderData?.name ?? "API"} - ${PROJECT_NAME}`,
-      },
-      ...(loaderData?.description
-        ? [{ name: "description", content: loaderData.description }]
-        : []),
-    ],
-  }),
   component: ApiSymbolPage,
 });
 
 function ApiSymbolPage() {
-  const sym = Route.useLoaderData();
+  const { symbolName } = Route.useLoaderData();
+  const { symbols } = useApiData();
+  const sym = symbols.find((s) => s.name === symbolName);
+
+  if (!sym) {
+    return (
+      <div className="py-12 text-center">
+        <h1 className="mb-2 type-heading-300 text-foreground">
+          Symbol not found
+        </h1>
+        <p className="type-body-200 text-muted-foreground">
+          The API symbol you requested does not exist.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div>

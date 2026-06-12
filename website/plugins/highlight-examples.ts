@@ -1,26 +1,14 @@
-import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { codeToHtml } from "shiki";
 import type { Plugin, ResolvedConfig } from "vite";
 import { stripTypes } from "../src/lib/strip-types.ts";
+import { formatSource } from "./format.ts";
 
 interface HighlightedExample {
   tsHtml: string;
   jsHtml: string;
   language: string;
-}
-
-function formatCode(source: string, fileName: string, rootDir: string): string {
-  try {
-    return execFileSync("npx", ["vp", "fmt", "--stdin-filepath", fileName], {
-      input: source,
-      encoding: "utf-8",
-      cwd: path.resolve(rootDir, ".."),
-    });
-  } catch {
-    return source;
-  }
 }
 
 async function highlight(code: string, lang: string): Promise<string> {
@@ -42,10 +30,10 @@ async function processExample(
   const tsLang = isTsx ? "tsx" : "ts";
   const jsLang = isTsx ? "jsx" : "js";
 
-  const tsFormatted = formatCode(tsRaw, file, rootDir);
-  const jsFormatted = formatCode(
+  const tsFormatted = formatSource(tsRaw, filePath, rootDir);
+  const jsFormatted = formatSource(
     jsRaw,
-    file.replace(/\.tsx?$/, jsLang === "jsx" ? ".jsx" : ".js"),
+    filePath.replace(/\.tsx?$/, jsLang === "jsx" ? ".jsx" : ".js"),
     rootDir,
   );
 

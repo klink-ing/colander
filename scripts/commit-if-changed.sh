@@ -1,17 +1,18 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Usage: scripts/commit-if-changed.sh <path> <commit-message>
-# Commits staged changes if the given path has modifications.
+# Usage: scripts/commit-if-changed.sh <commit-message> <path> [<path>...]
+# Commits staged changes if any of the given paths have modifications.
 
-path="${1:?Usage: commit-if-changed.sh <path> <commit-message>}"
-message="${2:?Usage: commit-if-changed.sh <path> <commit-message>}"
+message="${1:?Usage: commit-if-changed.sh <commit-message> <path> [<path>...]}"
+shift
+paths=("$@")
 
 git config user.name "github-actions[bot]"
 git config user.email "github-actions[bot]@users.noreply.github.com"
 
-vp check --fix "$path"
-git add "$path"
+vp check --fix "${paths[@]}"
+git add "${paths[@]}"
 
 if git diff --cached --quiet; then
   echo "No changes to commit"

@@ -11,4 +11,7 @@ stats.html
 .claude/plans
 /.superpowers
 website/node_modules
+.vite-hooks/
+
+# Generated at dev/build time (see website/scripts/extract-api.ts)
 website/api-data/

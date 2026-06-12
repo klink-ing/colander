@@ -3,21 +3,24 @@ import {
   TooltipTrigger,
   TooltipContent,
 } from "#/components/ui/tooltip";
-import { isKnownSymbol, getSymbolByName } from "#/lib/api-data";
+import type { ApiSymbol } from "#/lib/api-data";
+import { useApiData } from "#/lib/use-api-data";
 import { LinkInline } from "./LinkInline";
 
-/**
- * Parses a type string and turns recognized symbol names into links
- * with VS Code-style hover tooltips showing type details.
- */
 export default function TypeLink({ type }: { type: string }) {
-  const parts = tokenize(type);
+  const { symbols, types } = useApiData();
+  const parts = tokenize(type, symbols);
 
   return (
     <>
       {parts.map((part, i) =>
         part.linked ? (
-          <SymbolLink key={i} name={part.text} />
+          <SymbolLink
+            key={i}
+            name={part.text}
+            symbols={symbols}
+            types={types}
+          />
         ) : (
           <span key={i}>{part.text}</span>
         ),
@@ -26,8 +29,16 @@ export default function TypeLink({ type }: { type: string }) {
   );
 }
 
-function SymbolLink({ name }: { name: string }) {
-  const sym = getSymbolByName(name);
+function SymbolLink({
+  name,
+  symbols,
+  types,
+}: {
+  name: string;
+  symbols: ApiSymbol[];
+  types: string[];
+}) {
+  const sym = symbols.find((s) => s.name === name);
   const linkClassName = "no-underline hover:underline";
 
   if (!sym) {
@@ -55,12 +66,8 @@ function SymbolLink({ name }: { name: string }) {
       >
         {name}
       </TooltipTrigger>
-      <TooltipContent
-        side="top"
-        align="start"
-        className="max-w-sm squircle-lg border border-border bg-popover p-3 text-popover-foreground shadow-lg"
-      >
-        <TypeTooltipBody symbol={sym} />
+      <TooltipContent>
+        <TypeTooltipBody symbol={sym} types={types} />
       </TooltipContent>
     </Tooltip>
   );
@@ -68,8 +75,10 @@ function SymbolLink({ name }: { name: string }) {
 
 function TypeTooltipBody({
   symbol,
+  types,
 }: {
-  symbol: NonNullable<ReturnType<typeof getSymbolByName>>;
+  symbol: ApiSymbol;
+  types: string[];
 }) {
   const maxProps = 6;
 
@@ -102,7 +111,7 @@ function TypeTooltipBody({
           {symbol.properties.slice(0, maxProps).map((p) => (
             <div key={p.name} className="pl-3">
               <span className="text-foreground">{p.name}</span>
-              {p.optional ? "?" : ""}: {p.type}
+              {p.optional ? "?" : ""}: {types[p.type]}
             </div>
           ))}
           {symbol.properties.length > maxProps && (
@@ -128,8 +137,21 @@ interface Token {
   linked: boolean;
 }
 
-/** Split a type string into linkable identifiers and plain text fragments. */
-function tokenize(type: string): Token[] {
+// Cache the name lookup per symbols array (stable loader-data reference) —
+// tokenize runs for every TypeLink on a page, on every render.
+const symbolNameCache = new WeakMap<ApiSymbol[], Set<string>>();
+
+function getSymbolNames(symbols: ApiSymbol[]): Set<string> {
+  let names = symbolNameCache.get(symbols);
+  if (!names) {
+    names = new Set(symbols.map((s) => s.name));
+    symbolNameCache.set(symbols, names);
+  }
+  return names;
+}
+
+function tokenize(type: string, symbols: ApiSymbol[]): Token[] {
+  const symbolNames = getSymbolNames(symbols);
   const regex = /([A-Z][A-Za-z0-9]*)/g;
   const tokens: Token[] = [];
   let lastIndex = 0;
@@ -140,7 +162,7 @@ function tokenize(type: string): Token[] {
       tokens.push({ text: type.slice(lastIndex, start), linked: false });
     }
     const name = match[1];
-    tokens.push({ text: name, linked: isKnownSymbol(name) });
+    tokens.push({ text: name, linked: symbolNames.has(name) });
     lastIndex = start + name.length;
   }
 

@@ -43,9 +43,7 @@ function App() {
           <ButtonA
             variant="secondary"
             size="xl"
-            render={
-              <Link to="/docs/$slug" params={{ slug: "getting-started" }} />
-            }
+            render={<Link to="/docs/getting-started" />}
           >
             Get Started
           </ButtonA>

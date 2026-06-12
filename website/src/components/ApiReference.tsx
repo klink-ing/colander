@@ -1,10 +1,7 @@
 import { useRender } from "@base-ui/react/use-render";
 import React, { Fragment, useId, type ComponentProps } from "react";
-import {
-  getSymbolByName,
-  type ApiSymbol,
-  type SymbolProperty,
-} from "#/lib/api-data";
+import { type ApiSymbol } from "#/lib/api-data";
+import { useApiData } from "#/lib/use-api-data";
 import { cn } from "#/lib/utils";
 import InlineDescription from "./InlineDescription";
 import TypeLink from "./TypeLink";
@@ -12,14 +9,24 @@ import { Code } from "./ui/code";
 
 const MDN_BASE = "https://developer.mozilla.org/en-US/docs/Web/HTML/Element";
 
+/** Property entry with `type` resolved to its string form for display. */
+interface DisplayProperty {
+  name: string;
+  type: string;
+  description: string;
+  optional: boolean;
+  defaultValue?: string;
+}
+
 export default function ApiReference({
   symbol: symbolName,
 }: {
   symbol: string;
 }) {
-  const sym = getSymbolByName(symbolName);
+  const { symbols, types } = useApiData();
+  const symbol = symbols.find((s) => s.name === symbolName);
 
-  if (!sym) {
+  if (!symbol) {
     return (
       <div className="border-callout-error-border bg-callout-error-bg text-callout-error-text my-4 squircle-lg border p-4 type-body-100">
         Symbol <Code>{symbolName}</Code> not found in API data.
@@ -29,15 +36,19 @@ export default function ApiReference({
 
   return (
     <div className="my-6">
-      {sym.defaultElement && <DefaultElement symbol={sym} />}
-      {(sym.properties?.length || sym.defaultElement) && (
-        <PropsTable symbol={sym} />
+      {symbol.defaultElement && <DefaultElement symbol={symbol} />}
+      {(symbol.properties?.length || symbol.defaultElement) && (
+        <PropsTable symbol={symbol} types={types} />
       )}
-      {sym.members && sym.members.length > 0 && <MembersTable symbol={sym} />}
-      {sym.kind === "function" && sym.parameters && (
-        <FunctionSignature symbol={sym} />
+      {symbol.members && symbol.members.length > 0 && (
+        <MembersTable symbol={symbol} />
       )}
-      {sym.kind === "hook" && <HookSignature symbol={sym} />}
+      {symbol.kind === "function" && symbol.parameters && (
+        <FunctionSignature symbol={symbol} types={types} />
+      )}
+      {symbol.kind === "hook" && (
+        <HookSignature symbol={symbol} types={types} />
+      )}
     </div>
   );
 }
@@ -73,21 +84,24 @@ function DefaultElement({ symbol }: { symbol: ApiSymbol }) {
   );
 }
 
-function renderPropType(symbol: ApiSymbol): string {
+function buildRenderPropType(symbol: ApiSymbol, types: string[]): string {
   const el = symbol.defaultElement!;
-  const state = symbol.stateType!;
+  const state = symbol.stateType !== undefined ? types[symbol.stateType] : "";
   return `ReactElement | ((props: HTMLProps<${el}>, state: ${state}) => ReactElement)`;
 }
 
-function PropsTable({ symbol }: { symbol: ApiSymbol }) {
-  const ownProps = symbol.properties ?? [];
+function PropsTable({ symbol, types }: { symbol: ApiSymbol; types: string[] }) {
+  const ownProps: DisplayProperty[] = (symbol.properties ?? []).map((p) => ({
+    ...p,
+    type: types[p.type],
+  }));
   const propId = `${symbol.name}-${useId()}`;
 
   // Build the render prop entry if this type uses ComponentProps
-  const renderProp: SymbolProperty | null = symbol.defaultElement
+  const renderProp: DisplayProperty | null = symbol.defaultElement
     ? {
         name: "render",
-        type: renderPropType(symbol),
+        type: buildRenderPropType(symbol, types),
         description: `Custom render function or element. Receives HTML props for <${symbol.defaultElement}> and component state.`,
         optional: true,
       }
@@ -209,7 +223,13 @@ function MembersTable({ symbol }: { symbol: ApiSymbol }) {
   );
 }
 
-function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
+function FunctionSignature({
+  symbol,
+  types,
+}: {
+  symbol: ApiSymbol;
+  types: string[];
+}) {
   return (
     <div className="overflow-x-auto">
       <pre className="squircle-lg border border-border bg-card p-4">
@@ -218,23 +238,34 @@ function FunctionSignature({ symbol }: { symbol: ApiSymbol }) {
           {symbol.parameters?.map((p, i) => (
             <React.Fragment key={p.name}>
               {i > 0 && ", "}
-              {p.name}: <TypeLink type={p.type} />
+              {p.name}: <TypeLink type={types[p.type]} />
             </React.Fragment>
           ))}
-          ): {symbol.returnType && <TypeLink type={symbol.returnType} />}
+          ):{" "}
+          {symbol.returnType !== undefined && (
+            <TypeLink type={types[symbol.returnType]} />
+          )}
         </Code>
       </pre>
     </div>
   );
 }
 
-function HookSignature({ symbol }: { symbol: ApiSymbol }) {
+function HookSignature({
+  symbol,
+  types,
+}: {
+  symbol: ApiSymbol;
+  types: string[];
+}) {
   return (
     <div className="overflow-x-auto">
       <pre className="squircle-lg border border-border bg-card p-4">
         <Code size={200}>
           {symbol.name}():{" "}
-          {symbol.returnType && <TypeLink type={symbol.returnType} />}
+          {symbol.returnType !== undefined && (
+            <TypeLink type={types[symbol.returnType]} />
+          )}
         </Code>
       </pre>
     </div>
