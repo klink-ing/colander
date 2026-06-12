@@ -22,7 +22,6 @@ import type {
   DateValueObject,
   RangeMode,
   RawValueForFormat,
-  ValueChangeMeta,
   ValueFormat,
 } from "./types";
 import { fromZonedDateTime, toZonedDateTime, selectedToZdt } from "./utils";
@@ -439,7 +438,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
             onValueChange as
               | ((
                   v: RawValueForFormat<F> | null,
-                  m: ValueChangeMeta<RawValueForFormat<F> | null>,
+                  m: { date: undefined; previous: RawValueForFormat<F> | null },
                 ) => void)
               | undefined
           )?.(null, { date: undefined, previous: prev });
@@ -551,9 +550,9 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
       selectionMode,
       disabled,
       readOnly,
-      isDateDisabled,
-      minValue,
-      maxValue,
+      ...(isDateDisabled !== undefined && { isDateDisabled }),
+      ...(minValue !== undefined && { minValue }),
+      ...(maxValue !== undefined && { maxValue }),
       timeZone,
       locale,
       temporal: T,

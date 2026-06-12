@@ -32,9 +32,9 @@ function WeekNumberCellFn(
 
   // ISO week number is determined by the Thursday of the week
   const weekNumber = useMemo(() => {
-    if (days.length === 0) return 0;
     // Find the Thursday in this week row — it determines the ISO week number
     let thursday = days[0];
+    if (thursday === undefined) return 0;
     for (const d of days) {
       if (d.dayOfWeek === 4) {
         thursday = d;

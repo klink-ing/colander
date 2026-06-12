@@ -31,8 +31,8 @@ function parseDateISO(str: string): {
   day: number;
 } {
   const [datePart] = str.split("T");
-  const [y, m, d] = datePart.split("-").map(Number);
-  return { year: y, month: m, day: d };
+  const [y, m, d] = datePart!.split("-").map(Number);
+  return { year: y!, month: m!, day: d! };
 }
 
 function parseDateTimeISO(str: string): {
@@ -44,14 +44,14 @@ function parseDateTimeISO(str: string): {
   second: number;
 } {
   const [datePart, timePart] = str.split("T");
-  const [y, m, d] = datePart.split("-").map(Number);
+  const [y, m, d] = datePart!.split("-").map(Number);
   if (!timePart)
-    return { year: y, month: m, day: d, hour: 0, minute: 0, second: 0 };
+    return { year: y!, month: m!, day: d!, hour: 0, minute: 0, second: 0 };
   const [h, min, s] = timePart.split(":").map(Number);
   return {
-    year: y,
-    month: m,
-    day: d,
+    year: y!,
+    month: m!,
+    day: d!,
     hour: h || 0,
     minute: min || 0,
     second: s || 0,
@@ -98,12 +98,12 @@ function extractTzParts(epochMs: number, tz: string): TzParts {
     }
   }
   return {
-    year: vals.year,
-    month: vals.month,
-    day: vals.day,
-    hour: vals.hour === 24 ? 0 : vals.hour,
-    minute: vals.minute,
-    second: vals.second,
+    year: vals["year"]!,
+    month: vals["month"]!,
+    day: vals["day"]!,
+    hour: vals["hour"] === 24 ? 0 : vals["hour"]!,
+    minute: vals["minute"]!,
+    second: vals["second"]!,
   };
 }
 
@@ -202,10 +202,10 @@ class MiniPlainDate {
     years?: number;
   }): MiniPlainDate {
     return this.add({
-      days: dur.days ? -dur.days : undefined,
-      weeks: dur.weeks ? -dur.weeks : undefined,
-      months: dur.months ? -dur.months : undefined,
-      years: dur.years ? -dur.years : undefined,
+      ...(dur.days && { days: -dur.days }),
+      ...(dur.weeks && { weeks: -dur.weeks }),
+      ...(dur.months && { months: -dur.months }),
+      ...(dur.years && { years: -dur.years }),
     });
   }
 
@@ -403,8 +403,8 @@ class MiniPlainYearMonth {
 
   subtract(dur: { months?: number; years?: number }): MiniPlainYearMonth {
     return this.add({
-      months: dur.months ? -dur.months : undefined,
-      years: dur.years ? -dur.years : undefined,
+      ...(dur.months && { months: -dur.months }),
+      ...(dur.years && { years: -dur.years }),
     });
   }
 
@@ -545,8 +545,8 @@ const PlainMonthDay = {
     if (typeof item === "string") {
       // "MM-DD" or "YYYY-MM-DD" — take last two numeric segments
       const parts = item.split("-").map(Number);
-      if (parts.length >= 3) return new MiniPlainMonthDay(parts[1], parts[2]);
-      return new MiniPlainMonthDay(parts[0], parts[1]);
+      if (parts.length >= 3) return new MiniPlainMonthDay(parts[1]!, parts[2]!);
+      return new MiniPlainMonthDay(parts[0]!, parts[1]!);
     }
     const month =
       item.month ??
@@ -559,7 +559,7 @@ const PlainYearMonth = {
   from(item: any): MiniPlainYearMonth {
     if (typeof item === "string") {
       const [y, m] = item.split("-").map(Number);
-      return new MiniPlainYearMonth(y, m);
+      return new MiniPlainYearMonth(y!, m!);
     }
     return new MiniPlainYearMonth(item.year, item.month);
   },

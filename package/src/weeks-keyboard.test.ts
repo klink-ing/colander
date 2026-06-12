@@ -15,7 +15,6 @@ const baseInput: WeeksKeyNavInput = {
   maxValue: undefined,
   disabled: false,
   readOnly: false,
-  isDateDisabled: undefined,
   scrollBy: "row",
   T,
   weekStartDay: 0,

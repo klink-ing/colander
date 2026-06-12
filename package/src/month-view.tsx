@@ -193,7 +193,8 @@ function MonthViewRoot(props: MonthViewRootProps) {
     numberOfMonths,
   ]);
 
-  const weeks = allMonths[0].weeks;
+  // numberOfMonths >= 1, so allMonths always has at least one entry
+  const weeks = allMonths[0]!.weeks;
 
   // --- currentDateTime ---
   const selectedZdt = useMemo(
@@ -385,13 +386,13 @@ function MonthView<F extends ValueFormat = "PlainDate">(
   return (
     <CalendarProvider {...(calendarProps as CalendarProviderProps<F>)}>
       <MonthViewRoot
-        numberOfMonths={numberOfMonths}
-        fixedWeeks={fixedWeeks}
-        outsideDays={outsideDays}
-        overflowBehavior={overflowBehavior}
-        month={month}
-        defaultMonth={defaultMonth}
-        onMonthChange={onMonthChange}
+        {...(numberOfMonths !== undefined && { numberOfMonths })}
+        {...(fixedWeeks !== undefined && { fixedWeeks })}
+        {...(outsideDays !== undefined && { outsideDays })}
+        {...(overflowBehavior !== undefined && { overflowBehavior })}
+        {...(month !== undefined && { month })}
+        {...(defaultMonth !== undefined && { defaultMonth })}
+        {...(onMonthChange !== undefined && { onMonthChange })}
       >
         {children}
       </MonthViewRoot>

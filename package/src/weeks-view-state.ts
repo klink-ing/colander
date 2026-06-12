@@ -87,8 +87,8 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         targetFirstWeek: resolvedFirstWeek,
         weekCount,
         behavior: overflowBehavior,
-        min: minValue,
-        max: maxValue,
+        ...(minValue !== undefined && { min: minValue }),
+        ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
         T,
       }),
@@ -130,7 +130,9 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
 
   const windowInfo = useMemo<WindowInfo>(() => {
     const weeks = adjustedWeeks;
-    if (weeks.length === 0) {
+    const firstWeek = weeks[0];
+    const lastWeek = weeks[weeks.length - 1];
+    if (firstWeek === undefined || lastWeek === undefined) {
       const today = T.Now.plainDateISO();
       return {
         windowStart: today,
@@ -142,8 +144,8 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         visibleMonths: [],
       };
     }
-    const windowStart = weeks[0].startDate;
-    const windowEnd = weeks[weeks.length - 1].endDate;
+    const windowStart = firstWeek.startDate;
+    const windowEnd = lastWeek.endDate;
     const wc = weeks.length;
     const dayCount = wc * 7;
 
@@ -311,8 +313,8 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         targetFirstWeek: target,
         weekCount,
         behavior: overflowBehavior,
-        min: minValue,
-        max: maxValue,
+        ...(minValue !== undefined && { min: minValue }),
+        ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
         T,
       });
@@ -338,8 +340,8 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         targetFirstWeek: target,
         weekCount,
         behavior: overflowBehavior,
-        min: minValue,
-        max: maxValue,
+        ...(minValue !== undefined && { min: minValue }),
+        ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
         T,
       });
@@ -374,8 +376,8 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         targetFirstWeek: newFirstWeek,
         weekCount,
         behavior: overflowBehavior,
-        min: minValue,
-        max: maxValue,
+        ...(minValue !== undefined && { min: minValue }),
+        ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
         T,
       });

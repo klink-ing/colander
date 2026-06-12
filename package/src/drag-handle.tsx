@@ -87,7 +87,7 @@ function RangeDragHandleFn(
   const { render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
     useDragHandle(edge, {
-      dragging,
+      ...(dragging !== undefined && { dragging }),
     });
   const { selectionMode } = useCalendarStable();
   const { rangeStart: rs, rangeEnd: re } = useCalendarState();

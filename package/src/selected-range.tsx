@@ -54,20 +54,20 @@ export function computeClippedRangeInfo(
     gridMonth
   ) {
     let { startIndex, endIndex, extendsBefore, extendsAfter } = raw;
+    const inMonth = (i: number) => {
+      const day = days[i];
+      return (
+        day !== undefined &&
+        day.year === gridMonth.year &&
+        day.month === gridMonth.month
+      );
+    };
     // Clip range to only in-month cells
-    while (
-      startIndex <= endIndex &&
-      (days[startIndex].year !== gridMonth.year ||
-        days[startIndex].month !== gridMonth.month)
-    ) {
+    while (startIndex <= endIndex && !inMonth(startIndex)) {
       startIndex++;
       extendsBefore = true;
     }
-    while (
-      endIndex >= startIndex &&
-      (days[endIndex].year !== gridMonth.year ||
-        days[endIndex].month !== gridMonth.month)
-    ) {
+    while (endIndex >= startIndex && !inMonth(endIndex)) {
       endIndex--;
       extendsAfter = true;
     }
@@ -137,8 +137,10 @@ function RangeSelectedInnerFn(
     [days, rangeStart, rangeEnd, T, outsideDays, gridMonth],
   );
 
-  const startDate = info.active ? days[info.startIndex].toString() : "";
-  const endDate = info.active ? days[info.endIndex].toString() : "";
+  const startDate = info.active
+    ? (days[info.startIndex]?.toString() ?? "")
+    : "";
+  const endDate = info.active ? (days[info.endIndex]?.toString() ?? "") : "";
 
   const weekIndex = weekData?.weekIndex ?? 0;
 

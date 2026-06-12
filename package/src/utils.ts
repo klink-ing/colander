@@ -329,7 +329,8 @@ export function focusedDateForMonth(
  * Priority when `gridHasFocus` is `true` (keyboard navigation):
  * 1. `focusedDate` if it exists in the grid.
  * 2. `selectedDate` if it exists in the grid.
- * 3. First enabled day of `currentMonth`, or first grid day as last resort.
+ * 3. First enabled day of `currentMonth`, then first grid day, then
+ *    `focusedDate` itself (empty grid) as last resorts.
  *
  * When `gridHasFocus` is `false` (tab-in), `selectedDate` takes priority
  * over `focusedDate`.
@@ -367,7 +368,7 @@ export function resolveFocusTarget(
       d.month === currentMonth.month &&
       !isDateDisabled(d),
   );
-  return firstEnabled ?? allDays[0];
+  return firstEnabled ?? allDays[0] ?? focusedDate;
 }
 
 /**
@@ -456,6 +457,7 @@ export function computeWeekRangeInfo(
 
   const weekStart = weekDays[0];
   const weekEnd = weekDays[weekDays.length - 1];
+  if (weekStart === undefined || weekEnd === undefined) return inactive;
 
   if (
     T.PlainDate.compare(effectiveEnd, weekStart) < 0 ||

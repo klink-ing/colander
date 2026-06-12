@@ -67,8 +67,10 @@ function RangePreviewInnerFn(
     [days, previewStart, previewEnd, T, outsideDays, gridMonth],
   );
 
-  const startDate = info.active ? days[info.startIndex].toString() : "";
-  const endDate = info.active ? days[info.endIndex].toString() : "";
+  const startDate = info.active
+    ? (days[info.startIndex]?.toString() ?? "")
+    : "";
+  const endDate = info.active ? (days[info.endIndex]?.toString() ?? "") : "";
 
   const weekIndex = weekData?.weekIndex ?? 0;
 

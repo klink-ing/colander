@@ -102,7 +102,7 @@ export function WeeksGrid(props: {
     const seenMonths = new Set<string>();
 
     for (let i = 0; i < weeks.length; i++) {
-      const days = weekDaysArrays[i];
+      const days = weekDaysArrays[i]!;
       const isFirstWeek = i === 0;
 
       // Find all distinct months in this week's days
@@ -159,7 +159,7 @@ export function WeeksGrid(props: {
         let weeksVisibleBefore = 0;
         for (let j = i - 1; j >= 0; j--) {
           // Check if all days in that week are before this month
-          const prevDays = weekDaysArrays[j];
+          const prevDays = weekDaysArrays[j]!;
           const hasThisMonth = prevDays.some(
             (d) => d.month === newMonth && d.year === newYear,
           );
@@ -173,7 +173,7 @@ export function WeeksGrid(props: {
         // Count weeks visible after (weeks containing days of this month)
         let weeksVisibleAfter = 0;
         for (let j = i; j < weeks.length; j++) {
-          const wDays = weekDaysArrays[j];
+          const wDays = weekDaysArrays[j]!;
           const hasThisMonth = wDays.some(
             (d) => d.month === newMonth && d.year === newYear,
           );
@@ -187,7 +187,7 @@ export function WeeksGrid(props: {
         // Determine firstOfYear
         const isNewYear =
           boundaries.length > 0
-            ? boundaries[boundaries.length - 1].data.year !== newYear
+            ? boundaries[boundaries.length - 1]!.data.year !== newYear
             : newMonth === 1;
 
         boundaries.push({
@@ -214,9 +214,9 @@ export function WeeksGrid(props: {
     // (or end of window). gridRowStart = 1-based row in the grid body
     // (accounting for header row offset +1).
     for (let b = 0; b < boundaries.length; b++) {
-      const current = boundaries[b];
+      const current = boundaries[b]!;
       const nextIndex =
-        b + 1 < boundaries.length ? boundaries[b + 1].index : weeks.length;
+        b + 1 < boundaries.length ? boundaries[b + 1]!.index : weeks.length;
       current.data.fullWeeksVisibleAfter = nextIndex - current.index;
       // Grid row: header is row 1, week rows start at row 2.
       // gridRowStart matches the week row it labels: index + 2 (1-based + header).
@@ -243,8 +243,8 @@ export function WeeksGrid(props: {
   const rows: React.ReactNode[] = [];
 
   for (let i = 0; i < weeks.length; i++) {
-    const week = weeks[i];
-    const days = weekDaysArrays[i];
+    const week = weeks[i]!;
+    const days = weekDaysArrays[i]!;
     const separators = boundariesAtIndex.get(i);
 
     // Render separators at month boundaries

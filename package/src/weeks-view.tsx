@@ -117,12 +117,12 @@ function WeeksViewFn(
       <WeeksViewRoot
         ref={ref}
         weekCount={weekCount}
-        firstWeek={firstWeek}
-        defaultFirstWeek={defaultFirstWeek}
-        onFirstWeekChange={onFirstWeekChange}
-        scrollBy={scrollBy}
-        overflowBehavior={overflowBehavior}
-        onWindowChange={onWindowChange}
+        {...(firstWeek !== undefined && { firstWeek })}
+        {...(defaultFirstWeek !== undefined && { defaultFirstWeek })}
+        {...(onFirstWeekChange !== undefined && { onFirstWeekChange })}
+        {...(scrollBy !== undefined && { scrollBy })}
+        {...(overflowBehavior !== undefined && { overflowBehavior })}
+        {...(onWindowChange !== undefined && { onWindowChange })}
       >
         {children}
       </WeeksViewRoot>

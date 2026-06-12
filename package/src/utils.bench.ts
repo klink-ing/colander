@@ -26,7 +26,7 @@ const timeZone = "America/New_York";
 const marchWeeks = getMonthWeeks(2026, 3, T);
 const rangeStart = Temporal.PlainDate.from("2026-03-05");
 const rangeEnd = Temporal.PlainDate.from("2026-03-20");
-const midWeek = marchWeeks[2]; // a week in the middle of the range
+const midWeek = marchWeeks[2]!; // a week in the middle of the range
 
 describe("getMonthWeeks", () => {
   bench("generate month grid (March 2026)", () => {
@@ -48,7 +48,7 @@ describe("computeWeekRangeInfo", () => {
   });
 
   bench("week with no overlap", () => {
-    const noOverlapWeek = marchWeeks[marchWeeks.length - 1];
+    const noOverlapWeek = marchWeeks[marchWeeks.length - 1]!;
     computeWeekRangeInfo(
       noOverlapWeek,
       Temporal.PlainDate.from("2026-03-01"),
