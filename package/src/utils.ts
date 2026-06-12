@@ -494,7 +494,9 @@ export function computeWeekRangeInfo(
  * @param locale - BCP 47 locale string (e.g. `"en-US"`).
  * @param T - Temporal namespace.
  * @param weekStartDay - 0=Sunday (default), 1=Monday, etc.
- * @returns An array of 7 objects with `long`, `short`, and `narrow` name variants.
+ * @returns An array of objects with `long`, `short`, and `narrow` name variants,
+ *   one per day in the calendar's week (typically 7, but may differ for
+ *   non-Gregorian calendars).
  */
 export function getWeekdayNames(
   locale: string,
