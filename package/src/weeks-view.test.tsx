@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { render, screen, act, cleanup, within } from "@testing-library/react";
-import { assert, describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   Grid,
   GridBody,
@@ -132,9 +132,7 @@ describe("WeeksView", () => {
       </WeeksView>,
     );
     expect(onWindowChange).toHaveBeenCalledTimes(1);
-    const windowCall = onWindowChange.mock.calls[0];
-    assert(windowCall, "expected onWindowChange to have been called");
-    expect(windowCall[0].weekCount).toBe(4);
+    expect(onWindowChange.mock.calls[0]![0].weekCount).toBe(4);
   });
 
   it("navigates forward via goNext (buttons always shift by weekCount)", () => {
@@ -272,9 +270,7 @@ describe("WeeksView", () => {
     });
     expect(onFirstWeekChange).toHaveBeenCalledTimes(1);
     // weekCount=4, so shifts by 4 weeks
-    const firstWeekCall = onFirstWeekChange.mock.calls[0];
-    assert(firstWeekCall, "expected onFirstWeekChange to have been called");
-    expect(firstWeekCall[0].toString()).toBe("2026-03-29");
+    expect(onFirstWeekChange.mock.calls[0]![0].toString()).toBe("2026-03-29");
   });
 
   it("accepts { isoWeek, isoYear } as firstWeek", () => {

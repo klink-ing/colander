@@ -2,14 +2,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import { render } from "@testing-library/react";
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 // @vitest-environment jsdom
-import {
-  assert,
-  describe,
-  it,
-  expect,
-  beforeAll,
-  type TestOptions,
-} from "vitest";
+import { describe, it, expect, beforeAll, type TestOptions } from "vitest";
 
 const perfOptions: TestOptions = { retry: 3 };
 import { WeekDataContext } from "./context";
@@ -137,9 +130,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const updateDuration = lastUpdate.actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     expect(updateDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     // Updates should be significantly cheaper than mount (memoization working)
@@ -178,9 +169,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const navDuration = lastUpdate.actualDuration;
+    const navDuration = updates[updates.length - 1]!.actualDuration;
     expect(navDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     console.log(`[perf] month navigation: ${navDuration.toFixed(2)}ms`);
@@ -219,9 +208,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const rangeDuration = lastUpdate.actualDuration;
+    const rangeDuration = updates[updates.length - 1]!.actualDuration;
     expect(rangeDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     console.log(`[perf] range expand: ${rangeDuration.toFixed(2)}ms`);
@@ -236,15 +223,12 @@ describe("Grid render profiling", perfOptions, () => {
       Temporal.PlainDate.from(`2026-03-${String(i + 5).padStart(2, "0")}`),
     );
 
-    const dragStart = days[0];
-    assert(dragStart, "expected drag days");
-
     const { rerender, unmount } = render(
       <Profiler id="grid-drag" onRender={onRender}>
         <MonthView
           {...defaultProps}
           selectionMode="range"
-          value={{ start: march10, end: dragStart }}
+          value={{ start: march10, end: days[0]! }}
         >
           <Grid />
         </MonthView>
@@ -294,28 +278,23 @@ describe("Grid render profiling", perfOptions, () => {
             <GridHeaderCell />
           </GridHeader>
           <GridBody>
-            {weeks.map((weekDays, i) => {
-              const firstDay = weekDays[0];
-              const profiler = weekProfilers[i];
-              assert(firstDay && profiler, "expected week data and profiler");
-              return (
-                <Profiler
-                  key={firstDay.toString()}
-                  id={`week-${i}`}
-                  onRender={profiler.onRender}
+            {weeks.map((weekDays, i) => (
+              <Profiler
+                key={weekDays[0]!.toString()}
+                id={`week-${i}`}
+                onRender={weekProfilers[i]!.onRender}
+              >
+                <WeekDataContext.Provider
+                  value={{ days: weekDays, weekIndex: i }}
                 >
-                  <WeekDataContext.Provider
-                    value={{ days: weekDays, weekIndex: i }}
-                  >
-                    <tr>
-                      <DayCellTemplate>
-                        <DayButton />
-                      </DayCellTemplate>
-                    </tr>
-                  </WeekDataContext.Provider>
-                </Profiler>
-              );
-            })}
+                  <tr>
+                    <DayCellTemplate>
+                      <DayButton />
+                    </DayCellTemplate>
+                  </tr>
+                </WeekDataContext.Provider>
+              </Profiler>
+            ))}
           </GridBody>
         </>
       );
@@ -345,7 +324,9 @@ describe("Grid render profiling", perfOptions, () => {
 
     const weekUpdateDurations = weekProfilers.map((p) => {
       const updates = p.entries.filter((e) => e.phase === "update");
-      return updates[updates.length - 1]?.actualDuration ?? 0;
+      return updates.length > 0
+        ? updates[updates.length - 1]!.actualDuration
+        : 0;
     });
 
     const weekSummary = weekUpdateDurations
@@ -379,9 +360,9 @@ describe("Grid render profiling", perfOptions, () => {
       </Profiler>,
     );
 
-    const mountEntry = entries.find((e) => e.phase === "mount");
-    assert(mountEntry, "expected a mount render");
-    const mountDuration = mountEntry.actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     const march16 = Temporal.PlainDate.from("2026-03-16");
     rerender(
@@ -393,9 +374,7 @@ describe("Grid render profiling", perfOptions, () => {
     );
 
     const updates = entries.filter((e) => e.phase === "update");
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const updateDuration = lastUpdate.actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     const ratio = updateDuration / mountDuration;
 
     console.log(
@@ -422,9 +401,9 @@ describe("Grid render profiling", perfOptions, () => {
       </Profiler>,
     );
 
-    const mountEntry = entries.find((e) => e.phase === "mount");
-    assert(mountEntry, "expected a mount render");
-    const mountDuration = mountEntry.actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     // 3 grids worth of cells — mount threshold scales linearly
     expect(mountDuration).toBeLessThan(MOUNT_THRESHOLD_MS * 3);
@@ -441,9 +420,7 @@ describe("Grid render profiling", perfOptions, () => {
     );
 
     const updates = entries.filter((e) => e.phase === "update");
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const updateDuration = lastUpdate.actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     const ratio = updateDuration / mountDuration;
 
     // Memoization should still help even with 3 grids
@@ -471,9 +448,9 @@ describe("Grid render profiling", perfOptions, () => {
       </Profiler>,
     );
 
-    const mountEntry = entries.find((e) => e.phase === "mount");
-    assert(mountEntry, "expected a mount render");
-    const mountDuration = mountEntry.actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     // Approximate hover preview render cost by shifting the range end
     const march22 = Temporal.PlainDate.from("2026-03-22");
@@ -492,9 +469,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const previewDuration = lastUpdate.actualDuration;
+    const previewDuration = updates[updates.length - 1]!.actualDuration;
     expect(previewDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     const ratio = previewDuration / mountDuration;
@@ -522,9 +497,9 @@ describe("Grid render profiling", perfOptions, () => {
       </Profiler>,
     );
 
-    const mountEntry = entries.find((e) => e.phase === "mount");
-    assert(mountEntry, "expected a mount render");
-    const mountDuration = mountEntry.actualDuration;
+    const mountDuration = entries.find(
+      (e) => e.phase === "mount",
+    )!.actualDuration;
 
     rerender(
       <Profiler id="grid-range-memo" onRender={onRender}>
@@ -539,9 +514,7 @@ describe("Grid render profiling", perfOptions, () => {
     );
 
     const updates = entries.filter((e) => e.phase === "update");
-    const lastUpdate = updates[updates.length - 1];
-    assert(lastUpdate, "expected at least one update render");
-    const updateDuration = lastUpdate.actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     const ratio = updateDuration / mountDuration;
 
     console.log(
