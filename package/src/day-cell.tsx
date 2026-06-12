@@ -287,13 +287,7 @@ function DayCellInstanceFn<F extends ValueFormat = ValueFormat>(
     state.hidden || (state.outsideMonth && state.disabled);
 
   return (
-    <DayCellDataContext.Provider
-      value={{
-        date,
-        ...(columnIndex !== undefined && { columnIndex }),
-        outsideDisabled,
-      }}
-    >
+    <DayCellDataContext.Provider value={{ date, columnIndex, outsideDisabled }}>
       {cell}
     </DayCellDataContext.Provider>
   );
