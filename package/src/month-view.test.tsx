@@ -1,5 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { render, act } from "@testing-library/react";
+import { useState } from "react";
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
 import { useCalendarStable } from "./calendar-context";
@@ -1066,6 +1067,231 @@ describe("numberOfMonths", () => {
       );
 
       // Select within April (second visible month) — shouldn't trigger month change
+      act(() => {
+        selectFn(april15);
+      });
+
+      expect(onMonthChange).not.toHaveBeenCalled();
+
+      unmount();
+    });
+  });
+
+  describe("controlled month", () => {
+    const march = Temporal.PlainYearMonth.from("2026-03");
+
+    it("next button fires onMonthChange and keeps the view until the parent updates", () => {
+      const onMonthChange = vi.fn();
+      const { container, unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          onMonthChange={onMonthChange}
+        >
+          <MonthYearString data-testid="label" />
+          <NextMonthButton data-testid="next" />
+        </MonthView>,
+      );
+
+      act(() => {
+        container
+          .querySelector('[data-testid="next"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      const arg = onMonthChange.mock.calls[0]![0];
+      expect(arg.year).toBe(2026);
+      expect(arg.month).toBe(4);
+      // Controlled: the view must not move on its own
+      expect(
+        container.querySelector('[data-testid="label"]')!.textContent,
+      ).toContain("March");
+
+      unmount();
+    });
+
+    it("next button advances by one month with numberOfMonths > 1", () => {
+      // Regression: the adjacent month (April) is already visible in a
+      // [March, April] window, so notification must come from the button
+      // itself, not the focus-sync effect (which suppresses visible months).
+      const onMonthChange = vi.fn();
+      const { container, unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          numberOfMonths={2}
+          onMonthChange={onMonthChange}
+        >
+          <NextMonthButton data-testid="next" />
+        </MonthView>,
+      );
+
+      act(() => {
+        container
+          .querySelector('[data-testid="next"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      const arg = onMonthChange.mock.calls[0]![0];
+      expect(arg.year).toBe(2026);
+      expect(arg.month).toBe(4);
+
+      unmount();
+    });
+
+    it("still fires a later keyboard crossing after a no-op button click", () => {
+      // Regression for a value-keyed skip: focus already sits in the adjacent
+      // (visible) month and the parent ignores the click, so the button's
+      // focus move is a no-op. A subsequent keyboard crossing must NOT be
+      // wrongly suppressed.
+      const onMonthChange = vi.fn();
+      let selectFn: (date: Temporal.PlainDate) => void = () => {};
+
+      const { container, unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          defaultValue={april15}
+          numberOfMonths={2}
+          onMonthChange={onMonthChange}
+        >
+          <SelectTrigger
+            onCapture={(fn) => {
+              selectFn = fn;
+            }}
+          />
+          <NextMonthButton data-testid="next" />
+        </MonthView>,
+      );
+
+      // Click next: target April is already the focused/visible month and the
+      // parent (vi.fn) ignores it → focus move is a no-op.
+      act(() => {
+        container
+          .querySelector('[data-testid="next"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      expect(onMonthChange).toHaveBeenCalledTimes(1); // April, from the button
+
+      // Keyboard crossing into a non-visible month must still notify.
+      act(() => {
+        selectFn(Temporal.PlainDate.from("2026-05-15"));
+      });
+      expect(onMonthChange).toHaveBeenCalledTimes(2);
+      const arg = onMonthChange.mock.calls[1]![0];
+      expect(arg.year).toBe(2026);
+      expect(arg.month).toBe(5);
+
+      unmount();
+    });
+
+    it("prev button fires onMonthChange with the preceding month", () => {
+      const onMonthChange = vi.fn();
+      const { container, unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          onMonthChange={onMonthChange}
+        >
+          <PrevMonthButton data-testid="prev" />
+        </MonthView>,
+      );
+
+      act(() => {
+        container
+          .querySelector('[data-testid="prev"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      const arg = onMonthChange.mock.calls[0]![0];
+      expect(arg.year).toBe(2026);
+      expect(arg.month).toBe(2);
+
+      unmount();
+    });
+
+    it("round-trips with a stateful parent", () => {
+      function Harness() {
+        const [month, setMonth] = useState(march);
+        return (
+          <MonthView {...defaultProps} month={month} onMonthChange={setMonth}>
+            <MonthYearString data-testid="label" />
+            <NextMonthButton data-testid="next" />
+          </MonthView>
+        );
+      }
+
+      const { container, unmount } = render(<Harness />);
+      expect(
+        container.querySelector('[data-testid="label"]')!.textContent,
+      ).toContain("March");
+
+      act(() => {
+        container
+          .querySelector('[data-testid="next"]')!
+          .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+
+      expect(
+        container.querySelector('[data-testid="label"]')!.textContent,
+      ).toContain("April");
+
+      unmount();
+    });
+
+    it("fires onMonthChange when focus moves into a non-visible month", () => {
+      const onMonthChange = vi.fn();
+      let selectFn: (date: Temporal.PlainDate) => void = () => {};
+
+      const { unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          onMonthChange={onMonthChange}
+        >
+          <SelectTrigger
+            onCapture={(fn) => {
+              selectFn = fn;
+            }}
+          />
+        </MonthView>,
+      );
+
+      act(() => {
+        selectFn(april15);
+      });
+
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      const arg = onMonthChange.mock.calls[0]![0];
+      expect(arg.year).toBe(2026);
+      expect(arg.month).toBe(4);
+
+      unmount();
+    });
+
+    it("does not fire when the focused month is already visible", () => {
+      const onMonthChange = vi.fn();
+      let selectFn: (date: Temporal.PlainDate) => void = () => {};
+
+      const { unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          numberOfMonths={2}
+          onMonthChange={onMonthChange}
+        >
+          <SelectTrigger
+            onCapture={(fn) => {
+              selectFn = fn;
+            }}
+          />
+        </MonthView>,
+      );
+
+      // April is the second visible month — no notification needed
       act(() => {
         selectFn(april15);
       });
