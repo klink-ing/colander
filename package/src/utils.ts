@@ -418,24 +418,26 @@ export function isInRange(
   return offsetDays / totalDays;
 }
 
-type RangeInfo = {
-  active: true;
-  startIndex: number;
-  endIndex: number;
-  extendsBefore: boolean;
-  extendsAfter: boolean;
-} | {
-  active: false;
-  startIndex: 0;
-  endIndex: 0;
-  extendsBefore: false;
-  extendsAfter: false;
-}
+type RangeInfo =
+  | {
+      active: true;
+      startIndex: number;
+      endIndex: number;
+      extendsBefore: boolean;
+      extendsAfter: boolean;
+    }
+  | {
+      active: false;
+      startIndex: -1;
+      endIndex: -1;
+      extendsBefore: false;
+      extendsAfter: false;
+    };
 
 const INACTIVE_RANGE_INFO = {
   active: false,
-  startIndex: 0,
-  endIndex: 0,
+  startIndex: -1,
+  endIndex: -1,
   extendsBefore: false,
   extendsAfter: false,
 } as const satisfies RangeInfo;
@@ -459,11 +461,11 @@ export function computeWeekRangeInfo(
   rangeEnd: Temporal.PlainDate | undefined,
   T: TemporalNamespace,
 ) {
-
   if (!rangeStart && !rangeEnd) {
     return INACTIVE_RANGE_INFO;
   }
-  const [weekStart, weekEnd] = weekDays;
+  const weekStart = weekDays[0];
+  const weekEnd = weekDays[weekDays.length - 1];
   if (!weekStart || !weekEnd) {
     return INACTIVE_RANGE_INFO;
   }
@@ -496,7 +498,13 @@ export function computeWeekRangeInfo(
     if (endIndex === -1) return INACTIVE_RANGE_INFO;
   }
 
-  return { active: true, startIndex, endIndex, extendsBefore, extendsAfter } as const satisfies RangeInfo;
+  return {
+    active: true,
+    startIndex,
+    endIndex,
+    extendsBefore,
+    extendsAfter,
+  } as const satisfies RangeInfo;
 }
 
 /**
