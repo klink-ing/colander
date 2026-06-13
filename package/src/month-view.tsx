@@ -20,6 +20,7 @@ import {
   getMonthWeeks,
   resolveFocusTarget,
   selectedToZdt,
+  shiftWindowToMonth,
   toZonedDateTime,
 } from "./utils";
 import { ViewContext, type ViewContextValue } from "./view-context";
@@ -136,20 +137,20 @@ function MonthViewRoot(props: MonthViewRootProps) {
     [currentMonth.year, currentMonth.month, numberOfMonths],
   );
 
-  // --- navigateToMonth: only shift if target not already visible ---
+  // --- navigateToMonth: shift the window by the minimum needed to reveal the
+  // target month (keeps keyboard crossing symmetric with the Prev/Next
+  // buttons, which step one month at a time). ---
   const navigateToMonth = useCallback(
     (targetYear: number, targetMonth: number) => {
       if (isMonthControlled) return; // controlled mode: parent manages
       setInternalMonth((prev) => {
-        for (let i = 0; i < numberOfMonths; i++) {
-          const totalMonths = prev.year * 12 + (prev.month - 1) + i;
-          const y = Math.floor(totalMonths / 12);
-          const m = (totalMonths % 12) + 1;
-          if (targetYear === y && targetMonth === m) {
-            return prev; // Already visible
-          }
-        }
-        return { year: targetYear, month: targetMonth };
+        const next = shiftWindowToMonth(
+          prev,
+          { year: targetYear, month: targetMonth },
+          numberOfMonths,
+        );
+        if (next.year === prev.year && next.month === prev.month) return prev;
+        return next;
       });
     },
     [isMonthControlled, numberOfMonths],
@@ -182,7 +183,15 @@ function MonthViewRoot(props: MonthViewRootProps) {
       }
       if (prevFocused === focusedDate) return;
       if (isMonthVisible(focusedDate.year, focusedDate.month)) return;
-      notifyMonth(focusedDate.year, focusedDate.month);
+      // Emit the minimally-shifted first-visible month (what the parent binds
+      // to `month`), not the focused month — so a controlled window scrolls by
+      // the minimum, matching uncontrolled mode and the nav buttons.
+      const next = shiftWindowToMonth(
+        { year: currentMonth.year, month: currentMonth.month },
+        { year: focusedDate.year, month: focusedDate.month },
+        numberOfMonths,
+      );
+      notifyMonth(next.year, next.month);
       return;
     }
     navigateToMonth(focusedDate.year, focusedDate.month);
@@ -192,6 +201,9 @@ function MonthViewRoot(props: MonthViewRootProps) {
     isMonthControlled,
     isMonthVisible,
     notifyMonth,
+    currentMonth.year,
+    currentMonth.month,
+    numberOfMonths,
   ]);
 
   // --- Month navigation callbacks ---

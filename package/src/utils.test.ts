@@ -14,6 +14,7 @@ import {
   sameCalendarDay,
   getReferenceWeekStart,
   computeAdjacentMonth,
+  shiftWindowToMonth,
   focusedDateForMonth,
   resolveFocusTarget,
   shouldMoveDomFocus,
@@ -434,6 +435,79 @@ describe.each(temporalVariants)("computeAdjacentMonth ($name)", ({ T }) => {
     expect(result.year).toBe(expected.year);
     expect(result.month).toBe(expected.month);
     expect(result.firstDay.toString()).toBe(expected.firstDay);
+  });
+});
+
+describe("shiftWindowToMonth", () => {
+  const march = { year: 2026, month: 3 };
+
+  it.each<{
+    description: string;
+    start: { year: number; month: number };
+    focused: { year: number; month: number };
+    numberOfMonths: number;
+    expected: { year: number; month: number };
+  }>([
+    {
+      description: "already visible (single month) returns start unchanged",
+      start: march,
+      focused: march,
+      numberOfMonths: 1,
+      expected: { year: 2026, month: 3 },
+    },
+    {
+      description: "already visible second pane returns start unchanged",
+      start: march,
+      focused: { year: 2026, month: 4 },
+      numberOfMonths: 2,
+      expected: { year: 2026, month: 3 },
+    },
+    {
+      description: "one past the last pane shifts by one (focused last)",
+      start: march,
+      focused: { year: 2026, month: 5 },
+      numberOfMonths: 2,
+      expected: { year: 2026, month: 4 },
+    },
+    {
+      description: "two past the last pane keeps focused as the last pane",
+      start: march,
+      focused: { year: 2026, month: 6 },
+      numberOfMonths: 2,
+      expected: { year: 2026, month: 5 },
+    },
+    {
+      description: "before the window makes focused the first pane",
+      start: march,
+      focused: { year: 2026, month: 2 },
+      numberOfMonths: 2,
+      expected: { year: 2026, month: 2 },
+    },
+    {
+      description: "single month after window matches the focused month",
+      start: march,
+      focused: { year: 2026, month: 7 },
+      numberOfMonths: 1,
+      expected: { year: 2026, month: 7 },
+    },
+    {
+      description: "shift forward across a year boundary",
+      start: { year: 2026, month: 12 },
+      focused: { year: 2027, month: 2 },
+      numberOfMonths: 2,
+      expected: { year: 2027, month: 1 },
+    },
+    {
+      description: "shift backward across a year boundary",
+      start: { year: 2027, month: 1 },
+      focused: { year: 2026, month: 11 },
+      numberOfMonths: 2,
+      expected: { year: 2026, month: 11 },
+    },
+  ])("$description", ({ start, focused, numberOfMonths, expected }) => {
+    const result = shiftWindowToMonth(start, focused, numberOfMonths);
+    expect(result.year).toBe(expected.year);
+    expect(result.month).toBe(expected.month);
   });
 });
 
