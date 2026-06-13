@@ -23,7 +23,7 @@ function useGridHeaderCellState(index: number) {
   );
 
   const state = useMemo<GridHeaderCellState>(() => {
-    // getWeekdayNames always returns one entry per weekday; index is 0-6
+    // getWeekdayNames always returns one entry per weekday
     const names = weekdayNames[index];
     if (names === undefined) {
       throw new Error(
