@@ -390,13 +390,13 @@ function MonthView<F extends ValueFormat = "PlainDate">(
   return (
     <CalendarProvider {...(calendarProps as CalendarProviderProps<F>)}>
       <MonthViewRoot
-        {...(numberOfMonths !== undefined && { numberOfMonths })}
-        {...(fixedWeeks !== undefined && { fixedWeeks })}
-        {...(outsideDays !== undefined && { outsideDays })}
-        {...(overflowBehavior !== undefined && { overflowBehavior })}
-        {...(month !== undefined && { month })}
-        {...(defaultMonth !== undefined && { defaultMonth })}
-        {...(onMonthChange !== undefined && { onMonthChange })}
+        numberOfMonths={numberOfMonths}
+        fixedWeeks={fixedWeeks}
+        outsideDays={outsideDays}
+        overflowBehavior={overflowBehavior}
+        month={month}
+        defaultMonth={defaultMonth}
+        onMonthChange={onMonthChange}
       >
         {children}
       </MonthViewRoot>
