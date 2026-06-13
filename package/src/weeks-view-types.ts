@@ -12,27 +12,27 @@ export interface WeeksViewRootProps {
   /** Number of week rows to display simultaneously. */
   weekCount: number;
   /** The controlled first visible week. When provided, the component is controlled. */
-  firstWeek?: FirstWeekSpec;
+  firstWeek?: FirstWeekSpec | undefined;
   /** The initial first visible week (uncontrolled). */
-  defaultFirstWeek?: FirstWeekSpec;
+  defaultFirstWeek?: FirstWeekSpec | undefined;
   /** Called when the first visible week changes via navigation or focus movement. */
-  onFirstWeekChange?: (date: Temporal.PlainDate) => void;
+  onFirstWeekChange?: ((date: Temporal.PlainDate) => void) | undefined;
   /**
    * How much to scroll per navigation step.
    * - `"row"` — scroll one week row at a time.
    * - `"page"` — scroll a full page (all visible rows) at a time.
    * @default "row"
    */
-  scrollBy?: "row" | "page";
+  scrollBy?: "row" | "page" | undefined;
   /**
    * How navigation behaves at `min`/`max` bounds.
    * @default "unbounded"
    */
-  overflowBehavior?: OverflowBehavior;
+  overflowBehavior?: OverflowBehavior | undefined;
   /** Called when the visible window changes. */
-  onWindowChange?: (info: WindowInfo) => void;
+  onWindowChange?: ((info: WindowInfo) => void) | undefined;
   /** React children. */
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
 }
 
 // ---------------------------------------------------------------------------
