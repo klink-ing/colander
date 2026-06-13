@@ -300,6 +300,48 @@ export function computeAdjacentMonth(
 }
 
 /**
+ * Computes the new first-visible month after the **minimum** shift needed to
+ * bring `focused` into a window of `numberOfMonths` months that currently
+ * starts at `start`.
+ *
+ * - Already visible → returns `start` unchanged (by value).
+ * - Before the window → `focused` becomes the first (leftmost) pane.
+ * - After the window → `focused` becomes the last (rightmost) pane.
+ *
+ * This keeps keyboard focus-crossing symmetric with single-month stepping: a
+ * Gregorian-style window only ever scrolls as far as it must, never jumping
+ * the focused month to the leftmost slot. Pure month arithmetic — calendar
+ * agnostic, since `{year, month}` indices are computed by the caller.
+ *
+ * @param start - The current first-visible month.
+ * @param focused - The month that must become visible.
+ * @param numberOfMonths - Number of month panes displayed (>= 1).
+ */
+export function shiftWindowToMonth(
+  start: { year: number; month: number },
+  focused: { year: number; month: number },
+  numberOfMonths: number,
+): { year: number; month: number } {
+  const startIndex = start.year * 12 + (start.month - 1);
+  const focusedIndex = focused.year * 12 + (focused.month - 1);
+
+  // Before the window: focused becomes the first pane.
+  if (focusedIndex < startIndex) {
+    return { year: focused.year, month: focused.month };
+  }
+  // After the window: focused becomes the last pane.
+  if (focusedIndex > startIndex + numberOfMonths - 1) {
+    const newStartIndex = focusedIndex - (numberOfMonths - 1);
+    return {
+      year: Math.floor(newStartIndex / 12),
+      month: (newStartIndex % 12) + 1,
+    };
+  }
+  // Already visible.
+  return start;
+}
+
+/**
  * Determines the focused date after navigating to a new month.
  *
  * If `currentFocused` is already within `targetMonth`, it is preserved.
