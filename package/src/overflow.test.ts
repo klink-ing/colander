@@ -74,8 +74,7 @@ describe("applyOverflow", () => {
         targetFirstWeek,
         weekCount,
         behavior,
-        min: useMinMax ? min : undefined,
-        max: useMinMax ? max : undefined,
+        ...(useMinMax && { min, max }),
         weekStartDay: 0,
         T,
       });

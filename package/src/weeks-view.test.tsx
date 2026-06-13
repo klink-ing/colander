@@ -132,7 +132,7 @@ describe("WeeksView", () => {
       </WeeksView>,
     );
     expect(onWindowChange).toHaveBeenCalledTimes(1);
-    expect(onWindowChange.mock.calls[0][0].weekCount).toBe(4);
+    expect(onWindowChange.mock.calls[0]![0].weekCount).toBe(4);
   });
 
   it("navigates forward via goNext (buttons always shift by weekCount)", () => {
@@ -270,7 +270,7 @@ describe("WeeksView", () => {
     });
     expect(onFirstWeekChange).toHaveBeenCalledTimes(1);
     // weekCount=4, so shifts by 4 weeks
-    expect(onFirstWeekChange.mock.calls[0][0].toString()).toBe("2026-03-29");
+    expect(onFirstWeekChange.mock.calls[0]![0].toString()).toBe("2026-03-29");
   });
 
   it("accepts { isoWeek, isoYear } as firstWeek", () => {

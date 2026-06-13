@@ -67,7 +67,7 @@ function useGridKeyboard() {
         maxValue,
         disabled,
         readOnly,
-        isDateDisabled,
+        ...(isDateDisabled !== undefined && { isDateDisabled }),
         T,
         weekStartDay,
       });
@@ -122,7 +122,7 @@ function useWeeksGridKeyboard() {
         maxValue,
         disabled,
         readOnly,
-        isDateDisabled,
+        ...(isDateDisabled !== undefined && { isDateDisabled }),
         scrollBy: weeksStable.scrollBy,
         T,
         weekStartDay,
@@ -630,19 +630,25 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
 
   return (
     <>
-      {weeks.map((weekDays, i) => (
-        <WeekDataContext.Provider
-          key={weekDays[0].toString()}
-          value={{
-            days: weekDays,
-            weekIndex: i,
-            gridMonth,
-            gridRowIndex: outerWeekData?.gridRowIndex,
-          }}
-        >
-          <Instance {...props} />
-        </WeekDataContext.Provider>
-      ))}
+      {weeks.map((weekDays, i) => {
+        const firstDay = weekDays[0];
+        if (firstDay === undefined) return null;
+        return (
+          <WeekDataContext.Provider
+            key={firstDay.toString()}
+            value={{
+              days: weekDays,
+              weekIndex: i,
+              ...(gridMonth !== undefined && { gridMonth }),
+              ...(outerWeekData?.gridRowIndex !== undefined && {
+                gridRowIndex: outerWeekData.gridRowIndex,
+              }),
+            }}
+          >
+            <Instance {...props} />
+          </WeekDataContext.Provider>
+        );
+      })}
     </>
   );
 }

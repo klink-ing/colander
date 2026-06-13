@@ -89,10 +89,10 @@ function useWeeksNavButton(
       currentFirstWeek,
       weekCount,
       direction: direction === "next" ? 1 : -1,
-      shiftBy: shiftByProp,
+      ...(shiftByProp !== undefined && { shiftBy: shiftByProp }),
       behavior: overflowBehavior,
-      min: minValue,
-      max: maxValue,
+      ...(minValue !== undefined && { min: minValue }),
+      ...(maxValue !== undefined && { max: maxValue }),
       weekStartDay,
       T,
     });

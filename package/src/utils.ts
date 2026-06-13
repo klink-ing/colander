@@ -329,7 +329,8 @@ export function focusedDateForMonth(
  * Priority when `gridHasFocus` is `true` (keyboard navigation):
  * 1. `focusedDate` if it exists in the grid.
  * 2. `selectedDate` if it exists in the grid.
- * 3. First enabled day of `currentMonth`, or first grid day as last resort.
+ * 3. First enabled day of `currentMonth`, then first grid day, then
+ *    `focusedDate` itself (empty grid) as last resorts.
  *
  * When `gridHasFocus` is `false` (tab-in), `selectedDate` takes priority
  * over `focusedDate`.
@@ -367,7 +368,7 @@ export function resolveFocusTarget(
       d.month === currentMonth.month &&
       !isDateDisabled(d),
   );
-  return firstEnabled ?? allDays[0];
+  return firstEnabled ?? allDays[0] ?? focusedDate;
 }
 
 /**
@@ -417,6 +418,30 @@ export function isInRange(
   return offsetDays / totalDays;
 }
 
+type RangeInfo =
+  | {
+      active: true;
+      startIndex: number;
+      endIndex: number;
+      extendsBefore: boolean;
+      extendsAfter: boolean;
+    }
+  | {
+      active: false;
+      startIndex: -1;
+      endIndex: -1;
+      extendsBefore: false;
+      extendsAfter: false;
+    };
+
+const INACTIVE_RANGE_INFO = {
+  active: false,
+  startIndex: -1,
+  endIndex: -1,
+  extendsBefore: false,
+  extendsAfter: false,
+} as const satisfies RangeInfo;
+
 /**
  * Computes how a date range intersects with a single calendar week row.
  *
@@ -435,33 +460,23 @@ export function computeWeekRangeInfo(
   rangeStart: Temporal.PlainDate | undefined,
   rangeEnd: Temporal.PlainDate | undefined,
   T: TemporalNamespace,
-): {
-  active: boolean;
-  startIndex: number;
-  endIndex: number;
-  extendsBefore: boolean;
-  extendsAfter: boolean;
-} {
-  const inactive = {
-    active: false,
-    startIndex: 0,
-    endIndex: 0,
-    extendsBefore: false,
-    extendsAfter: false,
-  };
-  if (weekDays.length === 0) return inactive;
-  if (!rangeStart && !rangeEnd) return inactive;
-  const effectiveStart = rangeStart ?? rangeEnd!;
-  const effectiveEnd = rangeEnd ?? rangeStart!;
-
+) {
+  if (!rangeStart && !rangeEnd) {
+    return INACTIVE_RANGE_INFO;
+  }
   const weekStart = weekDays[0];
   const weekEnd = weekDays[weekDays.length - 1];
+  if (!weekStart || !weekEnd) {
+    return INACTIVE_RANGE_INFO;
+  }
 
+  const effectiveStart = rangeStart ?? rangeEnd!;
+  const effectiveEnd = rangeEnd ?? rangeStart!;
   if (
     T.PlainDate.compare(effectiveEnd, weekStart) < 0 ||
     T.PlainDate.compare(effectiveStart, weekEnd) > 0
   ) {
-    return inactive;
+    return INACTIVE_RANGE_INFO;
   }
 
   const extendsBefore = T.PlainDate.compare(effectiveStart, weekStart) < 0;
@@ -472,7 +487,7 @@ export function computeWeekRangeInfo(
     startIndex = weekDays.findIndex(
       (d) => T.PlainDate.compare(d, effectiveStart) === 0,
     );
-    if (startIndex === -1) return inactive;
+    if (startIndex === -1) return INACTIVE_RANGE_INFO;
   }
 
   let endIndex = weekDays.length - 1;
@@ -480,10 +495,16 @@ export function computeWeekRangeInfo(
     endIndex = weekDays.findIndex(
       (d) => T.PlainDate.compare(d, effectiveEnd) === 0,
     );
-    if (endIndex === -1) return inactive;
+    if (endIndex === -1) return INACTIVE_RANGE_INFO;
   }
 
-  return { active: true, startIndex, endIndex, extendsBefore, extendsAfter };
+  return {
+    active: true,
+    startIndex,
+    endIndex,
+    extendsBefore,
+    extendsAfter,
+  } as const satisfies RangeInfo;
 }
 
 /**
@@ -492,7 +513,9 @@ export function computeWeekRangeInfo(
  * @param locale - BCP 47 locale string (e.g. `"en-US"`).
  * @param T - Temporal namespace.
  * @param weekStartDay - 0=Sunday (default), 1=Monday, etc.
- * @returns An array of 7 objects with `long`, `short`, and `narrow` name variants.
+ * @returns An array of objects with `long`, `short`, and `narrow` name variants,
+ *   one per day in the calendar's week (typically 7, but may differ for
+ *   non-Gregorian calendars).
  */
 export function getWeekdayNames(
   locale: string,

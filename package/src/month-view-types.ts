@@ -12,40 +12,40 @@ export interface MonthViewRootProps {
    * Number of months to display simultaneously (1–12).
    * @default 1
    */
-  numberOfMonths?: number;
+  numberOfMonths?: number | undefined;
   /**
    * When `true`, always render 6 week rows per month grid.
    * Prevents layout shifts when navigating between months.
    * @default false
    */
-  fixedWeeks?: boolean;
+  fixedWeeks?: boolean | undefined;
   /**
    * Controls how days from adjacent months are displayed.
    * @default "enabled"
    */
-  outsideDays?: OutsideDays;
+  outsideDays?: OutsideDays | undefined;
   /**
    * How month navigation behaves at `min`/`max` bounds.
    * - `"unbounded"` — navigation is always allowed.
    * - `"stop"` — navigation buttons disable at the boundary.
    * @default "unbounded"
    */
-  overflowBehavior?: MonthOverflowBehavior;
+  overflowBehavior?: MonthOverflowBehavior | undefined;
   /**
    * The controlled visible month. When provided, the component is controlled.
    */
-  month?: Temporal.PlainYearMonth;
+  month?: Temporal.PlainYearMonth | undefined;
   /**
    * The initial visible month (uncontrolled).
    */
-  defaultMonth?: Temporal.PlainYearMonth;
+  defaultMonth?: Temporal.PlainYearMonth | undefined;
   /**
    * Called when the visible month changes via navigation or focus movement.
    * Not called on initial mount.
    */
-  onMonthChange?: (month: Temporal.PlainYearMonth) => void;
+  onMonthChange?: ((month: Temporal.PlainYearMonth) => void) | undefined;
   /** React children. */
-  children?: React.ReactNode;
+  children?: React.ReactNode | undefined;
 }
 
 // ---------------------------------------------------------------------------

@@ -247,7 +247,7 @@ export const dayStateAttributesMapping = {
 interface DayCellInstanceProps<F extends ValueFormat = ValueFormat> {
   render?: DayCellTemplateProps<F>["render"];
   date: TemporalPoly.PlainDate;
-  columnIndex?: number;
+  columnIndex?: number | undefined;
   children?: React.ReactNode;
   _derivedState: DayCellTemplateState & { isTabTarget: boolean };
   [key: string]: unknown;

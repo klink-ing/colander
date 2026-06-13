@@ -61,19 +61,19 @@ describe("computeWeeksInWindow", () => {
   ])("$description", ({ firstWeek, weekCount, weekStartDay, expected }) => {
     const weeks = computeWeeksInWindow(firstWeek, weekCount, weekStartDay, T);
     expect(weeks).toHaveLength(expected.length);
-    expect(weeks[0].startDate.toString()).toBe(expected.firstStart);
-    expect(weeks[0].endDate.toString()).toBe(expected.firstEnd);
-    expect(weeks[weeks.length - 1].startDate.toString()).toBe(
+    expect(weeks[0]!.startDate.toString()).toBe(expected.firstStart);
+    expect(weeks[0]!.endDate.toString()).toBe(expected.firstEnd);
+    expect(weeks[weeks.length - 1]!.startDate.toString()).toBe(
       expected.lastStart,
     );
-    expect(weeks[weeks.length - 1].endDate.toString()).toBe(expected.lastEnd);
+    expect(weeks[weeks.length - 1]!.endDate.toString()).toBe(expected.lastEnd);
   });
 
   it("assigns correct month/year to each week based on start date", () => {
     const weeks = computeWeeksInWindow(T.PlainDate.from("2026-03-29"), 1, 0, T);
-    expect(weeks[0].startDate.toString()).toBe("2026-03-29");
-    expect(weeks[0].month).toBe(3);
-    expect(weeks[0].year).toBe(2026);
+    expect(weeks[0]!.startDate.toString()).toBe("2026-03-29");
+    expect(weeks[0]!.month).toBe(3);
+    expect(weeks[0]!.year).toBe(2026);
   });
 
   it("populates weekIndex sequentially from 0", () => {

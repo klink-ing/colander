@@ -159,7 +159,7 @@ describe("rangeMode", () => {
       select(clickDate);
     });
 
-    const [value] = onValueChange.mock.calls[0];
+    const [value] = onValueChange.mock.calls[0]!;
     expect(value!.start!.toString()).toBe(expected.start);
     expect(value!.end!.toString()).toBe(expected.end);
 
@@ -174,7 +174,7 @@ describe("rangeMode", () => {
       select(march5);
     });
 
-    const [value] = onValueChange.mock.calls[0];
+    const [value] = onValueChange.mock.calls[0]!;
     expect(value?.start?.toString()).toBe("2026-03-05");
     expect(value?.end?.toString()).toBe("2026-03-20");
 
@@ -189,7 +189,7 @@ describe("rangeMode", () => {
       select(march25);
     });
 
-    const [value] = onValueChange.mock.calls[0];
+    const [value] = onValueChange.mock.calls[0]!;
     expect(value?.start?.toString()).toBe("2026-03-10");
     expect(value?.end?.toString()).toBe("2026-03-25");
 
@@ -204,7 +204,7 @@ describe("rangeMode", () => {
       select(march10);
     });
 
-    const [value] = onValueChange.mock.calls[0];
+    const [value] = onValueChange.mock.calls[0]!;
     expect(value!.start!.toString()).toBe("2026-03-10");
     expect(value!.end!.toString()).toBe("2026-03-10");
 
@@ -219,7 +219,7 @@ describe("rangeMode", () => {
       select(march20);
     });
 
-    const [value] = onValueChange.mock.calls[0];
+    const [value] = onValueChange.mock.calls[0]!;
     expect(value!.start!.toString()).toBe("2026-03-20");
     expect(value!.end!.toString()).toBe("2026-03-20");
 
@@ -394,8 +394,8 @@ describe("numberOfMonths", () => {
     );
 
     expect(captured!.allMonths).toHaveLength(1);
-    expect(captured!.allMonths[0].year).toBe(2026);
-    expect(captured!.allMonths[0].month).toBe(3);
+    expect(captured!.allMonths[0]!.year).toBe(2026);
+    expect(captured!.allMonths[0]!.month).toBe(3);
 
     unmount();
   });
@@ -520,8 +520,8 @@ describe("numberOfMonths", () => {
     const grids = container.querySelectorAll('[role="grid"]');
     expect(grids).toHaveLength(2);
 
-    const labelledBy0 = grids[0].getAttribute("aria-labelledby");
-    const labelledBy1 = grids[1].getAttribute("aria-labelledby");
+    const labelledBy0 = grids[0]!.getAttribute("aria-labelledby");
+    const labelledBy1 = grids[1]!.getAttribute("aria-labelledby");
     expect(labelledBy0).toBeTruthy();
     expect(labelledBy1).toBeTruthy();
     expect(labelledBy0).not.toBe(labelledBy1);
@@ -543,8 +543,8 @@ describe("numberOfMonths", () => {
     );
 
     const grids = container.querySelectorAll('[role="grid"]');
-    const grid0Dates = grids[0].querySelectorAll("[data-date]");
-    const grid1Dates = grids[1].querySelectorAll("[data-date]");
+    const grid0Dates = grids[0]!.querySelectorAll("[data-date]");
+    const grid1Dates = grids[1]!.querySelectorAll("[data-date]");
 
     expect(grid0Dates.length).toBeGreaterThan(0);
     expect(grid1Dates.length).toBeGreaterThan(0);
@@ -706,7 +706,7 @@ describe("numberOfMonths", () => {
 
     // In grid 0 (March), outside-month dates should not be March dates
     const grid0OutsideMonth = Array.from(
-      grids[0].querySelectorAll("[data-outside-month]"),
+      grids[0]!.querySelectorAll("[data-outside-month]"),
     );
     for (const el of grid0OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
@@ -715,7 +715,7 @@ describe("numberOfMonths", () => {
 
     // In grid 1 (April), outside-month dates should not be April dates
     const grid1OutsideMonth = Array.from(
-      grids[1].querySelectorAll("[data-outside-month]"),
+      grids[1]!.querySelectorAll("[data-outside-month]"),
     );
     for (const el of grid1OutsideMonth) {
       const dateStr = el.getAttribute("data-date")!;
@@ -874,7 +874,7 @@ describe("numberOfMonths", () => {
 
       // Grid 0 (March): March 25-31 should be in range
       const grid0InRange = Array.from(
-        grids[0].querySelectorAll("[data-in-range]"),
+        grids[0]!.querySelectorAll("[data-in-range]"),
       );
       const grid0InRangeDates = grid0InRange.map((el) =>
         el.getAttribute("data-date"),
@@ -884,7 +884,7 @@ describe("numberOfMonths", () => {
 
       // Grid 1 (April): April 1-5 should be in range
       const grid1InRange = Array.from(
-        grids[1].querySelectorAll("[data-in-range]"),
+        grids[1]!.querySelectorAll("[data-in-range]"),
       );
       const grid1InRangeDates = grid1InRange.map((el) =>
         el.getAttribute("data-date"),
@@ -914,13 +914,13 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // range-start should be in grid 0 (March 20)
-      const grid0RangeStart = grids[0].querySelector(
+      const grid0RangeStart = grids[0]!.querySelector(
         '[data-range-start][data-date="2026-03-20"]',
       );
       expect(grid0RangeStart).toBeTruthy();
 
       // range-end should be in grid 1 (April 10)
-      const grid1RangeEnd = grids[1].querySelector(
+      const grid1RangeEnd = grids[1]!.querySelector(
         '[data-range-end][data-date="2026-04-10"]',
       );
       expect(grid1RangeEnd).toBeTruthy();
@@ -941,10 +941,10 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
 
       // Grid state attributes reflect each grid's month
-      expect(grids[0].getAttribute("data-weeks-in-month")).toBeTruthy();
-      expect(grids[0].getAttribute("data-days-per-week")).toBe("7");
-      expect(grids[1].getAttribute("data-weeks-in-month")).toBeTruthy();
-      expect(grids[1].getAttribute("data-days-per-week")).toBe("7");
+      expect(grids[0]!.getAttribute("data-weeks-in-month")).toBeTruthy();
+      expect(grids[0]!.getAttribute("data-days-per-week")).toBe("7");
+      expect(grids[1]!.getAttribute("data-weeks-in-month")).toBeTruthy();
+      expect(grids[1]!.getAttribute("data-days-per-week")).toBe("7");
 
       unmount();
     });
@@ -984,7 +984,7 @@ describe("numberOfMonths", () => {
       expect(grids).toHaveLength(1);
 
       // Grid should have aria-labelledby pointing to the MonthYearString
-      const labelledBy = grids[0].getAttribute("aria-labelledby");
+      const labelledBy = grids[0]!.getAttribute("aria-labelledby");
       expect(labelledBy).toBeTruthy();
       const label = document.getElementById(labelledBy!);
       expect(label?.textContent).toContain("March");
@@ -1003,7 +1003,7 @@ describe("numberOfMonths", () => {
       const grids = container.querySelectorAll('[role="grid"]');
       expect(grids).toHaveLength(1);
 
-      const dates = Array.from(grids[0].querySelectorAll("[data-date]"));
+      const dates = Array.from(grids[0]!.querySelectorAll("[data-date]"));
       const hasMarch = dates.some((el) =>
         el.getAttribute("data-date")?.startsWith("2026-03"),
       );
@@ -1038,7 +1038,7 @@ describe("numberOfMonths", () => {
       });
 
       expect(onMonthChange).toHaveBeenCalledTimes(1);
-      const arg = onMonthChange.mock.calls[0][0];
+      const arg = onMonthChange.mock.calls[0]![0];
       // Should report the new first visible month (April)
       expect(arg.month).toBe(4);
       expect(arg.year).toBe(2026);
@@ -1442,24 +1442,24 @@ describe("outsideDays", () => {
       const grids = Array.from(container.querySelectorAll("[role='grid']"));
 
       const grid0Hidden = Array.from(
-        grids[0].querySelectorAll("[data-hidden]"),
+        grids[0]!.querySelectorAll("[data-hidden]"),
       );
       for (const cell of grid0Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
 
       const grid1Hidden = Array.from(
-        grids[1].querySelectorAll("[data-hidden]"),
+        grids[1]!.querySelectorAll("[data-hidden]"),
       );
       for (const cell of grid1Hidden) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
       }
 
-      const rangeStartInGrid0 = grids[0].querySelector("[data-range-start]");
+      const rangeStartInGrid0 = grids[0]!.querySelector("[data-range-start]");
       expect(rangeStartInGrid0).not.toBeNull();
       expect(rangeStartInGrid0!.getAttribute("data-date")).toBe("2026-03-25");
 
-      const rangeEndInGrid1 = grids[1].querySelector("[data-range-end]");
+      const rangeEndInGrid1 = grids[1]!.querySelector("[data-range-end]");
       expect(rangeEndInGrid1).not.toBeNull();
       expect(rangeEndInGrid1!.getAttribute("data-date")).toBe("2026-04-05");
 
@@ -1483,7 +1483,7 @@ describe("outsideDays", () => {
       const rows = container.querySelectorAll("tbody tr");
       expect(rows.length).toBe(6);
 
-      const lastRow = rows[rows.length - 1];
+      const lastRow = rows[rows.length - 1]!;
       const cells = lastRow.querySelectorAll("td");
       const allHidden = Array.from(cells).every(
         (cell) => cell.getAttribute("data-hidden") !== null,
@@ -1516,7 +1516,7 @@ describe("outsideDays", () => {
       const grids1 = Array.from(c1.querySelectorAll("[role='grid']"));
       // Grid 0 (March): April dates should have no range attrs
       const outsideInGrid0 = Array.from(
-        grids1[0].querySelectorAll("[data-outside-month]"),
+        grids1[0]!.querySelectorAll("[data-outside-month]"),
       );
       for (const cell of outsideInGrid0) {
         expect(cell.getAttribute("data-in-range")).toBeNull();
@@ -1541,7 +1541,7 @@ describe("outsideDays", () => {
       const grids2 = Array.from(c2.querySelectorAll("[role='grid']"));
       // Grid 0 (March): April dates should still have range attrs with readonly
       const outsideInGrid0Readonly = Array.from(
-        grids2[0].querySelectorAll("[data-outside-month][data-in-range]"),
+        grids2[0]!.querySelectorAll("[data-outside-month][data-in-range]"),
       );
       expect(outsideInGrid0Readonly.length).toBeGreaterThan(0);
 

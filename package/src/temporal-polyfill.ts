@@ -31,7 +31,10 @@ function parseDateISO(str: string): {
   day: number;
 } {
   const [datePart] = str.split("T");
-  const [y, m, d] = datePart.split("-").map(Number);
+  const [y, m, d] = datePart?.split("-").map(Number) ?? [];
+  if (y === undefined || m === undefined || d === undefined) {
+    throw new RangeError(`Invalid ISO date string: ${str}`);
+  }
   return { year: y, month: m, day: d };
 }
 
@@ -44,7 +47,10 @@ function parseDateTimeISO(str: string): {
   second: number;
 } {
   const [datePart, timePart] = str.split("T");
-  const [y, m, d] = datePart.split("-").map(Number);
+  const [y, m, d] = datePart?.split("-").map(Number) ?? [];
+  if (y === undefined || m === undefined || d === undefined) {
+    throw new RangeError(`Invalid ISO date-time string: ${str}`);
+  }
   if (!timePart)
     return { year: y, month: m, day: d, hour: 0, minute: 0, second: 0 };
   const [h, min, s] = timePart.split(":").map(Number);
@@ -97,13 +103,24 @@ function extractTzParts(epochMs: number, tz: string): TzParts {
       vals[p.type] = Number(p.value);
     }
   }
+  const { year, month, day, hour, minute, second } = vals;
+  if (
+    year === undefined ||
+    month === undefined ||
+    day === undefined ||
+    hour === undefined ||
+    minute === undefined ||
+    second === undefined
+  ) {
+    throw new RangeError(`Invalid time zone: ${tz}`);
+  }
   return {
-    year: vals.year,
-    month: vals.month,
-    day: vals.day,
-    hour: vals.hour === 24 ? 0 : vals.hour,
-    minute: vals.minute,
-    second: vals.second,
+    year,
+    month,
+    day,
+    hour: hour === 24 ? 0 : hour,
+    minute,
+    second,
   };
 }
 
@@ -202,10 +219,10 @@ class MiniPlainDate {
     years?: number;
   }): MiniPlainDate {
     return this.add({
-      days: dur.days ? -dur.days : undefined,
-      weeks: dur.weeks ? -dur.weeks : undefined,
-      months: dur.months ? -dur.months : undefined,
-      years: dur.years ? -dur.years : undefined,
+      ...(dur.days && { days: -dur.days }),
+      ...(dur.weeks && { weeks: -dur.weeks }),
+      ...(dur.months && { months: -dur.months }),
+      ...(dur.years && { years: -dur.years }),
     });
   }
 
@@ -403,8 +420,8 @@ class MiniPlainYearMonth {
 
   subtract(dur: { months?: number; years?: number }): MiniPlainYearMonth {
     return this.add({
-      months: dur.months ? -dur.months : undefined,
-      years: dur.years ? -dur.years : undefined,
+      ...(dur.months && { months: -dur.months }),
+      ...(dur.years && { years: -dur.years }),
     });
   }
 
@@ -544,9 +561,12 @@ const PlainMonthDay = {
   from(item: any): MiniPlainMonthDay {
     if (typeof item === "string") {
       // "MM-DD" or "YYYY-MM-DD" — take last two numeric segments
-      const parts = item.split("-").map(Number);
-      if (parts.length >= 3) return new MiniPlainMonthDay(parts[1], parts[2]);
-      return new MiniPlainMonthDay(parts[0], parts[1]);
+      const [first, second, third] = item.split("-").map(Number);
+      if (first === undefined || second === undefined) {
+        throw new RangeError(`Invalid ISO month-day string: ${item}`);
+      }
+      if (third !== undefined) return new MiniPlainMonthDay(second, third);
+      return new MiniPlainMonthDay(first, second);
     }
     const month =
       item.month ??
@@ -559,6 +579,9 @@ const PlainYearMonth = {
   from(item: any): MiniPlainYearMonth {
     if (typeof item === "string") {
       const [y, m] = item.split("-").map(Number);
+      if (y === undefined || m === undefined) {
+        throw new RangeError(`Invalid ISO year-month string: ${item}`);
+      }
       return new MiniPlainYearMonth(y, m);
     }
     return new MiniPlainYearMonth(item.year, item.month);

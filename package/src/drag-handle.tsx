@@ -23,7 +23,7 @@ const dragHandleStateAttributesMapping = {
 
 function useDragHandle<F extends ValueFormat = ValueFormat>(
   edge: "start" | "end",
-  { dragging: draggingProp }: { dragging?: boolean },
+  { dragging: draggingProp }: { dragging?: boolean | undefined },
 ) {
   const {
     temporal: T,
@@ -45,8 +45,7 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
         ? !!(date && rangeStart && T.PlainDate.compare(date, rangeStart) === 0)
         : !!(date && rangeEnd && T.PlainDate.compare(date, rangeEnd) === 0);
 
-  const isDragging = (draggingProp ?? false) && isActive;
-
+  const isDragging = !!draggingProp && isActive;
   const handleRef = useRef<HTMLSpanElement>(null);
 
   const state = useMemo<DragHandleState<F>>(
@@ -86,9 +85,7 @@ function RangeDragHandleFn(
 ) {
   const { render, dragging, edge, ...otherProps } = props;
   const { state, stateAttributesMapping, defaultProps, handleRef } =
-    useDragHandle(edge, {
-      dragging,
-    });
+    useDragHandle(edge, { dragging });
   const { selectionMode } = useCalendarStable();
   const { rangeStart: rs, rangeEnd: re } = useCalendarState();
   const rangeIncomplete = !rs || !re;

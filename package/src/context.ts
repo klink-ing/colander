@@ -22,7 +22,7 @@ export const GridContext = createContext<{ orientation: GridOrientation }>({
 /** @internal Provides the date and column index from a `DayCellTemplate` to its child `DayButton`. */
 export const DayCellDataContext = createContext<{
   date: Temporal.PlainDate;
-  columnIndex?: number;
+  columnIndex?: number | undefined;
   outsideDisabled?: boolean;
 } | null>(null);
 

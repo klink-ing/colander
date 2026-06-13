@@ -22,16 +22,22 @@ function useGridHeaderCellState(index: number) {
     [locale, T, weekStartDay],
   );
 
-  const state = useMemo<GridHeaderCellState>(
-    () => ({
+  const state = useMemo<GridHeaderCellState>(() => {
+    // getWeekdayNames always returns one entry per weekday
+    const names = weekdayNames[index];
+    if (names === undefined) {
+      throw new Error(
+        `GridHeaderCell: index must be between 0 and ${weekdayNames.length - 1}, got ${index}.`,
+      );
+    }
+    return {
       root: rootState as unknown as GridHeaderCellState["root"],
       dayOfWeek: index,
-      long: weekdayNames[index].long,
-      short: weekdayNames[index].short,
-      narrow: weekdayNames[index].narrow,
-    }),
-    [rootState, index, weekdayNames],
-  );
+      long: names.long,
+      short: names.short,
+      narrow: names.narrow,
+    };
+  }, [rootState, index, weekdayNames]);
 
   const defaultProps: Record<string, unknown> = {
     scope: "col",

@@ -352,14 +352,14 @@ describe.each(temporalVariants)("getWeekdayNames ($name)", ({ T }) => {
 
   it("starts with Sunday for en-US", () => {
     const names = getWeekdayNames("en-US", T);
-    expect(names[0].long).toBe("Sunday");
-    expect(names[0].short).toBe("Sun");
-    expect(names[0].narrow).toBe("S");
+    expect(names[0]!.long).toBe("Sunday");
+    expect(names[0]!.short).toBe("Sun");
+    expect(names[0]!.narrow).toBe("S");
   });
 
   it("ends with Saturday for en-US", () => {
     const names = getWeekdayNames("en-US", T);
-    expect(names[6].long).toBe("Saturday");
+    expect(names[6]!.long).toBe("Saturday");
   });
 
   it("contains all 7 unique long names", () => {
@@ -382,19 +382,19 @@ describe.each(temporalVariants)("getWeekdayNames ($name)", ({ T }) => {
 
   it("produces localized names for a non-English locale", () => {
     const names = getWeekdayNames("de-DE", T);
-    expect(names[0].long).toBe("Sonntag");
+    expect(names[0]!.long).toBe("Sonntag");
   });
 
   it("starts with Monday when weekStartDay=1", () => {
     const names = getWeekdayNames("en-US", T, 1);
-    expect(names[0].long).toBe("Monday");
-    expect(names[6].long).toBe("Sunday");
+    expect(names[0]!.long).toBe("Monday");
+    expect(names[6]!.long).toBe("Sunday");
   });
 
   it("starts with Saturday when weekStartDay=6", () => {
     const names = getWeekdayNames("en-US", T, 6);
-    expect(names[0].long).toBe("Saturday");
-    expect(names[1].long).toBe("Sunday");
+    expect(names[0]!.long).toBe("Saturday");
+    expect(names[1]!.long).toBe("Sunday");
   });
 });
 
@@ -509,14 +509,14 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
   it("starts each week on Sunday (dayOfWeek === 7 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T);
     for (const week of weeks) {
-      expect(week[0].dayOfWeek).toBe(7);
+      expect(week[0]!.dayOfWeek).toBe(7);
     }
   });
 
   it("ends each week on Saturday (dayOfWeek === 6 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T);
     for (const week of weeks) {
-      expect(week[6].dayOfWeek).toBe(6);
+      expect(week[6]!.dayOfWeek).toBe(6);
     }
   });
 
@@ -537,28 +537,28 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
   it("Monday-start: starts each week on Monday (dayOfWeek === 1 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 1 });
     for (const week of weeks) {
-      expect(week[0].dayOfWeek).toBe(1);
+      expect(week[0]!.dayOfWeek).toBe(1);
     }
   });
 
   it("Monday-start: ends each week on Sunday (dayOfWeek === 7 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 1 });
     for (const week of weeks) {
-      expect(week[6].dayOfWeek).toBe(7);
+      expect(week[6]!.dayOfWeek).toBe(7);
     }
   });
 
   it("Saturday-start: starts each week on Saturday (dayOfWeek === 6 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 6 });
     for (const week of weeks) {
-      expect(week[0].dayOfWeek).toBe(6);
+      expect(week[0]!.dayOfWeek).toBe(6);
     }
   });
 
   it("Saturday-start: ends each week on Friday (dayOfWeek === 5 in ISO)", () => {
     const weeks = getMonthWeeks(2026, 3, T, { weekStartDay: 6 });
     for (const week of weeks) {
-      expect(week[6].dayOfWeek).toBe(5);
+      expect(week[6]!.dayOfWeek).toBe(5);
     }
   });
 
@@ -582,7 +582,7 @@ describe.each(temporalVariants)("getMonthWeeks ($name)", ({ T }) => {
       });
       expect(weeks.length).toBe(6);
       for (const week of weeks) {
-        expect(week[0].dayOfWeek).toBe(1);
+        expect(week[0]!.dayOfWeek).toBe(1);
       }
     }
   });
@@ -705,8 +705,20 @@ describe.each(temporalVariants)("resolveFocusTarget ($name)", ({ T }) => {
       allDisabled,
       T,
     );
-    const firstGridDay = marchWeeks[0][0];
+    const firstGridDay = marchWeeks[0]![0]!;
     expect(result.toString()).toBe(firstGridDay.toString());
+  });
+
+  it("falls back to focusedDate when the grid is empty", () => {
+    const result = resolveFocusTarget(
+      d("2026-03-15"),
+      undefined,
+      [],
+      march,
+      noDisabled,
+      T,
+    );
+    expect(result.toString()).toBe("2026-03-15");
   });
 
   it("gridHasFocus=false: selectedDate wins over focusedDate when tabbing into grid", () => {
@@ -887,7 +899,7 @@ describe.each(temporalVariants)("isInRange ($name)", ({ T }) => {
 describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
   const d = (iso: string) => T.PlainDate.from(iso);
   const marchWeeks = getMonthWeeks(2026, 3, T);
-  const week1 = marchWeeks[1];
+  const week1 = marchWeeks[1]!;
 
   it("treats undefined rangeStart as single-day range at rangeEnd", () => {
     const result = computeWeekRangeInfo(week1, undefined, d("2026-03-10"), T);
@@ -927,8 +939,8 @@ describe.each(temporalVariants)("computeWeekRangeInfo ($name)", ({ T }) => {
     expect(result.active).toBe(true);
     expect(result.extendsBefore).toBe(false);
     expect(result.extendsAfter).toBe(false);
-    const startDay = week1[result.startIndex];
-    const endDay = week1[result.endIndex];
+    const startDay = week1[result.startIndex]!;
+    const endDay = week1[result.endIndex]!;
     expect(startDay.toString()).toBe("2026-03-09");
     expect(endDay.toString()).toBe("2026-03-12");
   });

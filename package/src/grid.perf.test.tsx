@@ -130,7 +130,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const updateDuration = updates[updates.length - 1].actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     expect(updateDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     // Updates should be significantly cheaper than mount (memoization working)
@@ -169,7 +169,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const navDuration = updates[updates.length - 1].actualDuration;
+    const navDuration = updates[updates.length - 1]!.actualDuration;
     expect(navDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     console.log(`[perf] month navigation: ${navDuration.toFixed(2)}ms`);
@@ -208,7 +208,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const rangeDuration = updates[updates.length - 1].actualDuration;
+    const rangeDuration = updates[updates.length - 1]!.actualDuration;
     expect(rangeDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     console.log(`[perf] range expand: ${rangeDuration.toFixed(2)}ms`);
@@ -228,7 +228,7 @@ describe("Grid render profiling", perfOptions, () => {
         <MonthView
           {...defaultProps}
           selectionMode="range"
-          value={{ start: march10, end: days[0] }}
+          value={{ start: march10, end: days[0]! }}
         >
           <Grid />
         </MonthView>
@@ -280,9 +280,9 @@ describe("Grid render profiling", perfOptions, () => {
           <GridBody>
             {weeks.map((weekDays, i) => (
               <Profiler
-                key={weekDays[0].toString()}
+                key={weekDays[0]!.toString()}
                 id={`week-${i}`}
-                onRender={weekProfilers[i].onRender}
+                onRender={weekProfilers[i]!.onRender}
               >
                 <WeekDataContext.Provider
                   value={{ days: weekDays, weekIndex: i }}
@@ -325,7 +325,7 @@ describe("Grid render profiling", perfOptions, () => {
     const weekUpdateDurations = weekProfilers.map((p) => {
       const updates = p.entries.filter((e) => e.phase === "update");
       return updates.length > 0
-        ? updates[updates.length - 1].actualDuration
+        ? updates[updates.length - 1]!.actualDuration
         : 0;
     });
 
@@ -374,7 +374,7 @@ describe("Grid render profiling", perfOptions, () => {
     );
 
     const updates = entries.filter((e) => e.phase === "update");
-    const updateDuration = updates[updates.length - 1].actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     const ratio = updateDuration / mountDuration;
 
     console.log(
@@ -420,7 +420,7 @@ describe("Grid render profiling", perfOptions, () => {
     );
 
     const updates = entries.filter((e) => e.phase === "update");
-    const updateDuration = updates[updates.length - 1].actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     const ratio = updateDuration / mountDuration;
 
     // Memoization should still help even with 3 grids
@@ -469,7 +469,7 @@ describe("Grid render profiling", perfOptions, () => {
     const updates = entries.filter((e) => e.phase === "update");
     expect(updates.length).toBeGreaterThan(0);
 
-    const previewDuration = updates[updates.length - 1].actualDuration;
+    const previewDuration = updates[updates.length - 1]!.actualDuration;
     expect(previewDuration).toBeLessThan(UPDATE_THRESHOLD_MS);
 
     const ratio = previewDuration / mountDuration;
@@ -514,7 +514,7 @@ describe("Grid render profiling", perfOptions, () => {
     );
 
     const updates = entries.filter((e) => e.phase === "update");
-    const updateDuration = updates[updates.length - 1].actualDuration;
+    const updateDuration = updates[updates.length - 1]!.actualDuration;
     const ratio = updateDuration / mountDuration;
 
     console.log(
