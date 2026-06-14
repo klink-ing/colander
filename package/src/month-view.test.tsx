@@ -451,13 +451,14 @@ describe("numberOfMonths", () => {
       </MonthView>,
     );
 
-    // Select June — outside visible March+April window
+    // Select June — outside the visible [March, April] window. Minimal shift
+    // makes June the last pane, so the start moves to May ([May, June]).
     const june15 = Temporal.PlainDate.from("2026-06-15");
     act(() => {
       selectFn(june15);
     });
 
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 6 });
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 5 });
 
     unmount();
   });
@@ -649,7 +650,8 @@ describe("numberOfMonths", () => {
     // April is the second visible month, so currentMonth stays at March
     expect(captured!.currentMonth).toEqual({ year: 2026, month: 3 });
 
-    // Press PageDown again — May is outside the visible range, should shift
+    // Press PageDown again — May is one month past the window, so the start
+    // shifts by the minimum to April, making May the second pane ([April, May]).
     act(() => {
       grid.dispatchEvent(
         new KeyboardEvent("keydown", { key: "PageDown", bubbles: true }),
@@ -657,7 +659,7 @@ describe("numberOfMonths", () => {
     });
 
     expect(captured!.focusedDate).toBe("2026-05-15");
-    expect(captured!.currentMonth).toEqual({ year: 2026, month: 5 });
+    expect(captured!.currentMonth).toEqual({ year: 2026, month: 4 });
 
     unmount();
   });
@@ -1175,14 +1177,16 @@ describe("numberOfMonths", () => {
       });
       expect(onMonthChange).toHaveBeenCalledTimes(1); // April, from the button
 
-      // Keyboard crossing into a non-visible month must still notify.
+      // Keyboard crossing into a non-visible month must still notify. With a
+      // 2-month window starting March, focusing May shifts the start to April
+      // (May becomes the second pane) — the minimum shift, not a jump to May.
       act(() => {
         selectFn(Temporal.PlainDate.from("2026-05-15"));
       });
       expect(onMonthChange).toHaveBeenCalledTimes(2);
       const arg = onMonthChange.mock.calls[1]![0];
       expect(arg.year).toBe(2026);
-      expect(arg.month).toBe(5);
+      expect(arg.month).toBe(4);
 
       unmount();
     });
@@ -1299,6 +1303,105 @@ describe("numberOfMonths", () => {
       expect(onMonthChange).not.toHaveBeenCalled();
 
       unmount();
+    });
+
+    it("crossing past the last visible month shifts by the minimum", () => {
+      // [March, April] + focus into May → start becomes April ([April, May]),
+      // not a jump to May — matching the Next button and uncontrolled mode.
+      const onMonthChange = vi.fn();
+      let selectFn: (date: Temporal.PlainDate) => void = () => {};
+
+      const { unmount } = render(
+        <MonthView
+          {...defaultProps}
+          month={march}
+          numberOfMonths={2}
+          onMonthChange={onMonthChange}
+        >
+          <SelectTrigger
+            onCapture={(fn) => {
+              selectFn = fn;
+            }}
+          />
+        </MonthView>,
+      );
+
+      act(() => {
+        selectFn(Temporal.PlainDate.from("2026-05-15"));
+      });
+
+      expect(onMonthChange).toHaveBeenCalledTimes(1);
+      const arg = onMonthChange.mock.calls[0]![0];
+      expect(arg.year).toBe(2026);
+      expect(arg.month).toBe(4);
+
+      unmount();
+    });
+  });
+
+  describe("uncontrolled multi-month focus crossing", () => {
+    const captureWindow = (
+      selectDate: Temporal.PlainDate,
+      numberOfMonths: number,
+    ) => {
+      let captured:
+        | {
+            allMonths: MonthData[];
+            currentMonth: { year: number; month: number };
+          }
+        | undefined;
+      let selectFn: (date: Temporal.PlainDate) => void = () => {};
+
+      const { unmount } = render(
+        <MonthView
+          {...defaultProps}
+          defaultValue={Temporal.PlainDate.from("2026-03-15")}
+          numberOfMonths={numberOfMonths}
+        >
+          <SelectTrigger
+            onCapture={(fn) => {
+              selectFn = fn;
+            }}
+          />
+          <MonthDataCapture
+            onCapture={(d) => {
+              captured = d;
+            }}
+          />
+        </MonthView>,
+      );
+
+      act(() => {
+        selectFn(selectDate);
+      });
+
+      const months = captured!.allMonths.map((m) => `${m.year}-${m.month}`);
+      unmount();
+      return months;
+    };
+
+    it("one month past the window scrolls by one (focused becomes last pane)", () => {
+      // [March, April], focus May → [April, May], NOT [May, June].
+      expect(captureWindow(Temporal.PlainDate.from("2026-05-10"), 2)).toEqual([
+        "2026-4",
+        "2026-5",
+      ]);
+    });
+
+    it("two months past the window keeps focused as the last pane", () => {
+      // [March, April], focus June → [May, June].
+      expect(captureWindow(Temporal.PlainDate.from("2026-06-10"), 2)).toEqual([
+        "2026-5",
+        "2026-6",
+      ]);
+    });
+
+    it("before the window makes the focused month the first pane", () => {
+      // [March, April], focus January → [January, February].
+      expect(captureWindow(Temporal.PlainDate.from("2026-01-10"), 2)).toEqual([
+        "2026-1",
+        "2026-2",
+      ]);
     });
   });
 
