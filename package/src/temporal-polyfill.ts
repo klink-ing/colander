@@ -1,16 +1,23 @@
 /**
- * Minimal, dependency-free `Temporal` shim — **ISO 8601 / Gregorian only**.
+ * Minimal, dependency-free `Temporal` engine for the calendar's **internal**
+ * date math — used only when the host lacks native `Temporal` and the caller
+ * drives the calendar with non-`Temporal` value formats (`Date`, `object`,
+ * ISO string, …) rather than `Temporal` objects. It is the date engine you
+ * reach for to avoid adding the `@js-temporal/polyfill` dependency; pass it
+ * via the `temporal` prop. It is not auto-selected — {@link resolveTemporal}
+ * uses what you provide, else native `globalThis.Temporal`, else throws.
  *
- * It implements just enough of the `Temporal` surface for the calendar to
- * operate (`PlainDate`, `PlainDateTime`, `PlainMonthDay`, `PlainYearMonth`,
- * `Now`) using Gregorian date arithmetic. `toLocaleString` formats via the
- * host `Intl`, so display still localizes to the locale's calendar (e.g.
- * Buddhist for `th-TH`), but the shim performs **no non-Gregorian calendar
- * math** — all field values and arithmetic are Gregorian.
+ * **ISO 8601 / Gregorian only.** It implements just enough of the `Temporal`
+ * surface for the calendar to operate (`PlainDate`, `PlainDateTime`,
+ * `PlainMonthDay`, `PlainYearMonth`, `Now`) using Gregorian arithmetic.
+ * `toLocaleString` formats via the host `Intl`, so display still localizes to
+ * the locale's calendar (e.g. Buddhist for `th-TH`), but the shim performs
+ * **no non-Gregorian calendar math** — all field values and arithmetic are
+ * Gregorian.
  *
- * To use non-Gregorian calendars (Buddhist, Hebrew, Islamic, etc.) for
- * computation, install `@js-temporal/polyfill` or run where native `Temporal`
- * is available, and pass it via the `temporal` prop.
+ * If you work with `Temporal` objects directly, or need non-Gregorian calendar
+ * math (Buddhist, Hebrew, Islamic, …), provide native `Temporal` or
+ * `@js-temporal/polyfill` via the `temporal` prop instead.
  */
 import type { TemporalNamespace } from "./types";
 
