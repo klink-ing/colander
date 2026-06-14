@@ -7,20 +7,14 @@ import type {
 } from "./types";
 
 /**
- * Returns the default calendar system for a given locale (e.g. `"gregory"` for `"en-US"`).
- *
- * @param locale - A BCP 47 locale string. Falls back to the runtime default when empty.
- */
-export function calendarForLocale(locale: string): string {
-  return new Intl.DateTimeFormat(locale || undefined).resolvedOptions()
-    .calendar;
-}
-
-/**
  * Resolves a {@link TemporalNamespace} instance.
  *
- * Returns `provided` when given, otherwise checks `globalThis.Temporal`.
- * Throws if neither is available.
+ * Returns `provided` when given, otherwise native `globalThis.Temporal`. This
+ * library does not bundle a `Temporal` implementation — if neither is
+ * available, it throws. Provide one via the `temporal` prop, e.g. the
+ * `Temporal` export from `temporal-polyfill`
+ * (https://github.com/fullcalendar/temporal-polyfill) or `@js-temporal/polyfill`
+ * (https://github.com/js-temporal/temporal-polyfill).
  *
  * @param provided - An explicit Temporal polyfill or namespace.
  */
@@ -32,7 +26,7 @@ export function resolveTemporal(
     return (globalThis as any).Temporal;
   }
   throw new Error(
-    "DatePicker: Temporal is not available. Pass a Temporal polyfill via the `temporal` prop, or use a browser that supports the Temporal API natively.",
+    "DatePicker: Temporal is not available. Pass a Temporal implementation via the `temporal` prop — e.g. `temporal-polyfill` or `@js-temporal/polyfill` — or run where the native Temporal API exists.",
   );
 }
 

@@ -36,7 +36,6 @@ export {
 export { computePreviewRange } from "./root-selection";
 export { computeWeeksInWindow } from "./compute-weeks-in-window";
 export { resolveFirstWeek, resolveFirstWeekSpec } from "./resolve-first-week";
-export { Temporal } from "./temporal-polyfill";
 export { useCalendarStable, useCalendarState } from "./calendar-context";
 export { useMonthViewStable, useMonthViewState } from "./month-view-context";
 export { useViewContext } from "./view-context";

@@ -16,7 +16,7 @@ import type {
   NextMonthButtonProps,
   NavButtonState,
 } from "./types";
-import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
+import { selectedToZdt, zdtToNativeDate } from "./utils";
 
 const dateStringStateAttributesMapping = {
   root: () => null,
@@ -166,7 +166,7 @@ function MonthYearStringFn(
     ...otherProps
   } = props;
   const monthIndex = monthIndexProp ?? 0;
-  const { locale } = useCalendarStable();
+  const { locale, temporal: T } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
   const {
     currentMonth: currentDateTime,
@@ -186,15 +186,19 @@ function MonthYearStringFn(
   const displayYear = monthData?.year ?? currentDateTime.year;
   const displayMonth = monthData?.month ?? currentDateTime.month;
 
-  const displayDate = new Date(displayYear, displayMonth - 1, 1);
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
     year: "numeric",
   };
-  const formatted = displayDate.toLocaleDateString(
-    locales ?? locale,
-    defaultOptions,
-  );
+  // Format through Temporal
+  // `displayYear`/`displayMonth` are ISO; formatting an ISO
+  // `PlainDate` (not `PlainYearMonth`, which throws on calendar mismatch)
+  // lets Intl render it in the locale's calendar (e.g. Buddhist for th-TH).
+  const formatted = T.PlainDate.from({
+    year: displayYear,
+    month: displayMonth,
+    day: 1,
+  }).toLocaleString(locales ?? locale, defaultOptions);
 
   const state = useMemo<MonthYearStringState>(
     () => ({
@@ -246,7 +250,6 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     disabled: globalDisabled,
     minValue,
     maxValue,
-    locale,
     temporal: T,
   } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
@@ -304,16 +307,11 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     );
   }, [globalDisabled, destYear, destMonth, boundValue, direction]);
 
-  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
-
+  // ISO — `destYear`/`destMonth` are ISO numbers; the locale calendar only
+  // affects display, so it must not be injected into this value.
   const target = useMemo(
-    () =>
-      T.PlainYearMonth.from({
-        year: destYear,
-        month: destMonth,
-        calendar: localeCalendar,
-      }),
-    [destYear, destMonth, T, localeCalendar],
+    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
+    [destYear, destMonth, T],
   );
 
   const state = useMemo<NavButtonState<F>>(

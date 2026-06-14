@@ -53,7 +53,9 @@ interface CalendarProviderPropsBase<F extends ValueFormat = ValueFormat> {
    */
   locale?: string;
   /**
-   * Custom Temporal namespace for environments without native Temporal support.
+   * The `Temporal` implementation to use. Not bundled — provide a `Temporal`
+   * namespace (e.g. from `temporal-polyfill` or `@js-temporal/polyfill`) unless
+   * the host exposes native `Temporal`. See `RootOwnProps.temporal` for links.
    */
   temporal?: TemporalNamespace;
   /**
