@@ -1,11 +1,12 @@
 /**
  * Minimal, dependency-free `Temporal` engine for the calendar's **internal**
- * date math — used only when the host lacks native `Temporal` and the caller
- * drives the calendar with non-`Temporal` value formats (`Date`, `object`,
- * ISO string, …) rather than `Temporal` objects. It is the date engine you
- * reach for to avoid adding the `@js-temporal/polyfill` dependency; pass it
- * via the `temporal` prop. It is not auto-selected — {@link resolveTemporal}
- * uses what you provide, else native `globalThis.Temporal`, else throws.
+ * date math. {@link resolveTemporal} selects it automatically — with no
+ * `@js-temporal/polyfill` dependency — when the host lacks native `Temporal`
+ * and the caller drives the calendar with a non-`Temporal` value format
+ * (`object`, `Date`), since those values never expose `Temporal` objects. It
+ * can also be passed explicitly via the `temporal` prop. For a `Temporal`
+ * value format with no native/provided `Temporal`, resolution throws rather
+ * than substitute the shim (the caller wants real `Temporal` objects).
  *
  * **ISO 8601 / Gregorian only.** It implements just enough of the `Temporal`
  * surface for the calendar to operate (`PlainDate`, `PlainDateTime`,

@@ -1,4 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
+import { Temporal as bundledTemporal } from "./temporal-polyfill";
 import type {
   TemporalNamespace,
   DateValueObject,
@@ -6,20 +7,32 @@ import type {
   WeekStartDay,
 } from "./types";
 
+/** Value formats whose values are plain (non-`Temporal`) objects. */
+const NON_TEMPORAL_FORMATS = new Set<ValueFormat>(["object", "Date"]);
+
 /**
  * Resolves a {@link TemporalNamespace} instance.
  *
- * Returns `provided` when given, otherwise checks `globalThis.Temporal`.
- * Throws if neither is available.
+ * Resolution order: an explicitly `provided` namespace, then native
+ * `globalThis.Temporal`. If neither exists, the behavior depends on `format`:
+ * non-`Temporal` formats (`object`, `Date`) don't expose `Temporal` objects to
+ * the caller, so the bundled Gregorian-only shim is used as the internal date
+ * engine. `Temporal` formats imply the caller wants real `Temporal` objects —
+ * the shim is not one, so resolution throws instead of silently substituting.
  *
  * @param provided - An explicit Temporal polyfill or namespace.
+ * @param format - The active value format (decides the no-Temporal fallback).
  */
 export function resolveTemporal(
   provided?: TemporalNamespace,
+  format?: ValueFormat,
 ): TemporalNamespace {
   if (provided) return provided;
   if (typeof globalThis !== "undefined" && (globalThis as any).Temporal) {
     return (globalThis as any).Temporal;
+  }
+  if (format !== undefined && NON_TEMPORAL_FORMATS.has(format)) {
+    return bundledTemporal;
   }
   throw new Error(
     "DatePicker: Temporal is not available. Pass a Temporal polyfill via the `temporal` prop, or use a browser that supports the Temporal API natively.",

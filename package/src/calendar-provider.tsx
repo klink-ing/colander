@@ -50,11 +50,14 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
   } = props;
 
   // --- Resolve defaults ---
-  const T = resolveTemporal(temporalProp);
+  const resolvedFormat = (formatProp ?? "PlainDate") as F;
+  // Falls back to the bundled Gregorian shim for non-Temporal formats when no
+  // Temporal is available, so callers using `Date`/`object` values don't need
+  // a polyfill.
+  const T = resolveTemporal(temporalProp, resolvedFormat);
   const locale = localeProp ?? "en-US";
   const timeZone = timeZoneProp ?? getSystemTimeZone(T);
   const weekStartDay = weekStartDayProp ?? 0;
-  const resolvedFormat = (formatProp ?? "PlainDate") as F;
   const selectionMode = selectionModeProp ?? "single";
   const disabled = disabledProp ?? false;
   const readOnly = readOnlyProp ?? false;
