@@ -212,18 +212,25 @@ export interface DatePickerStateContextValue {
 export interface DatePickerContextValue
   extends DatePickerStableContextValue, DatePickerStateContextValue {}
 
-/** State exposed by the `Root` component to its render function and descendants. */
-export type RootState<F extends ValueFormat = ValueFormat> = {
+/**
+ * State exposed by the `Root` component to its render function and descendants.
+ *
+ * All date values are `Temporal` objects (the internal representation), not the
+ * configured value `format`. The format-typed values are delivered through the
+ * `value`/`defaultValue`/`onValueChange` props; this state is for rendering, so
+ * use e.g. `selected?.toLocaleString(locale)` to display.
+ */
+export type RootState = {
   /** `true` when at least one date is selected. */
   hasSelection: boolean;
-  /** The primary selected value in the configured format, or `undefined`. */
-  selected: RawValueForFormat<F> | undefined;
-  /** All selected dates in the configured format (sorted oldest-first). */
-  selectedDates: RawValueForFormat<F>[];
-  /** Range start in the configured format, or `undefined`. */
-  rangeStart: RawValueForFormat<F> | undefined;
-  /** Range end in the configured format, or `undefined`. */
-  rangeEnd: RawValueForFormat<F> | undefined;
+  /** The primary selected date (the first committed date), or `undefined`. */
+  selected: Temporal.PlainDate | undefined;
+  /** All currently selected dates (chronological in `multiple` mode). */
+  selectedDates: Temporal.PlainDate[];
+  /** Range start, or `undefined`. */
+  rangeStart: Temporal.PlainDate | undefined;
+  /** Range end, or `undefined`. */
+  rangeEnd: Temporal.PlainDate | undefined;
   /** The currently focused `PlainDate` in the grid. */
   focused: Temporal.PlainDate;
   /** The month/year currently being viewed. */
@@ -235,6 +242,13 @@ export type RootState<F extends ValueFormat = ValueFormat> = {
   /** Whether the calendar is read-only. */
   readOnly: boolean;
 };
+
+/**
+ * The view-independent part of {@link RootState} (everything except `focused`
+ * and `viewing`, which each view supplies). Built once by the provider and
+ * shared so MonthView and WeeksView expose identical selection state.
+ */
+export type BaseRootState = Omit<RootState, "focused" | "viewing">;
 
 interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
   /**
@@ -487,14 +501,14 @@ type AllRootOwnPropKeys =
 
 /** Full props for the `Root` component (own props + render element props). */
 export type RootProps<F extends ValueFormat = ValueFormat> = Omit<
-  useRender.ComponentProps<"div", RootState<F>>,
+  useRender.ComponentProps<"div", RootState>,
   AllRootOwnPropKeys
 > &
   RootOwnProps<F>;
 
 /** State exposed by the `DateString` component. */
-export type DateStringState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type DateStringState = {
+  root: RootState;
   month: number;
   year: number;
   day: number;
@@ -509,12 +523,15 @@ export interface DateStringOwnProps {
 }
 
 /** Full props for the `DateString` component. */
-export type DateStringProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", DateStringState<F>> & DateStringOwnProps;
+export type DateStringProps = useRender.ComponentProps<
+  "span",
+  DateStringState
+> &
+  DateStringOwnProps;
 
 /** State exposed by the `TimeString` component. */
-export type TimeStringState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type TimeStringState = {
+  root: RootState;
   hour: number;
   minute: number;
   second: number;
@@ -529,12 +546,15 @@ export interface TimeStringOwnProps {
 }
 
 /** Full props for the `TimeString` component. */
-export type TimeStringProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", TimeStringState<F>> & TimeStringOwnProps;
+export type TimeStringProps = useRender.ComponentProps<
+  "span",
+  TimeStringState
+> &
+  TimeStringOwnProps;
 
 /** State exposed by the `MonthYearString` component. */
-export type MonthYearStringState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type MonthYearStringState = {
+  root: RootState;
   month: number;
   year: number;
 };
@@ -550,28 +570,34 @@ export interface MonthYearStringOwnProps {
 }
 
 /** Full props for the `MonthYearString` component. */
-export type MonthYearStringProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", MonthYearStringState<F>> &
-    MonthYearStringOwnProps;
+export type MonthYearStringProps = useRender.ComponentProps<
+  "span",
+  MonthYearStringState
+> &
+  MonthYearStringOwnProps;
 
 /** State exposed by `PrevMonthButton` and `NextMonthButton`. */
-export type NavButtonState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type NavButtonState = {
+  root: RootState;
   direction: "next" | "prev";
   disabled: boolean;
   target: Temporal.PlainYearMonth;
 };
 
 /** Full props for the `PrevMonthButton` component. */
-export type PrevMonthButtonProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"button", NavButtonState<F>>;
+export type PrevMonthButtonProps = useRender.ComponentProps<
+  "button",
+  NavButtonState
+>;
 /** Full props for the `NextMonthButton` component. */
-export type NextMonthButtonProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"button", NavButtonState<F>>;
+export type NextMonthButtonProps = useRender.ComponentProps<
+  "button",
+  NavButtonState
+>;
 
 /** State exposed by the `GridHeaderCell` component. */
-export type GridHeaderCellState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type GridHeaderCellState = {
+  root: RootState;
   dayOfWeek: number;
   long: string;
   short: string;
@@ -585,31 +611,34 @@ export interface GridHeaderCellOwnProps {
 }
 
 /** Full props for the `GridHeaderCell` component. */
-export type GridHeaderCellProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"th", GridHeaderCellState<F>> &
-    GridHeaderCellOwnProps;
+export type GridHeaderCellProps = useRender.ComponentProps<
+  "th",
+  GridHeaderCellState
+> &
+  GridHeaderCellOwnProps;
 
 /** State exposed by the `GridHeader` component. */
-export type GridHeaderState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type GridHeaderState = {
+  root: RootState;
 };
 
 /** Full props for the `GridHeader` component. */
-export type GridHeaderProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"thead", GridHeaderState<F>>;
+export type GridHeaderProps = useRender.ComponentProps<
+  "thead",
+  GridHeaderState
+>;
 
 /** State exposed by the `GridBody` component. */
-export type GridBodyState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type GridBodyState = {
+  root: RootState;
 };
 
 /** Full props for the `GridBody` component. */
-export type GridBodyProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"tbody", GridBodyState<F>>;
+export type GridBodyProps = useRender.ComponentProps<"tbody", GridBodyState>;
 
 /** State exposed by the `Grid` component. */
-export type GridState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type GridState = {
+  root: RootState;
   month: number;
   year: number;
   orientation: GridOrientation;
@@ -628,24 +657,26 @@ export interface GridOwnProps {
 }
 
 /** Full props for the `Grid` component. */
-export type GridProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"table", GridState<F>> & GridOwnProps;
+export type GridProps = useRender.ComponentProps<"table", GridState> &
+  GridOwnProps;
 
 /** State exposed by the `WeekTemplate` component. */
-export type WeekTemplateState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type WeekTemplateState = {
+  root: RootState;
   weekIndex: number;
   /** 1-based CSS grid row index for this week row (WeeksView only, undefined in MonthView). */
   gridRowIndex: number | undefined;
 };
 
 /** Full props for the `WeekTemplate` component. */
-export type WeekTemplateProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"tr", WeekTemplateState<F>>;
+export type WeekTemplateProps = useRender.ComponentProps<
+  "tr",
+  WeekTemplateState
+>;
 
 /** State exposed by the `DayCellTemplate` component. */
-export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type DayCellTemplateState = {
+  root: RootState;
   date: Temporal.PlainDate;
   columnIndex: number;
   orientation: GridOrientation;
@@ -687,8 +718,7 @@ export type DayCellTemplateState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** State exposed by the `DayButton` component (same as `DayCellTemplateState`). */
-export type DayButtonState<F extends ValueFormat = ValueFormat> =
-  DayCellTemplateState<F>;
+export type DayButtonState = DayCellTemplateState;
 
 /** Own props for the `DayCellTemplate` component. */
 export interface DayCellTemplateOwnProps {
@@ -697,9 +727,11 @@ export interface DayCellTemplateOwnProps {
 }
 
 /** Full props for the `DayCellTemplate` component. */
-export type DayCellTemplateProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"td", DayCellTemplateState<F>> &
-    DayCellTemplateOwnProps;
+export type DayCellTemplateProps = useRender.ComponentProps<
+  "td",
+  DayCellTemplateState
+> &
+  DayCellTemplateOwnProps;
 
 /** Own props for the `DayButton` component. */
 export interface DayButtonOwnProps {
@@ -708,12 +740,15 @@ export interface DayButtonOwnProps {
 }
 
 /** Full props for the `DayButton` component. */
-export type DayButtonProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"button", DayButtonState<F>> & DayButtonOwnProps;
+export type DayButtonProps = useRender.ComponentProps<
+  "button",
+  DayButtonState
+> &
+  DayButtonOwnProps;
 
 /** State exposed by the `RangeSelected` component. */
-export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type RangeSelectedState = {
+  root: RootState;
   active: boolean;
   weekIndex: number;
   startIndex: number;
@@ -728,23 +763,23 @@ export type RangeSelectedState<F extends ValueFormat = ValueFormat> = {
 };
 
 /** Full props for the `RangeSelected` component. */
-export type RangeSelectedProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"td", RangeSelectedState<F>>;
+export type RangeSelectedProps = useRender.ComponentProps<
+  "td",
+  RangeSelectedState
+>;
 
 /** State exposed by the `RangePreview` component (same shape as `RangeSelectedState`). */
-export type RangePreviewState<F extends ValueFormat = ValueFormat> =
-  RangeSelectedState<F>;
+export type RangePreviewState = RangeSelectedState;
 
 /** Full props for the `RangePreview` component (same shape as `RangeSelectedProps`). */
-export type RangePreviewProps<F extends ValueFormat = ValueFormat> =
-  RangeSelectedProps<F>;
+export type RangePreviewProps = RangeSelectedProps;
 
 /** Which end of a range the drag handle controls. */
 export type DragHandleEdge = "start" | "end";
 
 /** State exposed by the `RangeDragHandle` components. */
-export type DragHandleState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type DragHandleState = {
+  root: RootState;
   active: boolean;
   dragging: boolean;
   edge: DragHandleEdge;
@@ -760,37 +795,40 @@ export interface DragHandleOwnProps {
 }
 
 /** Full props for the `RangeDragHandle` component. */
-export type RangeDragHandleProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"span", DragHandleState<F>> & DragHandleOwnProps;
+export type RangeDragHandleProps = useRender.ComponentProps<
+  "span",
+  DragHandleState
+> &
+  DragHandleOwnProps;
 
 /** Props for `RangeStartDragHandle` (edge is fixed to `"start"`). */
-export type RangeStartDragHandleProps<F extends ValueFormat = ValueFormat> =
-  Omit<RangeDragHandleProps<F>, "edge">;
+export type RangeStartDragHandleProps = Omit<RangeDragHandleProps, "edge">;
 
 /** Props for `RangeEndDragHandle` (edge is fixed to `"end"`). */
-export type RangeEndDragHandleProps<F extends ValueFormat = ValueFormat> = Omit<
-  RangeDragHandleProps<F>,
-  "edge"
->;
+export type RangeEndDragHandleProps = Omit<RangeDragHandleProps, "edge">;
 
 /** State exposed by the `WeekNumberCell` component. */
-export type WeekNumberCellState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type WeekNumberCellState = {
+  root: RootState;
   weekNumber: number;
 };
 
 /** Full props for the `WeekNumberCell` component. */
-export type WeekNumberCellProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"td", WeekNumberCellState<F>>;
+export type WeekNumberCellProps = useRender.ComponentProps<
+  "td",
+  WeekNumberCellState
+>;
 
 /** State exposed by the `WeekNumberHeader` component. */
-export type WeekNumberHeaderState<F extends ValueFormat = ValueFormat> = {
-  root: RootState<F>;
+export type WeekNumberHeaderState = {
+  root: RootState;
 };
 
 /** Full props for the `WeekNumberHeader` component. */
-export type WeekNumberHeaderProps<F extends ValueFormat = ValueFormat> =
-  useRender.ComponentProps<"th", WeekNumberHeaderState<F>>;
+export type WeekNumberHeaderProps = useRender.ComponentProps<
+  "th",
+  WeekNumberHeaderState
+>;
 
 /** Root props pre-narrowed to a specific format. */
 export type TypedRootProps<F extends ValueFormat> = Omit<

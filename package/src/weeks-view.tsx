@@ -7,7 +7,7 @@ import {
   MonthViewStateContext,
 } from "./month-view-context";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
-import type { RootState, ValueFormat } from "./types";
+import type { ValueFormat } from "./types";
 import { ViewContext } from "./view-context";
 import {
   WeeksViewStableContext,
@@ -67,9 +67,9 @@ function WeeksViewRootFn(
       allMonths: [],
       currentDateTime: stateCtx.currentDateTime,
       gridLabelIds: stateCtx.gridLabelIds,
-      rootState: {} as RootState,
+      rootState: stateCtx.rootState,
     }),
-    [stateCtx.currentDateTime, stateCtx.gridLabelIds],
+    [stateCtx.currentDateTime, stateCtx.gridLabelIds, stateCtx.rootState],
   );
 
   return (

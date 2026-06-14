@@ -10,7 +10,7 @@ import {
   RangeEndDragHandle,
   DayButton,
 } from "@klinking/colander";
-import type { DayButtonProps, ValueFormat } from "@klinking/colander";
+import type { DayButtonProps } from "@klinking/colander";
 import { useRef } from "react";
 import { useDragHandleDnD, useDayDropTarget } from "./use-drag-range";
 
@@ -78,8 +78,8 @@ export function DragHandleEnd(props: Omit<DragHandleProps, "edge">) {
   return <DragHandle edge="end" {...props} />;
 }
 
-export function DragDayButton<F extends ValueFormat = ValueFormat>(
-  props: DayButtonProps<F> & { ref?: React.Ref<HTMLButtonElement> },
+export function DragDayButton(
+  props: DayButtonProps & { ref?: React.Ref<HTMLButtonElement> },
 ) {
   const dropRef = useRef<HTMLButtonElement>(null);
   useDayDropTarget(dropRef, props.date);

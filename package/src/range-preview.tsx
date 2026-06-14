@@ -9,11 +9,7 @@ import {
   computeClippedRangeInfo,
   rangeOverlayStateAttributesMapping,
 } from "./selected-range";
-import type {
-  ValueFormat,
-  RangePreviewState,
-  RangePreviewProps,
-} from "./types";
+import type { RangePreviewState, RangePreviewProps } from "./types";
 
 function RangePreviewFn(
   props: RangePreviewProps,
@@ -32,10 +28,8 @@ function RangePreviewFn(
  * {@link RangeSelected} but reads `previewStart`/`previewEnd` instead of
  * the committed range boundaries.
  */
-export const RangePreview = forwardRef(RangePreviewFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangePreviewProps<F> & React.RefAttributes<HTMLTableCellElement>,
+export const RangePreview = forwardRef(RangePreviewFn) as (
+  props: RangePreviewProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
 function RangePreviewInnerFn(
@@ -76,7 +70,7 @@ function RangePreviewInnerFn(
 
   const state = useMemo<RangePreviewState>(
     () => ({
-      root: rootState as any,
+      root: rootState,
       active: info.active,
       weekIndex,
       startIndex: info.startIndex,
@@ -116,8 +110,6 @@ function RangePreviewInnerFn(
   });
 }
 
-const RangePreviewInner = forwardRef(RangePreviewInnerFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangePreviewProps<F> & React.RefAttributes<HTMLTableCellElement>,
+const RangePreviewInner = forwardRef(RangePreviewInnerFn) as (
+  props: RangePreviewProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;

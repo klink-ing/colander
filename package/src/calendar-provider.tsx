@@ -18,6 +18,7 @@ import {
   type SelectionResult,
 } from "./root-selection";
 import type {
+  BaseRootState,
   DateRange,
   DateValueObject,
   RangeMode,
@@ -582,6 +583,20 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
     ],
   );
 
+  const baseRootState = useMemo<BaseRootState>(
+    () => ({
+      hasSelection: nonNullDates.length > 0,
+      selected: nonNullDates[0],
+      selectedDates: nonNullDates,
+      rangeStart,
+      rangeEnd,
+      timeZone,
+      locale,
+      readOnly,
+    }),
+    [nonNullDates, rangeStart, rangeEnd, timeZone, locale, readOnly],
+  );
+
   const stateCtx = useMemo<CalendarStateContextValue>(
     () => ({
       selected,
@@ -591,6 +606,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
       hoveredDate,
       previewStart,
       previewEnd,
+      baseRootState,
     }),
     [
       selected,
@@ -600,6 +616,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
       hoveredDate,
       previewStart,
       previewEnd,
+      baseRootState,
     ],
   );
 

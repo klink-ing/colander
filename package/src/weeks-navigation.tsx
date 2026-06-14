@@ -110,7 +110,7 @@ function useWeeksNavButton(
   ]);
 
   const state = useMemo<WeeksNavButtonState>(
-    () => ({ root: rootState as any, direction, disabled: isDisabled }),
+    () => ({ root: rootState, direction, disabled: isDisabled }),
     [rootState, direction, isDisabled],
   );
 
@@ -196,7 +196,7 @@ function WeekCountFn(
   const count = windowInfo.weekCount;
 
   const state = useMemo<WeekCountState>(
-    () => ({ root: rootState as any, weekCount: count }),
+    () => ({ root: rootState, weekCount: count }),
     [rootState, count],
   );
 

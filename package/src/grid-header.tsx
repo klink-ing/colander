@@ -5,7 +5,6 @@ import { useCalendarStable } from "./calendar-context";
 import { useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
   GridHeaderCellProps,
   GridHeaderState,
   GridHeaderProps,
@@ -78,10 +77,8 @@ function GridHeaderCellInstanceFn(
   });
 }
 
-const GridHeaderCellInstance = forwardRef(GridHeaderCellInstanceFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: Omit<GridHeaderCellProps<F>, "index"> & {
+const GridHeaderCellInstance = forwardRef(GridHeaderCellInstanceFn) as (
+  props: Omit<GridHeaderCellProps, "index"> & {
     index: number;
   } & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
@@ -114,10 +111,8 @@ function GridHeaderCellFn(
  * renders all 7 days (Sunday–Saturday). Each cell includes `abbr` and
  * `aria-label` with the full weekday name.
  */
-export const GridHeaderCell = forwardRef(GridHeaderCellFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: GridHeaderCellProps<F> & React.RefAttributes<HTMLTableCellElement>,
+export const GridHeaderCell = forwardRef(GridHeaderCellFn) as (
+  props: GridHeaderCellProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
 function GridHeaderFn(
@@ -147,8 +142,6 @@ function GridHeaderFn(
 }
 
 /** Table header section (`<thead>`) wrapping a row of {@link GridHeaderCell}s. */
-export const GridHeader = forwardRef(GridHeaderFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: GridHeaderProps<F> & React.RefAttributes<HTMLTableSectionElement>,
+export const GridHeader = forwardRef(GridHeaderFn) as (
+  props: GridHeaderProps & React.RefAttributes<HTMLTableSectionElement>,
 ) => React.ReactElement | null;

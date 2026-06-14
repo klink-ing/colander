@@ -22,8 +22,6 @@ import {
 } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
-  RootState,
   GridState,
   GridProps,
   GridBodyState,
@@ -192,8 +190,8 @@ function GridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>) {
   throw new Error("Grid must be used inside MonthView.Root or WeeksView.Root.");
 }
 
-export const Grid = forwardRef(GridFn) as <F extends ValueFormat = ValueFormat>(
-  props: GridProps<F> & React.RefAttributes<HTMLTableElement>,
+export const Grid = forwardRef(GridFn) as (
+  props: GridProps & React.RefAttributes<HTMLTableElement>,
 ) => React.ReactElement | null;
 
 // ---------------------------------------------------------------------------
@@ -337,10 +335,8 @@ function MonthGridFn(
   );
 }
 
-const MonthGrid = forwardRef(MonthGridFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: GridProps<F> & React.RefAttributes<HTMLTableElement>,
+const MonthGrid = forwardRef(MonthGridFn) as (
+  props: GridProps & React.RefAttributes<HTMLTableElement>,
 ) => React.ReactElement | null;
 
 // ---------------------------------------------------------------------------
@@ -485,9 +481,9 @@ function WeeksViewGridFn(
       allMonths: [],
       currentDateTime,
       gridLabelIds,
-      rootState: {} as RootState,
+      rootState: weeksState.rootState,
     }),
-    [currentDateTime, gridLabelIds],
+    [currentDateTime, gridLabelIds, weeksState.rootState],
   );
 
   return (
@@ -499,10 +495,8 @@ function WeeksViewGridFn(
   );
 }
 
-const WeeksViewGrid = forwardRef(WeeksViewGridFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: GridProps<F> & React.RefAttributes<HTMLTableElement>,
+const WeeksViewGrid = forwardRef(WeeksViewGridFn) as (
+  props: GridProps & React.RefAttributes<HTMLTableElement>,
 ) => React.ReactElement | null;
 
 const gridBodyStateAttributesMapping = {
@@ -530,10 +524,8 @@ function GridBodyFn(
   return <MonthGridBody ref={ref} {...props} />;
 }
 
-export const GridBody = forwardRef(GridBodyFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: GridBodyProps<F> & React.RefAttributes<HTMLTableSectionElement>,
+export const GridBody = forwardRef(GridBodyFn) as (
+  props: GridBodyProps & React.RefAttributes<HTMLTableSectionElement>,
 ) => React.ReactElement | null;
 
 function MonthGridBodyFn(
@@ -570,10 +562,8 @@ function MonthGridBodyFn(
   });
 }
 
-const MonthGridBody = forwardRef(MonthGridBodyFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: GridBodyProps<F> & React.RefAttributes<HTMLTableSectionElement>,
+const MonthGridBody = forwardRef(MonthGridBodyFn) as (
+  props: GridBodyProps & React.RefAttributes<HTMLTableSectionElement>,
 ) => React.ReactElement | null;
 
 const weekInstanceStateAttributesMapping = {
@@ -582,16 +572,14 @@ const weekInstanceStateAttributesMapping = {
   gridRowIndex: () => null,
 } as const satisfies StateAttributesMapping<WeekTemplateState>;
 
-function WeekInstance<F extends ValueFormat = ValueFormat>(
-  props: WeekTemplateProps<F>,
-) {
+function WeekInstance(props: WeekTemplateProps) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
   const { rootState } = useMonthViewState();
 
-  const state = useMemo<WeekTemplateState<F>>(
+  const state = useMemo<WeekTemplateState>(
     () => ({
-      root: rootState as unknown as WeekTemplateState<F>["root"],
+      root: rootState,
       weekIndex: weekData.weekIndex,
       gridRowIndex: weekData.gridRowIndex,
     }),
@@ -612,9 +600,7 @@ function WeekInstance<F extends ValueFormat = ValueFormat>(
  * Iterates over the weeks in the current month and renders one `<tr>` per week.
  * Each instance receives its week's days and index via {@link WeekDataContext}.
  */
-export function WeekTemplate<F extends ValueFormat = ValueFormat>(
-  props: WeekTemplateProps<F>,
-) {
+export function WeekTemplate(props: WeekTemplateProps) {
   const outerWeekData = useContext(WeekDataContext);
   const gridMonthCtx = useContext(GridMonthContext);
   const { weeks: defaultWeeks } = useMonthViewState();
@@ -626,7 +612,7 @@ export function WeekTemplate<F extends ValueFormat = ValueFormat>(
         : undefined,
     [gridMonthCtx],
   );
-  const Instance = WeekInstance<F>;
+  const Instance = WeekInstance;
 
   return (
     <>

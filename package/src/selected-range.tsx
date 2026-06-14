@@ -8,7 +8,6 @@ import { useMonthViewState } from "./month-view-context";
 import { MonthViewStableContext } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
   RangeSelectedState,
   RangeSelectedProps,
   OutsideDays,
@@ -102,10 +101,8 @@ function RangeSelectedFn(
  * `active`, `week-index`, `start-index`, `end-index`, `start-date`,
  * `end-date`, `extends-before`, and `extends-after`.
  */
-export const RangeSelected = forwardRef(RangeSelectedFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
+export const RangeSelected = forwardRef(RangeSelectedFn) as (
+  props: RangeSelectedProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
 function RangeSelectedInnerFn(
@@ -146,7 +143,7 @@ function RangeSelectedInnerFn(
 
   const state = useMemo<RangeSelectedState>(
     () => ({
-      root: rootState as any,
+      root: rootState,
       active: info.active,
       weekIndex,
       startIndex: info.startIndex,
@@ -186,8 +183,6 @@ function RangeSelectedInnerFn(
   });
 }
 
-const RangeSelectedInner = forwardRef(RangeSelectedInnerFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangeSelectedProps<F> & React.RefAttributes<HTMLTableCellElement>,
+const RangeSelectedInner = forwardRef(RangeSelectedInnerFn) as (
+  props: RangeSelectedProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;

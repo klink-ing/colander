@@ -50,7 +50,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
   const calState = useCalendarState();
 
   const T = calStable.temporal;
-  const { timeZone, locale, weekStartDay, isDateDisabled } = calStable;
+  const { timeZone, weekStartDay, isDateDisabled } = calStable;
 
   // --- Month navigation state (controlled/uncontrolled) ---
   const isMonthControlled = monthProp !== undefined;
@@ -368,32 +368,13 @@ function MonthViewRoot(props: MonthViewRootProps) {
   }, [viewingYearMonth, isMonthControlled]);
 
   // --- rootState (for render functions) ---
-  const { selected, selectedDates, rangeStart, rangeEnd } = calState;
-
   const rootState = useMemo<RootState>(
     () => ({
-      hasSelection: selectedDates.length > 0,
-      selected: selected?.value,
-      selectedDates: selectedDates as any,
-      rangeStart: rangeStart as any,
-      rangeEnd: rangeEnd as any,
+      ...calState.baseRootState,
       focused: focusedDate,
       viewing: viewingYearMonth,
-      timeZone,
-      locale,
-      readOnly: calStable.readOnly,
     }),
-    [
-      selectedDates,
-      selected,
-      rangeStart,
-      rangeEnd,
-      focusedDate,
-      viewingYearMonth,
-      timeZone,
-      locale,
-      calStable.readOnly,
-    ],
+    [calState.baseRootState, focusedDate, viewingYearMonth],
   );
 
   // --- Context values ---
