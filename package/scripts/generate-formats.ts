@@ -318,13 +318,12 @@ for (const format of formats) {
   console.log(`  wrote src/formats/${kebab}.ts`);
 }
 
-// Run linting and formatting on generated files using vp's bundled toolchain
-// so output matches `vp fmt` / `vp check --fix` behavior everywhere.
-console.log("Running linter and formatter...");
-try {
-  execSync(`npx vp check --fix ${FORMATS_DIR}`, { cwd: ROOT, stdio: "pipe" });
-} catch {
-  // vp check --fix may exit non-zero for unfixable issues; that's OK
-}
+// Format the generated files in place with vp's bundled oxfmt (the raw output
+// has unwrapped imports). This must succeed: the sync-generated CI workflow
+// commits whatever this writes, so a swallowed failure would land unformatted
+// files on main. Fail loudly instead. Lint/typecheck correctness is enforced
+// separately by the `ready` gate, so formatting is all that's needed here.
+console.log("Formatting generated files...");
+execSync(`npx vp fmt ${FORMATS_DIR}`, { cwd: ROOT, stdio: "inherit" });
 
 console.log("Done.");
