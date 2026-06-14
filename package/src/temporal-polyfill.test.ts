@@ -177,6 +177,36 @@ describe("PlainDate toString roundtrip", () => {
   });
 });
 
+describe("PlainDate toLocaleString", () => {
+  const june = T.PlainDate.from("2026-06-01");
+
+  it("localizes the Gregorian year and month for en-US", () => {
+    const s = june.toLocaleString("en-US", { year: "numeric", month: "long" });
+    expect(s).toContain("2026");
+    expect(s).toContain("June");
+  });
+
+  it("localizes to the locale's calendar (th-TH → Buddhist era)", () => {
+    const s = june.toLocaleString("th-TH", { year: "numeric", month: "long" });
+    // ISO 2026 → Buddhist Era 2569.
+    expect(s).toContain("2569");
+  });
+
+  it("does not leak a day with year+month options", () => {
+    const s = june.toLocaleString("en-US", { year: "numeric", month: "long" });
+    expect(s).not.toMatch(/\b1\b/);
+  });
+
+  it("honors custom options (numeric month)", () => {
+    const s = june.toLocaleString("en-US", {
+      year: "numeric",
+      month: "2-digit",
+    });
+    expect(s).toContain("06");
+    expect(s).toContain("2026");
+  });
+});
+
 describe("PlainDate equals", () => {
   it("returns true for same date", () => {
     expect(date("2026-03-15").equals(date("2026-03-15"))).toBe(true);

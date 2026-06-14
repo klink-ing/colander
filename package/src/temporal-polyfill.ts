@@ -1,3 +1,17 @@
+/**
+ * Minimal, dependency-free `Temporal` shim — **ISO 8601 / Gregorian only**.
+ *
+ * It implements just enough of the `Temporal` surface for the calendar to
+ * operate (`PlainDate`, `PlainDateTime`, `PlainMonthDay`, `PlainYearMonth`,
+ * `Now`) using Gregorian date arithmetic. `toLocaleString` formats via the
+ * host `Intl`, so display still localizes to the locale's calendar (e.g.
+ * Buddhist for `th-TH`), but the shim performs **no non-Gregorian calendar
+ * math** — all field values and arithmetic are Gregorian.
+ *
+ * To use non-Gregorian calendars (Buddhist, Hebrew, Islamic, etc.) for
+ * computation, install `@js-temporal/polyfill` or run where native `Temporal`
+ * is available, and pass it via the `temporal` prop.
+ */
 import type { TemporalNamespace } from "./types";
 
 // ---------------------------------------------------------------------------

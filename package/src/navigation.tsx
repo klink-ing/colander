@@ -166,7 +166,7 @@ function MonthYearStringFn(
     ...otherProps
   } = props;
   const monthIndex = monthIndexProp ?? 0;
-  const { locale } = useCalendarStable();
+  const { locale, temporal: T } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
   const {
     currentMonth: currentDateTime,
@@ -186,15 +186,19 @@ function MonthYearStringFn(
   const displayYear = monthData?.year ?? currentDateTime.year;
   const displayMonth = monthData?.month ?? currentDateTime.month;
 
-  const displayDate = new Date(displayYear, displayMonth - 1, 1);
   const defaultOptions: Intl.DateTimeFormatOptions = options ?? {
     month: "long",
     year: "numeric",
   };
-  const formatted = displayDate.toLocaleDateString(
-    locales ?? locale,
-    defaultOptions,
-  );
+  // Format through Temporal so the only native `Date` lives inside the
+  // polyfill. `displayYear`/`displayMonth` are ISO; formatting an ISO
+  // `PlainDate` (not `PlainYearMonth`, which throws on calendar mismatch)
+  // lets Intl render it in the locale's calendar (e.g. Buddhist for th-TH).
+  const formatted = T.PlainDate.from({
+    year: displayYear,
+    month: displayMonth,
+    day: 1,
+  }).toLocaleString(locales ?? locale, defaultOptions);
 
   const state = useMemo<MonthYearStringState>(
     () => ({

@@ -12,6 +12,7 @@ import {
   PrevMonthButton,
   NextMonthButton,
 } from "./navigation";
+import { Temporal as MiniTemporal } from "./temporal-polyfill";
 import type { DateRange, ValueChangeMeta, MonthData } from "./types";
 import { useViewContext } from "./view-context";
 
@@ -1594,6 +1595,26 @@ describe("non-Gregorian locale (th-TH)", () => {
     );
 
     // ISO 2026 → Buddhist Era 2569.
+    expect(
+      container.querySelector('[data-testid="label"]')!.textContent,
+    ).toContain("2569");
+
+    unmount();
+  });
+
+  it("renders the locale-calendar label with the bundled shim", () => {
+    // The label path now formats via PlainDate.toLocaleString, so the
+    // Gregorian-only mini shim must still localize display through Intl.
+    const { container, unmount } = render(
+      <MonthView
+        {...thProps}
+        temporal={MiniTemporal}
+        defaultValue={MiniTemporal.PlainDate.from("2026-03-15")}
+      >
+        <MonthYearString data-testid="label" />
+      </MonthView>,
+    );
+
     expect(
       container.querySelector('[data-testid="label"]')!.textContent,
     ).toContain("2569");
