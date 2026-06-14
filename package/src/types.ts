@@ -276,9 +276,16 @@ interface RootOwnPropsBase<F extends ValueFormat = ValueFormat> {
    */
   locale?: string;
   /**
-   * Custom Temporal namespace for environments without native Temporal support.
-   * Typically the `Temporal` export from `@js-temporal/polyfill`. When using
-   * `@js-temporal/polyfill`.
+   * The `Temporal` implementation to use. This library does not bundle one:
+   * provide a `Temporal` namespace here unless the host already exposes the
+   * native `Temporal` API. Two well-supported polyfills:
+   *
+   * - `temporal-polyfill` — https://github.com/fullcalendar/temporal-polyfill
+   * - `@js-temporal/polyfill` — https://github.com/js-temporal/temporal-polyfill
+   *
+   * @example
+   * import { Temporal } from "temporal-polyfill";
+   * <MonthView temporal={Temporal} … />
    */
   temporal?: TemporalNamespace;
   /**

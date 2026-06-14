@@ -36,19 +36,6 @@ export {
 export { computePreviewRange } from "./root-selection";
 export { computeWeeksInWindow } from "./compute-weeks-in-window";
 export { resolveFirstWeek, resolveFirstWeekSpec } from "./resolve-first-week";
-/**
- * A bundled, dependency-free `Temporal` engine. When the host has no native
- * `Temporal` and you use a non-`Temporal` value format (`object`, `Date`), the
- * calendar selects this automatically — no `@js-temporal/polyfill` needed. You
- * may also pass it explicitly via the `temporal` prop.
- *
- * **ISO 8601 / Gregorian only.** `toLocaleString` localizes display via `Intl`
- * (so e.g. `th-TH` renders the Buddhist era), but all date arithmetic and
- * field values are Gregorian. If you work with `Temporal` value formats or
- * need non-Gregorian calendar math, provide native `Temporal` or
- * `@js-temporal/polyfill` via the `temporal` prop instead.
- */
-export { Temporal } from "./temporal-polyfill";
 export { useCalendarStable, useCalendarState } from "./calendar-context";
 export { useMonthViewStable, useMonthViewState } from "./month-view-context";
 export { useViewContext } from "./view-context";

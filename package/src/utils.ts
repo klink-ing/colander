@@ -1,5 +1,4 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import { Temporal as bundledTemporal } from "./temporal-polyfill";
 import type {
   TemporalNamespace,
   DateValueObject,
@@ -7,35 +6,27 @@ import type {
   WeekStartDay,
 } from "./types";
 
-/** Value formats whose values are plain (non-`Temporal`) objects. */
-const NON_TEMPORAL_FORMATS = new Set<ValueFormat>(["object", "Date"]);
-
 /**
  * Resolves a {@link TemporalNamespace} instance.
  *
- * Resolution order: an explicitly `provided` namespace, then native
- * `globalThis.Temporal`. If neither exists, the behavior depends on `format`:
- * non-`Temporal` formats (`object`, `Date`) don't expose `Temporal` objects to
- * the caller, so the bundled Gregorian-only shim is used as the internal date
- * engine. `Temporal` formats imply the caller wants real `Temporal` objects —
- * the shim is not one, so resolution throws instead of silently substituting.
+ * Returns `provided` when given, otherwise native `globalThis.Temporal`. This
+ * library does not bundle a `Temporal` implementation — if neither is
+ * available, it throws. Provide one via the `temporal` prop, e.g. the
+ * `Temporal` export from `temporal-polyfill`
+ * (https://github.com/fullcalendar/temporal-polyfill) or `@js-temporal/polyfill`
+ * (https://github.com/js-temporal/temporal-polyfill).
  *
  * @param provided - An explicit Temporal polyfill or namespace.
- * @param format - The active value format (decides the no-Temporal fallback).
  */
 export function resolveTemporal(
   provided?: TemporalNamespace,
-  format?: ValueFormat,
 ): TemporalNamespace {
   if (provided) return provided;
   if (typeof globalThis !== "undefined" && (globalThis as any).Temporal) {
     return (globalThis as any).Temporal;
   }
-  if (format !== undefined && NON_TEMPORAL_FORMATS.has(format)) {
-    return bundledTemporal;
-  }
   throw new Error(
-    "DatePicker: Temporal is not available. Pass a Temporal polyfill via the `temporal` prop, or use a browser that supports the Temporal API natively.",
+    "DatePicker: Temporal is not available. Pass a Temporal implementation via the `temporal` prop — e.g. `temporal-polyfill` or `@js-temporal/polyfill` — or run where the native Temporal API exists.",
   );
 }
 

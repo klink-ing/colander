@@ -1,5 +1,4 @@
 import { Temporal as FullTemporal } from "@js-temporal/polyfill";
-import { Temporal as MiniTemporal } from "./temporal-polyfill";
 import type { TemporalNamespace } from "./types";
 
 export const temporalVariants: { name: string; T: TemporalNamespace }[] = [
@@ -13,5 +12,4 @@ export const temporalVariants: { name: string; T: TemporalNamespace }[] = [
       PlainYearMonth: FullTemporal.PlainYearMonth,
     },
   },
-  { name: "mini polyfill", T: MiniTemporal },
 ];

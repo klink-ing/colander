@@ -1,6 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { describe, it, expect } from "vitest";
-import { Temporal as bundledTemporal } from "./temporal-polyfill";
 import { temporalVariants } from "./test-temporal";
 import type { TemporalNamespace } from "./types";
 import {
@@ -45,38 +44,6 @@ describe("resolveTemporal", () => {
     } finally {
       if (orig) (globalThis as any).Temporal = orig;
     }
-  });
-
-  it.each<{ description: string; format: "object" | "Date" }>([
-    { description: "object", format: "object" },
-    { description: "Date", format: "Date" },
-  ])(
-    "falls back to the bundled shim for the $description format when no Temporal is available",
-    ({ format }) => {
-      const orig = (globalThis as any).Temporal;
-      delete (globalThis as any).Temporal;
-      try {
-        expect(resolveTemporal(undefined, format)).toBe(bundledTemporal);
-      } finally {
-        if (orig) (globalThis as any).Temporal = orig;
-      }
-    },
-  );
-
-  it("throws for a Temporal format when no Temporal is available", () => {
-    const orig = (globalThis as any).Temporal;
-    delete (globalThis as any).Temporal;
-    try {
-      expect(() => resolveTemporal(undefined, "PlainDate")).toThrow(
-        "Temporal is not available",
-      );
-    } finally {
-      if (orig) (globalThis as any).Temporal = orig;
-    }
-  });
-
-  it("prefers an explicitly provided namespace over the shim fallback", () => {
-    expect(resolveTemporal(T, "object")).toBe(T);
   });
 });
 
