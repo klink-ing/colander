@@ -7,16 +7,6 @@ import type {
 } from "./types";
 
 /**
- * Returns the default calendar system for a given locale (e.g. `"gregory"` for `"en-US"`).
- *
- * @param locale - A BCP 47 locale string. Falls back to the runtime default when empty.
- */
-export function calendarForLocale(locale: string): string {
-  return new Intl.DateTimeFormat(locale || undefined).resolvedOptions()
-    .calendar;
-}
-
-/**
  * Resolves a {@link TemporalNamespace} instance.
  *
  * Returns `provided` when given, otherwise checks `globalThis.Temporal`.

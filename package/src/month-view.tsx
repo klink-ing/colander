@@ -14,7 +14,6 @@ import type {
 } from "./month-view-types";
 import type { MonthData, RootState, ValueFormat } from "./types";
 import {
-  calendarForLocale,
   computeAdjacentMonth,
   focusedDateForMonth,
   getMonthWeeks,
@@ -105,21 +104,21 @@ function MonthViewRoot(props: MonthViewRootProps) {
     [],
   );
 
-  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
-
   // Always-current ref so callbacks/effects don't re-subscribe on every
   // onMonthChange identity change.
   const onMonthChangeRef = useRef(onMonthChange);
   onMonthChangeRef.current = onMonthChange;
 
   // Request the parent move the view to `{year, month}` (controlled mode).
+  // Built in ISO — `year`/`month` are ISO numbers, and the locale calendar
+  // only affects display (see MonthYearString). Passing `calendar` here would
+  // reinterpret the ISO numbers as locale-calendar fields (e.g. Buddhist),
+  // shifting the value by centuries.
   const notifyMonth = useCallback(
     (year: number, month: number) => {
-      onMonthChangeRef.current?.(
-        T.PlainYearMonth.from({ year, month, calendar: localeCalendar }),
-      );
+      onMonthChangeRef.current?.(T.PlainYearMonth.from({ year, month }));
     },
-    [T, localeCalendar],
+    [T],
   );
 
   // Whether `{year, month}` falls within the currently displayed window.
@@ -343,14 +342,14 @@ function MonthViewRoot(props: MonthViewRootProps) {
   );
 
   // --- viewingYearMonth (for the render-prop rootState) ---
+  // ISO — the locale calendar only affects display, not this value.
   const viewingYearMonth = useMemo(
     () =>
       T.PlainYearMonth.from({
         year: currentMonth.year,
         month: currentMonth.month,
-        calendar: localeCalendar,
       }),
-    [currentMonth, T, localeCalendar],
+    [currentMonth, T],
   );
 
   // --- Fire onMonthChange when uncontrolled navigation moves the view (not on

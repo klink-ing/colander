@@ -16,7 +16,7 @@ import type {
   NextMonthButtonProps,
   NavButtonState,
 } from "./types";
-import { selectedToZdt, zdtToNativeDate, calendarForLocale } from "./utils";
+import { selectedToZdt, zdtToNativeDate } from "./utils";
 
 const dateStringStateAttributesMapping = {
   root: () => null,
@@ -246,7 +246,6 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     disabled: globalDisabled,
     minValue,
     maxValue,
-    locale,
     temporal: T,
   } = useCalendarStable();
   const monthViewStable = useMonthViewStable();
@@ -304,16 +303,11 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     );
   }, [globalDisabled, destYear, destMonth, boundValue, direction]);
 
-  const localeCalendar = useMemo(() => calendarForLocale(locale), [locale]);
-
+  // ISO — `destYear`/`destMonth` are ISO numbers; the locale calendar only
+  // affects display, so it must not be injected into this value.
   const target = useMemo(
-    () =>
-      T.PlainYearMonth.from({
-        year: destYear,
-        month: destMonth,
-        calendar: localeCalendar,
-      }),
-    [destYear, destMonth, T, localeCalendar],
+    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
+    [destYear, destMonth, T],
   );
 
   const state = useMemo<NavButtonState<F>>(

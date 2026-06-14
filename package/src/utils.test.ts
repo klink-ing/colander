@@ -3,7 +3,6 @@ import { describe, it, expect } from "vitest";
 import { temporalVariants } from "./test-temporal";
 import type { TemporalNamespace } from "./types";
 import {
-  calendarForLocale,
   resolveTemporal,
   getSystemTimeZone,
   toZonedDateTime,
@@ -31,18 +30,6 @@ const T: TemporalNamespace = {
   PlainMonthDay: Temporal.PlainMonthDay,
   PlainYearMonth: Temporal.PlainYearMonth,
 };
-
-describe("calendarForLocale", () => {
-  it("returns 'gregory' for en-US", () => {
-    expect(calendarForLocale("en-US")).toBe("gregory");
-  });
-
-  it("returns a calendar string for an empty locale (runtime default)", () => {
-    const result = calendarForLocale("");
-    expect(typeof result).toBe("string");
-    expect(result.length).toBeGreaterThan(0);
-  });
-});
 
 describe("resolveTemporal", () => {
   it("returns the provided namespace when given", () => {

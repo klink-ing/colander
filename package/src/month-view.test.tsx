@@ -1504,6 +1504,135 @@ describe("numberOfMonths", () => {
   });
 });
 
+describe("non-Gregorian locale (th-TH)", () => {
+  // th-TH defaults to the Buddhist calendar (ISO year + 543). All
+  // PlainYearMonth values the component exposes must be ISO; the locale
+  // calendar only affects display.
+  const thProps = { ...defaultProps, locale: "th-TH" } as const;
+  const march15 = Temporal.PlainDate.from("2026-03-15");
+
+  /** Captures rootState.viewing from MonthView context. */
+  function ViewingCapture({
+    onCapture,
+  }: {
+    onCapture: (viewing: Temporal.PlainYearMonth) => void;
+  }) {
+    const { rootState } = useMonthViewState();
+    onCapture(rootState.viewing as Temporal.PlainYearMonth);
+    return null;
+  }
+
+  it("onMonthChange emits an ISO PlainYearMonth, not the locale calendar", () => {
+    const onMonthChange = vi.fn();
+    const { container, unmount } = render(
+      <MonthView
+        {...thProps}
+        defaultValue={march15}
+        onMonthChange={onMonthChange}
+      >
+        <NextMonthButton data-testid="next" />
+      </MonthView>,
+    );
+
+    act(() => {
+      container
+        .querySelector('[data-testid="next"]')!
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    expect(onMonthChange).toHaveBeenCalledTimes(1);
+    const arg = onMonthChange.mock.calls[0]![0];
+    // ISO April 2026 — NOT Buddhist-2026 (which is ISO 1483-06).
+    expect(arg.toString()).toBe("2026-04");
+    expect(arg.year).toBe(2026);
+    expect(arg.month).toBe(4);
+
+    unmount();
+  });
+
+  it("rootState.viewing is an ISO PlainYearMonth", () => {
+    let viewing: Temporal.PlainYearMonth | undefined;
+    const { unmount } = render(
+      <MonthView {...thProps} defaultValue={march15}>
+        <ViewingCapture
+          onCapture={(v) => {
+            viewing = v;
+          }}
+        />
+      </MonthView>,
+    );
+
+    expect(viewing!.toString()).toBe("2026-03");
+
+    unmount();
+  });
+
+  it("NavButtonState.target is an ISO PlainYearMonth", () => {
+    let nextTarget: Temporal.PlainYearMonth | undefined;
+    const { unmount } = render(
+      <MonthView {...thProps} defaultValue={march15}>
+        <NextMonthButton
+          render={(props, state) => {
+            nextTarget = state.target;
+            return <button {...props} />;
+          }}
+        />
+      </MonthView>,
+    );
+
+    // Next from ISO March 2026 → ISO April 2026, not Buddhist.
+    expect(nextTarget!.toString()).toBe("2026-04");
+
+    unmount();
+  });
+
+  it("still renders the month label in the locale calendar", () => {
+    const { container, unmount } = render(
+      <MonthView {...thProps} defaultValue={march15}>
+        <MonthYearString data-testid="label" />
+      </MonthView>,
+    );
+
+    // ISO 2026 → Buddhist Era 2569.
+    expect(
+      container.querySelector('[data-testid="label"]')!.textContent,
+    ).toContain("2569");
+
+    unmount();
+  });
+
+  it("controlled round-trips without a century jump", () => {
+    function Harness() {
+      const [month, setMonth] = useState(
+        Temporal.PlainYearMonth.from("2026-03"),
+      );
+      return (
+        <MonthView {...thProps} month={month} onMonthChange={setMonth}>
+          <MonthYearString data-testid="label" />
+          <NextMonthButton data-testid="next" />
+        </MonthView>
+      );
+    }
+
+    const { container, unmount } = render(<Harness />);
+    const label = () =>
+      container.querySelector('[data-testid="label"]')!.textContent ?? "";
+    expect(label()).toContain("2569"); // March 2569 BE
+
+    act(() => {
+      container
+        .querySelector('[data-testid="next"]')!
+        .dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+
+    // Advanced one month, still Buddhist 2569 — not jumped ~543 years.
+    expect(label()).toContain("2569");
+    expect(label()).not.toContain("3112");
+
+    unmount();
+  });
+});
+
 describe("outsideDays", () => {
   const march15 = Temporal.PlainDate.from("2026-03-15");
 

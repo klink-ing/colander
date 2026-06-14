@@ -33,15 +33,19 @@ export interface MonthViewRootProps {
   overflowBehavior?: MonthOverflowBehavior | undefined;
   /**
    * The controlled visible month. When provided, the component is controlled.
+   *
+   * Interpreted in the ISO calendar (the year/month are read as ISO values).
+   * The `locale` only affects how the month is displayed, so this value
+   * round-trips directly with {@link onMonthChange}.
    */
   month?: Temporal.PlainYearMonth | undefined;
   /**
-   * The initial visible month (uncontrolled).
+   * The initial visible month (uncontrolled). Interpreted in the ISO calendar.
    */
   defaultMonth?: Temporal.PlainYearMonth | undefined;
   /**
    * Called when the visible month changes via navigation or focus movement.
-   * Not called on initial mount.
+   * Not called on initial mount. The argument is an ISO `PlainYearMonth`.
    */
   onMonthChange?: ((month: Temporal.PlainYearMonth) => void) | undefined;
   /** React children. */
