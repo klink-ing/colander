@@ -190,8 +190,8 @@ function MonthYearStringFn(
     month: "long",
     year: "numeric",
   };
-  // Format through Temporal so the only native `Date` lives inside the
-  // polyfill. `displayYear`/`displayMonth` are ISO; formatting an ISO
+  // Format through Temporal
+  // `displayYear`/`displayMonth` are ISO; formatting an ISO
   // `PlainDate` (not `PlainYearMonth`, which throws on calendar mismatch)
   // lets Intl render it in the locale's calendar (e.g. Buddhist for th-TH).
   const formatted = T.PlainDate.from({
