@@ -1,15 +1,19 @@
-# This site is a package within a pnpm-workspace monorepo. Netlify reads this
-# config via the project's "package directory" (packagePath = website) but runs
-# the build from the repo root (base = root). So the command and the
-# publish/functions paths are written to work from the repo root:
-#   - `vp run website#build` builds the website task from anywhere in the
-#     workspace (vp resolves the workspace; the task runs in website/).
-#   - publish/functions are repo-root-relative and point into website/.
-# Do NOT make these package-relative unless you also set the Netlify base
-# directory to `website`.
+# This site is the `website` package of a pnpm-workspace monorepo. The Netlify
+# project's base directory is set to `website`, so the build runs with the
+# working directory already at website/ — publish/functions are therefore
+# relative to website/ (NOT prefixed with "website/", or they'd double up).
+#
+# `vp run website#build` builds the website task via the workspace toolchain
+# (regenerates docs + extract-api + vite build). The website imports
+# `@klinking/colander` straight from ../package/src (vite alias), so no separate
+# package build is needed.
+#
+# Node is pinned via website/.node-version (24.14.1) — once the base directory is
+# a subdir, Netlify no longer reads the repo-root .node-version and otherwise
+# falls back to Node 22, which the toolchain (engines >=24.14.1) doesn't support.
 [build]
 command = "vp run website#build"
-publish = "website/dist/client"
+publish = "dist/client"
 
 [functions]
-directory = "website/.netlify/v1/functions"
+directory = ".netlify/v1/functions"
