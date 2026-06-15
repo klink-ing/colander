@@ -1,7 +1,19 @@
-# DIAGNOSTIC build command — markers + direct (non-vp) invocation to locate the
-# Netlify hang. Restore a clean command once we know where it stalls.
+# This site is the `website` package of a pnpm-workspace monorepo. The Netlify
+# project's base directory is `website`, so the build runs with the working
+# directory at website/ and publish/functions are relative to website/.
+#
+# Build with `pnpm build` (the website's own vite@8), NOT `vp run website#build`.
+# Building through vp hangs in Netlify's build container (18-minute timeout) at
+# the vite-build step. A direct-invocation diagnostic proved pnpm/vite@8 builds
+# cleanly here in ~75s — it is specifically vp's orchestration that stalls, not
+# the cache, the Node version, the Next.js runtime, the vite-plus version, or
+# scripts/extract-api.ts. vp remains the toolchain for local dev and CI.
+#
+# Node is pinned via website/.node-version (24.14.1): once the base directory is
+# a subdir, Netlify stops reading the repo-root .node-version and otherwise
+# falls back to Node 22 (engines want >=24.14.1).
 [build]
-command = "echo '=== STEP1: extract-api ===' && pnpm exec tsx scripts/extract-api.ts && echo '=== STEP2: vite build (vite@8) ===' && pnpm exec vite build && echo '=== STEP3: build complete ==='"
+command = "pnpm build"
 publish = "dist/client"
 
 [functions]
