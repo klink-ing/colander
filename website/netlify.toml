@@ -2,17 +2,16 @@
 # project's base directory is set to `website`, so the build runs with the
 # working directory at website/ — publish/functions are relative to website/.
 #
-# Build with `pnpm build`, NOT `vp run website#build`: under vp, `vite build`
-# resolves to the workspace-root vite (voidzero vite-plus-core / rolldown)
-# instead of the website's standard vite@8, which hangs in Netlify's build
-# container and times out. `pnpm build` runs the website's own vite@8 and builds
-# cleanly. (vp is still used for local dev and CI tasks.)
+# Build via vp so the vite-plus task graph governs build order. (Earlier this
+# hung on Netlify with vite-plus 0.1.18; testing whether 0.1.24 resolves it. If
+# it still hangs, fall back to `pnpm build`, which runs the website's own
+# vite@8 directly.)
 #
-# Node is pinned via website/.node-version (24.14.1): once the base directory is
-# a subdir, Netlify stops reading the repo-root .node-version and otherwise falls
-# back to Node 22 (engines want >=24.14.1).
+# Node is pinned via website/.node-version (24.14.1) — once the base directory
+# is a subdir, Netlify stops reading the repo-root .node-version and otherwise
+# falls back to Node 22 (engines want >=24.14.1).
 [build]
-command = "pnpm build"
+command = "vp run website#build"
 publish = "dist/client"
 
 [functions]
