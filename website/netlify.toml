@@ -1,17 +1,24 @@
 # This site is the `website` package of a pnpm-workspace monorepo. The Netlify
-# project's base directory is set to `website`, so the build runs with the
-# working directory at website/ — publish/functions are relative to website/.
+# project's base directory is `website`, so the build runs with cwd=website and
+# publish/functions are relative to website/.
 #
-# Build via vp so the vite-plus task graph governs build order. (Earlier this
-# hung on Netlify with vite-plus 0.1.18; testing whether 0.1.24 resolves it. If
-# it still hangs, fall back to `pnpm build`, which runs the website's own
-# vite@8 directly.)
+# Build with `pnpm build`, NOT `vp run website#build`. Running the build through
+# vp hangs in Netlify's build container at `vite build` (extract-api completes,
+# then no output → 18-minute timeout). We confirmed it is NOT the build cache,
+# the Node version, the (since-removed) Next.js runtime, or the vite-plus
+# version — it still hangs on vite-plus 0.1.24. `pnpm build` runs the website's
+# own vite@8 and builds cleanly.
 #
-# Node is pinned via website/.node-version (24.14.1) — once the base directory
-# is a subdir, Netlify stops reading the repo-root .node-version and otherwise
+# Nothing is lost by skipping vp here: the `website#build` task declares no vp
+# `dependsOn` (the run.tasks graph is empty) and the site imports
+# `@klinking/colander` from ../package/src (source), so there are no build
+# dependencies for vp to order. vp remains the toolchain for local dev and CI.
+#
+# Node is pinned via website/.node-version (24.14.1): once the base directory is
+# a subdir, Netlify stops reading the repo-root .node-version and otherwise
 # falls back to Node 22 (engines want >=24.14.1).
 [build]
-command = "vp run website#build"
+command = "pnpm build"
 publish = "dist/client"
 
 [functions]
