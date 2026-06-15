@@ -1,14 +1,7 @@
-# This site is the `website` package of a pnpm-workspace monorepo. The Netlify
-# project's base directory is set to `website`, so the build runs with the
-# working directory at website/ and publish/functions are relative to website/.
-#
-# Build via vp so the vite-plus task graph governs build order.
-#
-# Node is pinned via website/.node-version (24.14.1): once the base directory is
-# a subdir, Netlify stops reading the repo-root .node-version and otherwise
-# falls back to Node 22 (engines want >=24.14.1).
+# DIAGNOSTIC build command — markers + direct (non-vp) invocation to locate the
+# Netlify hang. Restore a clean command once we know where it stalls.
 [build]
-command = "vp run website#build"
+command = "echo '=== STEP1: extract-api ===' && pnpm exec tsx scripts/extract-api.ts && echo '=== STEP2: vite build (vite@8) ===' && pnpm exec vite build && echo '=== STEP3: build complete ==='"
 publish = "dist/client"
 
 [functions]
