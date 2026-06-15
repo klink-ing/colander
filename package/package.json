@@ -1,7 +1,14 @@
 {
   "name": "@klinking/colander",
   "version": "0.0.0",
+  "homepage": "https://github.com/klink-ing/colander#readme",
+  "bugs": "https://github.com/klink-ing/colander/issues",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/klink-ing/colander.git",
+    "directory": "package"
+  },
   "files": [
     "dist",
     "src"
