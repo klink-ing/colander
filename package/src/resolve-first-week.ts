@@ -40,9 +40,15 @@ export function resolveFirstWeekSpec(
   T: TemporalNamespace,
   timeZone?: string,
 ): Temporal.PlainDate {
-  // 1. PlainDate — Temporal objects have a "calendar" property
-  if ("calendar" in spec) {
-    return snapToWeekStart(spec as Temporal.PlainDate, weekStartDay);
+  // 1. Temporal.PlainDate — identified by its `calendarId` (modern Temporal
+  //    and @js-temporal/polyfill 0.5+ expose `calendarId`, not `calendar`).
+  //    Convert non-ISO calendars to ISO so the rest of the pipeline — which
+  //    is ISO-only — stays consistent; the week snap itself is
+  //    calendar-independent.
+  if ("calendarId" in spec) {
+    const pd = spec as Temporal.PlainDate;
+    const iso = pd.calendarId === "iso8601" ? pd : pd.withCalendar("iso8601");
+    return snapToWeekStart(iso, weekStartDay);
   }
 
   // 2. Native Date
