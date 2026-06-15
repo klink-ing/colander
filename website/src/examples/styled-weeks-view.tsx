@@ -9,7 +9,7 @@ import {
   WeekNumberHeader,
   useWeeksViewState,
   useCalendarStable,
-  type OverflowBehavior,
+  type OutOfRangeBehavior,
 } from "@klinking/colander";
 import { cn } from "#/lib/utils";
 import {
@@ -57,7 +57,7 @@ const navButtonClassName = cn(
 export interface StyledWeeksViewProps {
   weekCount: number;
   scrollBy: "row" | "page";
-  overflowBehavior: OverflowBehavior;
+  outOfRangeBehavior: OutOfRangeBehavior;
   onFirstWeekChange: (date: Temporal.PlainDate) => void;
   onWindowChange: (info: any) => void;
   showWeekNumbers: boolean;
@@ -69,7 +69,7 @@ export interface StyledWeeksViewProps {
 export function StyledWeeksView({
   weekCount,
   scrollBy,
-  overflowBehavior,
+  outOfRangeBehavior,
   onFirstWeekChange,
   onWindowChange,
   showWeekNumbers,
@@ -83,7 +83,7 @@ export function StyledWeeksView({
       <WeeksView.Root
         weekCount={weekCount}
         scrollBy={scrollBy}
-        overflowBehavior={overflowBehavior}
+        outOfRangeBehavior={outOfRangeBehavior}
         onFirstWeekChange={onFirstWeekChange}
         onWindowChange={onWindowChange}
       >

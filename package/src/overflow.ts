@@ -1,14 +1,60 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { TemporalNamespace, WeekStartDay } from "./types";
 
-export type OverflowBehavior =
+/**
+ * Controls how a {@link WeeksView} window behaves when navigation would move it
+ * past the `min`/`max` bounds.
+ *
+ * `min`/`max` always restrict which **days are selectable**. `outOfRangeBehavior`
+ * is a separate concern: it decides whether the **visible window** may scroll
+ * beyond those bounds, and how the edge is handled.
+ *
+ * - `"unbounded"` — Navigation is never restricted by `min`/`max`; any range of
+ *   weeks can be viewed. Out-of-range days simply render disabled. (Default.)
+ * - `"stop"` — Navigation halts at the boundary: the Prev/Next button is
+ *   disabled once the next step would show a window containing no in-range day.
+ * - `"stop-shrink"` — Like `"stop"`, but near the edge the window **shrinks** to
+ *   fewer week rows instead of showing rows that are entirely out of range.
+ * - `"snap"` — A jump that would overshoot **snaps** the window so its edge
+ *   aligns to the last/first in-range week, rather than stopping or overshooting.
+ * - `"snap-shrink"` — Snap to the boundary, then **shrink** the window to just
+ *   the in-range weeks.
+ *
+ * `"snap"` and `"snap-shrink"` are identical **unless the selectable range spans
+ * fewer weeks than `weekCount`** — i.e. the window is taller than the range.
+ * Snapping can only pin *one* edge to a bound; if the range is narrower than the
+ * window, the opposite edge still overhangs into out-of-range weeks. `"snap"`
+ * keeps the full `weekCount` (padding the overhang with all-disabled week rows),
+ * while `"snap-shrink"` trims those rows so only the in-range weeks show.
+ *
+ * Example with `weekCount: 6` and a `min`/`max` that span just 2 weeks: `"snap"`
+ * shows 6 rows (4 of them fully disabled), `"snap-shrink"` shows 2 rows. When
+ * the range is ≥ `weekCount` weeks wide, the snapped window already fits, so the
+ * two behave the same.
+ */
+export type OutOfRangeBehavior =
   | "unbounded"
   | "stop"
   | "stop-shrink"
   | "snap"
   | "snap-shrink";
 
-export type MonthOverflowBehavior = "unbounded" | "stop";
+/**
+ * Controls how {@link MonthView} navigation behaves when it would move the
+ * visible month(s) past the `min`/`max` bounds.
+ *
+ * `min`/`max` always restrict which **days are selectable**. This decides
+ * whether you can still **view** months outside them.
+ *
+ * - `"unbounded"` — Prev/Next are never disabled by `min`/`max`; you can page to
+ *   any month. Out-of-range days render disabled. (Default.)
+ * - `"stop"` — Prev/Next become disabled once the destination month crosses the
+ *   boundary.
+ *
+ * MonthView renders fixed month grids, so the `"…-shrink"`/`"snap…"` modes that
+ * {@link OutOfRangeBehavior} offers for WeeksView's flexible window don't apply.
+ */
+export type MonthOutOfRangeBehavior = "unbounded" | "stop";
 
 // ---------------------------------------------------------------------------
 // Internal helpers
@@ -108,7 +154,7 @@ function shrinkWindow(
 export interface ApplyOverflowInput {
   targetFirstWeek: Temporal.PlainDate;
   weekCount: number;
-  behavior: OverflowBehavior;
+  behavior: OutOfRangeBehavior;
   min?: Temporal.PlainDate;
   max?: Temporal.PlainDate;
   weekStartDay: WeekStartDay;
@@ -185,7 +231,7 @@ export interface CanShiftInput {
   weekCount: number;
   direction: 1 | -1;
   shiftBy?: number;
-  behavior: OverflowBehavior;
+  behavior: OutOfRangeBehavior;
   min?: Temporal.PlainDate;
   max?: Temporal.PlainDate;
   weekStartDay: WeekStartDay;

@@ -77,7 +77,8 @@ function useWeeksNavButton(
     temporal: T,
     weekStartDay,
   } = useCalendarStable();
-  const { weekCount, overflowBehavior, goNext, goPrev } = useWeeksViewStable();
+  const { weekCount, outOfRangeBehavior, goNext, goPrev } =
+    useWeeksViewStable();
   const { windowInfo } = useWeeksViewState();
   const { rootState } = useMonthViewState();
 
@@ -90,7 +91,7 @@ function useWeeksNavButton(
       weekCount,
       direction: direction === "next" ? 1 : -1,
       ...(shiftByProp !== undefined && { shiftBy: shiftByProp }),
-      behavior: overflowBehavior,
+      behavior: outOfRangeBehavior,
       ...(minValue !== undefined && { min: minValue }),
       ...(maxValue !== undefined && { max: maxValue }),
       weekStartDay,
@@ -102,7 +103,7 @@ function useWeeksNavButton(
     weekCount,
     direction,
     shiftByProp,
-    overflowBehavior,
+    outOfRangeBehavior,
     minValue,
     maxValue,
     weekStartDay,
@@ -149,7 +150,7 @@ function PrevWeeksButtonFn(
 
 /**
  * Button that navigates to the previous week(s). Automatically disabled when
- * no more weeks are available based on `overflowBehavior` and `min`.
+ * no more weeks are available based on `outOfRangeBehavior` and `min`.
  * Exposes `data-direction="prev"`.
  */
 export const PrevWeeksButton = forwardRef(PrevWeeksButtonFn);
@@ -177,7 +178,7 @@ function NextWeeksButtonFn(
 
 /**
  * Button that navigates to the next week(s). Automatically disabled when
- * no more weeks are available based on `overflowBehavior` and `max`.
+ * no more weeks are available based on `outOfRangeBehavior` and `max`.
  * Exposes `data-direction="next"`.
  */
 export const NextWeeksButton = forwardRef(NextWeeksButtonFn);

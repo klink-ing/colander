@@ -3,7 +3,7 @@ import { Fieldset as FieldsetPrimitive } from "@base-ui/react/fieldset";
 import { Temporal } from "@js-temporal/polyfill";
 import type {
   OutsideDays,
-  OverflowBehavior,
+  OutOfRangeBehavior,
   RangeMode,
 } from "@klinking/colander";
 import type { ComponentProps } from "react";
@@ -150,14 +150,14 @@ export interface AppControlsProps {
   setWeekCount: (v: number) => void;
   scrollBy: "row" | "page";
   setScrollBy: (v: "row" | "page") => void;
-  overflowBehavior: OverflowBehavior;
-  setOverflowBehavior: (v: OverflowBehavior) => void;
+  outOfRangeBehavior: OutOfRangeBehavior;
+  setOutOfRangeBehavior: (v: OutOfRangeBehavior) => void;
   showMonthSeparators: boolean;
   setShowMonthSeparators: (v: boolean) => void;
   disableDateMode: string;
   setDisableDateMode: (v: string) => void;
-  monthOverflowBehavior: "unbounded" | "stop";
-  setMonthOverflowBehavior: (v: "unbounded" | "stop") => void;
+  monthOutOfRangeBehavior: "unbounded" | "stop";
+  setMonthOutOfRangeBehavior: (v: "unbounded" | "stop") => void;
   selectionDisplay: string;
   lastMonthChange: string;
 }
@@ -220,14 +220,14 @@ export function AppControls(props: AppControlsProps) {
     setWeekCount,
     scrollBy,
     setScrollBy,
-    overflowBehavior,
-    setOverflowBehavior,
+    outOfRangeBehavior,
+    setOutOfRangeBehavior,
     showMonthSeparators,
     setShowMonthSeparators,
     disableDateMode,
     setDisableDateMode,
-    monthOverflowBehavior,
-    setMonthOverflowBehavior,
+    monthOutOfRangeBehavior,
+    setMonthOutOfRangeBehavior,
   } = props;
 
   return (
@@ -502,11 +502,11 @@ export function AppControls(props: AppControlsProps) {
                 </Field>
 
                 <Field>
-                  <FieldLabel>overflowBehavior</FieldLabel>
+                  <FieldLabel>outOfRangeBehavior</FieldLabel>
                   <RadioGroup
-                    value={monthOverflowBehavior}
+                    value={monthOutOfRangeBehavior}
                     onValueChange={(v) =>
-                      setMonthOverflowBehavior(v as "unbounded" | "stop")
+                      setMonthOutOfRangeBehavior(v as "unbounded" | "stop")
                     }
                   >
                     <RadioGroupItem value="unbounded">
@@ -561,14 +561,14 @@ export function AppControls(props: AppControlsProps) {
 
                 <Field>
                   <FieldLabel htmlFor="overflow-behavior">
-                    overflowBehavior
+                    outOfRangeBehavior
                   </FieldLabel>
                   <Select
                     id="overflow-behavior"
-                    value={overflowBehavior}
+                    value={outOfRangeBehavior}
                     onValueChange={(value) =>
-                      setOverflowBehavior(
-                        (value ?? "unbounded") as OverflowBehavior,
+                      setOutOfRangeBehavior(
+                        (value ?? "unbounded") as OutOfRangeBehavior,
                       )
                     }
                   >

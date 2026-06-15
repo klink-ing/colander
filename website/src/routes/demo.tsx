@@ -4,7 +4,7 @@ import {
   type DateRange,
   type RangeMode,
   type OutsideDays,
-  type OverflowBehavior,
+  type OutOfRangeBehavior,
 } from "@klinking/colander";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, useMemo, useCallback } from "react";
@@ -55,12 +55,12 @@ function DemoApp() {
 
   const [weekCount, setWeekCount] = useState(6);
   const [scrollBy, setScrollBy] = useState<"row" | "page">("row");
-  const [overflowBehavior, setOverflowBehavior] =
-    useState<OverflowBehavior>("unbounded");
+  const [outOfRangeBehavior, setOutOfRangeBehavior] =
+    useState<OutOfRangeBehavior>("unbounded");
   const [showMonthSeparators, setShowMonthSeparators] = useState(true);
 
   const [disableDateMode, setDisableDateMode] = useState<string>("none");
-  const [monthOverflowBehavior, setMonthOverflowBehavior] = useState<
+  const [monthOutOfRangeBehavior, setMonthOutOfRangeBehavior] = useState<
     "unbounded" | "stop"
   >("unbounded");
 
@@ -321,14 +321,14 @@ function DemoApp() {
           setWeekCount,
           scrollBy,
           setScrollBy,
-          overflowBehavior,
-          setOverflowBehavior,
+          outOfRangeBehavior,
+          setOutOfRangeBehavior,
           showMonthSeparators,
           setShowMonthSeparators,
           disableDateMode,
           setDisableDateMode,
-          monthOverflowBehavior,
-          setMonthOverflowBehavior,
+          monthOutOfRangeBehavior,
+          setMonthOutOfRangeBehavior,
           selectionDisplay,
           lastMonthChange,
         }}
@@ -354,7 +354,7 @@ function DemoApp() {
                 numberOfMonths={numberOfMonths}
                 fixedWeeks={fixedWeeks}
                 outsideDays={outsideDays}
-                overflowBehavior={monthOverflowBehavior}
+                outOfRangeBehavior={monthOutOfRangeBehavior}
                 onMonthChange={handleMonthChange}
                 autoFocus={autoFocus}
                 showWeekNumbers={showWeekNumbers}
@@ -366,7 +366,7 @@ function DemoApp() {
               <StyledWeeksView
                 weekCount={weekCount}
                 scrollBy={scrollBy}
-                overflowBehavior={overflowBehavior}
+                outOfRangeBehavior={outOfRangeBehavior}
                 onFirstWeekChange={handleFirstWeekChange}
                 onWindowChange={handleWindowChange}
                 showWeekNumbers={showWeekNumbers}

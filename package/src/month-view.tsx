@@ -33,7 +33,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
     numberOfMonths: numberOfMonthsProp,
     fixedWeeks: fixedWeeksProp,
     outsideDays: outsideDaysProp,
-    overflowBehavior: overflowBehaviorProp,
+    outOfRangeBehavior: outOfRangeBehaviorProp,
     month: monthProp,
     defaultMonth: defaultMonthProp,
     onMonthChange,
@@ -43,7 +43,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
   const numberOfMonths = Math.max(1, Math.min(numberOfMonthsProp ?? 1, 12));
   const fixedWeeks = fixedWeeksProp ?? false;
   const outsideDays = outsideDaysProp ?? "enabled";
-  const overflowBehavior = overflowBehaviorProp ?? "unbounded";
+  const outOfRangeBehavior = outOfRangeBehaviorProp ?? "unbounded";
 
   // Read calendar-level context
   const calStable = useCalendarStable();
@@ -383,7 +383,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
       numberOfMonths,
       fixedWeeks,
       outsideDays,
-      overflowBehavior,
+      outOfRangeBehavior,
       goNextMonth,
       goPrevMonth,
       setGridLabelId,
@@ -393,7 +393,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
       numberOfMonths,
       fixedWeeks,
       outsideDays,
-      overflowBehavior,
+      outOfRangeBehavior,
       goNextMonth,
       goPrevMonth,
       setGridLabelId,
@@ -447,7 +447,7 @@ function MonthView<F extends ValueFormat = "PlainDate">(
     numberOfMonths,
     fixedWeeks,
     outsideDays,
-    overflowBehavior,
+    outOfRangeBehavior,
     month,
     defaultMonth,
     onMonthChange,
@@ -461,7 +461,7 @@ function MonthView<F extends ValueFormat = "PlainDate">(
         numberOfMonths={numberOfMonths}
         fixedWeeks={fixedWeeks}
         outsideDays={outsideDays}
-        overflowBehavior={overflowBehavior}
+        outOfRangeBehavior={outOfRangeBehavior}
         month={month}
         defaultMonth={defaultMonth}
         onMonthChange={onMonthChange}

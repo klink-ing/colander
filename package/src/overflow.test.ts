@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { describe, it, expect } from "vitest";
-import { applyOverflow, canShift, type OverflowBehavior } from "./overflow";
+import { applyOverflow, canShift, type OutOfRangeBehavior } from "./overflow";
 
 const T = Temporal;
 const pd = (s: string) => T.PlainDate.from(s);
@@ -14,7 +14,7 @@ describe("applyOverflow", () => {
       description: "unbounded — no adjustment",
       targetFirstWeek: pd("2026-02-01"),
       weekCount: 8,
-      behavior: "unbounded" as OverflowBehavior,
+      behavior: "unbounded" as OutOfRangeBehavior,
       useMinMax: true,
       expected: { firstWeek: "2026-02-01", weekCount: 8 },
     },
@@ -22,7 +22,7 @@ describe("applyOverflow", () => {
       description: "stop — target has valid weeks, allowed",
       targetFirstWeek: pd("2025-12-07"),
       weekCount: 8,
-      behavior: "stop" as OverflowBehavior,
+      behavior: "stop" as OutOfRangeBehavior,
       useMinMax: true,
       expected: { firstWeek: "2025-12-07", weekCount: 8 },
     },
@@ -30,7 +30,7 @@ describe("applyOverflow", () => {
       description: "snap — pulls back when target overshoots max",
       targetFirstWeek: pd("2026-01-11"),
       weekCount: 8,
-      behavior: "snap" as OverflowBehavior,
+      behavior: "snap" as OutOfRangeBehavior,
       useMinMax: true,
       expected: {
         firstWeek: "2025-11-16",
@@ -41,7 +41,7 @@ describe("applyOverflow", () => {
       description: "snap-shrink — pulls back and trims disabled rows",
       targetFirstWeek: pd("2026-01-11"),
       weekCount: 8,
-      behavior: "snap-shrink" as OverflowBehavior,
+      behavior: "snap-shrink" as OutOfRangeBehavior,
       useMinMax: true,
       expected: {
         firstWeek: "2025-11-30",
@@ -52,7 +52,7 @@ describe("applyOverflow", () => {
       description: "stop-shrink — trims disabled rows",
       targetFirstWeek: pd("2025-12-07"),
       weekCount: 8,
-      behavior: "stop-shrink" as OverflowBehavior,
+      behavior: "stop-shrink" as OutOfRangeBehavior,
       useMinMax: true,
       expected: {
         firstWeek: "2025-12-07",
@@ -63,7 +63,7 @@ describe("applyOverflow", () => {
       description: "no min/max — all modes behave as unbounded",
       targetFirstWeek: pd("2026-06-01"),
       weekCount: 8,
-      behavior: "snap" as OverflowBehavior,
+      behavior: "snap" as OutOfRangeBehavior,
       useMinMax: false,
       expected: { firstWeek: "2026-06-01", weekCount: 8 },
     },
@@ -91,21 +91,21 @@ describe("canShift", () => {
   it.each([
     {
       description: "unbounded — always true",
-      behavior: "unbounded" as OverflowBehavior,
+      behavior: "unbounded" as OutOfRangeBehavior,
       currentFirstWeek: pd("2026-06-01"),
       direction: 1 as const,
       expected: true,
     },
     {
       description: "stop — false when target has no valid weeks",
-      behavior: "stop" as OverflowBehavior,
+      behavior: "stop" as OutOfRangeBehavior,
       currentFirstWeek: pd("2025-12-28"),
       direction: 1 as const,
       expected: false,
     },
     {
       description: "snap — false when already at clamp position",
-      behavior: "snap" as OverflowBehavior,
+      behavior: "snap" as OutOfRangeBehavior,
       currentFirstWeek: pd("2025-11-16"),
       direction: 1 as const,
       expected: false,

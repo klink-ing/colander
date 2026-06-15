@@ -249,6 +249,7 @@ function useNavButton(direction: "prev" | "next") {
     goNextMonth: goToNextMonth,
     goPrevMonth: goToPrevMonth,
     numberOfMonths,
+    outOfRangeBehavior,
   } = monthViewStable;
   const {
     currentMonth: currentDateTime,
@@ -285,6 +286,10 @@ function useNavButton(direction: "prev" | "next") {
 
   const isDisabled = useMemo(() => {
     if (globalDisabled) return true;
+    // "unbounded" never disables on min/max — the bounds only gate which days
+    // are selectable, not which months can be viewed. "stop" halts navigation
+    // once the destination month crosses the boundary.
+    if (outOfRangeBehavior === "unbounded") return false;
     if (!boundValue) return false;
     if (direction === "prev") {
       return (
@@ -296,7 +301,14 @@ function useNavButton(direction: "prev" | "next") {
       destYear > boundValue.year ||
       (destYear === boundValue.year && destMonth > boundValue.month)
     );
-  }, [globalDisabled, destYear, destMonth, boundValue, direction]);
+  }, [
+    globalDisabled,
+    outOfRangeBehavior,
+    destYear,
+    destMonth,
+    boundValue,
+    direction,
+  ]);
 
   // ISO — `destYear`/`destMonth` are ISO numbers; the locale calendar only
   // affects display, so it must not be injected into this value.

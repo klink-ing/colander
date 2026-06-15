@@ -140,7 +140,7 @@ export interface StyledMonthViewProps {
   numberOfMonths: number;
   fixedWeeks: boolean;
   outsideDays: OutsideDays;
-  overflowBehavior: "unbounded" | "stop";
+  outOfRangeBehavior: "unbounded" | "stop";
   onMonthChange: (month: Temporal.PlainYearMonth) => void;
   autoFocus: boolean;
   showWeekNumbers: boolean;
@@ -152,7 +152,7 @@ export function StyledMonthView({
   numberOfMonths,
   fixedWeeks,
   outsideDays,
-  overflowBehavior,
+  outOfRangeBehavior,
   onMonthChange,
   autoFocus,
   showWeekNumbers,
@@ -167,7 +167,7 @@ export function StyledMonthView({
         fixedWeeks={fixedWeeks}
         outsideDays={outsideDays}
         onMonthChange={onMonthChange}
-        overflowBehavior={overflowBehavior}
+        outOfRangeBehavior={outOfRangeBehavior}
       >
         <div className="p-3">
           {numberOfMonths === 1 && (

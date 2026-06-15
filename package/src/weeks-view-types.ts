@@ -1,6 +1,6 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { WeekDescriptor } from "./compute-weeks-in-window";
-import type { OverflowBehavior } from "./overflow";
+import type { OutOfRangeBehavior } from "./overflow";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { RootState } from "./types";
 
@@ -26,10 +26,21 @@ export interface WeeksViewRootProps {
    */
   scrollBy?: "row" | "page" | undefined;
   /**
-   * How navigation behaves at `min`/`max` bounds.
+   * How the visible window behaves at the `min`/`max` bounds. `min`/`max`
+   * always restrict which **days are selectable**; this controls whether the
+   * window may scroll beyond them, and how the edge is handled. See
+   * {@link OutOfRangeBehavior}.
+   *
+   * - `"unbounded"` — navigation is never restricted by `min`/`max`.
+   * - `"stop"` — navigation halts once the next step has no in-range day.
+   * - `"stop-shrink"` — like `"stop"`, but the window shrinks at the edge.
+   * - `"snap"` — overshooting jumps snap the window edge to the last/first
+   *   in-range week.
+   * - `"snap-shrink"` — snap to the boundary, shrinking if still out of range.
+   *
    * @default "unbounded"
    */
-  overflowBehavior?: OverflowBehavior | undefined;
+  outOfRangeBehavior?: OutOfRangeBehavior | undefined;
   /** Called when the visible window changes. */
   onWindowChange?: ((info: WindowInfo) => void) | undefined;
   /** React children. */
@@ -75,7 +86,7 @@ export interface WeeksViewStableContextValue {
   /** How much to scroll per navigation step. */
   scrollBy: "row" | "page";
   /** How navigation behaves at bounds. */
-  overflowBehavior: OverflowBehavior;
+  outOfRangeBehavior: OutOfRangeBehavior;
   /** Navigate to the next week(s). Optionally override the shift amount (in weeks). */
   goNext: (shiftBy?: number) => void;
   /** Navigate to the previous week(s). Optionally override the shift amount (in weeks). */

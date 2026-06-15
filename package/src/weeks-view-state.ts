@@ -2,7 +2,7 @@ import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { computeWeeksInWindow } from "./compute-weeks-in-window";
-import { applyOverflow, type OverflowBehavior } from "./overflow";
+import { applyOverflow, type OutOfRangeBehavior } from "./overflow";
 import {
   resolveFirstWeekSpec,
   resolveFirstWeek,
@@ -29,13 +29,13 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     defaultFirstWeek: defaultFirstWeekProp,
     onFirstWeekChange,
     scrollBy: scrollByProp,
-    overflowBehavior: overflowBehaviorProp,
+    outOfRangeBehavior: outOfRangeBehaviorProp,
     onWindowChange,
   } = props;
 
   const scrollBy = scrollByProp ?? "row";
-  const overflowBehavior: OverflowBehavior =
-    overflowBehaviorProp ?? "unbounded";
+  const outOfRangeBehavior: OutOfRangeBehavior =
+    outOfRangeBehaviorProp ?? "unbounded";
 
   // Read calendar-level context
   const calStable = useCalendarStable();
@@ -87,7 +87,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       applyOverflow({
         targetFirstWeek: resolvedFirstWeek,
         weekCount,
-        behavior: overflowBehavior,
+        behavior: outOfRangeBehavior,
         ...(minValue !== undefined && { min: minValue }),
         ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
@@ -96,7 +96,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [
       resolvedFirstWeek,
       weekCount,
-      overflowBehavior,
+      outOfRangeBehavior,
       minValue,
       maxValue,
       weekStartDay,
@@ -313,7 +313,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       const adjusted = applyOverflow({
         targetFirstWeek: target,
         weekCount,
-        behavior: overflowBehavior,
+        behavior: outOfRangeBehavior,
         ...(minValue !== undefined && { min: minValue }),
         ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
@@ -324,7 +324,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [
       resolvedFirstWeek,
       weekCount,
-      overflowBehavior,
+      outOfRangeBehavior,
       minValue,
       maxValue,
       weekStartDay,
@@ -340,7 +340,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       const adjusted = applyOverflow({
         targetFirstWeek: target,
         weekCount,
-        behavior: overflowBehavior,
+        behavior: outOfRangeBehavior,
         ...(minValue !== undefined && { min: minValue }),
         ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
@@ -351,7 +351,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [
       resolvedFirstWeek,
       weekCount,
-      overflowBehavior,
+      outOfRangeBehavior,
       minValue,
       maxValue,
       weekStartDay,
@@ -376,7 +376,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       const adjusted = applyOverflow({
         targetFirstWeek: newFirstWeek,
         weekCount,
-        behavior: overflowBehavior,
+        behavior: outOfRangeBehavior,
         ...(minValue !== undefined && { min: minValue }),
         ...(maxValue !== undefined && { max: maxValue }),
         weekStartDay,
@@ -388,7 +388,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       resolvedFirstWeek,
       weekCount,
       resolveSpec,
-      overflowBehavior,
+      outOfRangeBehavior,
       minValue,
       maxValue,
       weekStartDay,
@@ -420,7 +420,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     () => ({
       weekCount,
       scrollBy,
-      overflowBehavior,
+      outOfRangeBehavior,
       goNext,
       goPrev,
       scrollToWeek,
@@ -430,7 +430,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [
       weekCount,
       scrollBy,
-      overflowBehavior,
+      outOfRangeBehavior,
       goNext,
       goPrev,
       scrollToWeek,
