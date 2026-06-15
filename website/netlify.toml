@@ -1,18 +1,18 @@
 # This site is the `website` package of a pnpm-workspace monorepo. The Netlify
 # project's base directory is set to `website`, so the build runs with the
-# working directory already at website/ — publish/functions are therefore
-# relative to website/ (NOT prefixed with "website/", or they'd double up).
+# working directory at website/ — publish/functions are relative to website/.
 #
-# `vp run website#build` builds the website task via the workspace toolchain
-# (regenerates docs + extract-api + vite build). The website imports
-# `@klinking/colander` straight from ../package/src (vite alias), so no separate
-# package build is needed.
+# Build with `pnpm build`, NOT `vp run website#build`: under vp, `vite build`
+# resolves to the workspace-root vite (voidzero vite-plus-core / rolldown)
+# instead of the website's standard vite@8, which hangs in Netlify's build
+# container and times out. `pnpm build` runs the website's own vite@8 and builds
+# cleanly. (vp is still used for local dev and CI tasks.)
 #
-# Node is pinned via website/.node-version (24.14.1) — once the base directory is
-# a subdir, Netlify no longer reads the repo-root .node-version and otherwise
-# falls back to Node 22, which the toolchain (engines >=24.14.1) doesn't support.
+# Node is pinned via website/.node-version (24.14.1): once the base directory is
+# a subdir, Netlify stops reading the repo-root .node-version and otherwise falls
+# back to Node 22 (engines want >=24.14.1).
 [build]
-command = "vp run website#build"
+command = "pnpm build"
 publish = "dist/client"
 
 [functions]
