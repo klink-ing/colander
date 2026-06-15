@@ -1,6 +1,15 @@
+# This site is a package within a pnpm-workspace monorepo. Netlify reads this
+# config via the project's "package directory" (packagePath = website) but runs
+# the build from the repo root (base = root). So the command and the
+# publish/functions paths are written to work from the repo root:
+#   - `vp run website#build` builds the website task from anywhere in the
+#     workspace (vp resolves the workspace; the task runs in website/).
+#   - publish/functions are repo-root-relative and point into website/.
+# Do NOT make these package-relative unless you also set the Netlify base
+# directory to `website`.
 [build]
-command = "pnpm build"
-publish = "dist/client"
+command = "vp run website#build"
+publish = "website/dist/client"
 
 [functions]
-directory = ".netlify/v1/functions"
+directory = "website/.netlify/v1/functions"
