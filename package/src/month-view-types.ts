@@ -1,5 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import type { MonthOverflowBehavior } from "./overflow";
+import type { MonthOutOfRangeBehavior } from "./out-of-range";
 import type { MonthData, OutsideDays, RootState } from "./types";
 
 // ---------------------------------------------------------------------------
@@ -25,12 +25,17 @@ export interface MonthViewRootProps {
    */
   outsideDays?: OutsideDays | undefined;
   /**
-   * How month navigation behaves at `min`/`max` bounds.
-   * - `"unbounded"` — navigation is always allowed.
-   * - `"stop"` — navigation buttons disable at the boundary.
+   * How month navigation behaves at the `min`/`max` bounds. `min`/`max` always
+   * restrict which **days are selectable**; this controls whether you can still
+   * **view** months outside them. See {@link MonthOutOfRangeBehavior}.
+   *
+   * - `"unbounded"` — Prev/Next are never disabled by `min`/`max`; you can page
+   *   to any month, with out-of-range days rendered disabled.
+   * - `"stop"` — Prev/Next disable once the destination month crosses the bound.
+   *
    * @default "unbounded"
    */
-  overflowBehavior?: MonthOverflowBehavior | undefined;
+  outOfRangeBehavior?: MonthOutOfRangeBehavior | undefined;
   /**
    * The controlled visible month. When provided, the component is controlled.
    *
@@ -65,7 +70,7 @@ export interface MonthViewStableContextValue {
   /** How outside-month days are displayed. */
   outsideDays: OutsideDays;
   /** How month navigation behaves at bounds. */
-  overflowBehavior: MonthOverflowBehavior;
+  outOfRangeBehavior: MonthOutOfRangeBehavior;
   /** Navigate to the next month(s). */
   goNextMonth: () => void;
   /** Navigate to the previous month(s). */

@@ -48,7 +48,7 @@ function WeeksViewRootFn(
       numberOfMonths: 1,
       fixedWeeks: false,
       outsideDays: "enabled" as const,
-      overflowBehavior: "unbounded" as const,
+      outOfRangeBehavior: "unbounded" as const,
       goNextMonth: () => {},
       goPrevMonth: () => {},
       setGridLabelId: () => {},
@@ -106,7 +106,7 @@ function WeeksViewFn(
     defaultFirstWeek,
     onFirstWeekChange,
     scrollBy,
-    overflowBehavior,
+    outOfRangeBehavior,
     onWindowChange,
     children,
     ...calendarProps
@@ -121,7 +121,7 @@ function WeeksViewFn(
         defaultFirstWeek={defaultFirstWeek}
         onFirstWeekChange={onFirstWeekChange}
         scrollBy={scrollBy}
-        overflowBehavior={overflowBehavior}
+        outOfRangeBehavior={outOfRangeBehavior}
         onWindowChange={onWindowChange}
       >
         {children}

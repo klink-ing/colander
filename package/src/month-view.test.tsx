@@ -758,7 +758,7 @@ describe("numberOfMonths", () => {
       unmount();
     });
 
-    it("next button disabled when last visible month reaches max", () => {
+    it('outOfRangeBehavior="stop": next button disabled when last visible month reaches max', () => {
       const maxDate = Temporal.PlainDate.from("2026-05-31");
       const { container, unmount } = render(
         <MonthView
@@ -766,6 +766,7 @@ describe("numberOfMonths", () => {
           defaultValue={march15}
           numberOfMonths={3}
           max={maxDate}
+          outOfRangeBehavior="stop"
         >
           <NextMonthButton data-testid="next" />
         </MonthView>,
@@ -778,7 +779,49 @@ describe("numberOfMonths", () => {
       unmount();
     });
 
-    it("prev button disabled when first visible month reaches min", () => {
+    it('outOfRangeBehavior="stop": prev button disabled when first visible month reaches min', () => {
+      const minDate = Temporal.PlainDate.from("2026-03-01");
+      const { container, unmount } = render(
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={2}
+          min={minDate}
+          outOfRangeBehavior="stop"
+        >
+          <PrevMonthButton data-testid="prev" />
+        </MonthView>,
+      );
+
+      // First visible month is March, min is March 1 → prev (Feb) is before min
+      const btn = container.querySelector('[data-testid="prev"]')!;
+      expect(btn.getAttribute("disabled")).toBe("");
+
+      unmount();
+    });
+
+    it('outOfRangeBehavior="unbounded" (default): next button stays enabled past max', () => {
+      const maxDate = Temporal.PlainDate.from("2026-05-31");
+      const { container, unmount } = render(
+        <MonthView
+          {...defaultProps}
+          defaultValue={march15}
+          numberOfMonths={3}
+          max={maxDate}
+        >
+          <NextMonthButton data-testid="next" />
+        </MonthView>,
+      );
+
+      // Default is "unbounded": max only restricts selectable days, not which
+      // months can be viewed, so the button must NOT disable at the bound.
+      const btn = container.querySelector('[data-testid="next"]')!;
+      expect(btn.getAttribute("disabled")).toBeNull();
+
+      unmount();
+    });
+
+    it('outOfRangeBehavior="unbounded" (default): prev button stays enabled past min', () => {
       const minDate = Temporal.PlainDate.from("2026-03-01");
       const { container, unmount } = render(
         <MonthView
@@ -791,9 +834,8 @@ describe("numberOfMonths", () => {
         </MonthView>,
       );
 
-      // First visible month is March, min is March 1 → prev (Feb) is before min
       const btn = container.querySelector('[data-testid="prev"]')!;
-      expect(btn.getAttribute("disabled")).toBe("");
+      expect(btn.getAttribute("disabled")).toBeNull();
 
       unmount();
     });

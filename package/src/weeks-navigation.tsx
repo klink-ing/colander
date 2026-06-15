@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import React, { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { useMonthViewState } from "./month-view-context";
-import { canShift } from "./overflow";
+import { canShift } from "./out-of-range";
 import type { RootState, StateAttributesMapping } from "./types";
 import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
@@ -77,7 +77,8 @@ function useWeeksNavButton(
     temporal: T,
     weekStartDay,
   } = useCalendarStable();
-  const { weekCount, overflowBehavior, goNext, goPrev } = useWeeksViewStable();
+  const { weekCount, outOfRangeBehavior, goNext, goPrev } =
+    useWeeksViewStable();
   const { windowInfo } = useWeeksViewState();
   const { rootState } = useMonthViewState();
 
@@ -90,7 +91,7 @@ function useWeeksNavButton(
       weekCount,
       direction: direction === "next" ? 1 : -1,
       ...(shiftByProp !== undefined && { shiftBy: shiftByProp }),
-      behavior: overflowBehavior,
+      behavior: outOfRangeBehavior,
       ...(minValue !== undefined && { min: minValue }),
       ...(maxValue !== undefined && { max: maxValue }),
       weekStartDay,
@@ -102,7 +103,7 @@ function useWeeksNavButton(
     weekCount,
     direction,
     shiftByProp,
-    overflowBehavior,
+    outOfRangeBehavior,
     minValue,
     maxValue,
     weekStartDay,
@@ -149,7 +150,7 @@ function PrevWeeksButtonFn(
 
 /**
  * Button that navigates to the previous week(s). Automatically disabled when
- * no more weeks are available based on `overflowBehavior` and `min`.
+ * no more weeks are available based on `outOfRangeBehavior` and `min`.
  * Exposes `data-direction="prev"`.
  */
 export const PrevWeeksButton = forwardRef(PrevWeeksButtonFn);
@@ -177,7 +178,7 @@ function NextWeeksButtonFn(
 
 /**
  * Button that navigates to the next week(s). Automatically disabled when
- * no more weeks are available based on `overflowBehavior` and `max`.
+ * no more weeks are available based on `outOfRangeBehavior` and `max`.
  * Exposes `data-direction="next"`.
  */
 export const NextWeeksButton = forwardRef(NextWeeksButtonFn);
@@ -216,6 +217,6 @@ function WeekCountFn(
 
 /**
  * Renders the current visible week count as a number. Useful with shrink
- * overflow modes where the actual count may be less than the `weekCount` prop.
+ * out-of-range modes where the actual count may be less than the `weekCount` prop.
  */
 export const WeekCount = forwardRef(WeekCountFn);
