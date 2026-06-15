@@ -1,5 +1,6 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type {
+  BaseRootState,
   DateRange,
   DateValueObject,
   RangeMode,
@@ -219,4 +220,10 @@ export interface CalendarStateContextValue {
   previewStart: Temporal.PlainDate | undefined;
   /** End of the computed preview range. */
   previewEnd: Temporal.PlainDate | undefined;
+  /**
+   * View-independent part of the render-prop `RootState` (selection + resolved
+   * config), built once here so MonthView and WeeksView expose identical state.
+   * Each view adds its own `focused`/`viewing`.
+   */
+  baseRootState: BaseRootState;
 }

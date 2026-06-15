@@ -9,7 +9,6 @@ import { MonthViewStableContext } from "./month-view-context";
 import { useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
   DayCellTemplateProps,
   DayButtonProps,
   DayCellTemplateState,
@@ -244,8 +243,8 @@ export const dayStateAttributesMapping = {
 } as const satisfies StateAttributesMapping<DayCellTemplateState>;
 
 /** Props for the memoized DayCellInstance. */
-interface DayCellInstanceProps<F extends ValueFormat = ValueFormat> {
-  render?: DayCellTemplateProps<F>["render"];
+interface DayCellInstanceProps {
+  render?: DayCellTemplateProps["render"];
   date: TemporalPoly.PlainDate;
   columnIndex?: number | undefined;
   children?: React.ReactNode;
@@ -253,13 +252,11 @@ interface DayCellInstanceProps<F extends ValueFormat = ValueFormat> {
   [key: string]: unknown;
 }
 
-function DayCellInstanceFn<F extends ValueFormat = ValueFormat>(
-  props: DayCellInstanceProps<F>,
-) {
+function DayCellInstanceFn(props: DayCellInstanceProps) {
   const { render, date, columnIndex, children, _derivedState, ...otherProps } =
     props;
 
-  const state = _derivedState as unknown as DayCellTemplateState<F>;
+  const state = _derivedState as unknown as DayCellTemplateState;
 
   const defaultProps: Record<string, unknown> = state.hidden
     ? {
@@ -348,9 +345,7 @@ const DayCellInstance = memo(
  * When used inside a {@link WeekTemplate}, iterates over that week's days.
  * An explicit `date` prop renders a single cell.
  */
-export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
-  props: DayCellTemplateProps<F>,
-) {
+export function DayCellTemplate(props: DayCellTemplateProps) {
   const { date: dateProp, ...restProps } = props;
   const weekData = useContext(WeekDataContext);
 
@@ -457,8 +452,8 @@ export function DayCellTemplate<F extends ValueFormat = ValueFormat>(
 }
 
 /** Props for the memoized DayButtonInstance. */
-interface DayButtonInnerProps<F extends ValueFormat = ValueFormat> {
-  render?: DayButtonProps<F>["render"];
+interface DayButtonInnerProps {
+  render?: DayButtonProps["render"];
   date: TemporalPoly.PlainDate;
   _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
   [key: string]: unknown;
@@ -570,8 +565,8 @@ function dayButtonInnerPropsAreEqual(
 const DayButtonInner = memo(
   forwardRef(DayButtonInnerFn as any) as any,
   dayButtonInnerPropsAreEqual as any,
-) as unknown as <F extends ValueFormat = ValueFormat>(
-  props: DayButtonInnerProps<F> & React.RefAttributes<HTMLButtonElement>,
+) as unknown as (
+  props: DayButtonInnerProps & React.RefAttributes<HTMLButtonElement>,
 ) => React.ReactElement | null;
 
 /**
@@ -612,10 +607,8 @@ function DayButtonFn(
   );
 }
 
-export const DayButton = forwardRef(DayButtonFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: DayButtonProps<F> & {
+export const DayButton = forwardRef(DayButtonFn) as (
+  props: DayButtonProps & {
     _derivedState?: DayCellTemplateState & { isTabTarget: boolean };
   } & React.RefAttributes<HTMLButtonElement>,
 ) => React.ReactElement | null;
@@ -681,10 +674,8 @@ function DayButtonFallbackFn(
   );
 }
 
-const DayButtonFallback = forwardRef(DayButtonFallbackFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: Omit<DayButtonProps<F>, "date"> & {
+const DayButtonFallback = forwardRef(DayButtonFallbackFn) as (
+  props: Omit<DayButtonProps, "date"> & {
     date: TemporalPoly.PlainDate;
   } & React.RefAttributes<HTMLButtonElement>,
 ) => React.ReactElement | null;

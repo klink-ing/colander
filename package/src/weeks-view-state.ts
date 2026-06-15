@@ -8,6 +8,7 @@ import {
   resolveFirstWeek,
   type FirstWeekSpec,
 } from "./resolve-first-week";
+import type { RootState } from "./types";
 import { selectedToZdt, toZonedDateTime } from "./utils";
 import type { ViewContextValue } from "./view-context";
 import type {
@@ -437,6 +438,21 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     ],
   );
 
+  // Real render-prop rootState shared by the MonthViewState shims (WeeksView
+  // root + the inner Grid), so components reading `state.root` inside WeeksView
+  // see populated values instead of an empty cast.
+  const rootState = useMemo<RootState>(
+    () => ({
+      ...calState.baseRootState,
+      focused: focusedDate,
+      viewing: T.PlainYearMonth.from({
+        year: currentDateTime.year,
+        month: currentDateTime.month,
+      }),
+    }),
+    [calState.baseRootState, focusedDate, currentDateTime, T],
+  );
+
   const stateCtx = useMemo<WeeksViewStateContextValue>(
     () => ({
       focusedDate,
@@ -444,8 +460,16 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       gridLabelIds,
       weeks: adjustedWeeks,
       currentDateTime,
+      rootState,
     }),
-    [focusedDate, windowInfo, gridLabelIds, adjustedWeeks, currentDateTime],
+    [
+      focusedDate,
+      windowInfo,
+      gridLabelIds,
+      adjustedWeeks,
+      currentDateTime,
+      rootState,
+    ],
   );
 
   const viewCtx = useMemo<ViewContextValue>(

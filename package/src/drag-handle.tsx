@@ -6,7 +6,6 @@ import { DayCellDataContext, GridContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
   DragHandleState,
   RangeStartDragHandleProps,
   RangeEndDragHandleProps,
@@ -21,7 +20,7 @@ const dragHandleStateAttributesMapping = {
   orientation: (v) => ({ "data-orientation": v }),
 } as const satisfies StateAttributesMapping<DragHandleState>;
 
-function useDragHandle<F extends ValueFormat = ValueFormat>(
+function useDragHandle(
   edge: "start" | "end",
   { dragging: draggingProp }: { dragging?: boolean | undefined },
 ) {
@@ -48,9 +47,9 @@ function useDragHandle<F extends ValueFormat = ValueFormat>(
   const isDragging = !!draggingProp && isActive;
   const handleRef = useRef<HTMLSpanElement>(null);
 
-  const state = useMemo<DragHandleState<F>>(
+  const state = useMemo<DragHandleState>(
     () => ({
-      root: rootState as any,
+      root: rootState,
       active: isActive,
       dragging: isDragging,
       edge,
@@ -108,10 +107,8 @@ function RangeDragHandleFn(
  * Drag handle (`<span>`) rendered at a range boundary. Exposes
  * `data-active`, `data-dragging`, and `data-edge` attributes.
  */
-export const RangeDragHandle = forwardRef(RangeDragHandleFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangeDragHandleProps<F> & React.RefAttributes<HTMLSpanElement>,
+export const RangeDragHandle = forwardRef(RangeDragHandleFn) as (
+  props: RangeDragHandleProps & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
 function RangeStartDragHandleFn(
@@ -122,10 +119,8 @@ function RangeStartDragHandleFn(
 }
 
 /** Convenience wrapper for {@link RangeDragHandle} with `edge="start"`. */
-export const RangeStartDragHandle = forwardRef(RangeStartDragHandleFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangeStartDragHandleProps<F> & React.RefAttributes<HTMLSpanElement>,
+export const RangeStartDragHandle = forwardRef(RangeStartDragHandleFn) as (
+  props: RangeStartDragHandleProps & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
 function RangeEndDragHandleFn(
@@ -136,8 +131,6 @@ function RangeEndDragHandleFn(
 }
 
 /** Convenience wrapper for {@link RangeDragHandle} with `edge="end"`. */
-export const RangeEndDragHandle = forwardRef(RangeEndDragHandleFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: RangeEndDragHandleProps<F> & React.RefAttributes<HTMLSpanElement>,
+export const RangeEndDragHandle = forwardRef(RangeEndDragHandleFn) as (
+  props: RangeEndDragHandleProps & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;

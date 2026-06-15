@@ -2,6 +2,7 @@ import type { Temporal } from "@js-temporal/polyfill";
 import type { WeekDescriptor } from "./compute-weeks-in-window";
 import type { OverflowBehavior } from "./overflow";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
+import type { RootState } from "./types";
 
 // ---------------------------------------------------------------------------
 // WeeksView.Root props
@@ -102,4 +103,6 @@ export interface WeeksViewStateContextValue {
   weeks: WeekDescriptor[];
   /** Date-time representing the current moment (for "today" highlighting). */
   currentDateTime: Temporal.PlainDateTime;
+  /** Render-prop `RootState` exposed to components inside WeeksView. */
+  rootState: RootState;
 }

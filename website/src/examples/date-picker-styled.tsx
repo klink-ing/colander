@@ -18,7 +18,6 @@ import {
   GridContext,
 } from "@klinking/colander";
 import type {
-  ValueFormat,
   GridProps,
   GridBodyProps,
   WeekTemplateProps,
@@ -35,10 +34,10 @@ import type {
 import { DragHandle, DragDayButton } from "#/lib/drag-components";
 import { cn } from "#/lib/utils";
 
-export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
+export function StyledPrevMonthButton({
   className,
   ...props
-}: PrevMonthButtonProps<F> & { ref?: Ref<HTMLButtonElement> }) {
+}: PrevMonthButtonProps & { ref?: Ref<HTMLButtonElement> }) {
   return (
     <PrevMonthButton
       data-testid="button-prev-month"
@@ -57,10 +56,10 @@ export function StyledPrevMonthButton<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
+export function StyledNextMonthButton({
   className,
   ...props
-}: NextMonthButtonProps<F> & { ref?: Ref<HTMLButtonElement> }) {
+}: NextMonthButtonProps & { ref?: Ref<HTMLButtonElement> }) {
   return (
     <NextMonthButton
       data-testid="button-next-month"
@@ -79,10 +78,10 @@ export function StyledNextMonthButton<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledMonthYearString<F extends ValueFormat = ValueFormat>({
+export function StyledMonthYearString({
   className,
   ...props
-}: MonthYearStringProps<F> & { ref?: Ref<HTMLSpanElement> }) {
+}: MonthYearStringProps & { ref?: Ref<HTMLSpanElement> }) {
   return (
     <MonthYearString
       data-testid="text-current-month"
@@ -92,10 +91,10 @@ export function StyledMonthYearString<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledGrid<F extends ValueFormat = ValueFormat>({
+export function StyledGrid({
   className,
   ...props
-}: GridProps<F> & { ref?: Ref<HTMLTableElement> }) {
+}: GridProps & { ref?: Ref<HTMLTableElement> }) {
   return (
     <Grid
       mode="grid"
@@ -108,10 +107,10 @@ export function StyledGrid<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
+export function StyledGridHeader({
   className,
   ...props
-}: GridHeaderProps<F> & { ref?: Ref<HTMLTableSectionElement> }) {
+}: GridHeaderProps & { ref?: Ref<HTMLTableSectionElement> }) {
   return (
     <GridHeader
       {...(props as GridHeaderProps)}
@@ -124,10 +123,10 @@ export function StyledGridHeader<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
+export function StyledGridHeaderCell({
   className,
   ...props
-}: GridHeaderCellProps<F> & { ref?: Ref<HTMLTableCellElement> }) {
+}: GridHeaderCellProps & { ref?: Ref<HTMLTableCellElement> }) {
   return (
     <GridHeaderCell
       {...(props as GridHeaderCellProps)}
@@ -139,10 +138,10 @@ export function StyledGridHeaderCell<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledGridBody<F extends ValueFormat = ValueFormat>({
+export function StyledGridBody({
   className,
   ...props
-}: GridBodyProps<F> & { ref?: Ref<HTMLTableSectionElement> }) {
+}: GridBodyProps & { ref?: Ref<HTMLTableSectionElement> }) {
   return (
     <GridBody
       {...(props as GridBodyProps)}
@@ -151,10 +150,10 @@ export function StyledGridBody<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
+export function StyledWeekTemplate({
   className,
   ...props
-}: WeekTemplateProps<F> & { ref?: Ref<HTMLTableRowElement> }) {
+}: WeekTemplateProps & { ref?: Ref<HTMLTableRowElement> }) {
   return (
     <WeekTemplate
       {...(props as WeekTemplateProps)}
@@ -171,8 +170,8 @@ export function StyledWeekTemplate<F extends ValueFormat = ValueFormat>({
   );
 }
 
-export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
-  allProps: DayCellTemplateProps<F> & {
+export function StyledDayCellTemplate(
+  allProps: DayCellTemplateProps & {
     ref?: Ref<HTMLTableCellElement>;
     columnOffset?: number;
     preventRangeReversal?: boolean;
@@ -223,12 +222,12 @@ export function StyledDayCellTemplate<F extends ValueFormat = ValueFormat>(
   );
 }
 
-export function StyledDayButton<F extends ValueFormat = ValueFormat>({
+export function StyledDayButton({
   className,
   date,
   preventRangeReversal,
   ...props
-}: DayButtonProps<F> & {
+}: DayButtonProps & {
   ref?: Ref<HTMLButtonElement>;
   preventRangeReversal?: boolean;
 }) {
@@ -334,8 +333,8 @@ export function StyledDragHandle({
   );
 }
 
-export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
-  allProps: RangePreviewProps<F> & {
+export function StyledRangePreview(
+  allProps: RangePreviewProps & {
     ref?: Ref<HTMLTableCellElement>;
     columnOffset?: number;
   },
@@ -388,8 +387,8 @@ export function StyledRangePreview<F extends ValueFormat = ValueFormat>(
   );
 }
 
-export function StyledRangeSelected<F extends ValueFormat = ValueFormat>(
-  allProps: RangeSelectedProps<F> & {
+export function StyledRangeSelected(
+  allProps: RangeSelectedProps & {
     ref?: Ref<HTMLTableCellElement>;
     columnOffset?: number;
   },

@@ -15,6 +15,7 @@ import {
   MonthSeparatorYear,
   MonthSeparatorWeekCount,
 } from "./month-separator";
+import { useMonthViewState } from "./month-view-context";
 import { useViewContext } from "./view-context";
 import { NextWeeksButton, PrevWeeksButton } from "./weeks-navigation";
 import { WeeksView } from "./weeks-view";
@@ -534,5 +535,53 @@ describe("WeeksView regression: goNext/goPrev shift by weekCount (Bug #3)", () =
     });
     // Explicit shiftBy=2 should shift by 2 weeks, landing on 2026-03-15
     expect(screen.getByTestId("start").textContent).toBe("2026-03-15");
+  });
+});
+
+describe("WeeksView regression: rootState shim is populated", () => {
+  function ShimRootStateCapture({
+    onCapture,
+  }: {
+    onCapture: (
+      root: ReturnType<typeof useMonthViewState>["rootState"],
+    ) => void;
+  }) {
+    const { rootState } = useMonthViewState();
+    onCapture(rootState);
+    return null;
+  }
+
+  it("exposes a real rootState to components reading useMonthViewState()", () => {
+    let root: ReturnType<typeof useMonthViewState>["rootState"] | undefined;
+    render(
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+        defaultValue={T.PlainDate.from("2026-03-15")}
+      >
+        <ShimRootStateCapture
+          onCapture={(r) => {
+            root = r;
+          }}
+        />
+      </WeeksView>,
+    );
+
+    // Pre-fix this shim was `{} as RootState` — every field undefined at runtime.
+    expect(root).toBeDefined();
+    expect(root!.viewing).toBeInstanceOf(Temporal.PlainYearMonth);
+    expect(root!.focused).toBeInstanceOf(Temporal.PlainDate);
+    expect(typeof root!.timeZone).toBe("string");
+    expect(root!.timeZone.length).toBeGreaterThan(0);
+    expect(typeof root!.locale).toBe("string");
+    expect(typeof root!.readOnly).toBe("boolean");
+    // Selection flows through the shared baseRootState into the shim.
+    expect(root!.hasSelection).toBe(true);
+    expect(root!.selected).toBeInstanceOf(Temporal.PlainDate);
+    expect(root!.selected!.toString()).toBe("2026-03-15");
+    expect(
+      root!.selectedDates.every((d) => d instanceof Temporal.PlainDate),
+    ).toBe(true);
   });
 });

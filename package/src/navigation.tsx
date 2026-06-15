@@ -5,7 +5,6 @@ import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { useMonthViewStable, useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
   DateStringState,
   DateStringProps,
   TimeStringState,
@@ -60,7 +59,7 @@ function DateStringFn(
 
   const state = useMemo<DateStringState>(
     () => ({
-      root: rootState as any,
+      root: rootState,
       month,
       year,
       day,
@@ -87,10 +86,8 @@ function DateStringFn(
  * Displays the currently selected (or current) date as localized text.
  * Renders a `<span>` with `aria-live="polite"`.
  */
-export const DateString = forwardRef(DateStringFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: DateStringProps<F> & React.RefAttributes<HTMLSpanElement>,
+export const DateString = forwardRef(DateStringFn) as (
+  props: DateStringProps & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
 function TimeStringFn(
@@ -120,7 +117,7 @@ function TimeStringFn(
 
   const state = useMemo<TimeStringState>(
     () => ({
-      root: rootState as any,
+      root: rootState,
       hour,
       minute,
       second,
@@ -148,10 +145,8 @@ function TimeStringFn(
  * Falls back to the current time when nothing is selected.
  * Renders a `<span>` with `aria-live="polite"`.
  */
-export const TimeString = forwardRef(TimeStringFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: TimeStringProps<F> & React.RefAttributes<HTMLSpanElement>,
+export const TimeString = forwardRef(TimeStringFn) as (
+  props: TimeStringProps & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
 function MonthYearStringFn(
@@ -202,7 +197,7 @@ function MonthYearStringFn(
 
   const state = useMemo<MonthYearStringState>(
     () => ({
-      root: rootState as any,
+      root: rootState,
       month: displayMonth,
       year: displayYear,
     }),
@@ -237,15 +232,11 @@ function MonthYearStringFn(
  * referenced by the calendar grid's `aria-labelledby` and serves as its
  * accessible name.
  */
-export const MonthYearString = forwardRef(MonthYearStringFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: MonthYearStringProps<F> & React.RefAttributes<HTMLSpanElement>,
+export const MonthYearString = forwardRef(MonthYearStringFn) as (
+  props: MonthYearStringProps & React.RefAttributes<HTMLSpanElement>,
 ) => React.ReactElement | null;
 
-function useNavButton<F extends ValueFormat = ValueFormat>(
-  direction: "prev" | "next",
-) {
+function useNavButton(direction: "prev" | "next") {
   const {
     disabled: globalDisabled,
     minValue,
@@ -314,8 +305,8 @@ function useNavButton<F extends ValueFormat = ValueFormat>(
     [destYear, destMonth, T],
   );
 
-  const state = useMemo<NavButtonState<F>>(
-    () => ({ root: rootState as any, direction, disabled: isDisabled, target }),
+  const state = useMemo<NavButtonState>(
+    () => ({ root: rootState, direction, disabled: isDisabled, target }),
     [rootState, direction, isDisabled, target],
   );
 
@@ -359,10 +350,8 @@ function PrevMonthButtonFn(
  * Button that navigates to the previous month. Automatically disabled
  * when the previous month falls before `min`. Exposes `data-direction="prev"`.
  */
-export const PrevMonthButton = forwardRef(PrevMonthButtonFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: PrevMonthButtonProps<F> & React.RefAttributes<HTMLButtonElement>,
+export const PrevMonthButton = forwardRef(PrevMonthButtonFn) as (
+  props: PrevMonthButtonProps & React.RefAttributes<HTMLButtonElement>,
 ) => React.ReactElement | null;
 
 function NextMonthButtonFn(
@@ -386,8 +375,6 @@ function NextMonthButtonFn(
  * Button that navigates to the next month. Automatically disabled
  * when the next month falls after `max`. Exposes `data-direction="next"`.
  */
-export const NextMonthButton = forwardRef(NextMonthButtonFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: NextMonthButtonProps<F> & React.RefAttributes<HTMLButtonElement>,
+export const NextMonthButton = forwardRef(NextMonthButtonFn) as (
+  props: NextMonthButtonProps & React.RefAttributes<HTMLButtonElement>,
 ) => React.ReactElement | null;

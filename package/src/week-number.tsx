@@ -6,7 +6,6 @@ import { WeekDataContext } from "./context";
 import { useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
-  ValueFormat,
   WeekNumberCellState,
   WeekNumberCellProps,
   WeekNumberHeaderState,
@@ -72,10 +71,8 @@ function WeekNumberCellFn(
  * Renders the ISO 8601 week number for a week row. Must be used inside
  * a {@link WeekTemplate}. Renders a `<td>` with `role="rowheader"`.
  */
-export const WeekNumberCell = forwardRef(WeekNumberCellFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: WeekNumberCellProps<F> & React.RefAttributes<HTMLTableCellElement>,
+export const WeekNumberCell = forwardRef(WeekNumberCellFn) as (
+  props: WeekNumberCellProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;
 
 const weekNumberHeaderStateAttributesMapping = {
@@ -113,8 +110,6 @@ function WeekNumberHeaderFn(
 /**
  * Column header for the week number column. Renders a `<th scope="col">`.
  */
-export const WeekNumberHeader = forwardRef(WeekNumberHeaderFn) as <
-  F extends ValueFormat = ValueFormat,
->(
-  props: WeekNumberHeaderProps<F> & React.RefAttributes<HTMLTableCellElement>,
+export const WeekNumberHeader = forwardRef(WeekNumberHeaderFn) as (
+  props: WeekNumberHeaderProps & React.RefAttributes<HTMLTableCellElement>,
 ) => React.ReactElement | null;

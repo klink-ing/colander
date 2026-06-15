@@ -1633,6 +1633,49 @@ describe("non-Gregorian locale (th-TH)", () => {
   });
 });
 
+describe("rootState values", () => {
+  function RootStateCapture({
+    onCapture,
+  }: {
+    onCapture: (
+      root: ReturnType<typeof useMonthViewState>["rootState"],
+    ) => void;
+  }) {
+    const { rootState } = useMonthViewState();
+    onCapture(rootState);
+    return null;
+  }
+
+  it("exposes the selection as Temporal.PlainDate even when format is Date", () => {
+    let root: ReturnType<typeof useMonthViewState>["rootState"] | undefined;
+    const { unmount } = render(
+      // format="Date" → defaultValue is a native Date; rootState must still
+      // expose Temporal.PlainDate. Pre-fix `selected` was the format value (a
+      // JS Date here), and selectedDates were PlainDate behind an `as any`.
+      <MonthView
+        {...defaultProps}
+        format="Date"
+        defaultValue={new Date(2026, 2, 10)}
+      >
+        <RootStateCapture
+          onCapture={(r) => {
+            root = r;
+          }}
+        />
+      </MonthView>,
+    );
+
+    expect(root!.selected).toBeInstanceOf(Temporal.PlainDate);
+    expect(root!.selected).not.toBeInstanceOf(Date);
+    expect(
+      root!.selectedDates.every((d) => d instanceof Temporal.PlainDate),
+    ).toBe(true);
+    expect(root!.hasSelection).toBe(true);
+
+    unmount();
+  });
+});
+
 describe("outsideDays", () => {
   const march15 = Temporal.PlainDate.from("2026-03-15");
 
