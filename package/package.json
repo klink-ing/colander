@@ -17,47 +17,113 @@
   "sideEffects": false,
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
-  "types": "./dist/index.d.mts",
+  "types": "./dist/index.d.cts",
+  "typesVersions": {
+    "*": {
+      "plain-date": [
+        "./dist/formats/plain-date.d.cts"
+      ],
+      "plain-date-time": [
+        "./dist/formats/plain-date-time.d.cts"
+      ],
+      "plain-month-day": [
+        "./dist/formats/plain-month-day.d.cts"
+      ],
+      "plain-year-month": [
+        "./dist/formats/plain-year-month.d.cts"
+      ],
+      "zoned-date-time": [
+        "./dist/formats/zoned-date-time.d.cts"
+      ],
+      "object": [
+        "./dist/formats/object.d.cts"
+      ],
+      "date": [
+        "./dist/formats/date.d.cts"
+      ]
+    }
+  },
   "exports": {
+    "./package.json": "./package.json",
     ".": {
-      "types": "./dist/index.d.mts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.cts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./plain-date": {
-      "types": "./dist/formats/plain-date.d.mts",
-      "import": "./dist/formats/plain-date.mjs",
-      "require": "./dist/formats/plain-date.cjs"
+      "import": {
+        "types": "./dist/formats/plain-date.d.mts",
+        "default": "./dist/formats/plain-date.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/plain-date.d.cts",
+        "default": "./dist/formats/plain-date.cjs"
+      }
     },
     "./plain-date-time": {
-      "types": "./dist/formats/plain-date-time.d.mts",
-      "import": "./dist/formats/plain-date-time.mjs",
-      "require": "./dist/formats/plain-date-time.cjs"
+      "import": {
+        "types": "./dist/formats/plain-date-time.d.mts",
+        "default": "./dist/formats/plain-date-time.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/plain-date-time.d.cts",
+        "default": "./dist/formats/plain-date-time.cjs"
+      }
     },
     "./plain-month-day": {
-      "types": "./dist/formats/plain-month-day.d.mts",
-      "import": "./dist/formats/plain-month-day.mjs",
-      "require": "./dist/formats/plain-month-day.cjs"
+      "import": {
+        "types": "./dist/formats/plain-month-day.d.mts",
+        "default": "./dist/formats/plain-month-day.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/plain-month-day.d.cts",
+        "default": "./dist/formats/plain-month-day.cjs"
+      }
     },
     "./plain-year-month": {
-      "types": "./dist/formats/plain-year-month.d.mts",
-      "import": "./dist/formats/plain-year-month.mjs",
-      "require": "./dist/formats/plain-year-month.cjs"
+      "import": {
+        "types": "./dist/formats/plain-year-month.d.mts",
+        "default": "./dist/formats/plain-year-month.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/plain-year-month.d.cts",
+        "default": "./dist/formats/plain-year-month.cjs"
+      }
     },
     "./zoned-date-time": {
-      "types": "./dist/formats/zoned-date-time.d.mts",
-      "import": "./dist/formats/zoned-date-time.mjs",
-      "require": "./dist/formats/zoned-date-time.cjs"
+      "import": {
+        "types": "./dist/formats/zoned-date-time.d.mts",
+        "default": "./dist/formats/zoned-date-time.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/zoned-date-time.d.cts",
+        "default": "./dist/formats/zoned-date-time.cjs"
+      }
     },
     "./object": {
-      "types": "./dist/formats/object.d.mts",
-      "import": "./dist/formats/object.mjs",
-      "require": "./dist/formats/object.cjs"
+      "import": {
+        "types": "./dist/formats/object.d.mts",
+        "default": "./dist/formats/object.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/object.d.cts",
+        "default": "./dist/formats/object.cjs"
+      }
     },
     "./date": {
-      "types": "./dist/formats/date.d.mts",
-      "import": "./dist/formats/date.mjs",
-      "require": "./dist/formats/date.cjs"
+      "import": {
+        "types": "./dist/formats/date.d.mts",
+        "default": "./dist/formats/date.mjs"
+      },
+      "require": {
+        "types": "./dist/formats/date.d.cts",
+        "default": "./dist/formats/date.cjs"
+      }
     }
   },
   "scripts": {
