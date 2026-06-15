@@ -2,7 +2,7 @@ import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { computeWeeksInWindow } from "./compute-weeks-in-window";
-import { applyOverflow, type OutOfRangeBehavior } from "./overflow";
+import { applyOutOfRange, type OutOfRangeBehavior } from "./out-of-range";
 import {
   resolveFirstWeekSpec,
   resolveFirstWeek,
@@ -81,10 +81,10 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [resolvedFirstWeek, weekCount, weekStartDay, T],
   );
 
-  // --- Apply overflow ---
-  const overflowResult = useMemo(
+  // --- Apply out-of-range behavior ---
+  const outOfRangeResult = useMemo(
     () =>
-      applyOverflow({
+      applyOutOfRange({
         targetFirstWeek: resolvedFirstWeek,
         weekCount,
         behavior: outOfRangeBehavior,
@@ -104,19 +104,26 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     ],
   );
 
-  // Recompute weeks if overflow adjusted the window
+  // Recompute weeks if the out-of-range behavior adjusted the window
   const adjustedWeeks = useMemo(() => {
     const sameFirst =
-      T.PlainDate.compare(overflowResult.firstWeek, resolvedFirstWeek) === 0;
-    const sameCount = overflowResult.weekCount === weekCount;
+      T.PlainDate.compare(outOfRangeResult.firstWeek, resolvedFirstWeek) === 0;
+    const sameCount = outOfRangeResult.weekCount === weekCount;
     if (sameFirst && sameCount) return rawWeeks;
     return computeWeeksInWindow(
-      overflowResult.firstWeek,
-      overflowResult.weekCount,
+      outOfRangeResult.firstWeek,
+      outOfRangeResult.weekCount,
       weekStartDay,
       T,
     );
-  }, [overflowResult, resolvedFirstWeek, weekCount, rawWeeks, weekStartDay, T]);
+  }, [
+    outOfRangeResult,
+    resolvedFirstWeek,
+    weekCount,
+    rawWeeks,
+    weekStartDay,
+    T,
+  ]);
 
   // --- Compute WindowInfo ---
   const isDateEnabled = useCallback(
@@ -310,7 +317,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     (shiftBy?: number) => {
       const shift = shiftBy ?? weekCount;
       const target = resolvedFirstWeek.add({ weeks: shift });
-      const adjusted = applyOverflow({
+      const adjusted = applyOutOfRange({
         targetFirstWeek: target,
         weekCount,
         behavior: outOfRangeBehavior,
@@ -337,7 +344,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     (shiftBy?: number) => {
       const shift = shiftBy ?? weekCount;
       const target = resolvedFirstWeek.subtract({ weeks: shift });
-      const adjusted = applyOverflow({
+      const adjusted = applyOutOfRange({
         targetFirstWeek: target,
         weekCount,
         behavior: outOfRangeBehavior,
@@ -373,7 +380,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
         resolvedTarget,
         options,
       );
-      const adjusted = applyOverflow({
+      const adjusted = applyOutOfRange({
         targetFirstWeek: newFirstWeek,
         weekCount,
         behavior: outOfRangeBehavior,

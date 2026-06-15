@@ -1,5 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import type { MonthOutOfRangeBehavior } from "./overflow";
+import type { MonthOutOfRangeBehavior } from "./out-of-range";
 import type { MonthData, OutsideDays, RootState } from "./types";
 
 // ---------------------------------------------------------------------------

@@ -169,6 +169,9 @@ export type { WeekDescriptor } from "../compute-weeks-in-window";
 
 export type { FirstWeekSpec, ScrollToWeekSnap } from "../resolve-first-week";
 
-export type { OutOfRangeBehavior, MonthOutOfRangeBehavior } from "../overflow";
+export type {
+  OutOfRangeBehavior,
+  MonthOutOfRangeBehavior,
+} from "../out-of-range";
 
 export type { MonthSeparatorState } from "../month-separator";

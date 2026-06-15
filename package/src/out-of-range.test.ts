@@ -1,11 +1,15 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { describe, it, expect } from "vitest";
-import { applyOverflow, canShift, type OutOfRangeBehavior } from "./overflow";
+import {
+  applyOutOfRange,
+  canShift,
+  type OutOfRangeBehavior,
+} from "./out-of-range";
 
 const T = Temporal;
 const pd = (s: string) => T.PlainDate.from(s);
 
-describe("applyOverflow", () => {
+describe("applyOutOfRange", () => {
   const min = pd("2025-12-01");
   const max = pd("2026-01-10");
 
@@ -70,7 +74,7 @@ describe("applyOverflow", () => {
   ])(
     "$description",
     ({ targetFirstWeek, weekCount, behavior, useMinMax, expected }) => {
-      const result = applyOverflow({
+      const result = applyOutOfRange({
         targetFirstWeek,
         weekCount,
         behavior,

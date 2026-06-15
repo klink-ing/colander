@@ -1,6 +1,6 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import type { WeekDescriptor } from "./compute-weeks-in-window";
-import type { OutOfRangeBehavior } from "./overflow";
+import type { OutOfRangeBehavior } from "./out-of-range";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { RootState } from "./types";
 

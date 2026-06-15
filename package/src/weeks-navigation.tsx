@@ -3,7 +3,7 @@ import { useRender } from "@base-ui/react/use-render";
 import React, { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { useMonthViewState } from "./month-view-context";
-import { canShift } from "./overflow";
+import { canShift } from "./out-of-range";
 import type { RootState, StateAttributesMapping } from "./types";
 import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
@@ -217,6 +217,6 @@ function WeekCountFn(
 
 /**
  * Renders the current visible week count as a number. Useful with shrink
- * overflow modes where the actual count may be less than the `weekCount` prop.
+ * out-of-range modes where the actual count may be less than the `weekCount` prop.
  */
 export const WeekCount = forwardRef(WeekCountFn);

@@ -151,7 +151,7 @@ function shrinkWindow(
 // Public API
 // ---------------------------------------------------------------------------
 
-export interface ApplyOverflowInput {
+export interface ApplyOutOfRangeInput {
   targetFirstWeek: Temporal.PlainDate;
   weekCount: number;
   behavior: OutOfRangeBehavior;
@@ -162,10 +162,10 @@ export interface ApplyOverflowInput {
 }
 
 /**
- * Given a target firstWeek and weekCount, apply overflow behavior and return
+ * Given a target firstWeek and weekCount, apply the out-of-range behavior and return
  * the adjusted { firstWeek, weekCount }.
  */
-export function applyOverflow({
+export function applyOutOfRange({
   targetFirstWeek,
   weekCount,
   behavior,
@@ -173,7 +173,7 @@ export function applyOverflow({
   max,
   weekStartDay,
   T,
-}: ApplyOverflowInput): { firstWeek: Temporal.PlainDate; weekCount: number } {
+}: ApplyOutOfRangeInput): { firstWeek: Temporal.PlainDate; weekCount: number } {
   // Without bounds, all modes behave as unbounded
   if (!min || !max || behavior === "unbounded") {
     return { firstWeek: targetFirstWeek, weekCount };
@@ -270,8 +270,8 @@ export function canShift({
 
   if (behavior === "snap" || behavior === "snap-shrink") {
     // Disabled when the current position is already the snapped position
-    // (i.e. applying overflow to the target produces the same firstWeek)
-    const applied = applyOverflow({
+    // (i.e. applying the out-of-range behavior to the target produces the same firstWeek)
+    const applied = applyOutOfRange({
       targetFirstWeek,
       weekCount,
       behavior,
