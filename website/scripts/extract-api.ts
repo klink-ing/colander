@@ -458,3 +458,10 @@ fs.writeFileSync(outputPath, JSON.stringify(output, null, 2));
 console.log(
   `Wrote ${normalizedSymbols.length} symbols (${types.length} unique types) to ${outputPath}`,
 );
+
+// ts-morph keeps the TypeScript program/host alive, so this process can fail to
+// exit once its work is done — the event loop never drains. On a local TTY it
+// happens to exit, but piped into a CI log (e.g. Netlify) it hangs on exit,
+// stalling the `&& vite build` step. The output file is already written
+// synchronously above, so force a clean exit.
+process.exit(0);
