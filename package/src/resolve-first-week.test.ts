@@ -61,6 +61,16 @@ describe("resolveFirstWeekSpec", () => {
     const result = resolveFirstWeekSpec(spec, weekStartDay, T);
     expect(result.toString()).toBe(expected);
   });
+
+  it("converts a non-ISO-calendar PlainDate to ISO before snapping", () => {
+    // Buddhist 2026-03-15 (a Sunday) — its calendar fields read year 2569.
+    // Pre-fix the PlainDate fell through to the {month,year,day} branch and
+    // those fields were reinterpreted as ISO → ~543 years off.
+    const buddhist = T.PlainDate.from("2026-03-15").withCalendar("buddhist");
+    const result = resolveFirstWeekSpec(buddhist, 0, T);
+    expect(result.toString()).toBe("2026-03-15");
+    expect(result.calendarId).toBe("iso8601");
+  });
 });
 
 describe("resolveFirstWeek", () => {
