@@ -290,7 +290,42 @@ function DayCellInstanceFn(props: DayCellInstanceProps) {
   );
 }
 
-function dayCellInstancePropsAreEqual(
+/**
+ * Shallow-compares the arbitrary pass-through props (className, style, event
+ * handlers, data-*, …) that day-cell components spread onto their element.
+ * The explicitly-handled keys (compared separately) are skipped, as is
+ * `children` — a fresh React element every render, never usefully comparable.
+ */
+function passThroughPropsEqual(
+  prev: Record<string, unknown>,
+  next: Record<string, unknown>,
+  handledKeys: ReadonlySet<string>,
+): boolean {
+  const prevKeys = Object.keys(prev).filter((k) => !handledKeys.has(k));
+  const nextKeys = Object.keys(next).filter((k) => !handledKeys.has(k));
+  if (prevKeys.length !== nextKeys.length) return false;
+  for (const key of prevKeys) {
+    if (prev[key] !== next[key]) return false;
+  }
+  return true;
+}
+
+const DAY_CELL_HANDLED_KEYS: ReadonlySet<string> = new Set([
+  "render",
+  "date",
+  "columnIndex",
+  "children",
+  "_derivedState",
+]);
+
+const DAY_BUTTON_HANDLED_KEYS: ReadonlySet<string> = new Set([
+  "render",
+  "date",
+  "children",
+  "_derivedState",
+]);
+
+export function dayCellInstancePropsAreEqual(
   prev: DayCellInstanceProps,
   next: DayCellInstanceProps,
 ): boolean {
@@ -328,7 +363,8 @@ function dayCellInstancePropsAreEqual(
     a.rangePreviewLength === b.rangePreviewLength &&
     a.rangePreviewHasStart === b.rangePreviewHasStart &&
     a.rangePreviewHasEnd === b.rangePreviewHasEnd &&
-    a.isTabTarget === b.isTabTarget
+    a.isTabTarget === b.isTabTarget &&
+    passThroughPropsEqual(prev, next, DAY_CELL_HANDLED_KEYS)
   );
 }
 
@@ -525,11 +561,12 @@ function DayButtonInnerFn(
   );
 }
 
-function dayButtonInnerPropsAreEqual(
+export function dayButtonInnerPropsAreEqual(
   prev: DayButtonInnerProps,
   next: DayButtonInnerProps,
 ): boolean {
   if (prev.date !== next.date || prev.render !== next.render) return false;
+  if (!passThroughPropsEqual(prev, next, DAY_BUTTON_HANDLED_KEYS)) return false;
   const a = prev._derivedState;
   const b = next._derivedState;
   if (!a || !b) return a === b;
