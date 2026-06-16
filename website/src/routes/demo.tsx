@@ -13,15 +13,31 @@ import {
   TIMEZONES,
   formatTzLabel,
 } from "#/components/demo/AppControls";
+import { ControlDocsProvider } from "#/components/demo/control-docs";
+import { TooltipProvider } from "#/components/ui/tooltip";
 import { StyledMonthView } from "#/examples/styled-month-view";
 import { StyledWeeksView } from "#/examples/styled-weeks-view";
+import type { ApiData } from "#/lib/api-data";
 
-export const Route = createFileRoute("/demo")({ component: DemoPage });
+export const Route = createFileRoute("/demo")({
+  loader: async () => {
+    // Same generated API data the docs site uses; powers the control tooltips.
+    const apiData = (await import("../../api-data/symbols.gen.json"))
+      .default as ApiData;
+    return { apiData };
+  },
+  component: DemoPage,
+});
 
 function DemoPage() {
+  const { apiData } = Route.useLoaderData();
   return (
     <main className="page-wrap pt-8 pb-8">
-      <DemoApp />
+      <ControlDocsProvider apiData={apiData}>
+        <TooltipProvider delay={150}>
+          <DemoApp />
+        </TooltipProvider>
+      </ControlDocsProvider>
     </main>
   );
 }

@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { ControlInfo } from "./control-docs";
 
 export const TIMEZONES = [
   "America/New_York",
@@ -167,14 +168,21 @@ const toInputValue = (zdt: Temporal.ZonedDateTime) =>
 
 function SingleCheckbox({
   children,
+  info,
   ...props
-}: ComponentProps<typeof Checkbox> & { children: React.ReactNode }) {
+}: ComponentProps<typeof Checkbox> & {
+  children: React.ReactNode;
+  info?: React.ReactNode;
+}) {
   return (
     <FieldPrimitive.Root>
-      <FieldPrimitive.Label className="flex w-full items-center gap-2">
-        <Checkbox {...props} />
-        {children}
-      </FieldPrimitive.Label>
+      <div className="flex w-full items-center gap-1.5">
+        <FieldPrimitive.Label className="flex items-center gap-2">
+          <Checkbox {...props} />
+          {children}
+        </FieldPrimitive.Label>
+        {info}
+      </div>
     </FieldPrimitive.Root>
   );
 }
@@ -280,7 +288,10 @@ export function AppControls(props: AppControlsProps) {
 
               {selectionMode === "range" && (
                 <Field>
-                  <FieldLabel htmlFor="range-mode">rangeMode</FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel htmlFor="range-mode">rangeMode</FieldLabel>
+                    <ControlInfo control="rangeMode" />
+                  </div>
                   <Select
                     id="range-mode"
                     value={rangeMode}
@@ -310,13 +321,17 @@ export function AppControls(props: AppControlsProps) {
                   onCheckedChange={(checked) =>
                     setPreventRangeReversal(checked)
                   }
+                  info={<ControlInfo control="preventRangeReversal" />}
                 >
                   preventRangeReversal
                 </SingleCheckbox>
               )}
 
               <Field>
-                <FieldLabel htmlFor="timezone-select">timeZone</FieldLabel>
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="timezone-select">timeZone</FieldLabel>
+                  <ControlInfo control="timeZone" />
+                </div>
                 <Select
                   id="timezone-select"
                   value={timeZone}
@@ -343,7 +358,10 @@ export function AppControls(props: AppControlsProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="locale-select">locale</FieldLabel>
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="locale-select">locale</FieldLabel>
+                  <ControlInfo control="locale" />
+                </div>
                 <Select
                   id="locale-select"
                   value={locale}
@@ -363,7 +381,10 @@ export function AppControls(props: AppControlsProps) {
               </Field>
 
               <Field>
-                <FieldLabel htmlFor="week-start-day">weekStartDay</FieldLabel>
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="week-start-day">weekStartDay</FieldLabel>
+                  <ControlInfo control="weekStartDay" />
+                </div>
                 <Select
                   id="week-start-day"
                   value={String(weekStartDay)}
@@ -395,7 +416,10 @@ export function AppControls(props: AppControlsProps) {
               </Field>
 
               <Field className="min-w-0">
-                <FieldLabel htmlFor="min-date">min</FieldLabel>
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="min-date">min</FieldLabel>
+                  <ControlInfo control="min" />
+                </div>
                 <input
                   id="min-date"
                   type="date"
@@ -406,7 +430,10 @@ export function AppControls(props: AppControlsProps) {
               </Field>
 
               <Field className="min-w-0">
-                <FieldLabel htmlFor="max-date">max</FieldLabel>
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel htmlFor="max-date">max</FieldLabel>
+                  <ControlInfo control="max" />
+                </div>
                 <input
                   id="max-date"
                   type="date"
@@ -419,6 +446,7 @@ export function AppControls(props: AppControlsProps) {
               <SingleCheckbox
                 checked={disabled}
                 onCheckedChange={(checked) => setDisabled(checked)}
+                info={<ControlInfo control="disabled" />}
               >
                 disabled
               </SingleCheckbox>
@@ -426,6 +454,7 @@ export function AppControls(props: AppControlsProps) {
               <SingleCheckbox
                 checked={readOnly}
                 onCheckedChange={(checked) => setReadOnly(checked)}
+                info={<ControlInfo control="readOnly" />}
               >
                 readOnly
               </SingleCheckbox>
@@ -439,7 +468,10 @@ export function AppControls(props: AppControlsProps) {
                     />
                   }
                 >
-                  <FieldsetLegend>isDateDisabled</FieldsetLegend>
+                  <div className="flex items-center gap-1.5">
+                    <FieldsetLegend>isDateDisabled</FieldsetLegend>
+                    <ControlInfo control="isDateDisabled" />
+                  </div>
                   <RadioGroupItem value="none">None (default)</RadioGroupItem>
                   <RadioGroupItem value="weekends">Weekends</RadioGroupItem>
                   <RadioGroupItem value="past">Past dates</RadioGroupItem>
@@ -458,9 +490,12 @@ export function AppControls(props: AppControlsProps) {
             <AccordionContent>
               <div className="flex flex-col gap-4">
                 <Field>
-                  <FieldLabel htmlFor="number-of-months">
-                    numberOfMonths
-                  </FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel htmlFor="number-of-months">
+                      numberOfMonths
+                    </FieldLabel>
+                    <ControlInfo control="numberOfMonths" />
+                  </div>
                   <input
                     id="number-of-months"
                     type="number"
@@ -479,7 +514,10 @@ export function AppControls(props: AppControlsProps) {
                 </Field>
 
                 <Field>
-                  <FieldLabel>outsideDays</FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel>outsideDays</FieldLabel>
+                    <ControlInfo control="outsideDays" />
+                  </div>
                   <RadioGroup<OutsideDays>
                     value={outsideDays}
                     onValueChange={(v) => setOutsideDays(v as OutsideDays)}
@@ -499,10 +537,14 @@ export function AppControls(props: AppControlsProps) {
                     onCheckedChange={(checked) => setFixedWeeks(checked)}
                   />
                   <FieldLabel>fixedWeeks</FieldLabel>
+                  <ControlInfo control="fixedWeeks" />
                 </Field>
 
                 <Field>
-                  <FieldLabel>outOfRangeBehavior</FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel>outOfRangeBehavior</FieldLabel>
+                    <ControlInfo control="monthOutOfRangeBehavior" />
+                  </div>
                   <RadioGroup
                     value={monthOutOfRangeBehavior}
                     onValueChange={(v) =>
@@ -526,7 +568,10 @@ export function AppControls(props: AppControlsProps) {
             <AccordionContent>
               <div className="flex flex-col gap-4">
                 <Field>
-                  <FieldLabel htmlFor="week-count">weekCount</FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel htmlFor="week-count">weekCount</FieldLabel>
+                    <ControlInfo control="weekCount" />
+                  </div>
                   <Select
                     id="week-count"
                     value={String(weekCount)}
@@ -549,7 +594,10 @@ export function AppControls(props: AppControlsProps) {
                 </Field>
 
                 <Field>
-                  <FieldLabel>scrollBy</FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel>scrollBy</FieldLabel>
+                    <ControlInfo control="scrollBy" />
+                  </div>
                   <RadioGroup
                     value={scrollBy}
                     onValueChange={(v) => setScrollBy(v as "row" | "page")}
@@ -560,9 +608,12 @@ export function AppControls(props: AppControlsProps) {
                 </Field>
 
                 <Field>
-                  <FieldLabel htmlFor="overflow-behavior">
-                    outOfRangeBehavior
-                  </FieldLabel>
+                  <div className="flex items-center gap-1.5">
+                    <FieldLabel htmlFor="overflow-behavior">
+                      outOfRangeBehavior
+                    </FieldLabel>
+                    <ControlInfo control="weeksOutOfRangeBehavior" />
+                  </div>
                   <Select
                     id="overflow-behavior"
                     value={outOfRangeBehavior}
@@ -601,6 +652,7 @@ export function AppControls(props: AppControlsProps) {
                   onCheckedChange={(checked) => setAutoFocus(checked)}
                 />
                 <FieldLabel>Grid.autoFocus</FieldLabel>
+                <ControlInfo control="autoFocus" />
               </Field>
 
               <Field orientation="horizontal">
@@ -626,7 +678,10 @@ export function AppControls(props: AppControlsProps) {
               )}
 
               <Field>
-                <FieldLabel>Grid.orientation</FieldLabel>
+                <div className="flex items-center gap-1.5">
+                  <FieldLabel>Grid.orientation</FieldLabel>
+                  <ControlInfo control="orientation" />
+                </div>
                 <RadioGroup
                   value={orientation}
                   onValueChange={(v) =>
