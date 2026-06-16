@@ -159,7 +159,10 @@ function DemoApp() {
 
   const handleMonthChange = useCallback(
     (month: Temporal.PlainYearMonth) => {
-      const formatted = month.toLocaleString(locale, {
+      // Format through a PlainDate: a `PlainYearMonth` with the ISO calendar
+      // throws when toLocaleString resolves a different locale calendar (e.g.
+      // gregory for en-US). An ISO `PlainDate` renders in the locale calendar.
+      const formatted = month.toPlainDate({ day: 1 }).toLocaleString(locale, {
         month: "long",
         year: "numeric",
       });
