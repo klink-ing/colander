@@ -199,6 +199,35 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
     sortDates,
   ]);
 
+  // Surface (instead of silently self-managing) a controlled `value` whose
+  // shape doesn't match the selection mode — otherwise range/multiple values
+  // fall through to `undefined` above and the component quietly becomes
+  // uncontrolled, which looks like the prop being ignored. Warn once per
+  // malformed episode: this effect re-runs whenever the parent inlines a fresh
+  // `value` reference, but we only warn when entering the malformed state.
+  const warnedMalformedRef = useRef(false);
+  useEffect(() => {
+    const malformed =
+      valueProp != null &&
+      ((isRange && !isDateRange<F>(valueProp)) ||
+        (isMultiple && !Array.isArray(valueProp)));
+    if (!malformed) {
+      warnedMalformedRef.current = false;
+      return;
+    }
+    if (warnedMalformedRef.current) return;
+    warnedMalformedRef.current = true;
+    if (isRange) {
+      console.warn(
+        `[DatePicker] selectionMode="range" expects \`value\` to be a { start, end } DateRange or null, but received ${Array.isArray(valueProp) ? "an array" : typeof valueProp}. Ignoring it and falling back to uncontrolled.`,
+      );
+    } else {
+      console.warn(
+        `[DatePicker] selectionMode="multiple" expects \`value\` to be an array or null, but received ${typeof valueProp}. Ignoring it and falling back to uncontrolled.`,
+      );
+    }
+  }, [valueProp, isRange, isMultiple]);
+
   const defaultDates = useMemo<(Temporal.PlainDate | null)[]>(() => {
     if (isMultiple) {
       if (multipleDefault) return sortDates(multipleDefault.map(rawToPlain));
@@ -423,29 +452,48 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
   ]);
 
   // --- Out-of-bounds cleanup for single mode ---
+  const warnedOutOfBoundsRef = useRef(false);
   useEffect(() => {
     if (isRange || isMultiple) return;
     const start = committedStart;
-    if (!start) return;
+    if (!start) {
+      warnedOutOfBoundsRef.current = false;
+      return;
+    }
     const outOfBounds =
       (minValue && T.PlainDate.compare(start, minValue) < 0) ||
       (maxValue && T.PlainDate.compare(start, maxValue) > 0);
-    if (outOfBounds) {
-      const prev = currentSingleFormatted();
-      commitSelection({
-        newDates: [],
-        fireCallback: (onValueChange) => {
-          (
-            onValueChange as
-              | ((
-                  v: RawValueForFormat<F> | null,
-                  m: { date: undefined; previous: RawValueForFormat<F> | null },
-                ) => void)
-              | undefined
-          )?.(null, { date: undefined, previous: prev });
-        },
-      });
+    if (!outOfBounds) {
+      warnedOutOfBoundsRef.current = false;
+      return;
     }
+    if (isControlled) {
+      // The parent owns a controlled `value`. Don't clear it or fire
+      // onValueChange on mount — that fights the parent and risks a render
+      // loop. Warn once (this effect re-runs whenever the parent inlines
+      // `onValueChange`) so they can reconcile `value` with min/max.
+      if (!warnedOutOfBoundsRef.current) {
+        warnedOutOfBoundsRef.current = true;
+        console.warn(
+          `[DatePicker] The controlled \`value\` is outside the min/max range. It stays selected (rendered disabled) until you update \`value\`; the component will not clear it for you.`,
+        );
+      }
+      return;
+    }
+    const prev = currentSingleFormatted();
+    commitSelection({
+      newDates: [],
+      fireCallback: (onValueChange) => {
+        (
+          onValueChange as
+            | ((
+                v: RawValueForFormat<F> | null,
+                m: { date: undefined; previous: RawValueForFormat<F> | null },
+              ) => void)
+            | undefined
+        )?.(null, { date: undefined, previous: prev });
+      },
+    });
   }, [
     minValue,
     maxValue,
@@ -455,6 +503,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
     T,
     isRange,
     isMultiple,
+    isControlled,
   ]);
 
   // --- onSelect ---
