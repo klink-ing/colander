@@ -11,15 +11,20 @@ import {
   WeekTemplate,
   DayCellTemplate,
   DayButton,
+  type DateRange,
 } from "@klinking/colander";
+import { useState } from "react";
 
-export function BasicCalendar({
-  onSelect,
-}: {
-  onSelect?: (value: Temporal.PlainDate | null) => void;
-}) {
+export function RangeCalendar() {
+  const [range, setRange] = useState<DateRange<"PlainDate"> | null>(null);
+
   return (
-    <MonthView temporal={Temporal} onValueChange={onSelect}>
+    <MonthView
+      temporal={Temporal}
+      selectionMode="range"
+      value={range}
+      onValueChange={setRange}
+    >
       <div className="calendar">
         <div className="calendar-header">
           <PrevMonthButton className="calendar-nav">‹</PrevMonthButton>
@@ -33,6 +38,9 @@ export function BasicCalendar({
           <GridBody>
             <WeekTemplate>
               <DayCellTemplate>
+                {/* Style boundaries and the interior with data attributes:
+                    [data-range-start], [data-range-end], [data-in-range],
+                    and the hover preview via [data-range-preview-in-range]. */}
                 <DayButton className="calendar-day" />
               </DayCellTemplate>
             </WeekTemplate>

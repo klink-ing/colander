@@ -4,12 +4,72 @@ import type { DocsNavEntry } from "#/components/DocsNav";
 
 export const docEntries = [
   {
-    slug: "getting-started",
+    slug: "introduction",
     frontmatter: {
-      title: "Getting Started",
+      title: "Introduction",
       description:
-        "Install Colander and start building accessible calendar components.",
+        "What Colander is, the ideas behind it, and how it compares to other React date pickers.",
       order: 1,
+      section: "Overview",
+    },
+  },
+  {
+    slug: "quick-start",
+    frontmatter: {
+      title: "Quick start",
+      description:
+        "Install Colander and build a working, styled calendar in a few minutes.",
+      order: 2,
+      section: "Overview",
+    },
+  },
+  {
+    slug: "accessibility",
+    frontmatter: {
+      title: "Accessibility",
+      description:
+        "Keyboard interactions, ARIA semantics, and localization built into Colander.",
+      order: 3,
+      section: "Overview",
+    },
+  },
+  {
+    slug: "composition",
+    frontmatter: {
+      title: "Composition",
+      description:
+        "How Colander components fit together — templates, the render prop, and building your own parts.",
+      order: 10,
+      section: "Guides",
+    },
+  },
+  {
+    slug: "styling",
+    frontmatter: {
+      title: "Styling",
+      description:
+        "Style Colander with plain CSS, Tailwind, or any tool — via data attributes and the render prop.",
+      order: 11,
+      section: "Guides",
+    },
+  },
+  {
+    slug: "selection-modes",
+    frontmatter: {
+      title: "Selection modes",
+      description:
+        "Single, multiple, and range selection — controlled and uncontrolled — plus range previews and drag handles.",
+      order: 12,
+      section: "Guides",
+    },
+  },
+  {
+    slug: "dates-and-formats",
+    frontmatter: {
+      title: "Dates & formats",
+      description:
+        "Temporal, the temporal prop, value formats, subpath entry points, time zones, and locales.",
+      order: 13,
       section: "Guides",
     },
   },
@@ -19,7 +79,7 @@ export const docEntries = [
       title: "CalendarProvider",
       description:
         "Manages shared state across calendar views — selection, bounds, locale, and more.",
-      order: 2,
+      order: 20,
       section: "Components",
     },
   },
@@ -28,8 +88,8 @@ export const docEntries = [
     frontmatter: {
       title: "MonthView",
       description:
-        "Displays a traditional calendar grid with month-level navigation.",
-      order: 3,
+        "The traditional paged month grid, with multi-month layouts and month-level navigation.",
+      order: 21,
       section: "Components",
     },
   },
@@ -38,8 +98,8 @@ export const docEntries = [
     frontmatter: {
       title: "WeeksView",
       description:
-        "Displays a configurable window of continuous week rows that span month boundaries.",
-      order: 4,
+        "A continuously scrolling window of week rows that spans month boundaries.",
+      order: 22,
       section: "Components",
     },
   },
