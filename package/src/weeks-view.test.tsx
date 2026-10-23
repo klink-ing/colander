@@ -665,6 +665,19 @@ describe("WeeksView: Grid renders the weeks grid shell", () => {
     expect(screen.getByTestId("focus").textContent).toBe(expected.focus);
   });
 
+  it("moves DOM focus to the newly focused day after an arrow key", () => {
+    renderWeeksGrid();
+    const start = screen.getByRole("button", { name: /15/ });
+    act(() => start.focus());
+
+    fireEvent.keyDown(start, { key: "ArrowRight" });
+
+    expect(screen.getByTestId("focus").textContent).toBe("2026-03-16");
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: /16/ }),
+    );
+  });
+
   it("End moves focus to the last day of the window and keeps the window", () => {
     renderWeeksGrid();
 
