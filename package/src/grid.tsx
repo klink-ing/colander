@@ -531,7 +531,7 @@ function MonthGridBodyFn(
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
   const { render, ...otherProps } = props;
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewContext();
 
   const state = useMemo<GridBodyState>(
     () => ({ root: rootState as unknown as GridBodyState["root"] }),
@@ -573,7 +573,7 @@ const weekInstanceStateAttributesMapping = {
 function WeekInstance(props: WeekTemplateProps) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewContext();
 
   const state = useMemo<WeekTemplateState>(
     () => ({
@@ -601,8 +601,8 @@ function WeekInstance(props: WeekTemplateProps) {
 export function WeekTemplate(props: WeekTemplateProps) {
   const outerWeekData = useContext(WeekDataContext);
   const gridMonthCtx = useContext(GridMonthContext);
-  const { weeks: defaultWeeks } = useMonthViewState();
-  const weeks = gridMonthCtx?.weeks ?? defaultWeeks;
+  const monthState = useContext(MonthViewStateContext);
+  const weeks = gridMonthCtx?.weeks ?? monthState?.weeks ?? [];
   const gridMonth = useMemo(
     () =>
       gridMonthCtx

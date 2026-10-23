@@ -2,7 +2,6 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
-import { useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
   GridHeaderCellProps,
@@ -11,10 +10,11 @@ import type {
   GridHeaderCellState,
 } from "./types";
 import { getWeekdayNames, getReferenceWeekStart } from "./utils";
+import { useViewContext } from "./view-context";
 
 function useGridHeaderCellState(index: number) {
   const { locale, temporal: T, weekStartDay } = useCalendarStable();
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewContext();
 
   const weekdayNames = useMemo(
     () => getWeekdayNames(locale, T, weekStartDay),
@@ -120,7 +120,7 @@ function GridHeaderFn(
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
   const { render, children, ...otherProps } = props;
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewContext();
 
   const state = useMemo<GridHeaderState>(
     () => ({ root: rootState as unknown as GridHeaderState["root"] }),

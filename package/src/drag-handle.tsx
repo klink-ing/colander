@@ -3,7 +3,6 @@ import { useRender } from "@base-ui/react/use-render";
 import { forwardRef, useContext, useMemo, useRef } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { DayCellDataContext, GridContext } from "./context";
-import { useMonthViewState } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
   DragHandleState,
@@ -11,6 +10,7 @@ import type {
   RangeEndDragHandleProps,
   RangeDragHandleProps,
 } from "./types";
+import { useViewContext } from "./view-context";
 
 const dragHandleStateAttributesMapping = {
   root: () => null,
@@ -31,7 +31,7 @@ function useDragHandle(
     disabled,
   } = useCalendarStable();
   const { rangeStart, rangeEnd } = useCalendarState();
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewContext();
   const cellData = useContext(DayCellDataContext);
   const { orientation } = useContext(GridContext);
   const date = cellData?.date;

@@ -5,8 +5,7 @@ import { useContext, useEffect, useRef, memo, forwardRef } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { WeekDataContext, DayCellDataContext, GridContext } from "./context";
 import type { GridOrientation } from "./context";
-import { MonthViewStableContext } from "./month-view-context";
-import { useMonthViewState } from "./month-view-context";
+import { MonthViewStateContext } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
   DayCellTemplateProps,
@@ -397,12 +396,14 @@ export function DayCellTemplate(props: DayCellTemplateProps) {
     useCalendarState();
 
   const viewCtx = useViewContext();
-  const { focusedDate, tabTargetDate } = viewCtx;
-
-  const monthStable = useContext(MonthViewStableContext);
-  const monthState = useMonthViewState();
-  const { rootState, weeks, currentMonth: currentDateTime } = monthState;
-  const outsideDays = monthStable?.outsideDays ?? "enabled";
+  const {
+    focusedDate,
+    tabTargetDate,
+    rootState,
+    outsideDays,
+    currentDateTime,
+  } = viewCtx;
+  const monthState = useContext(MonthViewStateContext);
 
   // Use the grid-specific month for outsideMonth checks, falling back to currentMonth.
   // In multi-month mode, gridMonth is set by WeekTemplate from GridMonthContext.
@@ -443,7 +444,7 @@ export function DayCellTemplate(props: DayCellTemplateProps) {
     );
   }
 
-  const days = weekData ? weekData.days : weeks.flat();
+  const days = weekData ? weekData.days : (monthState?.weeks.flat() ?? []);
   const perWeek = weekData != null;
 
   return (
@@ -501,9 +502,7 @@ function DayButtonInnerFn(
 ) {
   const { render, date, _derivedState, ...otherProps } = props;
   const { onSelect, locale, readOnly, setHoveredDate } = useCalendarStable();
-  const { setFocusedDate } = useViewContext();
-  const monthStable = useContext(MonthViewStableContext);
-  const gridFocusedRef = monthStable!.gridFocusedRef;
+  const { setFocusedDate, gridFocusedRef } = useViewContext();
 
   const internalRef = useRef<HTMLButtonElement>(null);
 
@@ -668,11 +667,13 @@ function DayButtonFallbackFn(
   const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
     useCalendarState();
   const viewCtx = useViewContext();
-  const { focusedDate, tabTargetDate } = viewCtx;
-  const monthStable = useContext(MonthViewStableContext);
-  const monthState = useMonthViewState();
-  const { rootState, currentMonth: currentDateTime } = monthState;
-  const outsideDays = monthStable?.outsideDays ?? "enabled";
+  const {
+    focusedDate,
+    tabTargetDate,
+    rootState,
+    outsideDays,
+    currentDateTime,
+  } = viewCtx;
 
   const isWeeksView = viewCtx.viewType === "weeks";
   const cellMonth = isWeeksView

@@ -1,5 +1,6 @@
 import type { Temporal } from "@js-temporal/polyfill";
 import { createContext, useContext } from "react";
+import type { OutsideDays, RootState } from "./types";
 
 /** Shared context provided by both MonthView.Root and WeeksView.Root. */
 export interface ViewContextValue {
@@ -15,6 +16,14 @@ export interface ViewContextValue {
   gridHasFocus: boolean;
   /** Tracks whether the grid currently holds DOM focus. */
   setGridHasFocus: (v: boolean) => void;
+  /** Ref mirroring `gridHasFocus` without triggering re-renders. */
+  gridFocusedRef: React.RefObject<boolean>;
+  /** How days outside the viewed month are displayed. Always `"enabled"` in WeeksView. */
+  outsideDays: OutsideDays;
+  /** The viewed month with the selection's time, used for "today" highlighting and labels. */
+  currentDateTime: Temporal.PlainDateTime;
+  /** The root component's state object for render functions. */
+  rootState: RootState;
 }
 
 /** @internal React context for the active view (MonthView or WeeksView). */

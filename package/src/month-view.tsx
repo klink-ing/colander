@@ -420,8 +420,19 @@ function MonthViewRoot(props: MonthViewRootProps) {
       tabTargetDate,
       gridHasFocus,
       setGridHasFocus,
+      gridFocusedRef,
+      outsideDays,
+      currentDateTime,
+      rootState,
     }),
-    [focusedDate, tabTargetDate, gridHasFocus],
+    [
+      focusedDate,
+      tabTargetDate,
+      gridHasFocus,
+      outsideDays,
+      currentDateTime,
+      rootState,
+    ],
   );
 
   return (

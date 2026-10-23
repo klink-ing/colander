@@ -487,8 +487,12 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       tabTargetDate,
       gridHasFocus,
       setGridHasFocus,
+      gridFocusedRef,
+      outsideDays: "enabled" as const,
+      currentDateTime,
+      rootState,
     }),
-    [focusedDate, tabTargetDate, gridHasFocus],
+    [focusedDate, tabTargetDate, gridHasFocus, currentDateTime, rootState],
   );
 
   return { stableCtx, stateCtx, viewCtx, scrollToWeek };
