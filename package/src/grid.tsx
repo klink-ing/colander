@@ -27,7 +27,7 @@ import type {
   WeekTemplateState,
   WeekTemplateProps,
 } from "./types";
-import { ViewContext, useViewContext } from "./view-context";
+import { ViewContext, useViewContext, useViewState } from "./view-context";
 import { WeeksGrid } from "./weeks-grid";
 import { computeWeeksKeyNav } from "./weeks-keyboard";
 import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
@@ -492,7 +492,7 @@ function MonthGridBodyFn(
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
   const { render, ...otherProps } = props;
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const state = useMemo<GridBodyState>(
     () => ({ root: rootState as unknown as GridBodyState["root"] }),
@@ -534,7 +534,7 @@ const weekInstanceStateAttributesMapping = {
 function WeekInstance(props: WeekTemplateProps) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const state = useMemo<WeekTemplateState>(
     () => ({

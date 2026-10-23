@@ -11,7 +11,7 @@ import type {
   WeekNumberHeaderProps,
 } from "./types";
 import { getISOWeekNumber } from "./utils";
-import { useViewContext } from "./view-context";
+import { useViewState } from "./view-context";
 
 const weekNumberCellStateAttributesMapping = {
   root: () => null,
@@ -24,7 +24,7 @@ function WeekNumberCellFn(
 ) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext);
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
   const { temporal: T } = useCalendarStable();
 
   const days = weekData?.days ?? [];
@@ -84,7 +84,7 @@ function WeekNumberHeaderFn(
   ref: React.ForwardedRef<HTMLTableCellElement>,
 ) {
   const { render, ...otherProps } = props;
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const state = useMemo<WeekNumberHeaderState>(
     () => ({ root: rootState as unknown as WeekNumberHeaderState["root"] }),

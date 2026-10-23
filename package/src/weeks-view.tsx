@@ -3,7 +3,11 @@ import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { ValueFormat } from "./types";
-import { ViewContext } from "./view-context";
+import {
+  ViewContext,
+  ViewStableContext,
+  ViewStateContext,
+} from "./view-context";
 import {
   WeeksViewStableContext,
   WeeksViewStateContext,
@@ -28,15 +32,27 @@ function WeeksViewRootFn(
   ref: React.ForwardedRef<WeeksViewRootHandle>,
 ) {
   const { children } = props;
-  const { stableCtx, stateCtx, viewCtx, scrollToWeek } =
-    useWeeksViewRootState(props);
+  const {
+    stableCtx,
+    stateCtx,
+    viewCtx,
+    viewStableCtx,
+    viewStateCtx,
+    scrollToWeek,
+  } = useWeeksViewRootState(props);
 
   useImperativeHandle(ref, () => ({ scrollToWeek }), [scrollToWeek]);
 
   return (
     <WeeksViewStableContext.Provider value={stableCtx}>
       <WeeksViewStateContext.Provider value={stateCtx}>
-        <ViewContext.Provider value={viewCtx}>{children}</ViewContext.Provider>
+        <ViewStableContext.Provider value={viewStableCtx}>
+          <ViewStateContext.Provider value={viewStateCtx}>
+            <ViewContext.Provider value={viewCtx}>
+              {children}
+            </ViewContext.Provider>
+          </ViewStateContext.Provider>
+        </ViewStableContext.Provider>
       </WeeksViewStateContext.Provider>
     </WeeksViewStableContext.Provider>
   );

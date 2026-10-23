@@ -8,7 +8,7 @@ import {
   rangeOverlayStateAttributesMapping,
 } from "./selected-range";
 import type { RangePreviewState, RangePreviewProps } from "./types";
-import { useViewContext } from "./view-context";
+import { useViewStable, useViewState } from "./view-context";
 
 function RangePreviewFn(
   props: RangePreviewProps,
@@ -40,7 +40,8 @@ function RangePreviewInnerFn(
   const { orientation } = useContext(GridContext);
   const { temporal: T } = useCalendarStable();
   const { previewStart, previewEnd } = useCalendarState();
-  const { rootState, outsideDays } = useViewContext();
+  const { rootState } = useViewState();
+  const { outsideDays } = useViewStable();
 
   const days = weekData?.days ?? [];
   const gridMonth = weekData?.gridMonth;

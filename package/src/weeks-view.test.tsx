@@ -23,7 +23,7 @@ import {
   MonthSeparatorWeekCount,
 } from "./month-separator";
 import { useMonthViewState } from "./month-view-context";
-import { useViewContext } from "./view-context";
+import { useViewContext, useViewState } from "./view-context";
 import { NextWeeksButton, PrevWeeksButton } from "./weeks-navigation";
 import { WeeksView } from "./weeks-view";
 import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
@@ -549,15 +549,15 @@ describe("WeeksView regression: rootState is populated", () => {
   function RootStateCapture({
     onCapture,
   }: {
-    onCapture: (root: ReturnType<typeof useViewContext>["rootState"]) => void;
+    onCapture: (root: ReturnType<typeof useViewState>["rootState"]) => void;
   }) {
-    const { rootState } = useViewContext();
+    const { rootState } = useViewState();
     onCapture(rootState);
     return null;
   }
 
-  it("exposes a real rootState to components reading useViewContext()", () => {
-    let root: ReturnType<typeof useViewContext>["rootState"] | undefined;
+  it("exposes a real rootState to components reading useViewState()", () => {
+    let root: ReturnType<typeof useViewState>["rootState"] | undefined;
     render(
       <WeeksView
         temporal={T}

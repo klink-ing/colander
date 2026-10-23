@@ -10,7 +10,11 @@ import {
 } from "./resolve-first-week";
 import type { RootState } from "./types";
 import { selectedToZdt, toZonedDateTime } from "./utils";
-import type { ViewContextValue } from "./view-context";
+import type {
+  ViewContextValue,
+  ViewStableContextValue,
+  ViewStateContextValue,
+} from "./view-context";
 import type {
   WeeksViewRootProps,
   WeeksViewStableContextValue,
@@ -487,13 +491,26 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       tabTargetDate,
       gridHasFocus,
       setGridHasFocus,
-      gridFocusedRef,
-      outsideDays: "enabled" as const,
-      currentDateTime,
-      rootState,
     }),
-    [focusedDate, tabTargetDate, gridHasFocus, currentDateTime, rootState],
+    [focusedDate, tabTargetDate, gridHasFocus],
   );
 
-  return { stableCtx, stateCtx, viewCtx, scrollToWeek };
+  const viewStableCtx = useMemo<ViewStableContextValue>(
+    () => ({ gridFocusedRef, outsideDays: "enabled" }),
+    [],
+  );
+
+  const viewStateCtx = useMemo<ViewStateContextValue>(
+    () => ({ currentDateTime, rootState }),
+    [currentDateTime, rootState],
+  );
+
+  return {
+    stableCtx,
+    stateCtx,
+    viewCtx,
+    viewStableCtx,
+    viewStateCtx,
+    scrollToWeek,
+  };
 }

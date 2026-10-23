@@ -15,7 +15,7 @@ import type {
   OutsideDays,
 } from "./types";
 import { shouldMoveDomFocus, isInRange as isInRangeUtil } from "./utils";
-import { useViewContext } from "./view-context";
+import { useViewContext, useViewStable, useViewState } from "./view-context";
 
 /** Computes derived day cell state from context values. Pure function, no hooks. */
 export function computeDayCellState(
@@ -396,13 +396,9 @@ export function DayCellTemplate(props: DayCellTemplateProps) {
     useCalendarState();
 
   const viewCtx = useViewContext();
-  const {
-    focusedDate,
-    tabTargetDate,
-    rootState,
-    outsideDays,
-    currentDateTime,
-  } = viewCtx;
+  const { focusedDate, tabTargetDate } = viewCtx;
+  const { rootState, currentDateTime } = useViewState();
+  const { outsideDays } = useViewStable();
   const monthState = useContext(MonthViewStateContext);
 
   // Use the grid-specific month for outsideMonth checks, falling back to currentMonth.
@@ -502,7 +498,8 @@ function DayButtonInnerFn(
 ) {
   const { render, date, _derivedState, ...otherProps } = props;
   const { onSelect, locale, readOnly, setHoveredDate } = useCalendarStable();
-  const { setFocusedDate, gridFocusedRef } = useViewContext();
+  const { setFocusedDate } = useViewContext();
+  const { gridFocusedRef } = useViewStable();
 
   const internalRef = useRef<HTMLButtonElement>(null);
 
@@ -667,13 +664,9 @@ function DayButtonFallbackFn(
   const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
     useCalendarState();
   const viewCtx = useViewContext();
-  const {
-    focusedDate,
-    tabTargetDate,
-    rootState,
-    outsideDays,
-    currentDateTime,
-  } = viewCtx;
+  const { focusedDate, tabTargetDate } = viewCtx;
+  const { rootState, currentDateTime } = useViewState();
+  const { outsideDays } = useViewStable();
 
   const isWeeksView = viewCtx.viewType === "weeks";
   const cellMonth = isWeeksView

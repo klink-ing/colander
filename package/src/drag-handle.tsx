@@ -10,7 +10,7 @@ import type {
   RangeEndDragHandleProps,
   RangeDragHandleProps,
 } from "./types";
-import { useViewContext } from "./view-context";
+import { useViewState } from "./view-context";
 
 const dragHandleStateAttributesMapping = {
   root: () => null,
@@ -31,7 +31,7 @@ function useDragHandle(
     disabled,
   } = useCalendarStable();
   const { rangeStart, rangeEnd } = useCalendarState();
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
   const cellData = useContext(DayCellDataContext);
   const { orientation } = useContext(GridContext);
   const date = cellData?.date;

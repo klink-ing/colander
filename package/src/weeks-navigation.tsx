@@ -4,7 +4,7 @@ import React, { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
 import { canShift } from "./out-of-range";
 import type { RootState, StateAttributesMapping } from "./types";
-import { useViewContext } from "./view-context";
+import { useViewState } from "./view-context";
 import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
 
 // ---------------------------------------------------------------------------
@@ -80,7 +80,7 @@ function useWeeksNavButton(
   const { weekCount, outOfRangeBehavior, goNext, goPrev } =
     useWeeksViewStable();
   const { windowInfo } = useWeeksViewState();
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const currentFirstWeek = windowInfo.windowStart;
 
@@ -193,7 +193,7 @@ function WeekCountFn(
 ) {
   const { render, ...otherProps } = props;
   const { windowInfo } = useWeeksViewState();
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
   const count = windowInfo.weekCount;
 
   const state = useMemo<WeekCountState>(

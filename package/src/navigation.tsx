@@ -16,7 +16,7 @@ import type {
   NavButtonState,
 } from "./types";
 import { selectedToZdt, zdtToNativeDate } from "./utils";
-import { useViewContext } from "./view-context";
+import { useViewState } from "./view-context";
 
 const dateStringStateAttributesMapping = {
   root: () => null,
@@ -45,7 +45,7 @@ function DateStringFn(
   const { render, locales, options, ...otherProps } = props;
   const { locale, temporal: T, timeZone } = useCalendarStable();
   const { selected } = useCalendarState();
-  const { currentDateTime, rootState } = useViewContext();
+  const { currentDateTime, rootState } = useViewState();
 
   const selectedZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selectedZdt
@@ -98,7 +98,7 @@ function TimeStringFn(
   const { render, locales, options, ...otherProps } = props;
   const { locale, temporal: T, timeZone } = useCalendarStable();
   const { selected } = useCalendarState();
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const selZdt = selectedToZdt(selected, timeZone, T);
   const displayDate = selZdt

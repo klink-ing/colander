@@ -10,11 +10,11 @@ import type {
   GridHeaderCellState,
 } from "./types";
 import { getWeekdayNames, getReferenceWeekStart } from "./utils";
-import { useViewContext } from "./view-context";
+import { useViewState } from "./view-context";
 
 function useGridHeaderCellState(index: number) {
   const { locale, temporal: T, weekStartDay } = useCalendarStable();
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const weekdayNames = useMemo(
     () => getWeekdayNames(locale, T, weekStartDay),
@@ -120,7 +120,7 @@ function GridHeaderFn(
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
   const { render, children, ...otherProps } = props;
-  const { rootState } = useViewContext();
+  const { rootState } = useViewState();
 
   const state = useMemo<GridHeaderState>(
     () => ({ root: rootState as unknown as GridHeaderState["root"] }),
