@@ -29,14 +29,10 @@ import type {
   WeekTemplateState,
   WeekTemplateProps,
 } from "./types";
-import { useViewContext } from "./view-context";
+import { ViewContext, useViewContext } from "./view-context";
 import { WeeksGrid } from "./weeks-grid";
 import { computeWeeksKeyNav } from "./weeks-keyboard";
-import {
-  WeeksViewStateContext,
-  useWeeksViewState,
-  useWeeksViewStable,
-} from "./weeks-view-context";
+import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
 export { GridHeader, GridHeaderCell } from "./grid-header";
 export { DayCellTemplate, DayButton } from "./day-cell";
 
@@ -177,17 +173,19 @@ const gridStateAttributesMapping = {
  * delegates to the appropriate internal renderer.
  */
 function GridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>) {
-  const monthState = useContext(MonthViewStableContext);
-  const weeksState = useContext(WeeksViewStateContext);
+  const view = useContext(ViewContext);
 
-  if (monthState) {
-    return <MonthGrid ref={ref} {...props} />;
-  }
-  if (weeksState) {
-    return <WeeksViewGrid ref={ref} {...props} />;
+  if (!view) {
+    throw new Error(
+      "Grid must be used inside MonthView.Root or WeeksView.Root.",
+    );
   }
 
-  throw new Error("Grid must be used inside MonthView.Root or WeeksView.Root.");
+  return view.viewType === "weeks" ? (
+    <WeeksViewGrid ref={ref} {...props} />
+  ) : (
+    <MonthGrid ref={ref} {...props} />
+  );
 }
 
 export const Grid = forwardRef(GridFn) as (
@@ -508,11 +506,11 @@ function GridBodyFn(
   props: GridBodyProps,
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
-  const weeksState = useContext(WeeksViewStateContext);
+  const view = useContext(ViewContext);
 
   // In WeeksView, delegate to WeeksGrid which handles week iteration
   // and MonthSeparator context provision.
-  if (weeksState) {
+  if (view?.viewType === "weeks") {
     const { children, className, style } = props as any;
     return (
       <WeeksGrid className={className} style={style}>
