@@ -545,21 +545,19 @@ describe("WeeksView regression: goNext/goPrev shift by weekCount (Bug #3)", () =
   });
 });
 
-describe("WeeksView regression: rootState shim is populated", () => {
-  function ShimRootStateCapture({
+describe("WeeksView regression: rootState is populated", () => {
+  function RootStateCapture({
     onCapture,
   }: {
-    onCapture: (
-      root: ReturnType<typeof useMonthViewState>["rootState"],
-    ) => void;
+    onCapture: (root: ReturnType<typeof useViewContext>["rootState"]) => void;
   }) {
-    const { rootState } = useMonthViewState();
+    const { rootState } = useViewContext();
     onCapture(rootState);
     return null;
   }
 
-  it("exposes a real rootState to components reading useMonthViewState()", () => {
-    let root: ReturnType<typeof useMonthViewState>["rootState"] | undefined;
+  it("exposes a real rootState to components reading useViewContext()", () => {
+    let root: ReturnType<typeof useViewContext>["rootState"] | undefined;
     render(
       <WeeksView
         temporal={T}
@@ -567,7 +565,7 @@ describe("WeeksView regression: rootState shim is populated", () => {
         defaultFirstWeek={T.PlainDate.from("2026-03-01")}
         defaultValue={T.PlainDate.from("2026-03-15")}
       >
-        <ShimRootStateCapture
+        <RootStateCapture
           onCapture={(r) => {
             root = r;
           }}
@@ -575,7 +573,6 @@ describe("WeeksView regression: rootState shim is populated", () => {
       </WeeksView>,
     );
 
-    // Pre-fix this shim was `{} as RootState` — every field undefined at runtime.
     expect(root).toBeDefined();
     expect(root!.viewing).toBeInstanceOf(Temporal.PlainYearMonth);
     expect(root!.focused).toBeInstanceOf(Temporal.PlainDate);
@@ -583,13 +580,32 @@ describe("WeeksView regression: rootState shim is populated", () => {
     expect(root!.timeZone.length).toBeGreaterThan(0);
     expect(typeof root!.locale).toBe("string");
     expect(typeof root!.readOnly).toBe("boolean");
-    // Selection flows through the shared baseRootState into the shim.
+    // Selection flows through the shared baseRootState.
     expect(root!.hasSelection).toBe(true);
     expect(root!.selected).toBeInstanceOf(Temporal.PlainDate);
     expect(root!.selected!.toString()).toBe("2026-03-15");
     expect(
       root!.selectedDates.every((d) => d instanceof Temporal.PlainDate),
     ).toBe(true);
+  });
+});
+
+describe("WeeksView does not provide MonthView contexts", () => {
+  function MonthStateProbe() {
+    useMonthViewState();
+    return null;
+  }
+
+  it("useMonthViewState throws instead of returning placeholder values", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() =>
+      render(
+        <WeeksView temporal={T} weekCount={4}>
+          <MonthStateProbe />
+        </WeeksView>,
+      ),
+    ).toThrow();
+    error.mockRestore();
   });
 });
 

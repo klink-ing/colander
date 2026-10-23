@@ -1,11 +1,6 @@
-import type { Temporal } from "@js-temporal/polyfill";
-import React, { forwardRef, useImperativeHandle, useMemo, useRef } from "react";
+import React, { forwardRef, useImperativeHandle } from "react";
 import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
-import {
-  MonthViewStableContext,
-  MonthViewStateContext,
-} from "./month-view-context";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { ValueFormat } from "./types";
 import { ViewContext } from "./view-context";
@@ -38,52 +33,12 @@ function WeeksViewRootFn(
 
   useImperativeHandle(ref, () => ({ scrollToWeek }), [scrollToWeek]);
 
-  const gridFocusedRef = useRef(false);
-
-  // Provide MonthViewStableContext/MonthViewStateContext shims so shared
-  // components (WeeksNavButton, WeekCount, etc.) that read rootState via
-  // useMonthViewState() can function outside the Grid in WeeksView.
-  const monthViewStableShim = useMemo(
-    () => ({
-      numberOfMonths: 1,
-      fixedWeeks: false,
-      outsideDays: "enabled" as const,
-      outOfRangeBehavior: "unbounded" as const,
-      goNextMonth: () => {},
-      goPrevMonth: () => {},
-      setGridLabelId: () => {},
-      gridFocusedRef,
-    }),
-    [],
-  );
-
-  const monthViewStateShim = useMemo(
-    () => ({
-      currentMonth: {
-        year: stateCtx.currentDateTime.year,
-        month: stateCtx.currentDateTime.month,
-      },
-      weeks: [] as Temporal.PlainDate[][],
-      allMonths: [],
-      currentDateTime: stateCtx.currentDateTime,
-      gridLabelIds: stateCtx.gridLabelIds,
-      rootState: stateCtx.rootState,
-    }),
-    [stateCtx.currentDateTime, stateCtx.gridLabelIds, stateCtx.rootState],
-  );
-
   return (
-    <MonthViewStableContext.Provider value={monthViewStableShim}>
-      <MonthViewStateContext.Provider value={monthViewStateShim}>
-        <WeeksViewStableContext.Provider value={stableCtx}>
-          <WeeksViewStateContext.Provider value={stateCtx}>
-            <ViewContext.Provider value={viewCtx}>
-              {children}
-            </ViewContext.Provider>
-          </WeeksViewStateContext.Provider>
-        </WeeksViewStableContext.Provider>
-      </MonthViewStateContext.Provider>
-    </MonthViewStableContext.Provider>
+    <WeeksViewStableContext.Provider value={stableCtx}>
+      <WeeksViewStateContext.Provider value={stateCtx}>
+        <ViewContext.Provider value={viewCtx}>{children}</ViewContext.Provider>
+      </WeeksViewStateContext.Provider>
+    </WeeksViewStableContext.Provider>
   );
 }
 

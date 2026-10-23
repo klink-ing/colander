@@ -1,6 +1,5 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import type { Temporal } from "@js-temporal/polyfill";
 import {
   useContext,
   useMemo,
@@ -15,7 +14,6 @@ import { WeekDataContext, GridContext, GridMonthContext } from "./context";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import { computeNextFocusDate } from "./keyboard";
 import {
-  MonthViewStableContext,
   MonthViewStateContext,
   useMonthViewStable,
   useMonthViewState,
@@ -359,7 +357,7 @@ function WeeksViewGridFn(
   const weeksStable = useWeeksViewStable();
   const weeksState = useWeeksViewState();
   const { gridFocusedRef } = weeksStable;
-  const { gridLabelIds, weeks, currentDateTime } = weeksState;
+  const { gridLabelIds, weeks } = weeksState;
 
   const handleKeyDown = useWeeksGridKeyboard();
   const gridRef = useRef<HTMLTableElement>(null);
@@ -451,45 +449,8 @@ function WeeksViewGridFn(
     [resolvedOrientation],
   );
 
-  // Provide a MonthViewStableContext shim so shared components
-  // (DayCellTemplate, DayButton, etc.) that read it can function in WeeksView.
-  const monthViewStableShim = useMemo(
-    () => ({
-      numberOfMonths: 1,
-      fixedWeeks: false,
-      outsideDays: "enabled" as const,
-      outOfRangeBehavior: "unbounded" as const,
-      goNextMonth: () => {},
-      goPrevMonth: () => {},
-      setGridLabelId: () => {},
-      gridFocusedRef,
-    }),
-    [gridFocusedRef],
-  );
-
-  // Provide a MonthViewStateContext shim with reasonable defaults derived
-  // from the WeeksView state so WeekTemplate/DayCellTemplate/DayButton work.
-  const monthViewStateShim = useMemo(
-    () => ({
-      currentMonth: {
-        year: currentDateTime.year,
-        month: currentDateTime.month,
-      },
-      weeks: [] as Temporal.PlainDate[][],
-      allMonths: [],
-      currentDateTime,
-      gridLabelIds,
-      rootState: weeksState.rootState,
-    }),
-    [currentDateTime, gridLabelIds, weeksState.rootState],
-  );
-
   return (
-    <MonthViewStableContext.Provider value={monthViewStableShim}>
-      <MonthViewStateContext.Provider value={monthViewStateShim}>
-        <GridContext.Provider value={orientationCtx}>{el}</GridContext.Provider>
-      </MonthViewStateContext.Provider>
-    </MonthViewStableContext.Provider>
+    <GridContext.Provider value={orientationCtx}>{el}</GridContext.Provider>
   );
 }
 
