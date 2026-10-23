@@ -1,5 +1,12 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { render, screen, act, cleanup, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  act,
+  cleanup,
+  fireEvent,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   Grid,
@@ -583,5 +590,71 @@ describe("WeeksView regression: rootState shim is populated", () => {
     expect(
       root!.selectedDates.every((d) => d instanceof Temporal.PlainDate),
     ).toBe(true);
+  });
+});
+
+describe("WeeksView: Grid renders the weeks grid shell", () => {
+  function renderWeeksGrid() {
+    return render(
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+        defaultValue={T.PlainDate.from("2026-03-15")}
+      >
+        <FocusDisplay />
+        <WindowDisplay />
+        <Grid>
+          <GridBody>
+            <WeekTemplate>
+              <DayCellTemplate>
+                <DayButton />
+              </DayCellTemplate>
+            </WeekTemplate>
+          </GridBody>
+        </Grid>
+      </WeeksView>,
+    );
+  }
+
+  it("reports the window's week count on the grid", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    renderWeeksGrid();
+
+    const grid = screen.getByRole("grid");
+    expect(grid.getAttribute("data-weeks-in-month")).toBe("4");
+    expect(grid.style.getPropertyValue("--calendar-weeks-in-month")).toBe("4");
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it.each([
+    {
+      description: "PageDown moves focus by weekCount weeks",
+      key: "PageDown",
+      shiftKey: false,
+      expected: { focus: "2026-04-12" },
+    },
+    {
+      description: "Shift+PageDown moves focus by a year",
+      key: "PageDown",
+      shiftKey: true,
+      expected: { focus: "2027-03-15" },
+    },
+  ])("$description", ({ key, shiftKey, expected }) => {
+    renderWeeksGrid();
+
+    fireEvent.keyDown(screen.getByRole("grid"), { key, shiftKey });
+
+    expect(screen.getByTestId("focus").textContent).toBe(expected.focus);
+  });
+
+  it("End moves focus to the last day of the window and keeps the window", () => {
+    renderWeeksGrid();
+
+    fireEvent.keyDown(screen.getByRole("grid"), { key: "End" });
+
+    expect(screen.getByTestId("focus").textContent).toBe("2026-03-28");
+    expect(screen.getByTestId("start").textContent).toBe("2026-03-01");
   });
 });
