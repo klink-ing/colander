@@ -34,3 +34,17 @@ Mechanics:
    harmless; if the branch-folder ruleset exemption was removed, re-add it first to delete).
 4. Push to `main` → semantic-release publishes **`3.0.0`** to `latest`. Verify with
    `npx semantic-release --dry-run` first.
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues on `klink-ing/colander` (via the `gh` CLI). See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default vocabulary: `needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`. See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one root `GLOSSARY.md` + `docs/adr/`. See `docs/agents/domain.md`.
