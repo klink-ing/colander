@@ -207,6 +207,24 @@ describe("WeeksView window bounds: a shrunk window pages by the rows it shows", 
   });
 });
 
+describe("WeeksView window bounds: End stays inside a trimmed window", () => {
+  it("End focuses the last shown day after leading rows are trimmed", () => {
+    // min trims 02-15 and 02-22, leaving the 2 rows 03-01..03-14.
+    renderWindow({
+      behavior: "stop-shrink",
+      weekCount: 4,
+      firstWeek: "2026-02-15",
+      min: "2026-03-01",
+      value: "2026-03-01",
+    });
+    expect(screen.getByTestId("count").textContent).toBe("2");
+
+    fireEvent.keyDown(screen.getByRole("grid"), { key: "End" });
+
+    expect(screen.getByTestId("focus").textContent).toBe("2026-03-14");
+  });
+});
+
 describe("WeeksView window bounds: buttons act on the window that is shown", () => {
   it("Prev from an over-shoot initial window moves from the snapped window", () => {
     // 03-22 overshoots max, so the shown window is the snapped 03-01 one.
