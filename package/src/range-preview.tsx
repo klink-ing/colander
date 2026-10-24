@@ -3,13 +3,12 @@ import { useRender } from "@base-ui/react/use-render";
 import { forwardRef, useContext, useMemo } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { WeekDataContext, GridContext } from "./context";
-import { useMonthViewState } from "./month-view-context";
-import { MonthViewStableContext } from "./month-view-context";
 import {
   computeClippedRangeInfo,
   rangeOverlayStateAttributesMapping,
 } from "./selected-range";
 import type { RangePreviewState, RangePreviewProps } from "./types";
+import { useViewStable, useViewState } from "./view-context";
 
 function RangePreviewFn(
   props: RangePreviewProps,
@@ -41,9 +40,8 @@ function RangePreviewInnerFn(
   const { orientation } = useContext(GridContext);
   const { temporal: T } = useCalendarStable();
   const { previewStart, previewEnd } = useCalendarState();
-  const monthStable = useContext(MonthViewStableContext);
-  const { rootState } = useMonthViewState();
-  const outsideDays = monthStable?.outsideDays ?? "enabled";
+  const { rootState } = useViewState();
+  const { outsideDays } = useViewStable();
 
   const days = weekData?.days ?? [];
   const gridMonth = weekData?.gridMonth;

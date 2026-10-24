@@ -1,5 +1,12 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { render, screen, act, cleanup, within } from "@testing-library/react";
+import {
+  render,
+  screen,
+  act,
+  cleanup,
+  fireEvent,
+  within,
+} from "@testing-library/react";
 import { describe, it, expect, vi, afterEach } from "vitest";
 import {
   Grid,
@@ -16,7 +23,7 @@ import {
   MonthSeparatorWeekCount,
 } from "./month-separator";
 import { useMonthViewState } from "./month-view-context";
-import { useViewContext } from "./view-context";
+import { useViewContext, useViewState } from "./view-context";
 import { NextWeeksButton, PrevWeeksButton } from "./weeks-navigation";
 import { WeeksView } from "./weeks-view";
 import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
@@ -538,21 +545,19 @@ describe("WeeksView regression: goNext/goPrev shift by weekCount (Bug #3)", () =
   });
 });
 
-describe("WeeksView regression: rootState shim is populated", () => {
-  function ShimRootStateCapture({
+describe("WeeksView regression: rootState is populated", () => {
+  function RootStateCapture({
     onCapture,
   }: {
-    onCapture: (
-      root: ReturnType<typeof useMonthViewState>["rootState"],
-    ) => void;
+    onCapture: (root: ReturnType<typeof useViewState>["rootState"]) => void;
   }) {
-    const { rootState } = useMonthViewState();
+    const { rootState } = useViewState();
     onCapture(rootState);
     return null;
   }
 
-  it("exposes a real rootState to components reading useMonthViewState()", () => {
-    let root: ReturnType<typeof useMonthViewState>["rootState"] | undefined;
+  it("exposes a real rootState to components reading useViewState()", () => {
+    let root: ReturnType<typeof useViewState>["rootState"] | undefined;
     render(
       <WeeksView
         temporal={T}
@@ -560,7 +565,7 @@ describe("WeeksView regression: rootState shim is populated", () => {
         defaultFirstWeek={T.PlainDate.from("2026-03-01")}
         defaultValue={T.PlainDate.from("2026-03-15")}
       >
-        <ShimRootStateCapture
+        <RootStateCapture
           onCapture={(r) => {
             root = r;
           }}
@@ -568,7 +573,6 @@ describe("WeeksView regression: rootState shim is populated", () => {
       </WeeksView>,
     );
 
-    // Pre-fix this shim was `{} as RootState` — every field undefined at runtime.
     expect(root).toBeDefined();
     expect(root!.viewing).toBeInstanceOf(Temporal.PlainYearMonth);
     expect(root!.focused).toBeInstanceOf(Temporal.PlainDate);
@@ -576,12 +580,110 @@ describe("WeeksView regression: rootState shim is populated", () => {
     expect(root!.timeZone.length).toBeGreaterThan(0);
     expect(typeof root!.locale).toBe("string");
     expect(typeof root!.readOnly).toBe("boolean");
-    // Selection flows through the shared baseRootState into the shim.
+    // Selection flows through the shared baseRootState.
     expect(root!.hasSelection).toBe(true);
     expect(root!.selected).toBeInstanceOf(Temporal.PlainDate);
     expect(root!.selected!.toString()).toBe("2026-03-15");
     expect(
       root!.selectedDates.every((d) => d instanceof Temporal.PlainDate),
     ).toBe(true);
+  });
+});
+
+describe("WeeksView does not provide MonthView contexts", () => {
+  function MonthStateProbe() {
+    useMonthViewState();
+    return null;
+  }
+
+  it("useMonthViewState throws instead of returning placeholder values", () => {
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+    expect(() =>
+      render(
+        <WeeksView temporal={T} weekCount={4}>
+          <MonthStateProbe />
+        </WeeksView>,
+      ),
+    ).toThrow();
+    error.mockRestore();
+  });
+});
+
+describe("WeeksView: Grid renders the weeks grid shell", () => {
+  function renderWeeksGrid() {
+    return render(
+      <WeeksView
+        temporal={T}
+        weekCount={4}
+        defaultFirstWeek={T.PlainDate.from("2026-03-01")}
+        defaultValue={T.PlainDate.from("2026-03-15")}
+      >
+        <FocusDisplay />
+        <WindowDisplay />
+        <Grid>
+          <GridBody>
+            <WeekTemplate>
+              <DayCellTemplate>
+                <DayButton />
+              </DayCellTemplate>
+            </WeekTemplate>
+          </GridBody>
+        </Grid>
+      </WeeksView>,
+    );
+  }
+
+  it("reports the window's week count on the grid", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    renderWeeksGrid();
+
+    const grid = screen.getByRole("grid");
+    expect(grid.getAttribute("data-weeks-in-month")).toBe("4");
+    expect(grid.style.getPropertyValue("--calendar-weeks-in-month")).toBe("4");
+    expect(warn).not.toHaveBeenCalled();
+    warn.mockRestore();
+  });
+
+  it.each([
+    {
+      description: "PageDown moves focus by weekCount weeks",
+      key: "PageDown",
+      shiftKey: false,
+      expected: { focus: "2026-04-12" },
+    },
+    {
+      description: "Shift+PageDown moves focus by a year",
+      key: "PageDown",
+      shiftKey: true,
+      expected: { focus: "2027-03-15" },
+    },
+  ])("$description", ({ key, shiftKey, expected }) => {
+    renderWeeksGrid();
+
+    fireEvent.keyDown(screen.getByRole("grid"), { key, shiftKey });
+
+    expect(screen.getByTestId("focus").textContent).toBe(expected.focus);
+  });
+
+  it("moves DOM focus to the newly focused day after an arrow key", () => {
+    renderWeeksGrid();
+    const start = screen.getByRole("button", { name: /15/ });
+    act(() => start.focus());
+
+    fireEvent.keyDown(start, { key: "ArrowRight" });
+
+    expect(screen.getByTestId("focus").textContent).toBe("2026-03-16");
+    expect(document.activeElement).toBe(
+      screen.getByRole("button", { name: /16/ }),
+    );
+  });
+
+  it("End moves focus to the last day of the window and keeps the window", () => {
+    renderWeeksGrid();
+
+    fireEvent.keyDown(screen.getByRole("grid"), { key: "End" });
+
+    expect(screen.getByTestId("focus").textContent).toBe("2026-03-28");
+    expect(screen.getByTestId("start").textContent).toBe("2026-03-01");
   });
 });

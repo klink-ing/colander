@@ -4,8 +4,6 @@ import type { Temporal } from "@js-temporal/polyfill";
 import { forwardRef, useContext, useMemo } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { WeekDataContext, GridContext } from "./context";
-import { useMonthViewState } from "./month-view-context";
-import { MonthViewStableContext } from "./month-view-context";
 import type { StateAttributesMapping } from "./types";
 import type {
   RangeSelectedState,
@@ -14,6 +12,7 @@ import type {
   TemporalNamespace,
 } from "./types";
 import { computeWeekRangeInfo } from "./utils";
+import { useViewStable, useViewState } from "./view-context";
 
 export const rangeOverlayStateAttributesMapping = {
   root: () => null,
@@ -114,9 +113,8 @@ function RangeSelectedInnerFn(
   const { orientation } = useContext(GridContext);
   const { temporal: T } = useCalendarStable();
   const { rangeStart, rangeEnd } = useCalendarState();
-  const monthStable = useContext(MonthViewStableContext);
-  const { rootState } = useMonthViewState();
-  const outsideDays = monthStable?.outsideDays ?? "enabled";
+  const { rootState } = useViewState();
+  const { outsideDays } = useViewStable();
 
   const days = weekData?.days ?? [];
   const gridMonth = weekData?.gridMonth;
