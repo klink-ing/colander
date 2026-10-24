@@ -109,7 +109,7 @@ function useWeeksGridKeyboard() {
         shiftKey: e.shiftKey,
         focusedDate,
         windowStart: weeksState.windowInfo.windowStart,
-        weekCount: weeksStable.weekCount,
+        weekCount: weeksState.windowInfo.weekCount,
         minValue,
         maxValue,
         disabled,

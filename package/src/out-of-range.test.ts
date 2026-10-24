@@ -1,10 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { describe, it, expect } from "vitest";
-import {
-  applyOutOfRange,
-  canShift,
-  type OutOfRangeBehavior,
-} from "./out-of-range";
+import { applyOutOfRange, type OutOfRangeBehavior } from "./out-of-range";
 
 const T = Temporal;
 const pd = (s: string) => T.PlainDate.from(s);
@@ -19,7 +15,7 @@ describe("applyOutOfRange", () => {
       targetFirstWeek: pd("2026-02-01"),
       weekCount: 8,
       behavior: "unbounded" as OutOfRangeBehavior,
-      useMinMax: true,
+      useMinMax: "both" as const,
       expected: { firstWeek: "2026-02-01", weekCount: 8 },
     },
     {
@@ -27,7 +23,7 @@ describe("applyOutOfRange", () => {
       targetFirstWeek: pd("2025-12-07"),
       weekCount: 8,
       behavior: "stop" as OutOfRangeBehavior,
-      useMinMax: true,
+      useMinMax: "both" as const,
       expected: { firstWeek: "2025-12-07", weekCount: 8 },
     },
     {
@@ -35,7 +31,7 @@ describe("applyOutOfRange", () => {
       targetFirstWeek: pd("2026-01-11"),
       weekCount: 8,
       behavior: "snap" as OutOfRangeBehavior,
-      useMinMax: true,
+      useMinMax: "both" as const,
       expected: {
         firstWeek: "2025-11-16",
         weekCount: 8,
@@ -46,7 +42,7 @@ describe("applyOutOfRange", () => {
       targetFirstWeek: pd("2026-01-11"),
       weekCount: 8,
       behavior: "snap-shrink" as OutOfRangeBehavior,
-      useMinMax: true,
+      useMinMax: "both" as const,
       expected: {
         firstWeek: "2025-11-30",
         weekCount: 6,
@@ -57,18 +53,42 @@ describe("applyOutOfRange", () => {
       targetFirstWeek: pd("2025-12-07"),
       weekCount: 8,
       behavior: "stop-shrink" as OutOfRangeBehavior,
-      useMinMax: true,
+      useMinMax: "both" as const,
       expected: {
         firstWeek: "2025-12-07",
         weekCount: 5,
       },
     },
     {
+      description: "max only, snap — pulls back when target overshoots max",
+      targetFirstWeek: pd("2026-01-11"),
+      weekCount: 8,
+      behavior: "snap" as OutOfRangeBehavior,
+      useMinMax: "max" as const,
+      expected: { firstWeek: "2025-11-16", weekCount: 8 },
+    },
+    {
+      description: "min only, snap — pulls forward when target undershoots min",
+      targetFirstWeek: pd("2025-10-01"),
+      weekCount: 8,
+      behavior: "snap" as OutOfRangeBehavior,
+      useMinMax: "min" as const,
+      expected: { firstWeek: "2025-11-30", weekCount: 8 },
+    },
+    {
+      description: "min only, stop-shrink — trims leading disabled rows",
+      targetFirstWeek: pd("2025-11-16"),
+      weekCount: 8,
+      behavior: "stop-shrink" as OutOfRangeBehavior,
+      useMinMax: "min" as const,
+      expected: { firstWeek: "2025-11-30", weekCount: 6 },
+    },
+    {
       description: "no min/max — all modes behave as unbounded",
       targetFirstWeek: pd("2026-06-01"),
       weekCount: 8,
       behavior: "snap" as OutOfRangeBehavior,
-      useMinMax: false,
+      useMinMax: "none" as const,
       expected: { firstWeek: "2026-06-01", weekCount: 8 },
     },
   ])(
@@ -78,7 +98,8 @@ describe("applyOutOfRange", () => {
         targetFirstWeek,
         weekCount,
         behavior,
-        ...(useMinMax && { min, max }),
+        ...((useMinMax === "both" || useMinMax === "min") && { min }),
+        ...((useMinMax === "both" || useMinMax === "max") && { max }),
         weekStartDay: 0,
         T,
       });
@@ -86,45 +107,4 @@ describe("applyOutOfRange", () => {
       expect(result.weekCount).toBe(expected.weekCount);
     },
   );
-});
-
-describe("canShift", () => {
-  const min = pd("2025-12-01");
-  const max = pd("2026-01-10");
-
-  it.each([
-    {
-      description: "unbounded — always true",
-      behavior: "unbounded" as OutOfRangeBehavior,
-      currentFirstWeek: pd("2026-06-01"),
-      direction: 1 as const,
-      expected: true,
-    },
-    {
-      description: "stop — false when target has no valid weeks",
-      behavior: "stop" as OutOfRangeBehavior,
-      currentFirstWeek: pd("2025-12-28"),
-      direction: 1 as const,
-      expected: false,
-    },
-    {
-      description: "snap — false when already at clamp position",
-      behavior: "snap" as OutOfRangeBehavior,
-      currentFirstWeek: pd("2025-11-16"),
-      direction: 1 as const,
-      expected: false,
-    },
-  ])("$description", ({ behavior, currentFirstWeek, direction, expected }) => {
-    const result = canShift({
-      currentFirstWeek,
-      weekCount: 8,
-      direction,
-      behavior,
-      min,
-      max,
-      weekStartDay: 0,
-      T,
-    });
-    expect(result).toBe(expected);
-  });
 });

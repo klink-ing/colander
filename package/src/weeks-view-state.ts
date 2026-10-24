@@ -307,22 +307,30 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     [isControlled, onFirstWeekChange],
   );
 
+  // Moves start from the window as shown (post snap/shrink), not the requested
+  // first week, so they agree with what the Prev/Next buttons report.
+  const shownWindow = useMemo(
+    () => ({
+      firstWeek: windowInfo.windowStart,
+      weekCount: windowInfo.weekCount,
+    }),
+    [windowInfo.windowStart, windowInfo.weekCount],
+  );
+
   const goNext = useCallback(
     (shiftBy?: number) => {
-      const target = resolvedFirstWeek.add({ weeks: shiftBy ?? weekCount });
-      updateFirstWeek(windowPolicy.resolve(target).firstWeek);
+      const next = windowPolicy.shift(shownWindow, 1, shiftBy);
+      if (next) updateFirstWeek(next.firstWeek);
     },
-    [resolvedFirstWeek, weekCount, windowPolicy, updateFirstWeek],
+    [shownWindow, windowPolicy, updateFirstWeek],
   );
 
   const goPrev = useCallback(
     (shiftBy?: number) => {
-      const target = resolvedFirstWeek.subtract({
-        weeks: shiftBy ?? weekCount,
-      });
-      updateFirstWeek(windowPolicy.resolve(target).firstWeek);
+      const next = windowPolicy.shift(shownWindow, -1, shiftBy);
+      if (next) updateFirstWeek(next.firstWeek);
     },
-    [resolvedFirstWeek, weekCount, windowPolicy, updateFirstWeek],
+    [shownWindow, windowPolicy, updateFirstWeek],
   );
 
   // --- scrollToWeek ---
@@ -331,15 +339,16 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       target: FirstWeekSpec,
       options?: { snap?: "start" | "center" | "end" | "nearest" },
     ) => {
-      const newFirstWeek = resolveFirstWeek(
-        resolvedFirstWeek,
+      const requested = resolveFirstWeek(
+        shownWindow.firstWeek,
         weekCount,
         resolveSpec(target),
         options,
       );
-      updateFirstWeek(windowPolicy.resolve(newFirstWeek).firstWeek);
+      const next = windowPolicy.moveTo(requested);
+      if (next) updateFirstWeek(next.firstWeek);
     },
-    [resolvedFirstWeek, weekCount, resolveSpec, windowPolicy, updateFirstWeek],
+    [shownWindow, weekCount, resolveSpec, windowPolicy, updateFirstWeek],
   );
 
   // --- Fire onWindowChange ---
