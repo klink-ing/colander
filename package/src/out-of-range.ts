@@ -12,13 +12,16 @@ import type { TemporalNamespace, WeekStartDay } from "./types";
  * - `"unbounded"` — Navigation is never restricted by `min`/`max`; any range of
  *   weeks can be viewed. Out-of-range days simply render disabled. (Default.)
  * - `"stop"` — Navigation halts at the boundary: the Prev/Next button is
- *   disabled once the next step would show a window containing no in-range day.
+ *   disabled, and `goNext`/`goPrev`/`scrollToWeek` and keyboard paging do
+ *   nothing, once the next step would show a window containing no in-range day.
  * - `"stop-shrink"` — Like `"stop"`, but near the edge the window **shrinks** to
  *   fewer week rows instead of showing rows that are entirely out of range.
  * - `"snap"` — A jump that would overshoot **snaps** the window so its edge
  *   aligns to the last/first in-range week, rather than stopping or overshooting.
  * - `"snap-shrink"` — Snap to the boundary, then **shrink** the window to just
  *   the in-range weeks.
+ *
+ * A single bound (`min` only or `max` only) is honored; the missing side is unlimited.
  *
  * `"snap"` and `"snap-shrink"` are identical **unless the selectable range spans
  * fewer weeks than `weekCount`** — i.e. the window is taller than the range.
@@ -63,17 +66,31 @@ export type MonthOutOfRangeBehavior = "unbounded" | "stop";
 /** Returns true if any day in the 7-day span starting at weekStart falls within [min, max]. */
 function weekHasValidDay(
   weekStart: Temporal.PlainDate,
-  min: Temporal.PlainDate,
-  max: Temporal.PlainDate,
+  min: Temporal.PlainDate | undefined,
+  max: Temporal.PlainDate | undefined,
   T: TemporalNamespace,
 ): boolean {
   // Week spans [weekStart, weekStart+6]. Overlaps with [min, max] iff
-  // weekStart <= max AND weekStart+6 >= min.
+  // weekStart <= max AND weekStart+6 >= min. A missing bound is unlimited.
   const weekEnd = weekStart.add({ days: 6 });
   return (
-    T.PlainDate.compare(weekStart, max) <= 0 &&
-    T.PlainDate.compare(weekEnd, min) >= 0
+    (!max || T.PlainDate.compare(weekStart, max) <= 0) &&
+    (!min || T.PlainDate.compare(weekEnd, min) >= 0)
   );
+}
+
+/** Returns true if any of the `weekCount` weeks starting at firstWeek has a day in [min, max]. */
+export function windowHasValidWeek(
+  firstWeek: Temporal.PlainDate,
+  weekCount: number,
+  min: Temporal.PlainDate | undefined,
+  max: Temporal.PlainDate | undefined,
+  T: TemporalNamespace,
+): boolean {
+  for (let i = 0; i < weekCount; i++) {
+    if (weekHasValidDay(firstWeek.add({ weeks: i }), min, max, T)) return true;
+  }
+  return false;
 }
 
 /**
@@ -83,29 +100,10 @@ function weekHasValidDay(
 function weekStartContaining(
   date: Temporal.PlainDate,
   weekStartDay: WeekStartDay,
-  _T: TemporalNamespace,
 ): Temporal.PlainDate {
   const dow = date.dayOfWeek % 7; // Sun=0…Sat=6
   const daysFromStart = (dow - weekStartDay + 7) % 7;
   return date.subtract({ days: daysFromStart });
-}
-
-/** Find the week start (per weekStartDay) whose 7-day span contains min. */
-function findFirstValidWeekStart(
-  min: Temporal.PlainDate,
-  weekStartDay: WeekStartDay,
-  T: TemporalNamespace,
-): Temporal.PlainDate {
-  return weekStartContaining(min, weekStartDay, T);
-}
-
-/** Find the week start (per weekStartDay) whose 7-day span contains max. */
-function findLastValidWeekStart(
-  max: Temporal.PlainDate,
-  weekStartDay: WeekStartDay,
-  T: TemporalNamespace,
-): Temporal.PlainDate {
-  return weekStartContaining(max, weekStartDay, T);
 }
 
 /**
@@ -115,8 +113,8 @@ function findLastValidWeekStart(
 function shrinkWindow(
   firstWeek: Temporal.PlainDate,
   weekCount: number,
-  min: Temporal.PlainDate,
-  max: Temporal.PlainDate,
+  min: Temporal.PlainDate | undefined,
+  max: Temporal.PlainDate | undefined,
   T: TemporalNamespace,
 ): { firstWeek: Temporal.PlainDate; weekCount: number } {
   let start = 0;
@@ -174,13 +172,14 @@ export function applyOutOfRange({
   weekStartDay,
   T,
 }: ApplyOutOfRangeInput): { firstWeek: Temporal.PlainDate; weekCount: number } {
-  // Without bounds, all modes behave as unbounded
-  if (!min || !max || behavior === "unbounded") {
+  // Without bounds, all modes behave as unbounded. A single bound is honored;
+  // the missing side is unlimited.
+  if ((!min && !max) || behavior === "unbounded") {
     return { firstWeek: targetFirstWeek, weekCount };
   }
 
   if (behavior === "stop") {
-    // Caller checks canShift; here just return the target as-is
+    // Whether the move is allowed is decided by the caller (see WeekWindowPolicy)
     return { firstWeek: targetFirstWeek, weekCount };
   }
 
@@ -188,100 +187,25 @@ export function applyOutOfRange({
     return shrinkWindow(targetFirstWeek, weekCount, min, max, T);
   }
 
-  if (behavior === "snap" || behavior === "snap-shrink") {
-    // Compute the snapped position: window ends at lastValidWeekStart
-    const lastValid = findLastValidWeekStart(max, weekStartDay, T);
+  // snap | snap-shrink
+  const targetLastWeek = targetFirstWeek.add({ weeks: weekCount - 1 });
+  const lastValid = max && weekStartContaining(max, weekStartDay);
+  const firstValid = min && weekStartContaining(min, weekStartDay);
 
-    // The snapped firstWeek positions the window so it ends at lastValid
-    // i.e. firstWeek = lastValid - (weekCount - 1) * 7
-    const snappedFirst = lastValid.subtract({ days: (weekCount - 1) * 7 });
-
-    // Determine which firstWeek to use: if target is already within bounds
-    // (doesn't overshoot max), use the target; otherwise snap.
-    // "Overshoots max" means the target window extends past the last valid week.
-    // The last week of the target window is targetFirstWeek + (weekCount-1)*7.
-    const targetLastWeek = targetFirstWeek.add({ days: (weekCount - 1) * 7 });
-
-    let resolvedFirst: Temporal.PlainDate;
-    if (T.PlainDate.compare(targetLastWeek, lastValid) <= 0) {
-      // Target window fits within max — also check if it goes before min
-      const firstValid = findFirstValidWeekStart(min, weekStartDay, T);
-      if (T.PlainDate.compare(targetFirstWeek, firstValid) >= 0) {
-        resolvedFirst = targetFirstWeek;
-      } else {
-        // Overshoots min: snap forward so window starts at firstValid
-        resolvedFirst = firstValid;
-      }
-    } else {
-      // Overshoots max: snap back
-      resolvedFirst = snappedFirst;
-    }
-
-    if (behavior === "snap-shrink") {
-      return shrinkWindow(resolvedFirst, weekCount, min, max, T);
-    }
-    return { firstWeek: resolvedFirst, weekCount };
+  let resolvedFirst = targetFirstWeek;
+  if (lastValid && T.PlainDate.compare(targetLastWeek, lastValid) > 0) {
+    // Overshoots max: snap back so the window ends at the last in-range week
+    resolvedFirst = lastValid.subtract({ weeks: weekCount - 1 });
+  } else if (
+    firstValid &&
+    T.PlainDate.compare(targetFirstWeek, firstValid) < 0
+  ) {
+    // Overshoots min: snap forward so the window starts at the first in-range week
+    resolvedFirst = firstValid;
   }
 
-  return { firstWeek: targetFirstWeek, weekCount };
-}
-
-export interface CanShiftInput {
-  currentFirstWeek: Temporal.PlainDate;
-  weekCount: number;
-  direction: 1 | -1;
-  shiftBy?: number;
-  behavior: OutOfRangeBehavior;
-  min?: Temporal.PlainDate;
-  max?: Temporal.PlainDate;
-  weekStartDay: WeekStartDay;
-  T: TemporalNamespace;
-}
-
-/**
- * Returns whether the navigation button for the given direction should be enabled.
- */
-export function canShift({
-  currentFirstWeek,
-  weekCount,
-  direction,
-  shiftBy,
-  behavior,
-  min,
-  max,
-  weekStartDay,
-  T,
-}: CanShiftInput): boolean {
-  if (behavior === "unbounded" || !min || !max) {
-    return true;
+  if (behavior === "snap-shrink") {
+    return shrinkWindow(resolvedFirst, weekCount, min, max, T);
   }
-
-  const shift = shiftBy ?? weekCount;
-  const targetFirstWeek = currentFirstWeek.add({ days: direction * shift * 7 });
-
-  if (behavior === "stop" || behavior === "stop-shrink") {
-    // Check if any week in the target window has valid days
-    for (let i = 0; i < weekCount; i++) {
-      const ws = targetFirstWeek.add({ days: i * 7 });
-      if (weekHasValidDay(ws, min, max, T)) return true;
-    }
-    return false;
-  }
-
-  if (behavior === "snap" || behavior === "snap-shrink") {
-    // Disabled when the current position is already the snapped position
-    // (i.e. applying the out-of-range behavior to the target produces the same firstWeek)
-    const applied = applyOutOfRange({
-      targetFirstWeek,
-      weekCount,
-      behavior,
-      min,
-      max,
-      weekStartDay,
-      T,
-    });
-    return T.PlainDate.compare(applied.firstWeek, currentFirstWeek) !== 0;
-  }
-
-  return true;
+  return { firstWeek: resolvedFirst, weekCount };
 }
