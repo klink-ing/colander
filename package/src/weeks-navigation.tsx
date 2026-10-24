@@ -2,7 +2,6 @@ import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
 import React, { forwardRef, useMemo } from "react";
 import { useCalendarStable } from "./calendar-context";
-import { canShift } from "./out-of-range";
 import type { RootState, StateAttributesMapping } from "./types";
 import { useViewState } from "./view-context";
 import { useWeeksViewStable, useWeeksViewState } from "./weeks-view-context";
@@ -70,15 +69,8 @@ function useWeeksNavButton(
   direction: "prev" | "next",
   shiftByProp: number | undefined,
 ) {
-  const {
-    disabled: globalDisabled,
-    minValue,
-    maxValue,
-    temporal: T,
-    weekStartDay,
-  } = useCalendarStable();
-  const { weekCount, outOfRangeBehavior, goNext, goPrev } =
-    useWeeksViewStable();
+  const { disabled: globalDisabled } = useCalendarStable();
+  const { windowPolicy, goNext, goPrev } = useWeeksViewStable();
   const { windowInfo } = useWeeksViewState();
   const { rootState } = useViewState();
 
@@ -86,29 +78,12 @@ function useWeeksNavButton(
 
   const isDisabled = useMemo(() => {
     if (globalDisabled) return true;
-    return !canShift({
+    return !windowPolicy.canShift(
       currentFirstWeek,
-      weekCount,
-      direction: direction === "next" ? 1 : -1,
-      ...(shiftByProp !== undefined && { shiftBy: shiftByProp }),
-      behavior: outOfRangeBehavior,
-      ...(minValue !== undefined && { min: minValue }),
-      ...(maxValue !== undefined && { max: maxValue }),
-      weekStartDay,
-      T,
-    });
-  }, [
-    globalDisabled,
-    currentFirstWeek,
-    weekCount,
-    direction,
-    shiftByProp,
-    outOfRangeBehavior,
-    minValue,
-    maxValue,
-    weekStartDay,
-    T,
-  ]);
+      direction === "next" ? 1 : -1,
+      shiftByProp,
+    );
+  }, [globalDisabled, windowPolicy, currentFirstWeek, direction, shiftByProp]);
 
   const state = useMemo<WeeksNavButtonState>(
     () => ({ root: rootState, direction, disabled: isDisabled }),

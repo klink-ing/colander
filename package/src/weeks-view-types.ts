@@ -3,6 +3,7 @@ import type { WeekDescriptor } from "./compute-weeks-in-window";
 import type { OutOfRangeBehavior } from "./out-of-range";
 import type { FirstWeekSpec, ScrollToWeekSnap } from "./resolve-first-week";
 import type { RootState } from "./types";
+import type { WeekWindowPolicy } from "./weeks-window";
 
 // ---------------------------------------------------------------------------
 // WeeksView.Root props
@@ -63,7 +64,7 @@ export interface WindowInfo {
   windowStart: Temporal.PlainDate;
   /** The last date of the visible window. */
   windowEnd: Temporal.PlainDate;
-  /** Number of week rows in the window (the prop value, not actual when shrunk). */
+  /** Number of week rows actually shown (fewer than the `weekCount` prop when shrunk). */
   weekCount: number;
   /** Total number of calendar days in the window. */
   dayCount: number;
@@ -87,6 +88,8 @@ export interface WeeksViewStableContextValue {
   scrollBy: "row" | "page";
   /** How navigation behaves at bounds. */
   outOfRangeBehavior: OutOfRangeBehavior;
+  /** Where the window may sit given `min`/`max` and `outOfRangeBehavior`. */
+  windowPolicy: WeekWindowPolicy;
   /** Navigate to the next week(s). Optionally override the shift amount (in weeks). */
   goNext: (shiftBy?: number) => void;
   /** Navigate to the previous week(s). Optionally override the shift amount (in weeks). */
