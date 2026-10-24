@@ -22,7 +22,14 @@ import {
   shiftWindowToMonth,
   toZonedDateTime,
 } from "./utils";
-import { ViewContext, type ViewContextValue } from "./view-context";
+import {
+  ViewContext,
+  ViewStableContext,
+  ViewStateContext,
+  type ViewContextValue,
+  type ViewStableContextValue,
+  type ViewStateContextValue,
+} from "./view-context";
 
 // ---------------------------------------------------------------------------
 // MonthView.Root — placed inside CalendarProvider
@@ -424,10 +431,26 @@ function MonthViewRoot(props: MonthViewRootProps) {
     [focusedDate, tabTargetDate, gridHasFocus],
   );
 
+  const viewStableCtx = useMemo<ViewStableContextValue>(
+    () => ({ gridFocusedRef, outsideDays }),
+    [outsideDays],
+  );
+
+  const viewStateCtx = useMemo<ViewStateContextValue>(
+    () => ({ currentDateTime, rootState }),
+    [currentDateTime, rootState],
+  );
+
   return (
     <MonthViewStableContext.Provider value={stableCtx}>
       <MonthViewStateContext.Provider value={stateCtx}>
-        <ViewContext.Provider value={viewCtx}>{children}</ViewContext.Provider>
+        <ViewStableContext.Provider value={viewStableCtx}>
+          <ViewStateContext.Provider value={viewStateCtx}>
+            <ViewContext.Provider value={viewCtx}>
+              {children}
+            </ViewContext.Provider>
+          </ViewStateContext.Provider>
+        </ViewStableContext.Provider>
       </MonthViewStateContext.Provider>
     </MonthViewStableContext.Provider>
   );

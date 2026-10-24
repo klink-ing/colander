@@ -1,6 +1,5 @@
 import { mergeProps } from "@base-ui/react/merge-props";
 import { useRender } from "@base-ui/react/use-render";
-import type { Temporal } from "@js-temporal/polyfill";
 import {
   useContext,
   useMemo,
@@ -15,7 +14,6 @@ import { WeekDataContext, GridContext, GridMonthContext } from "./context";
 import { GridHeader, GridHeaderCell } from "./grid-header";
 import { computeNextFocusDate } from "./keyboard";
 import {
-  MonthViewStableContext,
   MonthViewStateContext,
   useMonthViewStable,
   useMonthViewState,
@@ -29,14 +27,10 @@ import type {
   WeekTemplateState,
   WeekTemplateProps,
 } from "./types";
-import { useViewContext } from "./view-context";
+import { ViewContext, useViewContext, useViewState } from "./view-context";
 import { WeeksGrid } from "./weeks-grid";
 import { computeWeeksKeyNav } from "./weeks-keyboard";
-import {
-  WeeksViewStateContext,
-  useWeeksViewState,
-  useWeeksViewStable,
-} from "./weeks-view-context";
+import { useWeeksViewState, useWeeksViewStable } from "./weeks-view-context";
 export { GridHeader, GridHeaderCell } from "./grid-header";
 export { DayCellTemplate, DayButton } from "./day-cell";
 
@@ -177,17 +171,19 @@ const gridStateAttributesMapping = {
  * delegates to the appropriate internal renderer.
  */
 function GridFn(props: GridProps, ref: React.ForwardedRef<HTMLTableElement>) {
-  const monthState = useContext(MonthViewStableContext);
-  const weeksState = useContext(WeeksViewStateContext);
+  const view = useContext(ViewContext);
 
-  if (monthState) {
-    return <MonthGrid ref={ref} {...props} />;
-  }
-  if (weeksState) {
-    return <WeeksViewGrid ref={ref} {...props} />;
+  if (!view) {
+    throw new Error(
+      "Grid must be used inside MonthView.Root or WeeksView.Root.",
+    );
   }
 
-  throw new Error("Grid must be used inside MonthView.Root or WeeksView.Root.");
+  return view.viewType === "weeks" ? (
+    <WeeksViewGrid ref={ref} {...props} />
+  ) : (
+    <MonthGrid ref={ref} {...props} />
+  );
 }
 
 export const Grid = forwardRef(GridFn) as (
@@ -361,7 +357,7 @@ function WeeksViewGridFn(
   const weeksStable = useWeeksViewStable();
   const weeksState = useWeeksViewState();
   const { gridFocusedRef } = weeksStable;
-  const { gridLabelIds, weeks, currentDateTime } = weeksState;
+  const { gridLabelIds, weeks } = weeksState;
 
   const handleKeyDown = useWeeksGridKeyboard();
   const gridRef = useRef<HTMLTableElement>(null);
@@ -453,45 +449,8 @@ function WeeksViewGridFn(
     [resolvedOrientation],
   );
 
-  // Provide a MonthViewStableContext shim so shared components
-  // (DayCellTemplate, DayButton, etc.) that read it can function in WeeksView.
-  const monthViewStableShim = useMemo(
-    () => ({
-      numberOfMonths: 1,
-      fixedWeeks: false,
-      outsideDays: "enabled" as const,
-      outOfRangeBehavior: "unbounded" as const,
-      goNextMonth: () => {},
-      goPrevMonth: () => {},
-      setGridLabelId: () => {},
-      gridFocusedRef,
-    }),
-    [gridFocusedRef],
-  );
-
-  // Provide a MonthViewStateContext shim with reasonable defaults derived
-  // from the WeeksView state so WeekTemplate/DayCellTemplate/DayButton work.
-  const monthViewStateShim = useMemo(
-    () => ({
-      currentMonth: {
-        year: currentDateTime.year,
-        month: currentDateTime.month,
-      },
-      weeks: [] as Temporal.PlainDate[][],
-      allMonths: [],
-      currentDateTime,
-      gridLabelIds,
-      rootState: weeksState.rootState,
-    }),
-    [currentDateTime, gridLabelIds, weeksState.rootState],
-  );
-
   return (
-    <MonthViewStableContext.Provider value={monthViewStableShim}>
-      <MonthViewStateContext.Provider value={monthViewStateShim}>
-        <GridContext.Provider value={orientationCtx}>{el}</GridContext.Provider>
-      </MonthViewStateContext.Provider>
-    </MonthViewStableContext.Provider>
+    <GridContext.Provider value={orientationCtx}>{el}</GridContext.Provider>
   );
 }
 
@@ -508,11 +467,11 @@ function GridBodyFn(
   props: GridBodyProps,
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
-  const weeksState = useContext(WeeksViewStateContext);
+  const view = useContext(ViewContext);
 
   // In WeeksView, delegate to WeeksGrid which handles week iteration
   // and MonthSeparator context provision.
-  if (weeksState) {
+  if (view?.viewType === "weeks") {
     const { children, className, style } = props as any;
     return (
       <WeeksGrid className={className} style={style}>
@@ -533,7 +492,7 @@ function MonthGridBodyFn(
   ref: React.ForwardedRef<HTMLTableSectionElement>,
 ) {
   const { render, ...otherProps } = props;
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewState();
 
   const state = useMemo<GridBodyState>(
     () => ({ root: rootState as unknown as GridBodyState["root"] }),
@@ -575,7 +534,7 @@ const weekInstanceStateAttributesMapping = {
 function WeekInstance(props: WeekTemplateProps) {
   const { render, ...otherProps } = props;
   const weekData = useContext(WeekDataContext)!;
-  const { rootState } = useMonthViewState();
+  const { rootState } = useViewState();
 
   const state = useMemo<WeekTemplateState>(
     () => ({
@@ -603,8 +562,8 @@ function WeekInstance(props: WeekTemplateProps) {
 export function WeekTemplate(props: WeekTemplateProps) {
   const outerWeekData = useContext(WeekDataContext);
   const gridMonthCtx = useContext(GridMonthContext);
-  const { weeks: defaultWeeks } = useMonthViewState();
-  const weeks = gridMonthCtx?.weeks ?? defaultWeeks;
+  const monthState = useContext(MonthViewStateContext);
+  const weeks = gridMonthCtx?.weeks ?? monthState?.weeks ?? [];
   const gridMonth = useMemo(
     () =>
       gridMonthCtx
