@@ -20,7 +20,7 @@ import {
   resolveFocusTarget,
   selectedToZdt,
   shiftWindowToMonth,
-  toZonedDateTime,
+  resolveInitialAnchor,
 } from "./utils";
 import {
   ViewContext,
@@ -57,7 +57,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
   const calState = useCalendarState();
 
   const T = calStable.temporal;
-  const { timeZone, weekStartDay, isDateDisabled } = calStable;
+  const { timeZone, today, weekStartDay, isDateDisabled } = calStable;
 
   // --- Month navigation state (controlled/uncontrolled) ---
   const isMonthControlled = monthProp !== undefined;
@@ -69,13 +69,8 @@ function MonthViewRoot(props: MonthViewRootProps) {
     if (monthProp) return { year: monthProp.year, month: monthProp.month };
     if (defaultMonthProp)
       return { year: defaultMonthProp.year, month: defaultMonthProp.month };
-    // Derive from selection or today
-    if (calState.selected) {
-      const zdt = toZonedDateTime(calState.selected, timeZone, T);
-      return { year: zdt.year, month: zdt.month };
-    }
-    const now = T.Now.zonedDateTimeISO(timeZone);
-    return { year: now.year, month: now.month };
+    const anchor = resolveInitialAnchor(calState.selected, today, timeZone, T);
+    return { year: anchor.year, month: anchor.month };
   });
 
   const currentMonth = isMonthControlled
@@ -83,12 +78,9 @@ function MonthViewRoot(props: MonthViewRootProps) {
     : internalMonth;
 
   // --- Focus state ---
-  const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() => {
-    if (calState.selected) {
-      return toZonedDateTime(calState.selected, timeZone, T).toPlainDate();
-    }
-    return T.Now.plainDateISO();
-  });
+  const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() =>
+    resolveInitialAnchor(calState.selected, today, timeZone, T),
+  );
 
   const [gridHasFocus, setGridHasFocus] = useState(false);
   const gridFocusedRef = useRef(false);
