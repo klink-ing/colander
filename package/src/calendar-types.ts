@@ -188,6 +188,8 @@ export interface CalendarStableContextValue {
   maxValue?: Temporal.PlainDate;
   /** Resolved IANA time zone. */
   timeZone: string;
+  /** Today's date in the resolved {@link timeZone}. Reads the clock on every call. */
+  today: () => Temporal.PlainDate;
   /** Resolved BCP 47 locale. */
   locale: string;
   /** Resolved Temporal namespace. */

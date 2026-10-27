@@ -9,7 +9,7 @@ import {
   type FirstWeekSpec,
 } from "./resolve-first-week";
 import type { RootState } from "./types";
-import { selectedToZdt, toZonedDateTime } from "./utils";
+import { resolveInitialAnchor, selectedToZdt } from "./utils";
 import type {
   ViewContextValue,
   ViewStableContextValue,
@@ -46,7 +46,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
   const calState = useCalendarState();
 
   const T = calStable.temporal;
-  const { weekStartDay, isDateDisabled, minValue, maxValue, timeZone } =
+  const { weekStartDay, isDateDisabled, minValue, maxValue, timeZone, today } =
     calStable;
 
   // --- Controlled/uncontrolled firstWeek ---
@@ -63,16 +63,9 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       if (firstWeekProp !== undefined) return resolveSpec(firstWeekProp);
       if (defaultFirstWeekProp !== undefined)
         return resolveSpec(defaultFirstWeekProp);
-      // Derive from selection or today
-      if (calState.selected) {
-        const plain = toZonedDateTime(
-          calState.selected,
-          timeZone,
-          T,
-        ).toPlainDate();
-        return resolveSpec(plain);
-      }
-      return resolveSpec(T.Now.plainDateISO());
+      return resolveSpec(
+        resolveInitialAnchor(calState.selected, today, timeZone, T),
+      );
     });
 
   const resolvedFirstWeek = isControlled
@@ -145,10 +138,10 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
     const firstWeek = weeks[0];
     const lastWeek = weeks[weeks.length - 1];
     if (firstWeek === undefined || lastWeek === undefined) {
-      const today = T.Now.plainDateISO();
+      const now = today();
       return {
-        windowStart: today,
-        windowEnd: today,
+        windowStart: now,
+        windowEnd: now,
         weekCount: 0,
         dayCount: 0,
         enabledWeekCount: 0,

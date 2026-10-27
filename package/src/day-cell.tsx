@@ -31,6 +31,7 @@ export function computeDayCellState(
   rangeStart: TemporalPoly.PlainDate | undefined,
   rangeEnd: TemporalPoly.PlainDate | undefined,
   tabTargetDate: TemporalPoly.PlainDate,
+  today: TemporalPoly.PlainDate,
   T: TemporalNamespace,
   selectionMode: "single" | "range" | "multiple",
   outsideDays: OutsideDays,
@@ -73,7 +74,6 @@ export function computeDayCellState(
     };
   }
 
-  const today = T.Now.plainDateISO();
   const isToday = T.PlainDate.compare(date, today) === 0;
   const isRange = selectionMode === "range";
 
@@ -389,8 +389,10 @@ export function DayCellTemplate(props: DayCellTemplateProps) {
     isDateDisabled,
     selectionMode,
     temporal: T,
+    today,
     weekStartDay,
   } = useCalendarStable();
+  const todayDate = today();
 
   const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
     useCalendarState();
@@ -429,6 +431,7 @@ export function DayCellTemplate(props: DayCellTemplateProps) {
       rangeStart,
       rangeEnd,
       tabTargetDate,
+      todayDate,
       T,
       selectionMode,
       outsideDays,
@@ -464,6 +467,7 @@ export function DayCellTemplate(props: DayCellTemplateProps) {
           rangeStart,
           rangeEnd,
           tabTargetDate,
+          todayDate,
           T,
           selectionMode,
           outsideDays,
@@ -659,8 +663,10 @@ function DayButtonFallbackFn(
     isDateDisabled,
     selectionMode,
     temporal: T,
+    today,
     weekStartDay,
   } = useCalendarStable();
+  const todayDate = today();
   const { selectedDates, rangeStart, rangeEnd, previewStart, previewEnd } =
     useCalendarState();
   const viewCtx = useViewContext();
@@ -688,6 +694,7 @@ function DayButtonFallbackFn(
     rangeStart,
     rangeEnd,
     tabTargetDate,
+    todayDate,
     T,
     selectionMode,
     outsideDays,

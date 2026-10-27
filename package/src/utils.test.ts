@@ -8,6 +8,7 @@ import {
   toZonedDateTime,
   fromZonedDateTime,
   selectedToZdt,
+  resolveInitialAnchor,
   getMonthWeeks,
   zdtToNativeDate,
   sameCalendarDay,
@@ -246,6 +247,30 @@ describe("selectedToZdt", () => {
     expect(result!.year).toBe(2026);
     expect(result!.month).toBe(3);
     expect(result!.day).toBe(15);
+  });
+});
+
+describe("resolveInitialAnchor", () => {
+  const today = () => Temporal.PlainDate.from("2026-04-01");
+
+  it.each([
+    {
+      description: "falls back to today when nothing is selected",
+      selected: undefined,
+      expected: "2026-04-01",
+    },
+    {
+      description: "uses the selected date over today",
+      selected: {
+        format: "PlainDate",
+        value: Temporal.PlainDate.from("2026-03-15"),
+      } as const,
+      expected: "2026-03-15",
+    },
+  ])("$description", ({ selected, expected }) => {
+    expect(resolveInitialAnchor(selected, today, "UTC", T).toString()).toBe(
+      expected,
+    );
   });
 });
 

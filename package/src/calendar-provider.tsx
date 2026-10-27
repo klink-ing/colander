@@ -55,6 +55,10 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
   const locale = localeProp ?? "en-US";
   const timeZone = timeZoneProp ?? getSystemTimeZone(T);
   const weekStartDay = weekStartDayProp ?? 0;
+  const today = useCallback(
+    () => T.Now.zonedDateTimeISO(timeZone).toPlainDate(),
+    [T, timeZone],
+  );
   const resolvedFormat = (formatProp ?? "PlainDate") as F;
   const selectionMode = selectionModeProp ?? "single";
   const disabled = disabledProp ?? false;
@@ -604,6 +608,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
       ...(minValue !== undefined && { minValue }),
       ...(maxValue !== undefined && { maxValue }),
       timeZone,
+      today,
       locale,
       temporal: T,
       weekStartDay,
@@ -622,6 +627,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
       minValue,
       maxValue,
       timeZone,
+      today,
       locale,
       T,
       weekStartDay,

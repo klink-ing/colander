@@ -40,6 +40,23 @@ export function getSystemTimeZone(T: TemporalNamespace): string {
 }
 
 /**
+ * The date a view opens on: the selected date, else today in the provider's time zone.
+ *
+ * @param selected - The currently selected value, or `undefined`.
+ * @param today - Reads today's date in the provider's time zone.
+ * @param timeZone - IANA time zone.
+ * @param T - Temporal namespace.
+ */
+export function resolveInitialAnchor(
+  selected: DateValueObject | undefined,
+  today: () => Temporal.PlainDate,
+  timeZone: string,
+  T: TemporalNamespace,
+): Temporal.PlainDate {
+  return selectedToZdt(selected, timeZone, T)?.toPlainDate() ?? today();
+}
+
+/**
  * Converts any {@link DateValueObject} into a `Temporal.ZonedDateTime`.
  *
  * Handles all supported value formats (`PlainDate`, `PlainDateTime`,
