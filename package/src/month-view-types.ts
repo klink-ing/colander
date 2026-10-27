@@ -1,4 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
+import type { MonthWindowPolicy } from "./month-window";
 import type { MonthOutOfRangeBehavior } from "./out-of-range";
 import type { MonthData, OutsideDays, RootState } from "./types";
 
@@ -71,6 +72,8 @@ export interface MonthViewStableContextValue {
   outsideDays: OutsideDays;
   /** How month navigation behaves at bounds. */
   outOfRangeBehavior: MonthOutOfRangeBehavior;
+  /** Steps and reveals the visible month window. */
+  windowPolicy: MonthWindowPolicy;
   /** Navigate to the next month(s). */
   goNextMonth: () => void;
   /** Navigate to the previous month(s). */

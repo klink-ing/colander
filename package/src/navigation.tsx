@@ -238,84 +238,25 @@ export const MonthYearString = forwardRef(MonthYearStringFn) as (
 ) => React.ReactElement | null;
 
 function useNavButton(direction: "prev" | "next") {
-  const {
-    disabled: globalDisabled,
-    minValue,
-    maxValue,
-    temporal: T,
-  } = useCalendarStable();
-  const monthViewStable = useMonthViewStable();
-  const monthViewState = useMonthViewState();
+  const { disabled: globalDisabled, temporal: T } = useCalendarStable();
   const {
     goNextMonth: goToNextMonth,
     goPrevMonth: goToPrevMonth,
-    numberOfMonths,
-    outOfRangeBehavior,
-  } = monthViewStable;
-  const {
-    currentMonth: currentDateTime,
-    allMonths,
-    rootState,
-  } = monthViewState;
+    windowPolicy,
+  } = useMonthViewStable();
+  const { currentMonth, rootState } = useMonthViewState();
 
-  // For "next", compute destination from the last visible month
-  // For "prev", compute destination from the first visible month
-  const refMonth =
-    direction === "next"
-      ? (allMonths[numberOfMonths - 1] ?? currentDateTime)
-      : currentDateTime;
+  const step = useMemo(
+    () => windowPolicy.step(currentMonth, direction),
+    [windowPolicy, currentMonth, direction],
+  );
+  const isDisabled = globalDisabled || step.blocked;
 
-  const destMonth =
-    direction === "prev"
-      ? refMonth.month === 1
-        ? 12
-        : refMonth.month - 1
-      : refMonth.month === 12
-        ? 1
-        : refMonth.month + 1;
-
-  const destYear =
-    direction === "prev"
-      ? refMonth.month === 1
-        ? refMonth.year - 1
-        : refMonth.year
-      : refMonth.month === 12
-        ? refMonth.year + 1
-        : refMonth.year;
-
-  const boundValue = direction === "prev" ? minValue : maxValue;
-
-  const isDisabled = useMemo(() => {
-    if (globalDisabled) return true;
-    // "unbounded" never disables on min/max — the bounds only gate which days
-    // are selectable, not which months can be viewed. "stop" halts navigation
-    // once the destination month crosses the boundary.
-    if (outOfRangeBehavior === "unbounded") return false;
-    if (!boundValue) return false;
-    if (direction === "prev") {
-      return (
-        destYear < boundValue.year ||
-        (destYear === boundValue.year && destMonth < boundValue.month)
-      );
-    }
-    return (
-      destYear > boundValue.year ||
-      (destYear === boundValue.year && destMonth > boundValue.month)
-    );
-  }, [
-    globalDisabled,
-    outOfRangeBehavior,
-    destYear,
-    destMonth,
-    boundValue,
-    direction,
-  ]);
-
-  // ISO — `destYear`/`destMonth` are ISO numbers; the locale calendar only
-  // affects display, so it must not be injected into this value.
+  // ISO — the locale calendar only affects display, so it must not be
+  // injected into this value.
   const target = useMemo(
-    () => T.PlainYearMonth.from({ year: destYear, month: destMonth }),
-    [destYear, destMonth, T],
+    () => T.PlainYearMonth.from(step.entering),
+    [step.entering, T],
   );
 
   const state = useMemo<NavButtonState>(
