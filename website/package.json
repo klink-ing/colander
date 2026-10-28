@@ -47,14 +47,13 @@
     "@testing-library/react": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@vitejs/plugin-react": "catalog:website",
+    "@vitejs/plugin-react": "catalog:",
     "jsdom": "catalog:",
     "tailwindcss": "catalog:",
     "ts-morph": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:website",
-    "vite-imagetools": "catalog:",
-    "vite-plus": "catalog:voidzero"
+    "vite-imagetools": "catalog:"
   }
 }

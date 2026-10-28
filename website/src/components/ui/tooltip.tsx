@@ -70,7 +70,7 @@ function TooltipContent({
             />
           )}
         >
-          <div className="scrollbar-track-background/20 z-20 h-full w-full overflow-auto squircle-[calc(var(--radius-md)-1px)] bg-card px-3 py-1.5 [scrollbar-color:var(--color-border)_transparent] [scrollbar-width:thin]">
+          <div className="z-20 h-full w-full [scrollbar-width:thin] scrollbar-track-background/20 [scrollbar-color:var(--color-border)_transparent] overflow-auto squircle-[calc(var(--radius-md)-1px)] bg-card px-3 py-1.5">
             {children}
           </div>
           <TooltipPrimitive.Arrow

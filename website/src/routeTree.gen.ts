@@ -9,19 +9,19 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DocsRouteImport } from './routes/docs'
-import { Route as DemoRouteImport } from './routes/demo'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DemoRouteImport } from './routes/demo'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
-import { Route as DocsWeeksViewRouteImport } from './routes/docs/weeks-view'
-import { Route as DocsMonthViewRouteImport } from './routes/docs/month-view'
-import { Route as DocsGettingStartedRouteImport } from './routes/docs/getting-started'
 import { Route as DocsCalendarProviderRouteImport } from './routes/docs/calendar-provider'
+import { Route as DocsGettingStartedRouteImport } from './routes/docs/getting-started'
+import { Route as DocsMonthViewRouteImport } from './routes/docs/month-view'
+import { Route as DocsWeeksViewRouteImport } from './routes/docs/weeks-view'
 import { Route as DocsApiSymbolRouteImport } from './routes/docs/api/$symbol'
 
-const DocsRoute = DocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DemoRoute = DemoRouteImport.update({
@@ -29,9 +29,9 @@ const DemoRoute = DemoRouteImport.update({
   path: '/demo',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DocsIndexRoute = DocsIndexRouteImport.update({
@@ -39,14 +39,9 @@ const DocsIndexRoute = DocsIndexRouteImport.update({
   path: '/',
   getParentRoute: () => DocsRoute,
 } as any)
-const DocsWeeksViewRoute = DocsWeeksViewRouteImport.update({
-  id: '/weeks-view',
-  path: '/weeks-view',
-  getParentRoute: () => DocsRoute,
-} as any)
-const DocsMonthViewRoute = DocsMonthViewRouteImport.update({
-  id: '/month-view',
-  path: '/month-view',
+const DocsCalendarProviderRoute = DocsCalendarProviderRouteImport.update({
+  id: '/calendar-provider',
+  path: '/calendar-provider',
   getParentRoute: () => DocsRoute,
 } as any)
 const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
@@ -54,9 +49,14 @@ const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
   path: '/getting-started',
   getParentRoute: () => DocsRoute,
 } as any)
-const DocsCalendarProviderRoute = DocsCalendarProviderRouteImport.update({
-  id: '/calendar-provider',
-  path: '/calendar-provider',
+const DocsMonthViewRoute = DocsMonthViewRouteImport.update({
+  id: '/month-view',
+  path: '/month-view',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsWeeksViewRoute = DocsWeeksViewRouteImport.update({
+  id: '/weeks-view',
+  path: '/weeks-view',
   getParentRoute: () => DocsRoute,
 } as any)
 const DocsApiSymbolRoute = DocsApiSymbolRouteImport.update({
@@ -141,11 +141,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/docs': {
-      id: '/docs'
-      path: '/docs'
-      fullPath: '/docs'
-      preLoaderRoute: typeof DocsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/demo': {
@@ -155,11 +155,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DemoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/docs/': {
@@ -169,18 +169,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsIndexRouteImport
       parentRoute: typeof DocsRoute
     }
-    '/docs/weeks-view': {
-      id: '/docs/weeks-view'
-      path: '/weeks-view'
-      fullPath: '/docs/weeks-view'
-      preLoaderRoute: typeof DocsWeeksViewRouteImport
-      parentRoute: typeof DocsRoute
-    }
-    '/docs/month-view': {
-      id: '/docs/month-view'
-      path: '/month-view'
-      fullPath: '/docs/month-view'
-      preLoaderRoute: typeof DocsMonthViewRouteImport
+    '/docs/calendar-provider': {
+      id: '/docs/calendar-provider'
+      path: '/calendar-provider'
+      fullPath: '/docs/calendar-provider'
+      preLoaderRoute: typeof DocsCalendarProviderRouteImport
       parentRoute: typeof DocsRoute
     }
     '/docs/getting-started': {
@@ -190,11 +183,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsGettingStartedRouteImport
       parentRoute: typeof DocsRoute
     }
-    '/docs/calendar-provider': {
-      id: '/docs/calendar-provider'
-      path: '/calendar-provider'
-      fullPath: '/docs/calendar-provider'
-      preLoaderRoute: typeof DocsCalendarProviderRouteImport
+    '/docs/month-view': {
+      id: '/docs/month-view'
+      path: '/month-view'
+      fullPath: '/docs/month-view'
+      preLoaderRoute: typeof DocsMonthViewRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/weeks-view': {
+      id: '/docs/weeks-view'
+      path: '/weeks-view'
+      fullPath: '/docs/weeks-view'
+      preLoaderRoute: typeof DocsWeeksViewRouteImport
       parentRoute: typeof DocsRoute
     }
     '/docs/api/$symbol': {

@@ -17,7 +17,7 @@
 }
 
 @import "./typography.css";
-@import "@klinking/squircle/tw-utils.css";
+@import "@klinking/squircle/tailwind/utils.css";
 
 @import "./breakpoints.gen.css";
 @import "./fluid.gen.css";
