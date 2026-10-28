@@ -74,3 +74,10 @@ peerDependencyRules:
   allowedVersions:
     vite: "*"
     vitest: "*"
+
+allowBuilds:
+  "@parcel/watcher": false
+  esbuild: true
+  lightningcss: true
+  msw: false
+  sharp: true

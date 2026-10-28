@@ -22,12 +22,5 @@
   "engines": {
     "node": ">=24.14.1"
   },
-  "packageManager": "pnpm@10.33.0",
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "lightningcss",
-      "sharp"
-    ]
-  }
+  "packageManager": "pnpm@11.28.9"
 }
