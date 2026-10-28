@@ -2,7 +2,7 @@ import type { Temporal } from "@js-temporal/polyfill";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { computeWeeksInWindow } from "./compute-weeks-in-window";
-import { applyOutOfRange, type OutOfRangeBehavior } from "./out-of-range";
+import type { OutOfRangeBehavior } from "./out-of-range";
 import {
   resolveFirstWeekSpec,
   resolveFirstWeek,
@@ -21,6 +21,7 @@ import type {
   WeeksViewStateContextValue,
   WindowInfo,
 } from "./weeks-view-types";
+import { createWeekWindowPolicy } from "./weeks-window";
 
 /**
  * Core state management hook for WeeksView.Root.
@@ -79,26 +80,22 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
   );
 
   // --- Apply out-of-range behavior ---
-  const outOfRangeResult = useMemo(
+  const windowPolicy = useMemo(
     () =>
-      applyOutOfRange({
-        targetFirstWeek: resolvedFirstWeek,
+      createWeekWindowPolicy({
         weekCount,
         behavior: outOfRangeBehavior,
-        ...(minValue !== undefined && { min: minValue }),
-        ...(maxValue !== undefined && { max: maxValue }),
+        min: minValue,
+        max: maxValue,
         weekStartDay,
         T,
       }),
-    [
-      resolvedFirstWeek,
-      weekCount,
-      outOfRangeBehavior,
-      minValue,
-      maxValue,
-      weekStartDay,
-      T,
-    ],
+    [weekCount, outOfRangeBehavior, minValue, maxValue, weekStartDay, T],
+  );
+
+  const outOfRangeResult = useMemo(
+    () => windowPolicy.resolve(resolvedFirstWeek),
+    [windowPolicy, resolvedFirstWeek],
   );
 
   // Recompute weeks if the out-of-range behavior adjusted the window
@@ -312,56 +309,20 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
 
   const goNext = useCallback(
     (shiftBy?: number) => {
-      const shift = shiftBy ?? weekCount;
-      const target = resolvedFirstWeek.add({ weeks: shift });
-      const adjusted = applyOutOfRange({
-        targetFirstWeek: target,
-        weekCount,
-        behavior: outOfRangeBehavior,
-        ...(minValue !== undefined && { min: minValue }),
-        ...(maxValue !== undefined && { max: maxValue }),
-        weekStartDay,
-        T,
-      });
-      updateFirstWeek(adjusted.firstWeek);
+      const target = resolvedFirstWeek.add({ weeks: shiftBy ?? weekCount });
+      updateFirstWeek(windowPolicy.resolve(target).firstWeek);
     },
-    [
-      resolvedFirstWeek,
-      weekCount,
-      outOfRangeBehavior,
-      minValue,
-      maxValue,
-      weekStartDay,
-      T,
-      updateFirstWeek,
-    ],
+    [resolvedFirstWeek, weekCount, windowPolicy, updateFirstWeek],
   );
 
   const goPrev = useCallback(
     (shiftBy?: number) => {
-      const shift = shiftBy ?? weekCount;
-      const target = resolvedFirstWeek.subtract({ weeks: shift });
-      const adjusted = applyOutOfRange({
-        targetFirstWeek: target,
-        weekCount,
-        behavior: outOfRangeBehavior,
-        ...(minValue !== undefined && { min: minValue }),
-        ...(maxValue !== undefined && { max: maxValue }),
-        weekStartDay,
-        T,
+      const target = resolvedFirstWeek.subtract({
+        weeks: shiftBy ?? weekCount,
       });
-      updateFirstWeek(adjusted.firstWeek);
+      updateFirstWeek(windowPolicy.resolve(target).firstWeek);
     },
-    [
-      resolvedFirstWeek,
-      weekCount,
-      outOfRangeBehavior,
-      minValue,
-      maxValue,
-      weekStartDay,
-      T,
-      updateFirstWeek,
-    ],
+    [resolvedFirstWeek, weekCount, windowPolicy, updateFirstWeek],
   );
 
   // --- scrollToWeek ---
@@ -370,35 +331,15 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       target: FirstWeekSpec,
       options?: { snap?: "start" | "center" | "end" | "nearest" },
     ) => {
-      const resolvedTarget = resolveSpec(target);
       const newFirstWeek = resolveFirstWeek(
         resolvedFirstWeek,
         weekCount,
-        resolvedTarget,
+        resolveSpec(target),
         options,
       );
-      const adjusted = applyOutOfRange({
-        targetFirstWeek: newFirstWeek,
-        weekCount,
-        behavior: outOfRangeBehavior,
-        ...(minValue !== undefined && { min: minValue }),
-        ...(maxValue !== undefined && { max: maxValue }),
-        weekStartDay,
-        T,
-      });
-      updateFirstWeek(adjusted.firstWeek);
+      updateFirstWeek(windowPolicy.resolve(newFirstWeek).firstWeek);
     },
-    [
-      resolvedFirstWeek,
-      weekCount,
-      resolveSpec,
-      outOfRangeBehavior,
-      minValue,
-      maxValue,
-      weekStartDay,
-      T,
-      updateFirstWeek,
-    ],
+    [resolvedFirstWeek, weekCount, resolveSpec, windowPolicy, updateFirstWeek],
   );
 
   // --- Fire onWindowChange ---
@@ -425,6 +366,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       weekCount,
       scrollBy,
       outOfRangeBehavior,
+      windowPolicy,
       goNext,
       goPrev,
       scrollToWeek,
@@ -435,6 +377,7 @@ export function useWeeksViewRootState(props: WeeksViewRootProps) {
       weekCount,
       scrollBy,
       outOfRangeBehavior,
+      windowPolicy,
       goNext,
       goPrev,
       scrollToWeek,
