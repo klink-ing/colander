@@ -1,0 +1,45 @@
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    # pnpm rejects packages younger than its 1-day minimumReleaseAge, so don't
+    # propose versions CI's frozen install would refuse.
+    cooldown:
+      default-days: 3
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+    ignore:
+      # Upgrade with `vp migrate`: it re-pins vite-plus and the
+      # npm:@voidzero-dev/vite-plus-core alias together, which must match.
+      - dependency-name: vite-plus
+      - dependency-name: "@voidzero-dev/*"
+      # TypeScript 7 has no classic compiler API, which
+      # package/scripts/generate-formats.ts and website/src/lib/strip-types.ts use.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+      # v10 needs @semantic-release/release-notes-generator 15 (beta as of
+      # 2026-10); 14.x renders empty release notes with it.
+      - dependency-name: conventional-changelog-conventionalcommits
+        update-types: ["version-update:semver-major"]
+      # Tracks the Node major in .node-version.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      github-actions:
+        patterns: ["*"]
