@@ -1,5 +1,5 @@
 import type { Temporal } from "@js-temporal/polyfill";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { CalendarProvider } from "./calendar-provider";
 import type { CalendarProviderProps } from "./calendar-types";
@@ -7,20 +7,19 @@ import {
   MonthViewStableContext,
   MonthViewStateContext,
 } from "./month-view-context";
+import { useMonthNavigation } from "./month-view-navigation";
 import type {
   MonthViewRootProps,
   MonthViewStableContextValue,
   MonthViewStateContextValue,
 } from "./month-view-types";
+import { createMonthWindowPolicy } from "./month-window";
 import type { MonthData, RootState, ValueFormat } from "./types";
 import {
-  computeAdjacentMonth,
-  focusedDateForMonth,
   getMonthWeeks,
   resolveFocusTarget,
-  selectedToZdt,
-  shiftWindowToMonth,
   resolveInitialAnchor,
+  selectedToZdt,
 } from "./utils";
 import {
   ViewContext,
@@ -59,24 +58,6 @@ function MonthViewRoot(props: MonthViewRootProps) {
   const T = calStable.temporal;
   const { timeZone, today, weekStartDay, isDateDisabled } = calStable;
 
-  // --- Month navigation state (controlled/uncontrolled) ---
-  const isMonthControlled = monthProp !== undefined;
-
-  const [internalMonth, setInternalMonth] = useState<{
-    year: number;
-    month: number;
-  }>(() => {
-    if (monthProp) return { year: monthProp.year, month: monthProp.month };
-    if (defaultMonthProp)
-      return { year: defaultMonthProp.year, month: defaultMonthProp.month };
-    const anchor = resolveInitialAnchor(calState.selected, today, timeZone, T);
-    return { year: anchor.year, month: anchor.month };
-  });
-
-  const currentMonth = isMonthControlled
-    ? { year: monthProp.year, month: monthProp.month }
-    : internalMonth;
-
   // --- Focus state ---
   const [focusedDate, setFocusedDate] = useState<Temporal.PlainDate>(() =>
     resolveInitialAnchor(calState.selected, today, timeZone, T),
@@ -84,6 +65,37 @@ function MonthViewRoot(props: MonthViewRootProps) {
 
   const [gridHasFocus, setGridHasFocus] = useState(false);
   const gridFocusedRef = useRef(false);
+
+  // --- Month window and navigation ---
+  const { minValue, maxValue } = calStable;
+  const windowPolicy = useMemo(
+    () =>
+      createMonthWindowPolicy({
+        numberOfMonths,
+        behavior: outOfRangeBehavior,
+        min: minValue,
+        max: maxValue,
+        T,
+      }),
+    [numberOfMonths, outOfRangeBehavior, minValue, maxValue, T],
+  );
+
+  const initialAnchor = useCallback(
+    () => resolveInitialAnchor(calState.selected, today, timeZone, T),
+    [calState.selected, today, timeZone, T],
+  );
+
+  const { currentMonth, viewingYearMonth, goNextMonth, goPrevMonth } =
+    useMonthNavigation({
+      month: monthProp,
+      defaultMonth: defaultMonthProp,
+      initialAnchor,
+      onMonthChange,
+      policy: windowPolicy,
+      focusedDate,
+      setFocusedDate,
+      T,
+    });
 
   // --- Grid label IDs ---
   const [gridLabelIds, setGridLabelIds] = useState<Record<number, string>>({});
@@ -102,162 +114,6 @@ function MonthViewRoot(props: MonthViewRootProps) {
     },
     [],
   );
-
-  // Always-current ref so callbacks/effects don't re-subscribe on every
-  // onMonthChange identity change.
-  const onMonthChangeRef = useRef(onMonthChange);
-  onMonthChangeRef.current = onMonthChange;
-
-  // Request the parent move the view to `{year, month}` (controlled mode).
-  // Built in ISO — `year`/`month` are ISO numbers, and the locale calendar
-  // only affects display (see MonthYearString). Passing `calendar` here would
-  // reinterpret the ISO numbers as locale-calendar fields (e.g. Buddhist),
-  // shifting the value by centuries.
-  const notifyMonth = useCallback(
-    (year: number, month: number) => {
-      onMonthChangeRef.current?.(T.PlainYearMonth.from({ year, month }));
-    },
-    [T],
-  );
-
-  // Whether `{year, month}` falls within the currently displayed window.
-  const isMonthVisible = useCallback(
-    (targetYear: number, targetMonth: number) => {
-      for (let i = 0; i < numberOfMonths; i++) {
-        const totalMonths =
-          currentMonth.year * 12 + (currentMonth.month - 1) + i;
-        const y = Math.floor(totalMonths / 12);
-        const m = (totalMonths % 12) + 1;
-        if (targetYear === y && targetMonth === m) return true;
-      }
-      return false;
-    },
-    [currentMonth.year, currentMonth.month, numberOfMonths],
-  );
-
-  // --- navigateToMonth: shift the window by the minimum needed to reveal the
-  // target month (keeps keyboard crossing symmetric with the Prev/Next
-  // buttons, which step one month at a time). ---
-  const navigateToMonth = useCallback(
-    (targetYear: number, targetMonth: number) => {
-      if (isMonthControlled) return; // controlled mode: parent manages
-      setInternalMonth((prev) => {
-        const next = shiftWindowToMonth(
-          prev,
-          { year: targetYear, month: targetMonth },
-          numberOfMonths,
-        );
-        if (next.year === prev.year && next.month === prev.month) return prev;
-        return next;
-      });
-    },
-    [isMonthControlled, numberOfMonths],
-  );
-
-  // Button navigation in controlled mode notifies the parent directly, then
-  // moves focus into the target month. This ref holds that focus value so the
-  // focus-sync effect skips re-notifying for it. Keyed by the value (not a
-  // one-shot flag) so it can't strand and suppress a later keyboard crossing
-  // if the button's focus move is a no-op or the parent ignores the change.
-  const skipFocusSyncForRef = useRef<Temporal.PlainDate | null>(null);
-  const prevFocusedRef = useRef(focusedDate);
-
-  // Clear a stale skip target whenever the parent actually moves the view.
-  useEffect(() => {
-    skipFocusSyncForRef.current = null;
-  }, [monthProp?.year, monthProp?.month]);
-
-  // Sync month when the focused date crosses a month boundary. Uncontrolled:
-  // shift internal state. Controlled: ask the parent to move the view, but
-  // only when focus actually moved out of the visible window (keyboard nav) —
-  // never as an echo of an external `month` update or a button click.
-  useEffect(() => {
-    const prevFocused = prevFocusedRef.current;
-    prevFocusedRef.current = focusedDate;
-    if (isMonthControlled) {
-      if (skipFocusSyncForRef.current === focusedDate) {
-        skipFocusSyncForRef.current = null;
-        return;
-      }
-      if (prevFocused === focusedDate) return;
-      if (isMonthVisible(focusedDate.year, focusedDate.month)) return;
-      // Emit the minimally-shifted first-visible month (what the parent binds
-      // to `month`), not the focused month — so a controlled window scrolls by
-      // the minimum, matching uncontrolled mode and the nav buttons.
-      const next = shiftWindowToMonth(
-        { year: currentMonth.year, month: currentMonth.month },
-        { year: focusedDate.year, month: focusedDate.month },
-        numberOfMonths,
-      );
-      notifyMonth(next.year, next.month);
-      return;
-    }
-    navigateToMonth(focusedDate.year, focusedDate.month);
-  }, [
-    focusedDate,
-    navigateToMonth,
-    isMonthControlled,
-    isMonthVisible,
-    notifyMonth,
-    currentMonth.year,
-    currentMonth.month,
-    numberOfMonths,
-  ]);
-
-  // --- Month navigation callbacks ---
-  const goNextMonth = useCallback(() => {
-    if (isMonthControlled) {
-      const { year, month, firstDay } = computeAdjacentMonth(
-        { year: monthProp!.year, month: monthProp!.month },
-        "next",
-        T,
-      );
-      // Notify the parent directly; the follow-on focus move is suppressed in
-      // the focus-sync effect (keyed on the value) so onMonthChange fires once.
-      const nextFocus = focusedDateForMonth(
-        focusedDate,
-        { year, month },
-        firstDay,
-      );
-      skipFocusSyncForRef.current = nextFocus;
-      notifyMonth(year, month);
-      setFocusedDate(nextFocus);
-      return;
-    }
-    setInternalMonth((m) => {
-      const { year, month, firstDay } = computeAdjacentMonth(m, "next", T);
-      setFocusedDate((prev) =>
-        focusedDateForMonth(prev, { year, month }, firstDay),
-      );
-      return { year, month };
-    });
-  }, [T, isMonthControlled, monthProp, notifyMonth, focusedDate]);
-
-  const goPrevMonth = useCallback(() => {
-    if (isMonthControlled) {
-      const { year, month, firstDay } = computeAdjacentMonth(
-        { year: monthProp!.year, month: monthProp!.month },
-        "prev",
-        T,
-      );
-      const nextFocus = focusedDateForMonth(
-        focusedDate,
-        { year, month },
-        firstDay,
-      );
-      skipFocusSyncForRef.current = nextFocus;
-      notifyMonth(year, month);
-      setFocusedDate(nextFocus);
-      return;
-    }
-    setInternalMonth((m) => {
-      const { year, month, firstDay } = computeAdjacentMonth(m, "prev", T);
-      setFocusedDate((prev) =>
-        focusedDateForMonth(prev, { year, month }, firstDay),
-      );
-      return { year, month };
-    });
-  }, [T, isMonthControlled, monthProp, notifyMonth, focusedDate]);
 
   // --- Grid computation ---
   const allMonths = useMemo<MonthData[]>(() => {
@@ -340,32 +196,6 @@ function MonthViewRoot(props: MonthViewRootProps) {
     ],
   );
 
-  // --- viewingYearMonth (for the render-prop rootState) ---
-  // ISO — the locale calendar only affects display, not this value.
-  const viewingYearMonth = useMemo(
-    () =>
-      T.PlainYearMonth.from({
-        year: currentMonth.year,
-        month: currentMonth.month,
-      }),
-    [currentMonth, T],
-  );
-
-  // --- Fire onMonthChange when uncontrolled navigation moves the view (not on
-  // mount). In controlled mode the parent owns `month`, so notification flows
-  // from button clicks (goNext/goPrevMonth) and the focus-sync effect instead;
-  // firing here would just echo the parent's own update back to it. ---
-  const mountedRef = useRef(false);
-
-  useEffect(() => {
-    if (!mountedRef.current) {
-      mountedRef.current = true;
-      return;
-    }
-    if (isMonthControlled) return;
-    onMonthChangeRef.current?.(viewingYearMonth);
-  }, [viewingYearMonth, isMonthControlled]);
-
   // --- rootState (for render functions) ---
   const rootState = useMemo<RootState>(
     () => ({
@@ -383,6 +213,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
       fixedWeeks,
       outsideDays,
       outOfRangeBehavior,
+      windowPolicy,
       goNextMonth,
       goPrevMonth,
       setGridLabelId,
@@ -393,6 +224,7 @@ function MonthViewRoot(props: MonthViewRootProps) {
       fixedWeeks,
       outsideDays,
       outOfRangeBehavior,
+      windowPolicy,
       goNextMonth,
       goPrevMonth,
       setGridLabelId,
