@@ -148,6 +148,7 @@ export function useMonthNavigation(
     (direction: "prev" | "next") => {
       if (isControlled) {
         const step = policy.step(month, direction);
+        if (step.blocked) return;
         // Notify the parent directly; the follow-on focus move is suppressed in
         // the focus-sync effect (keyed on the value) so onMonthChange fires once.
         const nextFocus = focusedDateForMonth(
@@ -162,6 +163,7 @@ export function useMonthNavigation(
       }
       setInternalMonth((m) => {
         const step = policy.step(m, direction);
+        if (step.blocked) return m;
         setFocusedDate((prev) =>
           focusedDateForMonth(prev, step.start, step.firstDay),
         );
