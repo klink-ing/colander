@@ -7,63 +7,8 @@ import type {
   TemporalNamespace,
   ValueChangeMeta,
   ValueFormat,
-  WeekStartDay,
-  OutsideDays,
 } from "./types";
 import { fromZonedDateTime } from "./utils";
-
-export interface UseRootStateParamsBase<F extends ValueFormat> {
-  format: F;
-  min?: RawValueForFormat<F>;
-  max?: RawValueForFormat<F>;
-  disabled: boolean;
-  readOnly: boolean;
-  isDateDisabled?: (date: Temporal.PlainDate) => boolean;
-  timeZone: string;
-  locale: string;
-  temporal: TemporalNamespace;
-  weekStartDay: WeekStartDay;
-  fixedWeeks: boolean;
-  numberOfMonths: number;
-  outsideDays: OutsideDays;
-  onMonthChange?: (month: Temporal.PlainYearMonth) => void;
-}
-
-export type UseRootStateParams<F extends ValueFormat> =
-  UseRootStateParamsBase<F> &
-    (
-      | {
-          selectionMode: "single";
-          value?: RawValueForFormat<F> | null;
-          defaultValue?: RawValueForFormat<F>;
-          onValueChange?: (
-            value: RawValueForFormat<F> | null,
-            meta: ValueChangeMeta<RawValueForFormat<F> | null>,
-          ) => void;
-        }
-      | {
-          selectionMode: "range";
-          value?: DateRange<F> | null;
-          defaultValue?: DateRange<F>;
-          onValueChange?: (
-            value: DateRange<F> | null,
-            meta: ValueChangeMeta<DateRange<F> | null>,
-          ) => void;
-          rangeMode?: RangeMode;
-          preventRangeReversal?: boolean;
-          previewRange?: DateRange<F> | null;
-          onHoveredDateChange?: (date: Temporal.PlainDate | undefined) => void;
-        }
-      | {
-          selectionMode: "multiple";
-          value?: RawValueForFormat<F>[] | null;
-          defaultValue?: RawValueForFormat<F>[];
-          onValueChange?: (
-            value: RawValueForFormat<F>[],
-            meta: ValueChangeMeta<RawValueForFormat<F>[]>,
-          ) => void;
-        }
-    );
 
 /** Construct a DateRange (workaround for TS generic conditional type widening). */
 function mkRange<F extends ValueFormat>(
@@ -85,6 +30,22 @@ export function tagRaw<F extends ValueFormat>(
 ): DateValueObject | undefined {
   if (raw == null) return undefined;
   return { format, value: raw } as DateValueObject;
+}
+
+/**
+ * Decodes a range value into committed dates. An empty range is `[]`; a range
+ * with only an end is `[end, null]` (pending start, so the end is still the
+ * anchor of the next click).
+ */
+export function decodeRange<F extends ValueFormat>(
+  range: DateRange<F>,
+  toPlain: (raw: RawValueForFormat<F>) => Temporal.PlainDate,
+): (Temporal.PlainDate | null)[] {
+  const start = range.start != null ? toPlain(range.start) : null;
+  const end = range.end != null ? toPlain(range.end) : null;
+  if (start === null && end === null) return [];
+  if (start === null && end !== null) return [end, null];
+  return [start, end];
 }
 
 /** Resolve a `RangeMode` to a concrete "start" | "end" | "reset" action for inside-range clicks. */
@@ -639,10 +600,79 @@ export function truncateDatesForMode<F extends ValueFormat>(opts: {
   return clamped;
 }
 
+/** Inputs shared by the provider's hover preview and the public {@link computePreviewRange}. */
+export interface RangePreviewInput {
+  hoveredDate: Temporal.PlainDate;
+  committedDates: readonly (Temporal.PlainDate | null)[];
+  rangeMode: RangeMode;
+  allowRangeReversal: boolean;
+  readOnly: boolean;
+  isDateDisabled: (date: Temporal.PlainDate) => boolean;
+  T: TemporalNamespace;
+}
+
+/**
+ * The range a click on `hoveredDate` would produce, or `null` when the click
+ * would do nothing (read-only, disabled date). One path for both the
+ * provider's own preview and the public {@link computePreviewRange}.
+ */
+export function computeRangePreview(
+  input: RangePreviewInput,
+): [Temporal.PlainDate, Temporal.PlainDate] | null {
+  const {
+    hoveredDate,
+    committedDates,
+    rangeMode,
+    allowRangeReversal,
+    readOnly,
+    isDateDisabled,
+    T,
+  } = input;
+
+  const committedStart = committedDates[0] ?? undefined;
+  const committedEnd =
+    committedDates.length > 1
+      ? (committedDates[committedDates.length - 1] ?? undefined)
+      : committedStart;
+
+  // The preview never emits a value, so the formatting and time-zone inputs
+  // of a real selection are unused.
+  const unused = () => [] as never;
+  const result = computeSelectionUpdate<"PlainDate">({
+    date: hoveredDate,
+    readOnly,
+    isDateDisabled,
+    isMultiple: false,
+    isRange: true,
+    committedDates,
+    committedStart,
+    committedEnd,
+    selectedZdt: undefined,
+    rangeMode,
+    allowRangeReversal,
+    sortDates: (d) => [...d].sort((a, b) => T.PlainDate.compare(a, b)),
+    currentSingleFormatted: unused,
+    currentRangeFormatted: unused,
+    currentMultipleFormatted: unused,
+    resolvedFormat: "PlainDate",
+    timeZone: "UTC",
+    T,
+  });
+
+  if (result.skip || result.newDates.length === 0) return null;
+  const start = result.newDates[0];
+  const end = result.newDates.length > 1 ? result.newDates[1] : start;
+  if (start == null || end == null) return null;
+  return [start, end];
+}
+
 /**
  * Pure utility that computes the preview range for a hovered date, using the
- * same logic as the internal hook. Useful for deriving the preview in an
- * `onHoveredDateChange` handler without needing a controlled `previewRange`.
+ * same logic as the built-in hover preview. Useful for deriving the preview in
+ * an `onHoveredDateChange` handler without needing a controlled `previewRange`.
+ *
+ * Pass `options.isDateDisabled` and `options.readOnly` to match a calendar that
+ * disables dates or is read-only; by default every date is selectable.
  */
 export function computePreviewRange(
   hoveredDate: Temporal.PlainDate,
@@ -650,6 +680,10 @@ export function computePreviewRange(
   rangeMode: RangeMode,
   preventRangeReversal = false,
   T?: TemporalNamespace,
+  options: {
+    isDateDisabled?: (date: Temporal.PlainDate) => boolean;
+    readOnly?: boolean;
+  } = {},
 ): DateRange<"PlainDate"> | null {
   const Temporal: TemporalNamespace = T ?? (globalThis as any).Temporal;
   if (!Temporal) {
@@ -658,48 +692,16 @@ export function computePreviewRange(
     );
   }
 
-  const rawStart =
-    currentRange?.start != null
-      ? Temporal.PlainDate.from(currentRange.start as any)
-      : null;
-  const rawEnd =
-    currentRange?.end != null
-      ? Temporal.PlainDate.from(currentRange.end as any)
-      : null;
-  // Normalize {start: null, end} → [end, null] (pending start)
-  const committedDates = currentRange
-    ? rawStart === null && rawEnd !== null
-      ? ([rawEnd, null] as const)
-      : ([rawStart, rawEnd] as const)
-    : ([] as const);
-  const committedStart = committedDates[0] ?? undefined;
-  const committedEnd = committedDates[1] ?? undefined;
-
-  const noop = () => [] as any;
-  const result = computeSelectionUpdate<"PlainDate">({
-    date: hoveredDate,
-    readOnly: false,
-    isDateDisabled: () => false,
-    isMultiple: false,
-    isRange: true,
-    committedDates,
-    committedStart,
-    committedEnd,
-    selectedZdt: undefined,
+  const preview = computeRangePreview({
+    hoveredDate,
+    committedDates: currentRange
+      ? decodeRange(currentRange, (raw) => Temporal.PlainDate.from(raw as any))
+      : [],
     rangeMode,
     allowRangeReversal: !preventRangeReversal,
-    sortDates: (d) => [...d].sort((a, b) => Temporal.PlainDate.compare(a, b)),
-    currentSingleFormatted: noop,
-    currentRangeFormatted: () => currentRange as DateRange<"PlainDate"> | null,
-    currentMultipleFormatted: noop,
-    resolvedFormat: "PlainDate",
-    timeZone: "UTC",
+    readOnly: options.readOnly ?? false,
+    isDateDisabled: options.isDateDisabled ?? (() => false),
     T: Temporal,
   });
-
-  if (result.skip || result.newDates.length === 0) return null;
-  const start = result.newDates[0];
-  const end = result.newDates.length > 1 ? result.newDates[1] : start;
-  if (start == null || end == null) return null;
-  return mkRange<"PlainDate">(start, end);
+  return preview ? mkRange<"PlainDate">(preview[0], preview[1]) : null;
 }
