@@ -12,8 +12,10 @@ import type {
 import {
   isDateRange,
   tagRaw,
+  computeRangePreview,
   computeSelectionUpdate,
   computeSetRangeUpdate,
+  decodeRange,
   truncateDatesForMode,
   type SelectionResult,
 } from "./root-selection";
@@ -180,14 +182,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
     }
     if (isRange) {
       if (rangeValue === null) return [];
-      if (rangeValue) {
-        const start =
-          rangeValue.start != null ? rawToPlain(rangeValue.start) : null;
-        const end = rangeValue.end != null ? rawToPlain(rangeValue.end) : null;
-        if (start === null && end === null) return [];
-        if (start === null && end !== null) return [end, null];
-        return [start, end];
-      }
+      if (rangeValue) return decodeRange(rangeValue, rawToPlain);
       return undefined;
     }
     if (singleValue === null) return [];
@@ -237,15 +232,7 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
       if (multipleDefault) return sortDates(multipleDefault.map(rawToPlain));
       return [];
     }
-    if (rangeDefault) {
-      const start =
-        rangeDefault.start != null ? rawToPlain(rangeDefault.start) : null;
-      const end =
-        rangeDefault.end != null ? rawToPlain(rangeDefault.end) : null;
-      if (start === null && end === null) return [];
-      if (start === null && end !== null) return [end, null];
-      return [start, end];
-    }
+    if (rangeDefault) return decodeRange(rangeDefault, rawToPlain);
     if (singleDefault != null) return [rawToPlain(singleDefault)];
     return [];
   }, [
@@ -366,52 +353,27 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
   >(() => {
     if (previewRangeProp !== undefined) {
       if (!previewRangeProp) return [undefined, undefined];
-      const rawToPlainLocal = (
-        raw: RawValueForFormat<F>,
-      ): Temporal.PlainDate => {
-        const tagged = {
-          format: resolvedFormat,
-          value: raw,
-        } as DateValueObject;
-        return toZonedDateTime(tagged, timeZone, T).toPlainDate();
-      };
       const s =
         previewRangeProp.start != null
-          ? rawToPlainLocal(previewRangeProp.start)
+          ? rawToPlain(previewRangeProp.start)
           : undefined;
       const e =
         previewRangeProp.end != null
-          ? rawToPlainLocal(previewRangeProp.end)
+          ? rawToPlain(previewRangeProp.end)
           : undefined;
       return [s, e];
     }
     if (!hoveredDate || !isRange) return [undefined, undefined];
-    const result = computeSelectionUpdate<F>({
-      date: hoveredDate,
+    const preview = computeRangePreview({
+      hoveredDate,
       readOnly,
       isDateDisabled,
-      isMultiple: false,
-      isRange: true,
       committedDates,
-      committedStart,
-      committedEnd,
-      selectedZdt: undefined,
       rangeMode,
       allowRangeReversal,
-      sortDates,
-      currentSingleFormatted,
-      currentRangeFormatted,
-      currentMultipleFormatted,
-      resolvedFormat,
-      timeZone,
       T,
     });
-    if (result.skip || result.newDates.length === 0)
-      return [undefined, undefined];
-    const ps = result.newDates[0];
-    const pe = result.newDates.length > 1 ? result.newDates[1] : ps;
-    if (ps == null || pe == null) return [undefined, undefined];
-    return [ps, pe];
+    return preview ?? [undefined, undefined];
   }, [
     previewRangeProp,
     hoveredDate,
@@ -419,16 +381,9 @@ function CalendarProvider<F extends ValueFormat = "PlainDate">(
     readOnly,
     isDateDisabled,
     committedDates,
-    committedStart,
-    committedEnd,
     rangeMode,
     allowRangeReversal,
-    sortDates,
-    currentSingleFormatted,
-    currentRangeFormatted,
-    currentMultipleFormatted,
-    resolvedFormat,
-    timeZone,
+    rawToPlain,
     T,
   ]);
 
