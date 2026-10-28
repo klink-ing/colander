@@ -2,7 +2,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import {
   DayButton,
   DayCellTemplate,

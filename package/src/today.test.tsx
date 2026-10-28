@@ -1,6 +1,13 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { render, screen, cleanup } from "@testing-library/react";
-import { describe, it, expect, vi, afterEach, beforeEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  afterEach,
+  beforeEach,
+} from "vite-plus/test";
 import {
   Grid,
   GridBody,

@@ -4,7 +4,7 @@
  */
 
 import { Temporal } from "@js-temporal/polyfill";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 
 type Edge = "start" | "end";
 

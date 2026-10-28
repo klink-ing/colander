@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { createMonthWindowPolicy } from "./month-window";
 import type { MonthWindowPolicyInput } from "./month-window";
 

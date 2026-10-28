@@ -1,6 +1,6 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { act, cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vite-plus/test";
 import { MonthView } from "./month-view";
 import type { MonthViewProps } from "./month-view";
 import { useMonthViewStable, useMonthViewState } from "./month-view-context";

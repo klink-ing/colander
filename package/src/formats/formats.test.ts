@@ -1,6 +1,6 @@
 /// <reference types="vite/client" />
 import * as root from "@klinking/colander";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 
 const formatModules = import.meta.glob<Record<string, unknown>>(
   ["./*.ts", "!./*.test.ts"],

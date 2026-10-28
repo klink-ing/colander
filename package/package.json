@@ -139,15 +139,13 @@
     "@types/react-dom": "catalog:",
     "@vitejs/plugin-react": "catalog:voidzero",
     "jsdom": "catalog:",
-    "oxlint": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "rollup-plugin-visualizer": "catalog:",
     "tsx": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:voidzero",
-    "vite-plus": "catalog:voidzero",
-    "vitest": "catalog:voidzero"
+    "vite-plus": "catalog:voidzero"
   },
   "peerDependencies": {
     "@base-ui/react": ">=1.0.0",

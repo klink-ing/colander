@@ -2,7 +2,7 @@ import { Temporal } from "@js-temporal/polyfill";
 import { render, act } from "@testing-library/react";
 import { useState } from "react";
 // @vitest-environment jsdom
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "vite-plus/test";
 import { useCalendarStable } from "./calendar-context";
 import { Grid } from "./grid";
 import { MonthView } from "./month-view";

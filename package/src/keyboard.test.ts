@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vite-plus/test";
 import { computeNextFocusDate, computeMonthJumpTarget } from "./keyboard";
 import type { KeyboardNavInput } from "./keyboard";
 import { temporalVariants } from "./test-temporal";

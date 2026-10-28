@@ -1,5 +1,5 @@
 import { Temporal } from "@js-temporal/polyfill";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vite-plus/test";
 import { computeDayCellState, dayCellStateEqual } from "./day-cell-state";
 import type { DayCellInputs } from "./day-cell-state";
 import type { OutsideDays } from "./types";

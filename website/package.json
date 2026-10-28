@@ -55,6 +55,6 @@
     "typescript": "catalog:",
     "vite": "catalog:website",
     "vite-imagetools": "catalog:",
-    "vitest": "catalog:website"
+    "vite-plus": "catalog:voidzero"
   }
 }

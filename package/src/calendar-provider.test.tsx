@@ -1,7 +1,7 @@
 import { Temporal } from "@js-temporal/polyfill";
 import { render, act, cleanup } from "@testing-library/react";
 import type { ComponentProps } from "react";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vite-plus/test";
 import { useCalendarStable, useCalendarState } from "./calendar-context";
 import { CalendarProvider } from "./calendar-provider";
 

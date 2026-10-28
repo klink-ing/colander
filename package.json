@@ -17,7 +17,7 @@
     "eslint-plugin-tailwind-canonical-classes": "catalog:",
     "semantic-release": "catalog:",
     "tsx": "catalog:",
-    "vite-plus": "catalog:"
+    "vite-plus": "catalog:voidzero"
   },
   "engines": {
     "node": ">=24.14.1"

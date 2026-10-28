@@ -7,7 +7,7 @@ import {
   fireEvent,
   within,
 } from "@testing-library/react";
-import { describe, it, expect, vi, afterEach } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vite-plus/test";
 import {
   Grid,
   GridBody,

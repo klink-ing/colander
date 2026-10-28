@@ -2,7 +2,13 @@ import { Temporal } from "@js-temporal/polyfill";
 import { render, act, fireEvent } from "@testing-library/react";
 import { Profiler, type ProfilerOnRenderCallback } from "react";
 // @vitest-environment jsdom
-import { describe, it, expect, beforeAll, type TestOptions } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  type TestOptions,
+} from "vite-plus/test";
 
 const perfOptions: TestOptions = { retry: 3 };
 import { Grid } from "./grid";
