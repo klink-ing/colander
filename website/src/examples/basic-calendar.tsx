@@ -1,7 +1,9 @@
-import type { Temporal } from "@js-temporal/polyfill";
+import { Temporal } from "@js-temporal/polyfill";
 import {
-  CalendarProvider,
   MonthView,
+  PrevMonthButton,
+  MonthYearString,
+  NextMonthButton,
   Grid,
   GridHeader,
   GridHeaderCell,
@@ -17,21 +19,26 @@ export function BasicCalendar({
   onSelect?: (value: Temporal.PlainDate | null) => void;
 }) {
   return (
-    <CalendarProvider format="PlainDate" onValueChange={onSelect}>
-      <MonthView>
-        <Grid>
+    <MonthView temporal={Temporal} onValueChange={onSelect}>
+      <div className="calendar">
+        <div className="calendar-header">
+          <PrevMonthButton className="calendar-nav">‹</PrevMonthButton>
+          <MonthYearString className="calendar-title" />
+          <NextMonthButton className="calendar-nav">›</NextMonthButton>
+        </div>
+        <Grid className="calendar-grid">
           <GridHeader>
-            <GridHeaderCell />
+            <GridHeaderCell className="calendar-weekday" />
           </GridHeader>
           <GridBody>
             <WeekTemplate>
               <DayCellTemplate>
-                <DayButton />
+                <DayButton className="calendar-day" />
               </DayCellTemplate>
             </WeekTemplate>
           </GridBody>
         </Grid>
-      </MonthView>
-    </CalendarProvider>
+      </div>
+    </MonthView>
   );
 }

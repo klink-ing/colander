@@ -14,9 +14,15 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DocsIndexRouteImport } from './routes/docs/index'
 import { Route as DocsWeeksViewRouteImport } from './routes/docs/weeks-view'
+import { Route as DocsStylingRouteImport } from './routes/docs/styling'
+import { Route as DocsSelectionModesRouteImport } from './routes/docs/selection-modes'
+import { Route as DocsQuickStartRouteImport } from './routes/docs/quick-start'
 import { Route as DocsMonthViewRouteImport } from './routes/docs/month-view'
-import { Route as DocsGettingStartedRouteImport } from './routes/docs/getting-started'
+import { Route as DocsIntroductionRouteImport } from './routes/docs/introduction'
+import { Route as DocsDatesAndFormatsRouteImport } from './routes/docs/dates-and-formats'
+import { Route as DocsCompositionRouteImport } from './routes/docs/composition'
 import { Route as DocsCalendarProviderRouteImport } from './routes/docs/calendar-provider'
+import { Route as DocsAccessibilityRouteImport } from './routes/docs/accessibility'
 import { Route as DocsApiSymbolRouteImport } from './routes/docs/api/$symbol'
 
 const DocsRoute = DocsRouteImport.update({
@@ -44,19 +50,49 @@ const DocsWeeksViewRoute = DocsWeeksViewRouteImport.update({
   path: '/weeks-view',
   getParentRoute: () => DocsRoute,
 } as any)
+const DocsStylingRoute = DocsStylingRouteImport.update({
+  id: '/styling',
+  path: '/styling',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsSelectionModesRoute = DocsSelectionModesRouteImport.update({
+  id: '/selection-modes',
+  path: '/selection-modes',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsQuickStartRoute = DocsQuickStartRouteImport.update({
+  id: '/quick-start',
+  path: '/quick-start',
+  getParentRoute: () => DocsRoute,
+} as any)
 const DocsMonthViewRoute = DocsMonthViewRouteImport.update({
   id: '/month-view',
   path: '/month-view',
   getParentRoute: () => DocsRoute,
 } as any)
-const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
-  id: '/getting-started',
-  path: '/getting-started',
+const DocsIntroductionRoute = DocsIntroductionRouteImport.update({
+  id: '/introduction',
+  path: '/introduction',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsDatesAndFormatsRoute = DocsDatesAndFormatsRouteImport.update({
+  id: '/dates-and-formats',
+  path: '/dates-and-formats',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsCompositionRoute = DocsCompositionRouteImport.update({
+  id: '/composition',
+  path: '/composition',
   getParentRoute: () => DocsRoute,
 } as any)
 const DocsCalendarProviderRoute = DocsCalendarProviderRouteImport.update({
   id: '/calendar-provider',
   path: '/calendar-provider',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsAccessibilityRoute = DocsAccessibilityRouteImport.update({
+  id: '/accessibility',
+  path: '/accessibility',
   getParentRoute: () => DocsRoute,
 } as any)
 const DocsApiSymbolRoute = DocsApiSymbolRouteImport.update({
@@ -69,9 +105,15 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRouteWithChildren
+  '/docs/accessibility': typeof DocsAccessibilityRoute
   '/docs/calendar-provider': typeof DocsCalendarProviderRoute
-  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/composition': typeof DocsCompositionRoute
+  '/docs/dates-and-formats': typeof DocsDatesAndFormatsRoute
+  '/docs/introduction': typeof DocsIntroductionRoute
   '/docs/month-view': typeof DocsMonthViewRoute
+  '/docs/quick-start': typeof DocsQuickStartRoute
+  '/docs/selection-modes': typeof DocsSelectionModesRoute
+  '/docs/styling': typeof DocsStylingRoute
   '/docs/weeks-view': typeof DocsWeeksViewRoute
   '/docs/': typeof DocsIndexRoute
   '/docs/api/$symbol': typeof DocsApiSymbolRoute
@@ -79,9 +121,15 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
+  '/docs/accessibility': typeof DocsAccessibilityRoute
   '/docs/calendar-provider': typeof DocsCalendarProviderRoute
-  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/composition': typeof DocsCompositionRoute
+  '/docs/dates-and-formats': typeof DocsDatesAndFormatsRoute
+  '/docs/introduction': typeof DocsIntroductionRoute
   '/docs/month-view': typeof DocsMonthViewRoute
+  '/docs/quick-start': typeof DocsQuickStartRoute
+  '/docs/selection-modes': typeof DocsSelectionModesRoute
+  '/docs/styling': typeof DocsStylingRoute
   '/docs/weeks-view': typeof DocsWeeksViewRoute
   '/docs': typeof DocsIndexRoute
   '/docs/api/$symbol': typeof DocsApiSymbolRoute
@@ -91,9 +139,15 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/demo': typeof DemoRoute
   '/docs': typeof DocsRouteWithChildren
+  '/docs/accessibility': typeof DocsAccessibilityRoute
   '/docs/calendar-provider': typeof DocsCalendarProviderRoute
-  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/composition': typeof DocsCompositionRoute
+  '/docs/dates-and-formats': typeof DocsDatesAndFormatsRoute
+  '/docs/introduction': typeof DocsIntroductionRoute
   '/docs/month-view': typeof DocsMonthViewRoute
+  '/docs/quick-start': typeof DocsQuickStartRoute
+  '/docs/selection-modes': typeof DocsSelectionModesRoute
+  '/docs/styling': typeof DocsStylingRoute
   '/docs/weeks-view': typeof DocsWeeksViewRoute
   '/docs/': typeof DocsIndexRoute
   '/docs/api/$symbol': typeof DocsApiSymbolRoute
@@ -104,9 +158,15 @@ export interface FileRouteTypes {
     | '/'
     | '/demo'
     | '/docs'
+    | '/docs/accessibility'
     | '/docs/calendar-provider'
-    | '/docs/getting-started'
+    | '/docs/composition'
+    | '/docs/dates-and-formats'
+    | '/docs/introduction'
     | '/docs/month-view'
+    | '/docs/quick-start'
+    | '/docs/selection-modes'
+    | '/docs/styling'
     | '/docs/weeks-view'
     | '/docs/'
     | '/docs/api/$symbol'
@@ -114,9 +174,15 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/demo'
+    | '/docs/accessibility'
     | '/docs/calendar-provider'
-    | '/docs/getting-started'
+    | '/docs/composition'
+    | '/docs/dates-and-formats'
+    | '/docs/introduction'
     | '/docs/month-view'
+    | '/docs/quick-start'
+    | '/docs/selection-modes'
+    | '/docs/styling'
     | '/docs/weeks-view'
     | '/docs'
     | '/docs/api/$symbol'
@@ -125,9 +191,15 @@ export interface FileRouteTypes {
     | '/'
     | '/demo'
     | '/docs'
+    | '/docs/accessibility'
     | '/docs/calendar-provider'
-    | '/docs/getting-started'
+    | '/docs/composition'
+    | '/docs/dates-and-formats'
+    | '/docs/introduction'
     | '/docs/month-view'
+    | '/docs/quick-start'
+    | '/docs/selection-modes'
+    | '/docs/styling'
     | '/docs/weeks-view'
     | '/docs/'
     | '/docs/api/$symbol'
@@ -176,6 +248,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsWeeksViewRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/docs/styling': {
+      id: '/docs/styling'
+      path: '/styling'
+      fullPath: '/docs/styling'
+      preLoaderRoute: typeof DocsStylingRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/selection-modes': {
+      id: '/docs/selection-modes'
+      path: '/selection-modes'
+      fullPath: '/docs/selection-modes'
+      preLoaderRoute: typeof DocsSelectionModesRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/quick-start': {
+      id: '/docs/quick-start'
+      path: '/quick-start'
+      fullPath: '/docs/quick-start'
+      preLoaderRoute: typeof DocsQuickStartRouteImport
+      parentRoute: typeof DocsRoute
+    }
     '/docs/month-view': {
       id: '/docs/month-view'
       path: '/month-view'
@@ -183,11 +276,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsMonthViewRouteImport
       parentRoute: typeof DocsRoute
     }
-    '/docs/getting-started': {
-      id: '/docs/getting-started'
-      path: '/getting-started'
-      fullPath: '/docs/getting-started'
-      preLoaderRoute: typeof DocsGettingStartedRouteImport
+    '/docs/introduction': {
+      id: '/docs/introduction'
+      path: '/introduction'
+      fullPath: '/docs/introduction'
+      preLoaderRoute: typeof DocsIntroductionRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/dates-and-formats': {
+      id: '/docs/dates-and-formats'
+      path: '/dates-and-formats'
+      fullPath: '/docs/dates-and-formats'
+      preLoaderRoute: typeof DocsDatesAndFormatsRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/composition': {
+      id: '/docs/composition'
+      path: '/composition'
+      fullPath: '/docs/composition'
+      preLoaderRoute: typeof DocsCompositionRouteImport
       parentRoute: typeof DocsRoute
     }
     '/docs/calendar-provider': {
@@ -195,6 +302,13 @@ declare module '@tanstack/react-router' {
       path: '/calendar-provider'
       fullPath: '/docs/calendar-provider'
       preLoaderRoute: typeof DocsCalendarProviderRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/accessibility': {
+      id: '/docs/accessibility'
+      path: '/accessibility'
+      fullPath: '/docs/accessibility'
+      preLoaderRoute: typeof DocsAccessibilityRouteImport
       parentRoute: typeof DocsRoute
     }
     '/docs/api/$symbol': {
@@ -208,18 +322,30 @@ declare module '@tanstack/react-router' {
 }
 
 interface DocsRouteChildren {
+  DocsAccessibilityRoute: typeof DocsAccessibilityRoute
   DocsCalendarProviderRoute: typeof DocsCalendarProviderRoute
-  DocsGettingStartedRoute: typeof DocsGettingStartedRoute
+  DocsCompositionRoute: typeof DocsCompositionRoute
+  DocsDatesAndFormatsRoute: typeof DocsDatesAndFormatsRoute
+  DocsIntroductionRoute: typeof DocsIntroductionRoute
   DocsMonthViewRoute: typeof DocsMonthViewRoute
+  DocsQuickStartRoute: typeof DocsQuickStartRoute
+  DocsSelectionModesRoute: typeof DocsSelectionModesRoute
+  DocsStylingRoute: typeof DocsStylingRoute
   DocsWeeksViewRoute: typeof DocsWeeksViewRoute
   DocsIndexRoute: typeof DocsIndexRoute
   DocsApiSymbolRoute: typeof DocsApiSymbolRoute
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
+  DocsAccessibilityRoute: DocsAccessibilityRoute,
   DocsCalendarProviderRoute: DocsCalendarProviderRoute,
-  DocsGettingStartedRoute: DocsGettingStartedRoute,
+  DocsCompositionRoute: DocsCompositionRoute,
+  DocsDatesAndFormatsRoute: DocsDatesAndFormatsRoute,
+  DocsIntroductionRoute: DocsIntroductionRoute,
   DocsMonthViewRoute: DocsMonthViewRoute,
+  DocsQuickStartRoute: DocsQuickStartRoute,
+  DocsSelectionModesRoute: DocsSelectionModesRoute,
+  DocsStylingRoute: DocsStylingRoute,
   DocsWeeksViewRoute: DocsWeeksViewRoute,
   DocsIndexRoute: DocsIndexRoute,
   DocsApiSymbolRoute: DocsApiSymbolRoute,
