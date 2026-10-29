@@ -74,16 +74,25 @@ function useWeeksNavButton(
   const { windowInfo } = useWeeksViewState();
   const { rootState } = useViewState();
 
-  const currentFirstWeek = windowInfo.windowStart;
+  const { windowStart, weekCount } = windowInfo;
 
   const isDisabled = useMemo(() => {
     if (globalDisabled) return true;
-    return !windowPolicy.canShift(
-      currentFirstWeek,
-      direction === "next" ? 1 : -1,
-      shiftByProp,
+    return (
+      windowPolicy.shift(
+        { firstWeek: windowStart, weekCount },
+        direction === "next" ? 1 : -1,
+        shiftByProp,
+      ) === null
     );
-  }, [globalDisabled, windowPolicy, currentFirstWeek, direction, shiftByProp]);
+  }, [
+    globalDisabled,
+    windowPolicy,
+    windowStart,
+    weekCount,
+    direction,
+    shiftByProp,
+  ]);
 
   const state = useMemo<WeeksNavButtonState>(
     () => ({ root: rootState, direction, disabled: isDisabled }),
